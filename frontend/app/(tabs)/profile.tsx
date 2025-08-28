@@ -17,6 +17,7 @@ const PRESETS = [
 ];
 
 export default function ProfileScreen() {
+  console.log("🏠 ProfileScreen rendering...");
   const { user, signOut, palette, setPalette, token } = useAuth();
   const { syncEnabled, setSyncEnabled, wsEnabled, setWsEnabled } = useRuntimeConfig();
   const { tasks } = useTasks();
