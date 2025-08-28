@@ -8,7 +8,10 @@ export function TaskCard({ task, onIncrement, onDelete }: { task: any; onIncreme
   return (
     <View style={styles.card}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.title}>{task.title}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+          {ratio >= 1 ? <Ionicons name="trophy" size={18} color="#FFE3A3" style={{ marginRight: 6 }} /> : null}
+          <Text style={styles.title}>{task.title}</Text>
+        </View>
         <ProgressBar progress={ratio} color={task.color || "#7C9EFF"} />
         <Text style={styles.meta}>{task.progress} / {task.goal}</Text>
       </View>
