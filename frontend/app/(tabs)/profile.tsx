@@ -1,10 +1,11 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from "react-native";
 import { useAuth } from "../../src/context/AuthContext";
 import { useTasks } from "../../src/context/TasksContext";
 import { ProgressBar } from "../../src/components/ProgressBar";
 import { useStreak } from "../../src/hooks/useStreak";
 import { useFocusEffect } from "@react-navigation/native";
+import { makeBackup, restoreBackup, resetAll } from "../../src/utils/backup";
 
 const PRESETS = [
   { primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" },
@@ -22,8 +23,32 @@ export default function ProfileScreen() {
 
   useFocusEffect(React.useCallback(() => { refresh(); }, [refresh]));
 
+  const onBackup = async () => {
+    try {
+      await makeBackup();
+    } catch (e) {
+      Alert.alert("Backup failed", "Could not create backup file.");
+    }
+  };
+
+  const onRestore = async () => {
+    try {
+      const ok = await restoreBackup();
+      Alert.alert(ok ? "Restored" : "Cancelled", ok ? "Data restored. Please restart the app to see changes." : "No file selected.");
+    } catch (e) {
+      Alert.alert("Restore failed", "Invalid file or read error.");
+    }
+  };
+
+  const onReset = async () => {
+    Alert.alert("Reset all data?", "This will clear tasks, chats, friends, posts, and theme.", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Reset", style: "destructive", onPress: async () => { await resetAll(); Alert.alert("Cleared", "Local data has been removed"); } },
+    ]);
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ padding: 16, paddingBottom: 80 }}>
       <Text style={styles.title}>{user?.name || "You"}</Text>
       <Text style={styles.meta}>Streak: {streak} days</Text>
 
@@ -46,21 +71,36 @@ export default function ProfileScreen() {
         </View>
       </View>
 
+      <View style={{ marginTop: 24, gap: 12 }}>
+        <Text style={styles.sectionTitle}>Data Tools</Text>
+        <TouchableOpacity style={[styles.btn, { backgroundColor: '#A3C9FF' }]} onPress={onBackup}>
+          <Text style={styles.btnTextDark}>Backup to JSON</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.btn, { backgroundColor: '#B8F1D9' }]} onPress={onRestore}>
+          <Text style={styles.btnTextDark}>Restore from JSON</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.btn, { backgroundColor: '#FFCFE1' }]} onPress={onReset}>
+          <Text style={styles.btnTextDark}>Reset Demo Data</Text>
+        </TouchableOpacity>
+      </View>
+
       <TouchableOpacity style={[styles.signOutBtn, { backgroundColor: palette.primary }]} onPress={signOut}>
         <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0c0c0c", padding: 16 },
+  container: { flex: 1, backgroundColor: "#0c0c0c" },
   title: { color: "#fff", fontSize: 22, fontWeight: "700" },
   meta: { color: "#bdbdbd", marginTop: 6 },
   sectionTitle: { color: "#fff", fontSize: 18, fontWeight: "700", marginBottom: 10 },
   paletteRow: { flexDirection: "row", justifyContent: "space-between" },
   paletteItem: { backgroundColor: "#111", padding: 10, borderRadius: 12, flexDirection: "row", gap: 8 },
   swatch: { width: 20, height: 20, borderRadius: 6 },
-  signOutBtn: { position: 'absolute', left: 16, right: 16, bottom: 24, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
+  btn: { paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
+  btnTextDark: { color: '#0c0c0c', fontWeight: '800' },
+  signOutBtn: { marginTop: 24, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
   signOutText: { color: '#0c0c0c', fontWeight: '700' },
 });
