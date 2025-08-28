@@ -137,7 +137,7 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
             console.log("✅ Bulk presence processed:", map);
           } else if (data.type === "friends:list:update") {
             refresh();
-            console.log("✅ Friends list update processed");
+            console.log("✅ Friends list update processed - refreshing data");
           } else {
             console.log("🤷 Unknown WebSocket message type:", data.type);
           }
