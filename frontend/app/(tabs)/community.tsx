@@ -75,6 +75,6 @@ const styles = StyleSheet.create({
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: 12, backgroundColor: '#111', flexDirection: 'row', gap: 8, borderTopWidth: 1, borderTopColor: '#1a1a1a' },
   input: { flex: 1, backgroundColor: '#1a1a1a', color: '#fff', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: '#222' },
   sendBtn: { backgroundColor: '#B8F1D9', paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
-  emojiBtn: { padding: 6 },
+  iconBtn: { padding: 6 },
   emoji: { fontSize: 18 },
 });
