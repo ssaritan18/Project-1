@@ -40,19 +40,26 @@ ONLINE: Set[str] = set()
 
 async def ws_broadcast_to_user(user_id: str, payload: Dict[str, Any]):
   conns = CONNECTIONS.get(user_id)
+  logger.info(f"🔔 Broadcasting to user {user_id}: {payload}. Active connections: {len(conns) if conns else 0}")
   if not conns:
+    logger.warning(f"❌ No WebSocket connections found for user {user_id}")
     return
   dead = []
+  sent_count = 0
   for ws in list(conns):
     try:
       await ws.send_json(payload)
-    except Exception:
+      sent_count += 1
+      logger.info(f"✅ Message sent to WebSocket connection for user {user_id}")
+    except Exception as e:
+      logger.error(f"❌ Failed to send to WebSocket for user {user_id}: {e}")
       dead.append(ws)
   for d in dead:
     try:
       conns.remove(d)
     except Exception:
       pass
+  logger.info(f"📊 Broadcast summary for user {user_id}: {sent_count} sent, {len(dead)} dead connections removed")
 
 async def ws_broadcast_to_friends(user_id: str, payload: Dict[str, Any]):
   user = await db.users.find_one({"_id": user_id})
