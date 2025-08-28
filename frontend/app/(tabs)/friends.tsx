@@ -4,14 +4,65 @@ import { useFriends } from "../../src/context/FriendsContext";
 import { FlashList } from "@shopify/flash-list";
 import { Ionicons } from "@expo/vector-icons";
 import { useRuntimeConfig } from "../../src/context/RuntimeConfigContext";
+import { api } from "../../src/lib/api";
+import { Toast } from "../../src/components/Toast";
 
 export default function FriendsScreen() {
   const { friends, requests, posts, sendRequest, acceptRequest, rejectRequest, addPost, reactPost, refresh } = useFriends();
   const { syncEnabled } = useRuntimeConfig();
-  const [friendEmail, setFriendEmail] = React.useState("");
+  const [friendQuery, setFriendQuery] = React.useState("");
   const [postText, setPostText] = React.useState("");
+  const [toast, setToast] = React.useState<{ visible: boolean; text: string }>({ visible: false, text: "" });
+  const prevReqCount = React.useRef<number>(requests.length);
 
   React.useEffect(() => { refresh(); }, [refresh]);
+
+  React.useEffect(() => {
+    if (requests.length > prevReqCount.current) {
+      setToast({ visible: true, text: "New friend request arrived" });
+      setTimeout(() => setToast({ visible: false, text: "" }), 1200);
+    }
+    prevReqCount.current = requests.length;
+  }, [requests.length]);
+
+  const addFriend = async () => {
+    const q = friendQuery.trim();
+    if (!q) return;
+    try {
+      if (syncEnabled) {
+        if (q.includes("@")) {
+          await sendRequest(q);
+          setToast({ visible: true, text: `Request sent to ${q}` });
+        } else {
+          const res = await api.get("/friends/find", { params: { q } });
+          const email = res.data?.user?.email;
+          if (!email) throw new Error("No email associated");
+          await sendRequest(email);
+          setToast({ visible: true, text: `Request sent to ${res.data.user.name || email}` });
+        }
+      } else {
+        await sendRequest(q);
+        setToast({ visible: true, text: `Request queued for ${q}` });
+      }
+    } catch (e: any) {
+      setToast({ visible: true, text: e?.response?.data?.detail || "User not found" });
+    } finally {
+      setTimeout(() => setToast({ visible: false, text: "" }), 1400);
+      setFriendQuery("");
+    }
+  };
+
+  const onAccept = async (id: string) => {
+    await acceptRequest(id);
+    setToast({ visible: true, text: "Friend added" });
+    setTimeout(() => setToast({ visible: false, text: "" }), 1000);
+  };
+
+  const onReject = async (id: string) => {
+    await rejectRequest(id);
+    setToast({ visible: true, text: "Request rejected" });
+    setTimeout(() => setToast({ visible: false, text: "" }), 1000);
+  };
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
@@ -19,8 +70,8 @@ export default function FriendsScreen() {
         <Text style={styles.header}>Friends {syncEnabled ? "(Online)" : "(Local)"}</Text>
 
         <View style={styles.row}>
-          <TextInput style={styles.input} placeholder="Add friend by email" placeholderTextColor="#777" value={friendEmail} onChangeText={setFriendEmail} />
-          <TouchableOpacity style={styles.actionBtn} onPress={() => { if (friendEmail.trim()) { sendRequest(friendEmail.trim()); setFriendEmail(""); } }}>
+          <TextInput style={styles.input} placeholder="Add by name or email" placeholderTextColor="#777" value={friendQuery} onChangeText={setFriendQuery} />
+          <TouchableOpacity style={styles.actionBtn} onPress={addFriend}>
             <Ionicons name="person-add" size={20} color="#000" />
           </TouchableOpacity>
         </View>
@@ -32,10 +83,10 @@ export default function FriendsScreen() {
               <View key={r.id} style={styles.itemRow}>
                 <Text style={styles.itemText}>{r.from}</Text>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <TouchableOpacity style={styles.acceptBtn} onPress={() => acceptRequest(r.id)}>
+                  <TouchableOpacity style={styles.acceptBtn} onPress={() => onAccept(r.id)}>
                     <Text style={{ color: '#000', fontWeight: '700' }}>Accept</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.rejectBtn} onPress={() => rejectRequest(r.id)}>
+                  <TouchableOpacity style={styles.rejectBtn} onPress={() => onReject(r.id)}>
                     <Text style={{ color: '#000', fontWeight: '700' }}>Reject</Text>
                   </TouchableOpacity>
                 </View>
@@ -87,6 +138,8 @@ export default function FriendsScreen() {
             )}
           />
         </View>
+
+        <Toast visible={toast.visible} text={toast.text} />
       </View>
     </KeyboardAvoidingView>
   );

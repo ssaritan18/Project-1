@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends, Request
+from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends, Request, Query
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -29,7 +29,7 @@ ACCESS_EXPIRES_DAYS = 7
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Create the main app without a prefix
-app = FastAPI(title="ADHDers API", version="0.2.1")
+app = FastAPI(title="ADHDers API", version="0.2.2")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -240,12 +240,33 @@ async def update_me(update: UserProfileUpdate, user=Depends(get_current_user)):
     return {"updated": True, "user": user}
 
 # --- Friends ---
+@api_router.get("/friends/find")
+async def friends_find(q: str = Query(..., min_length=1), user=Depends(get_current_user)):
+    query = q.strip()
+    if "@" in query:
+        u = await db.users.find_one({"email": query.lower()})
+        if not u:
+            raise HTTPException(status_code=404, detail="User not found")
+        return {"user": {"_id": u["_id"], "name": u.get("name"), "email": u.get("email")}}
+    # name search (case-insensitive contains)
+    cursor = db.users.find({"name": {"$regex": query, "$options": "i"}}).limit(2)
+    items = await cursor.to_list(2)
+    if not items:
+        raise HTTPException(status_code=404, detail="User not found")
+    if len(items) > 1:
+        # ambiguous; return first match but indicate ambiguous
+        u = items[0]
+        return {"user": {"_id": u["_id"], "name": u.get("name"), "email": u.get("email")}, "ambiguous": True}
+    u = items[0]
+    return {"user": {"_id": u["_id"], "name": u.get("name"), "email": u.get("email")}}
+
 @api_router.post("/friends/request")
 async def create_friend_request(payload: FriendRequestReq, user=Depends(get_current_user)):
     to = await db.users.find_one({"email": payload.to_email.lower()})
     if not to:
         raise HTTPException(status_code=404, detail="User not found")
-    # prevent duplicates
+    if to["_id"] == user["_id"]:
+        raise HTTPException(status_code=400, detail="Cannot add yourself")
     existing = await db.friend_requests.find_one({"from_user_id": user["_id"], "to_user_id": to["_id"], "status": "pending"})
     if existing:
         return existing
@@ -265,7 +286,6 @@ async def accept_friend_request(payload: FriendAcceptReq, user=Depends(get_curre
     if not fr or fr.get("to_user_id") != user["_id"]:
         raise HTTPException(status_code=404, detail="Request not found")
     await db.friend_requests.update_one({"_id": fr["_id"]}, {"$set": {"status": "accepted", "updated_at": now_iso()}})
-    # add each other
     await db.users.update_one({"_id": user["_id"]}, {"$addToSet": {"friends": fr["from_user_id"]}})
     await db.users.update_one({"_id": fr["from_user_id"]}, {"$addToSet": {"friends": user["_id"]}})
     return {"accepted": True}
