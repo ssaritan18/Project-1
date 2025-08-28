@@ -115,6 +115,14 @@ export default function ProfileScreen() {
         </View>
       </View>
 
+      {/* DEBUG: Simple test button */}
+      <TouchableOpacity 
+        style={{ backgroundColor: 'red', padding: 20, margin: 10, alignItems: 'center' }}
+        onPress={() => Alert.alert("TEST", "Simple button works!")}
+      >
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>TEST BUTTON</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={[styles.signOutBtn, { backgroundColor: palette.primary }]} onPress={async () => {
         console.log("🚪 Sign Out button clicked!");
         Alert.alert("Debug", "Sign Out button works!");
