@@ -159,8 +159,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // eslint-disable-next-line semi
   const signOut = async () => {
+    console.log("🚪 signOut called");
     setAuthed(false); setUser(null); setToken(null); setAuthToken(null);
-    if (PERSIST_ENABLED) { await AsyncStorage.removeItem(KEYS.user); await AsyncStorage.removeItem(KEYS.token); }
+    console.log("🔄 State cleared, removing from storage...");
+    if (PERSIST_ENABLED) { 
+      await AsyncStorage.removeItem(KEYS.user); 
+      await AsyncStorage.removeItem(KEYS.token);
+      console.log("✅ SignOut completed - storage cleared");
+    }
   };
 
   const value = useMemo(() => ({ isAuthed, user, palette, token, setPalette, signIn, register, login, resetCredentials, signOut }), [isAuthed, user, palette, token]);
