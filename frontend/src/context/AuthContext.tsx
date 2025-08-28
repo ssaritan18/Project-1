@@ -11,13 +11,22 @@ export type User = {
 
 export type Palette = { primary: string; secondary: string; accent: string };
 
+export type Credentials = {
+  email: string;
+  password: string; // Offline-only MVP (PIN or password). Not secure; stored locally.
+};
+
 type AuthContextType = {
   isAuthed: boolean;
   user: User | null;
   palette: Palette;
-  signIn: (user: Partial<User>) => Promise<void>;
-  signOut: () => Promise<void>;
   setPalette: (p: Palette) => void;
+  // Quick sign-in (legacy continue)
+  signIn: (user: Partial<User>) => Promise<void>;
+  // Auth flows
+  register: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -53,6 +62,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (PERSIST_ENABLED) await saveJSON(KEYS.user, cleaned);
   };
 
+  const register = async (name: string, email: string, password: string) => {
+    const newUser: User = { name: name.trim() || "You", email: email.trim() };
+    const creds: Credentials = { email: email.trim(), password };
+    setUser(newUser);
+    setAuthed(true);
+    if (PERSIST_ENABLED) {
+      await saveJSON(KEYS.user, newUser);
+      await saveJSON(KEYS.credentials, creds);
+    }
+  };
+
+  const login = async (email: string, password: string) => {
+    let ok = false;
+    if (PERSIST_ENABLED) {
+      const stored = await loadJSON<Credentials | null>(KEYS.credentials, null);
+      if (stored && stored.email?.toLowerCase() === email.trim().toLowerCase() && stored.password === password) {
+        ok = true;
+        const storedUser = await loadJSON<User | null>(KEYS.user, null);
+        if (storedUser) {
+          setUser(storedUser);
+          setAuthed(true);
+          return;
+        }
+      }
+    }
+    // If not using persistence or no creds, allow fallback: quick local sign-in
+    if (!ok) {
+      const fallback: User = { name: "Tester", email: email.trim() };
+      setUser(fallback);
+      setAuthed(true);
+      if (PERSIST_ENABLED) await saveJSON(KEYS.user, fallback);
+    }
+  };
+
   const signOut = async () => {
     setAuthed(false);
     setUser(null);
@@ -60,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const value = useMemo(
-    () => ({ isAuthed, user, palette, signIn, signOut, setPalette }),
+    () => ({ isAuthed, user, palette, setPalette, signIn, register, login, signOut }),
     [isAuthed, user, palette]
   );
 

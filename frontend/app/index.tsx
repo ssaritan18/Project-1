@@ -9,8 +9,8 @@ export default function Index() {
   useEffect(() => {
     const t = setTimeout(() => {
       if (isAuthed) router.replace("/(tabs)");
-      else router.replace("/(auth)/login");
-    }, 800);
+      else router.replace("/(auth)/welcome");
+    }, 700);
     return () => clearTimeout(t);
   }, [isAuthed]);
 

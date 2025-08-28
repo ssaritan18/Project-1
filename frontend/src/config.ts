@@ -3,6 +3,7 @@ export const PERSIST_ENABLED = true;
 export const KEYS = {
   palette: "adhders_palette_v1",
   user: "adhders_user_v1",
+  credentials: "adhders_credentials_v1",
   tasks: "adhders_tasks_v1",
   completedDates: "adhders_completed_dates",
   chats: "adhders_chats_v1",
