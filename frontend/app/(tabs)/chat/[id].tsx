@@ -7,7 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function ChatDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { chats, messagesByChat, sendText, sendVoiceMock, markRead } = useChat();
+  const { chats, messagesByChat, sendText, sendVoiceMock, markRead, reactMessage } = useChat();
   const [text, setText] = React.useState("");
   const chat = chats.find((c) => c.id === id);
   const msgs = messagesByChat[id || ""] || [];
@@ -16,6 +16,15 @@ export default function ChatDetail() {
 
   const onSend = () => { if (!id) return; if (!text.trim()) return; sendText(id, text.trim()); setText(""); };
   const onVoice = () => { if (!id) return; sendVoiceMock(id); };
+
+  const ReactBar = ({ msgId, counts }: { msgId: string; counts?: Record<string, number> }) => (
+    <View style={styles.reactRow}>
+      <TouchableOpacity onPress={() => id && reactMessage(id as string, msgId, 'like')} style={styles.reactBtn}><Ionicons name="thumbs-up" size={16} color="#B8F1D9" /><Text style={styles.reactCount}>{counts?.like || 0}</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => id && reactMessage(id as string, msgId, 'heart')} style={styles.reactBtn}><Ionicons name="heart" size={16} color="#FF7CA3" /><Text style={styles.reactCount}>{counts?.heart || 0}</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => id && reactMessage(id as string, msgId, 'clap')} style={styles.reactBtn}><Ionicons name="hand-right" size={16} color="#7C9EFF" /><Text style={styles.reactCount}>{counts?.clap || 0}</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => id && reactMessage(id as string, msgId, 'star')} style={styles.reactBtn}><Ionicons name="star" size={16} color="#FFE3A3" /><Text style={styles.reactCount}>{counts?.star || 0}</Text></TouchableOpacity>
+    </View>
+  );
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
@@ -31,18 +40,21 @@ export default function ChatDetail() {
         <FlashList
           data={msgs}
           keyExtractor={(m) => m.id}
-          estimatedItemSize={60}
+          estimatedItemSize={80}
           contentContainerStyle={{ padding: 12 }}
           renderItem={({ item }) => (
-            <View style={[styles.bubble, item.author === 'me' ? styles.mine : styles.theirs]}>
-              {item.type === 'text' ? (
-                <Text style={styles.bubbleText}>{item.text}</Text>
-              ) : (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Ionicons name="mic" size={16} color="#000" />
-                  <Text style={{ color: '#000', fontWeight: '700' }}>Voice message ({item.durationSec || 3}s)</Text>
-                </View>
-              )}
+            <View style={{ marginBottom: 10 }}>
+              <View style={[styles.bubble, item.author === 'me' ? styles.mine : styles.theirs]}>
+                {item.type === 'text' ? (
+                  <Text style={styles.bubbleText}>{item.text}</Text>
+                ) : (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Ionicons name="mic" size={16} color="#000" />
+                    <Text style={{ color: '#000', fontWeight: '700' }}>Voice message ({item.durationSec || 3}s)</Text>
+                  </View>
+                )}
+              </View>
+              <ReactBar msgId={item.id} counts={item.reactions} />
             </View>
           )}
         />
@@ -79,4 +91,7 @@ const styles = StyleSheet.create({
   input: { flex: 1, backgroundColor: '#1a1a1a', color: '#fff', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: '#222' },
   sendBtn: { backgroundColor: '#A3C9FF', padding: 10, borderRadius: 12 },
   micBtn: { backgroundColor: '#FFE3A3', padding: 10, borderRadius: 12 },
+  reactRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 8 },
+  reactBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  reactCount: { color: '#bdbdbd', fontSize: 12 },
 });

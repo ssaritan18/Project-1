@@ -7,6 +7,7 @@ import { PaperProvider, MD3LightTheme } from "react-native-paper";
 import { AuthProvider } from "../src/context/AuthContext";
 import { TasksProvider } from "../src/context/TasksContext";
 import { ChatProvider } from "../src/context/ChatContext";
+import { FriendsProvider } from "../src/context/FriendsContext";
 
 const theme = {
   ...MD3LightTheme,
@@ -28,10 +29,12 @@ export default function RootLayout() {
         <PaperProvider theme={theme as any}>
           <AuthProvider>
             <TasksProvider>
-              <ChatProvider>
-                <StatusBar style="light" />
-                <Stack screenOptions={{ headerShown: false }} />
-              </ChatProvider>
+              <FriendsProvider>
+                <ChatProvider>
+                  <StatusBar style="light" />
+                  <Stack screenOptions={{ headerShown: false }} />
+                </ChatProvider>
+              </FriendsProvider>
             </TasksProvider>
           </AuthProvider>
         </PaperProvider>
