@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useMemo, useState, ReactNode } from "react";
+import React, { createContext, useContext, useMemo, useState, ReactNode, useEffect } from "react";
+import { PERSIST_ENABLED, KEYS } from "../config";
+import { loadJSON, saveJSON } from "../utils/persist";
 
 export type User = {
   name: string;
@@ -22,7 +24,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthed, setAuthed] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [palette, setPalette] = useState<Palette>({ primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" });
+  const [palette, setPaletteState] = useState<Palette>({ primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" });
+
+  useEffect(() => {
+    if (!PERSIST_ENABLED) return;
+    (async () => {
+      const stored = await loadJSON<Palette | null>(KEYS.palette, null);
+      if (stored) setPaletteState(stored);
+    })();
+  }, []);
+
+  const setPalette = (p: Palette) => {
+    setPaletteState(p);
+    if (PERSIST_ENABLED) saveJSON(KEYS.palette, p);
+  };
 
   const value = useMemo(
     () => ({

@@ -1,7 +1,9 @@
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { PERSIST_ENABLED, KEYS } from "../config";
+import { loadJSON, saveJSON } from "../utils/persist";
 
-export const KEY_COMPLETED_DATES = "adhers_completed_dates";
+export const KEY_COMPLETED_DATES = KEYS.completedDates;
 
 export type Task = {
   id: string;
@@ -39,12 +41,27 @@ async function markTodayCompleted() {
 }
 
 export function TasksProvider({ children }: { children: React.ReactNode }) {
+  const [hydrated, setHydrated] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([
-    // seed minimal demo
     { id: uid(), title: "Hydrate (glasses)", goal: 6, progress: 2, color: "#A3C9FF" },
     { id: uid(), title: "Stretch (sets)", goal: 3, progress: 1, color: "#FFCFE1" },
     { id: uid(), title: "Gratitude (notes)", goal: 1, progress: 0, color: "#B8F1D9" },
   ]);
+
+  useEffect(() => {
+    if (!PERSIST_ENABLED) { setHydrated(true); return; }
+    (async () => {
+      const stored = await loadJSON<Task[] | null>(KEYS.tasks, null);
+      if (stored && Array.isArray(stored) && stored.length) setTasks(stored);
+      setHydrated(true);
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!PERSIST_ENABLED) return;
+    if (!hydrated) return;
+    saveJSON(KEYS.tasks, tasks);
+  }, [tasks, hydrated]);
 
   const value = useMemo<TasksContextType>(() => ({
     tasks,
@@ -63,6 +80,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     },
     remove: (id) => setTasks((prev) => prev.filter((t) => t.id !== id)),
     resetToday: () => setTasks((prev) => prev.map((t) => ({ ...t, progress: 0 }))),
+    reorder: (next) => setTasks(next),
   }), [tasks]);
 
   return <TasksContext.Provider value={value}>{children}</TasksContext.Provider>;
