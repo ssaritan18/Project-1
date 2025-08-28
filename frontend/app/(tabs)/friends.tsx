@@ -121,6 +121,7 @@ export default function FriendsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0c0c0c', padding: 16 },
   header: { color: '#fff', fontSize: 22, fontWeight: '700' },
+  statusText: { color: '#fff', fontSize: 12, fontWeight: '500', marginTop: 4 },
   section: { color: '#fff', fontSize: 16, fontWeight: '700', marginBottom: 6 },
   row: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   input: { flex: 1, backgroundColor: '#111', color: '#fff', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: '#1a1a1a' },
