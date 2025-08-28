@@ -266,40 +266,57 @@ async def seed_demo(user=Depends(get_current_user)):
 @api_router.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket):
     token = ws.query_params.get("token")
+    logger.info(f"🔌 New WebSocket connection attempt. Token provided: {bool(token)}")
     if not token:
+        logger.warning("❌ WebSocket rejected: No token provided")
         await ws.close(code=4401)
         return
     try:
         data = jwt.decode(token, JWT_SECRET, algorithms=[ALGO])
         user_id = data.get("sub")
         if not user_id:
+            logger.warning("❌ WebSocket rejected: No user_id in token")
             await ws.close(code=4401)
             return
-    except JWTError:
+    except JWTError as e:
+        logger.warning(f"❌ WebSocket rejected: JWT error - {e}")
         await ws.close(code=4401)
         return
+    
+    logger.info(f"✅ WebSocket accepted for user {user_id}")
     await ws.accept()
+    
     if user_id not in CONNECTIONS:
         CONNECTIONS[user_id] = set()
+        logger.info(f"🆕 Created new connection set for user {user_id}")
+    
     CONNECTIONS[user_id].add(ws)
+    logger.info(f"📊 User {user_id} now has {len(CONNECTIONS[user_id])} active WebSocket connections")
+    
     await ws_set_presence(user_id, True)
     user = await db.users.find_one({"_id": user_id})
     friends = user.get("friends", []) if user else []
     online_map = {fid: (fid in ONLINE) for fid in friends}
     try:
         await ws.send_json({"type": "presence:bulk", "online": online_map})
-    except Exception:
-        pass
+        logger.info(f"📨 Sent initial presence:bulk to user {user_id}")
+    except Exception as e:
+        logger.error(f"❌ Failed to send initial presence:bulk to user {user_id}: {e}")
+    
     try:
         while True:
             msg = await ws.receive_text()
             if msg == "ping":
                 await ws.send_text("pong")
+                logger.debug(f"🏓 Ping-pong with user {user_id}")
     except WebSocketDisconnect:
+        logger.info(f"🔌 WebSocket disconnected for user {user_id}")
         try:
             CONNECTIONS.get(user_id, set()).discard(ws)
-        except Exception:
-            pass
+            remaining = len(CONNECTIONS.get(user_id, set()))
+            logger.info(f"📊 User {user_id} now has {remaining} active WebSocket connections")
+        except Exception as e:
+            logger.error(f"❌ Error removing WebSocket for user {user_id}: {e}")
         await ws_set_presence(user_id, False)
 
 # --- Auth (Google) ---
