@@ -53,6 +53,11 @@ export default function FriendsScreen() {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
       <View style={styles.container}>
         <Text style={styles.header}>Friends {syncEnabled ? "(Online)" : "(Local)"}</Text>
+        {syncEnabled && (
+          <Text style={[styles.statusText, { color: wsConnectionStatus.includes('✅') ? '#3DDC84' : '#FF6B6B' }]}>
+            WebSocket: {wsConnectionStatus}
+          </Text>
+        )}
 
         <Animated.View style={[styles.topCard, cardStyle]}> 
           {firstReq ? (
