@@ -4,6 +4,7 @@ import { loadJSON, saveJSON } from "../utils/persist";
 import { api } from "../lib/api";
 import { useRuntimeConfig } from "./RuntimeConfigContext";
 import { useAuth } from "./AuthContext";
+import { Alert } from "react-native";
 
 function uid() { return Math.random().toString(36).slice(2); }
 
@@ -17,6 +18,7 @@ type FriendsContextType = {
   posts: Post[];
   presence: Record<string, boolean>;
   lastNotification: string | null;
+  wsConnectionStatus: string;
   clearNotification: () => void;
   refresh: () => Promise<void>;
   sendRequest: (email: string, note?: string) => Promise<void>;
