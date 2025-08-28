@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { PERSIST_ENABLED, KEYS } from "../config";
+import { loadJSON, saveJSON } from "../utils/persist";
 
 function uid() { return Math.random().toString(36).slice(2); }
 
@@ -19,6 +21,7 @@ type FriendsContextType = {
 const FriendsContext = createContext<FriendsContextType | undefined>(undefined);
 
 export function FriendsProvider({ children }: { children: React.ReactNode }) {
+  const [hydrated, setHydrated] = useState(false);
   const [friends, setFriends] = useState<Friend[]>([
     { id: uid(), name: "Ava" },
     { id: uid(), name: "Mia" },
@@ -30,12 +33,28 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     { id: uid(), author: "Ava", text: "Tried 25-minute sprints today, felt great!", ts: Date.now() - 3600000, reactions: { like: 2, heart: 1 } },
   ]);
 
+  useEffect(() => {
+    if (!PERSIST_ENABLED) { setHydrated(true); return; }
+    (async () => {
+      const f = await loadJSON<Friend[] | null>(KEYS.friends, null);
+      const r = await loadJSON<FriendRequest[] | null>(KEYS.requests, null);
+      const p = await loadJSON<Post[] | null>(KEYS.posts, null);
+      if (f && f.length) setFriends(f);
+      if (r && r.length) setRequests(r);
+      if (p && p.length) setPosts(p);
+      setHydrated(true);
+    })();
+  }, []);
+
+  useEffect(() => { if (PERSIST_ENABLED && hydrated) saveJSON(KEYS.friends, friends); }, [friends, hydrated]);
+  useEffect(() => { if (PERSIST_ENABLED && hydrated) saveJSON(KEYS.requests, requests); }, [requests, hydrated]);
+  useEffect(() => { if (PERSIST_ENABLED && hydrated) saveJSON(KEYS.posts, posts); }, [posts, hydrated]);
+
   const value = useMemo<FriendsContextType>(() => ({
     friends, requests, posts,
     sendRequest: (name, note) => setRequests((prev) => [...prev, { id: uid(), from: name, note }]),
     acceptRequest: (id) => {
       setRequests((prev) => prev.filter((r) => r.id !== id));
-      // In this MVP, request.from becomes a friend
       const req = requests.find((r) => r.id === id);
       if (req) setFriends((prev) => [...prev, { id: uid(), name: req.from }]);
     },

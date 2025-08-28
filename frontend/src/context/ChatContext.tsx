@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { PERSIST_ENABLED, KEYS } from "../config";
+import { loadJSON, saveJSON } from "../utils/persist";
 
 export type ReactionType = "like" | "heart" | "clap" | "star";
 
@@ -38,6 +40,7 @@ type ChatContextType = {
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
+  const [hydrated, setHydrated] = useState(false);
   const [chats, setChats] = useState<Chat[]>([
     { id: "adhd_support", title: "ADHD Support Group", members: ["You", "Ava", "Mia", "Noah"], unread: 1, inviteCode: makeCode() },
     { id: "focus_club", title: "Deep Focus Club", members: ["You", "Zoe", "Liam"], unread: 0, inviteCode: makeCode() },
@@ -51,6 +54,29 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       { id: uid(), chatId: "focus_club", author: "Zoe", type: "text", text: "Morning focus room starting in 10m.", ts: Date.now() - 7200000, reactions: { like: 0, heart: 0, clap: 0, star: 1 } },
     ],
   });
+
+  useEffect(() => {
+    if (!PERSIST_ENABLED) { setHydrated(true); return; }
+    (async () => {
+      const storedChats = await loadJSON<Chat[] | null>(KEYS.chats, null);
+      const storedMsgs = await loadJSON<Record<string, Message[]> | null>(KEYS.messages, null);
+      if (storedChats && Array.isArray(storedChats) && storedChats.length) setChats(storedChats);
+      if (storedMsgs && typeof storedMsgs === 'object') setMessages(storedMsgs);
+      setHydrated(true);
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!PERSIST_ENABLED) return;
+    if (!hydrated) return;
+    saveJSON(KEYS.chats, chats);
+  }, [chats, hydrated]);
+
+  useEffect(() => {
+    if (!PERSIST_ENABLED) return;
+    if (!hydrated) return;
+    saveJSON(KEYS.messages, messagesByChat);
+  }, [messagesByChat, hydrated]);
 
   const value = useMemo<ChatContextType>(() => ({
     chats,
