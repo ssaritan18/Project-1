@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Platform, DevSettings } from "react-native";
 import { useAuth } from "../../src/context/AuthContext";
 import { useTasks } from "../../src/context/TasksContext";
 import { ProgressBar } from "../../src/components/ProgressBar";
