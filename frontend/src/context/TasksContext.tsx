@@ -17,6 +17,7 @@ type TasksContextType = {
   increment: (id: string) => Promise<boolean>; // returns true if this action completed the task
   remove: (id: string) => void;
   resetToday: () => void;
+  reorder: (next: Task[]) => void;
 };
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined);
