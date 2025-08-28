@@ -6,24 +6,40 @@ import { router } from "expo-router";
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Login() {
-  const { signIn } = useAuth();
+  const { signIn, login, resetCredentials } = useAuth();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
 
-  const valid = useMemo(() => emailRegex.test(email.trim()), [email]);
+  const validEmail = useMemo(() => emailRegex.test(email.trim()), [email]);
 
   const submit = async () => {
-    if (!valid) {
+    if (!validEmail) {
       Alert.alert("Invalid email", "Please enter a valid email (e.g., test@example.com)");
       return;
     }
-    await signIn({ name, email });
+    if (password.trim().length > 0) {
+      await login(email, password);
+    } else {
+      await signIn({ name, email });
+    }
     router.replace("/(tabs)");
   };
 
   const submitMockGoogle = async () => {
     await signIn({ name: name || "Google User", email });
     router.replace("/(tabs)");
+  };
+
+  const forgot = async () => {
+    if (!validEmail) {
+      Alert.alert("Enter email", "Type your email first, then tap Forgot PIN.");
+      return;
+    }
+    Alert.alert("Reset PIN?", "This will clear your saved PIN for this email.", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Reset", style: "destructive", onPress: async () => { await resetCredentials(email); router.push({ pathname: '/(auth)/signup', params: { email } }); } },
+    ]);
   };
 
   return (
@@ -33,20 +49,28 @@ export default function Login() {
         <Text style={styles.subtitle}>Motivate your day with tiny wins</Text>
 
         <View style={styles.inputBox}>
-          <Text style={styles.label}>Name</Text>
+          <Text style={styles.label}>Name (optional)</Text>
           <TextInput style={styles.input} placeholder="Jane" placeholderTextColor="#777" value={name} onChangeText={setName} returnKeyType="next" />
         </View>
         <View style={styles.inputBox}>
           <Text style={styles.label}>Email</Text>
-          <TextInput style={styles.input} placeholder="jane@example.com" placeholderTextColor="#777" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} value={email} onChangeText={setEmail} returnKeyType="done" onSubmitEditing={submit} />
+          <TextInput style={styles.input} placeholder="jane@example.com" placeholderTextColor="#777" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} value={email} onChangeText={setEmail} returnKeyType="next" />
+        </View>
+        <View style={styles.inputBox}>
+          <Text style={styles.label}>PIN/Password (optional)</Text>
+          <TextInput style={styles.input} placeholder="••••" placeholderTextColor="#777" secureTextEntry value={password} onChangeText={setPassword} returnKeyType="done" onSubmitEditing={submit} />
         </View>
 
-        <TouchableOpacity style={[styles.primaryBtn, !valid && styles.disabledBtn]} onPress={submit} disabled={!valid}>
-          <Text style={[styles.primaryText, !valid && styles.disabledText]}>Continue</Text>
+        <TouchableOpacity style={[styles.primaryBtn, !validEmail && styles.disabledBtn]} onPress={submit} disabled={!validEmail}>
+          <Text style={[styles.primaryText, !validEmail && styles.disabledText]}>Continue</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.googleBtn} onPress={submitMockGoogle}>
           <Text style={styles.googleText}>Continue with Google (mock)</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={forgot} style={{ marginTop: 12 }}>
+          <Text style={{ color: '#A3C9FF', fontWeight: '700' }}>Forgot PIN?</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

@@ -1,15 +1,20 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, TextInput, Alert } from "react-native";
 import { useAuth } from "../../src/context/AuthContext";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignUp() {
   const { register } = useAuth();
+  const params = useLocalSearchParams<{ email?: string }>();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    if (params?.email && typeof params.email === 'string') setEmail(params.email);
+  }, [params?.email]);
 
   const valid = useMemo(() => emailRegex.test(email.trim()) && (password.trim().length >= 4), [email, password]);
 

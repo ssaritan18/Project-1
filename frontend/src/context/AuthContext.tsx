@@ -26,6 +26,7 @@ type AuthContextType = {
   // Auth flows
   register: (name: string, email: string, password: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  resetCredentials: (email?: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -96,6 +97,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const resetCredentials = async (email?: string) => {
+    if (PERSIST_ENABLED) {
+      const stored = await loadJSON<Credentials | null>(KEYS.credentials, null);
+      await AsyncStorage.removeItem(KEYS.credentials);
+      // If resetting for the same email, also clear the user to force new signup
+      if (stored && email && stored.email?.toLowerCase() === email.trim().toLowerCase()) {
+        await AsyncStorage.removeItem(KEYS.user);
+        setUser(null);
+        setAuthed(false);
+      }
+    }
+  };
+
   const signOut = async () => {
     setAuthed(false);
     setUser(null);
@@ -103,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const value = useMemo(
-    () => ({ isAuthed, user, palette, setPalette, signIn, register, login, signOut }),
+    () => ({ isAuthed, user, palette, setPalette, signIn, register, login, resetCredentials, signOut }),
     [isAuthed, user, palette]
   );
 
