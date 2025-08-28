@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends, Request, Query
+from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends, Request, Query, WebSocket, WebSocketDisconnect
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,7 +6,7 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Set
 import uuid
 from datetime import datetime, timezone, timedelta, date
 import base64
@@ -29,10 +29,47 @@ ACCESS_EXPIRES_DAYS = 7
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Create the main app without a prefix
-app = FastAPI(title="ADHDers API", version="0.2.2")
+app = FastAPI(title="ADHDers API", version="0.3.0")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
+
+# --- WebSocket connection store ---
+CONNECTIONS: Dict[str, Set[WebSocket]] = {}
+ONLINE: Set[str] = set()
+
+async def ws_broadcast_to_user(user_id: str, payload: Dict[str, Any]):
+  conns = CONNECTIONS.get(user_id)
+  if not conns:
+    return
+  dead = []
+  for ws in list(conns):
+    try:
+      await ws.send_json(payload)
+    except Exception:
+      dead.append(ws)
+  for d in dead:
+    try:
+      conns.remove(d)
+    except Exception:
+      pass
+
+async def ws_broadcast_to_friends(user_id: str, payload: Dict[str, Any]):
+  user = await db.users.find_one({"_id": user_id})
+  if not user:
+    return
+  friends = user.get("friends", [])
+  for fid in friends:
+    await ws_broadcast_to_user(fid, payload)
+
+async def ws_set_presence(user_id: str, online: bool):
+  if online:
+    ONLINE.add(user_id)
+  else:
+    if user_id in ONLINE:
+      ONLINE.remove(user_id)
+  # notify friends of this user
+  await ws_broadcast_to_friends(user_id, {"type": "presence:update", "user_id": user_id, "online": online})
 
 # Utils
 
@@ -168,6 +205,50 @@ async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**sc) for sc in status_checks]
 
+# --- WebSocket endpoint ---
+@api_router.websocket("/ws")
+async def websocket_endpoint(ws: WebSocket):
+    token = ws.query_params.get("token")
+    if not token:
+        await ws.close(code=4401)
+        return
+    try:
+        data = jwt.decode(token, JWT_SECRET, algorithms=[ALGO])
+        user_id = data.get("sub")
+        if not user_id:
+            await ws.close(code=4401)
+            return
+    except JWTError:
+        await ws.close(code=4401)
+        return
+    await ws.accept()
+    # register connection
+    if user_id not in CONNECTIONS:
+        CONNECTIONS[user_id] = set()
+    CONNECTIONS[user_id].add(ws)
+    await ws_set_presence(user_id, True)
+    # send initial presence of friends
+    user = await db.users.find_one({"_id": user_id})
+    friends = user.get("friends", []) if user else []
+    online_map = {fid: (fid in ONLINE) for fid in friends}
+    try:
+        await ws.send_json({"type": "presence:bulk", "online": online_map})
+    except Exception:
+        pass
+    try:
+        while True:
+            # keep alive; we don't process client messages in MVP
+            msg = await ws.receive_text()
+            if msg == "ping":
+                await ws.send_text("pong")
+    except WebSocketDisconnect:
+        # cleanup
+        try:
+            CONNECTIONS.get(user_id, set()).discard(ws)
+        except Exception:
+            pass
+        await ws_set_presence(user_id, False)
+
 # --- Auth (Google) ---
 @api_router.post("/auth/google")
 async def auth_google(payload: GoogleAuthRequest):
@@ -248,13 +329,11 @@ async def friends_find(q: str = Query(..., min_length=1), user=Depends(get_curre
         if not u:
             raise HTTPException(status_code=404, detail="User not found")
         return {"user": {"_id": u["_id"], "name": u.get("name"), "email": u.get("email")}}
-    # name search (case-insensitive contains)
     cursor = db.users.find({"name": {"$regex": query, "$options": "i"}}).limit(2)
     items = await cursor.to_list(2)
     if not items:
         raise HTTPException(status_code=404, detail="User not found")
     if len(items) > 1:
-        # ambiguous; return first match but indicate ambiguous
         u = items[0]
         return {"user": {"_id": u["_id"], "name": u.get("name"), "email": u.get("email")}, "ambiguous": True}
     u = items[0]
@@ -278,6 +357,8 @@ async def create_friend_request(payload: FriendRequestReq, user=Depends(get_curr
         "created_at": now_iso(),
     }
     await db.friend_requests.insert_one(fr)
+    # realtime notify recipient
+    await ws_broadcast_to_user(to["_id"], {"type": "friend_request:incoming", "request_id": fr["_id"], "from": {"id": user["_id"], "name": user.get("name"), "email": user.get("email")}})
     return fr
 
 @api_router.post("/friends/accept")
@@ -288,6 +369,12 @@ async def accept_friend_request(payload: FriendAcceptReq, user=Depends(get_curre
     await db.friend_requests.update_one({"_id": fr["_id"]}, {"$set": {"status": "accepted", "updated_at": now_iso()}})
     await db.users.update_one({"_id": user["_id"]}, {"$addToSet": {"friends": fr["from_user_id"]}})
     await db.users.update_one({"_id": fr["from_user_id"]}, {"$addToSet": {"friends": user["_id"]}})
+    # notify sender
+    to_sender = await db.users.find_one({"_id": fr["from_user_id"]})
+    await ws_broadcast_to_user(fr["from_user_id"], {"type": "friend_request:accepted", "by": {"id": user["_id"], "name": user.get("name"), "email": user.get("email")}})
+    # also presence update to the two users' friends
+    await ws_broadcast_to_friends(user["_id"], {"type": "friends:list:update"})
+    await ws_broadcast_to_friends(fr["from_user_id"], {"type": "friends:list:update"})
     return {"accepted": True}
 
 @api_router.post("/friends/reject")
@@ -296,6 +383,8 @@ async def reject_friend_request(payload: FriendRejectReq, user=Depends(get_curre
     if not fr or fr.get("to_user_id") != user["_id"]:
         raise HTTPException(status_code=404, detail="Request not found")
     await db.friend_requests.update_one({"_id": fr["_id"]}, {"$set": {"status": "rejected", "updated_at": now_iso()}})
+    # notify sender
+    await ws_broadcast_to_user(fr["from_user_id"], {"type": "friend_request:rejected", "by": {"id": user["_id"], "name": user.get("name"), "email": user.get("email")}})
     return {"rejected": True}
 
 @api_router.get("/friends/list")
@@ -321,7 +410,7 @@ async def friends_requests(user=Depends(get_current_user)):
         })
     return {"requests": results}
 
-# --- Posts ---
+# --- Posts --- (unchanged)
 @api_router.get("/posts/feed")
 async def posts_feed(limit: int = 50, user=Depends(get_current_user)):
     posts = await db.posts.find().sort("created_at", -1).limit(limit).to_list(limit)
@@ -350,7 +439,7 @@ async def react_post(post_id: str, payload: ReactionReq, user=Depends(get_curren
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
-# --- Chats (HTTP skeleton, no WS yet) ---
+# --- Chats HTTP (unchanged) ---
 @api_router.post("/chats")
 async def create_chat(payload: CreateChatReq, user=Depends(get_current_user)):
     code = uuid.uuid4().hex[:6].upper()

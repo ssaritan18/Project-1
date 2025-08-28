@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const KEY = "adhders_sync_enabled";
+const KEY_SYNC = "adhders_sync_enabled";
+const KEY_WS = "adhders_ws_enabled";
 
 type RuntimeConfig = {
   hydrated: boolean;
   syncEnabled: boolean;
+  wsEnabled: boolean;
   setSyncEnabled: (v: boolean) => Promise<void>;
+  setWsEnabled: (v: boolean) => Promise<void>;
 };
 
 const Ctx = createContext<RuntimeConfig | undefined>(undefined);
@@ -14,12 +17,15 @@ const Ctx = createContext<RuntimeConfig | undefined>(undefined);
 export function RuntimeConfigProvider({ children }: { children: React.ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [syncEnabled, setSyncEnabledState] = useState(false);
+  const [wsEnabled, setWsEnabledState] = useState(true);
 
   useEffect(() => {
     (async () => {
       try {
-        const raw = await AsyncStorage.getItem(KEY);
-        if (raw != null) setSyncEnabledState(raw === "true");
+        const rawS = await AsyncStorage.getItem(KEY_SYNC);
+        if (rawS != null) setSyncEnabledState(rawS === "true");
+        const rawW = await AsyncStorage.getItem(KEY_WS);
+        if (rawW != null) setWsEnabledState(rawW === "true");
       } catch {}
       setHydrated(true);
     })();
@@ -27,10 +33,14 @@ export function RuntimeConfigProvider({ children }: { children: React.ReactNode 
 
   const setSyncEnabled = async (v: boolean) => {
     setSyncEnabledState(v);
-    try { await AsyncStorage.setItem(KEY, v ? "true" : "false"); } catch {}
+    try { await AsyncStorage.setItem(KEY_SYNC, v ? "true" : "false"); } catch {}
+  };
+  const setWsEnabled = async (v: boolean) => {
+    setWsEnabledState(v);
+    try { await AsyncStorage.setItem(KEY_WS, v ? "true" : "false"); } catch {}
   };
 
-  const value = useMemo(() => ({ hydrated, syncEnabled, setSyncEnabled }), [hydrated, syncEnabled]);
+  const value = useMemo(() => ({ hydrated, syncEnabled, wsEnabled, setSyncEnabled, setWsEnabled }), [hydrated, syncEnabled, wsEnabled]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

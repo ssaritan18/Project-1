@@ -5,25 +5,23 @@ import { FlashList } from "@shopify/flash-list";
 import { Ionicons } from "@expo/vector-icons";
 import { useRuntimeConfig } from "../../src/context/RuntimeConfigContext";
 import { api } from "../../src/lib/api";
-import { Toast } from "../../src/components/Toast";
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
 export default function FriendsScreen() {
-  const { friends, requests, posts, sendRequest, acceptRequest, rejectRequest, addPost, reactPost, refresh } = useFriends();
+  const { friends, requests, posts, presence, sendRequest, acceptRequest, rejectRequest, addPost, reactPost, refresh, lastNotification, clearNotification } = useFriends();
   const { syncEnabled } = useRuntimeConfig();
   const [friendQuery, setFriendQuery] = React.useState("");
   const [postText, setPostText] = React.useState("");
-  const [toast, setToast] = React.useState<{ visible: boolean; text: string }>({ visible: false, text: "" });
-  const prevReqCount = React.useRef<number>(requests.length);
 
   React.useEffect(() => { refresh(); }, [refresh]);
 
+  // Sliding request card
+  const showCard = requests.length > 0;
+  const slide = useSharedValue(0);
   React.useEffect(() => {
-    if (requests.length > prevReqCount.current) {
-      setToast({ visible: true, text: "New friend request arrived" });
-      setTimeout(() => setToast({ visible: false, text: "" }), 1200);
-    }
-    prevReqCount.current = requests.length;
-  }, [requests.length]);
+    slide.value = withTiming(showCard ? 1 : 0, { duration: 250, easing: Easing.out(Easing.ease) });
+  }, [showCard]);
+  const cardStyle = useAnimatedStyle(() => ({ transform: [{ translateY: (1 - slide.value) * -60 }], opacity: slide.value }));
 
   const addFriend = async () => {
     const q = friendQuery.trim();
@@ -32,42 +30,44 @@ export default function FriendsScreen() {
       if (syncEnabled) {
         if (q.includes("@")) {
           await sendRequest(q);
-          setToast({ visible: true, text: `Request sent to ${q}` });
         } else {
           const res = await api.get("/friends/find", { params: { q } });
           const email = res.data?.user?.email;
           if (!email) throw new Error("No email associated");
           await sendRequest(email);
-          setToast({ visible: true, text: `Request sent to ${res.data.user.name || email}` });
         }
       } else {
         await sendRequest(q);
-        setToast({ visible: true, text: `Request queued for ${q}` });
       }
-    } catch (e: any) {
-      setToast({ visible: true, text: e?.response?.data?.detail || "User not found" });
+    } catch (e) {
+      // ignore
     } finally {
-      setTimeout(() => setToast({ visible: false, text: "" }), 1400);
       setFriendQuery("");
     }
   };
 
-  const onAccept = async (id: string) => {
-    await acceptRequest(id);
-    setToast({ visible: true, text: "Friend added" });
-    setTimeout(() => setToast({ visible: false, text: "" }), 1000);
-  };
-
-  const onReject = async (id: string) => {
-    await rejectRequest(id);
-    setToast({ visible: true, text: "Request rejected" });
-    setTimeout(() => setToast({ visible: false, text: "" }), 1000);
-  };
+  const firstReq = requests[0];
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
       <View style={styles.container}>
         <Text style={styles.header}>Friends {syncEnabled ? "(Online)" : "(Local)"}</Text>
+
+        <Animated.View style={[styles.topCard, cardStyle]}> 
+          {firstReq ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={styles.topCardText}>{firstReq.from}</Text>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <TouchableOpacity style={styles.acceptBtn} onPress={() => acceptRequest(firstReq.id)}>
+                  <Text style={{ color: '#000', fontWeight: '700' }}>Accept</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.rejectBtn} onPress={() => rejectRequest(firstReq.id)}>
+                  <Text style={{ color: '#000', fontWeight: '700' }}>Reject</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : null}
+        </Animated.View>
 
         <View style={styles.row}>
           <TextInput style={styles.input} placeholder="Add by name or email" placeholderTextColor="#777" value={friendQuery} onChangeText={setFriendQuery} />
@@ -76,25 +76,6 @@ export default function FriendsScreen() {
           </TouchableOpacity>
         </View>
 
-        {requests.length > 0 && (
-          <View style={{ marginTop: 10 }}>
-            <Text style={styles.section}>Requests</Text>
-            {requests.map((r) => (
-              <View key={r.id} style={styles.itemRow}>
-                <Text style={styles.itemText}>{r.from}</Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <TouchableOpacity style={styles.acceptBtn} onPress={() => onAccept(r.id)}>
-                    <Text style={{ color: '#000', fontWeight: '700' }}>Accept</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.rejectBtn} onPress={() => onReject(r.id)}>
-                    <Text style={{ color: '#000', fontWeight: '700' }}>Reject</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
-
         <View style={{ marginTop: 16 }}>
           <Text style={styles.section}>My Friends</Text>
           <FlashList
@@ -102,7 +83,12 @@ export default function FriendsScreen() {
             keyExtractor={(f) => f.id}
             estimatedItemSize={60}
             renderItem={({ item }) => (
-              <View style={styles.itemRow}><Text style={styles.itemText}>{item.name}{item.email ? ` (${item.email})` : ''}</Text></View>
+              <View style={styles.itemRow}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  {presence[item.id] ? <View style={styles.dotOnline} /> : <View style={styles.dotOffline} />}
+                  <Text style={styles.itemText}>{item.name}{item.email ? ` (${item.email})` : ''}</Text>
+                </View>
+              </View>
             )}
             contentContainerStyle={{ paddingBottom: 12 }}
           />
@@ -118,28 +104,9 @@ export default function FriendsScreen() {
           </View>
         </View>
 
-        <View style={{ marginTop: 10, flex: 1 }}>
-          <Text style={styles.section}>Friends Feed</Text>
-          <FlashList
-            data={posts}
-            keyExtractor={(p) => p.id}
-            estimatedItemSize={120}
-            renderItem={({ item }) => (
-              <View style={styles.postCard}>
-                <Text style={styles.postAuthor}>{item.author}</Text>
-                <Text style={styles.postText}>{item.text}</Text>
-                <View style={styles.reacts}>
-                  <TouchableOpacity style={styles.reactBtn} onPress={() => reactPost(item.id, 'like')}><Ionicons name="thumbs-up" size={18} color="#B8F1D9" /><Text style={styles.reactCount}>{item.reactions.like || 0}</Text></TouchableOpacity>
-                  <TouchableOpacity style={styles.reactBtn} onPress={() => reactPost(item.id, 'heart')}><Ionicons name="heart" size={18} color="#FF7CA3" /><Text style={styles.reactCount}>{item.reactions.heart || 0}</Text></TouchableOpacity>
-                  <TouchableOpacity style={styles.reactBtn} onPress={() => reactPost(item.id, 'clap')}><Ionicons name="hand-right" size={18} color="#7C9EFF" /><Text style={styles.reactCount}>{item.reactions.clap || 0}</Text></TouchableOpacity>
-                  <TouchableOpacity style={styles.reactBtn} onPress={() => reactPost(item.id, 'star')}><Ionicons name="star" size={18} color="#FFE3A3" /><Text style={styles.reactCount}>{item.reactions.star || 0}</Text></TouchableOpacity>
-                </View>
-              </View>
-            )}
-          />
-        </View>
-
-        <Toast visible={toast.visible} text={toast.text} />
+        {lastNotification ? (
+          <View style={styles.toast}><Text style={styles.toastText}>{lastNotification}</Text></View>
+        ) : null}
       </View>
     </KeyboardAvoidingView>
   );
@@ -159,7 +126,10 @@ const styles = StyleSheet.create({
   postCard: { backgroundColor: '#111', borderRadius: 12, padding: 12, marginBottom: 10 },
   postAuthor: { color: '#fff', fontWeight: '800' },
   postText: { color: '#e5e5e5', marginTop: 6 },
-  reacts: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 },
-  reactBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  reactCount: { color: '#bdbdbd' },
+  topCard: { backgroundColor: '#111', borderRadius: 12, padding: 10, borderColor: '#222', borderWidth: 1, marginTop: 8 },
+  topCardText: { color: '#fff', fontWeight: '800' },
+  dotOnline: { width: 10, height: 10, borderRadius: 6, backgroundColor: '#3DDC84' },
+  dotOffline: { width: 10, height: 10, borderRadius: 6, backgroundColor: '#444' },
+  toast: { position: 'absolute', bottom: 100, left: 24, right: 24, backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 12, padding: 12, alignItems: 'center' },
+  toastText: { color: '#000', fontWeight: '800' },
 });

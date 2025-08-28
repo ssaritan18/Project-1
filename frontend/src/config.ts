@@ -1,11 +1,12 @@
 export const PERSIST_ENABLED = true;
-export const SYNC_ENABLED = false; // keep local-first for now
-export const WS_ENABLED = false;
+export const SYNC_ENABLED = false; // legacy. Runtime flag controls behavior.
+export const WS_ENABLED = true;
 
 export const KEYS = {
   palette: "adhders_palette_v1",
   user: "adhders_user_v1",
   credentials: "adhders_credentials_v1",
+  token: "adhders_token_v1",
   tasks: "adhders_tasks_v1",
   completedDates: "adhders_completed_dates",
   chats: "adhders_chats_v1",

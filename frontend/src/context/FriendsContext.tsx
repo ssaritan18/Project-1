@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { PERSIST_ENABLED, KEYS } from "../config";
 import { loadJSON, saveJSON } from "../utils/persist";
 import { api } from "../lib/api";
@@ -15,6 +15,9 @@ type FriendsContextType = {
   friends: Friend[];
   requests: FriendRequest[];
   posts: Post[];
+  presence: Record<string, boolean>;
+  lastNotification: string | null;
+  clearNotification: () => void;
   refresh: () => Promise<void>;
   sendRequest: (email: string, note?: string) => Promise<void>;
   acceptRequest: (id: string) => Promise<void>;
@@ -26,12 +29,59 @@ type FriendsContextType = {
 const FriendsContext = createContext<FriendsContextType | undefined>(undefined);
 
 export function FriendsProvider({ children }: { children: React.ReactNode }) {
-  const { syncEnabled } = useRuntimeConfig();
+  const { syncEnabled, wsEnabled } = useRuntimeConfig();
   const { token } = useAuth();
   const [hydrated, setHydrated] = useState(false);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [requests, setRequests] = useState<FriendRequest[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [presence, setPresence] = useState<Record<string, boolean>>({});
+  const [lastNotification, setLastNotification] = useState<string | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+
+  const clearNotification = () => setLastNotification(null);
+
+  const connectWS = () => {
+    if (!syncEnabled || !wsEnabled || !token) return;
+    try {
+      const base = process.env.EXPO_PUBLIC_BACKEND_URL || "";
+      const wsURL = base.replace("http", "ws") + "/api/ws?token=" + encodeURIComponent(token);
+      const sock = new WebSocket(wsURL);
+      sock.onopen = () => {};
+      sock.onclose = () => { wsRef.current = null; };
+      sock.onmessage = (ev) => {
+        try {
+          const data = JSON.parse(ev.data);
+          if (data.type === "friend_request:incoming") {
+            const from = data.from?.name || data.from?.email || "Friend";
+            setRequests((prev) => [{ id: data.request_id, from }, ...prev]);
+            setLastNotification(`New friend request from ${from}`);
+          } else if (data.type === "friend_request:accepted") {
+            const by = data.by?.name || data.by?.email || "Friend";
+            setLastNotification(`Your request to ${by} has been accepted`);
+            refresh();
+          } else if (data.type === "friend_request:rejected") {
+            const by = data.by?.name || data.by?.email || "Friend";
+            setLastNotification(`Your request to ${by} was rejected`);
+          } else if (data.type === "presence:update") {
+            setPresence((prev) => ({ ...prev, [data.user_id]: !!data.online }));
+          } else if (data.type === "presence:bulk") {
+            const map = data.online || {};
+            setPresence(map);
+          } else if (data.type === "friends:list:update") {
+            refresh();
+          }
+        } catch {}
+      };
+      wsRef.current = sock;
+    } catch {}
+  };
+
+  useEffect(() => {
+    if (wsRef.current) { try { wsRef.current.close(); } catch {} wsRef.current = null; }
+    connectWS();
+    return () => { if (wsRef.current) { try { wsRef.current.close(); } catch {} wsRef.current = null; } };
+  }, [syncEnabled, wsEnabled, token]);
 
   const refresh = async () => {
     if (syncEnabled && token) {
@@ -96,10 +146,9 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addPost = (text: string) => setPosts((prev) => [{ id: uid(), author: "You", text, ts: Date.now(), reactions: {} }, ...prev]);
-
   const reactPost = (postId: string, type: "like" | "clap" | "star" | "heart") => setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, reactions: { ...p.reactions, [type]: (p.reactions[type] || 0) + 1 } } : p)));
 
-  const value = useMemo<FriendsContextType>(() => ({ friends, requests, posts, refresh, sendRequest, acceptRequest, rejectRequest, addPost, reactPost }), [friends, requests, posts, syncEnabled, token]);
+  const value = useMemo<FriendsContextType>(() => ({ friends, requests, posts, presence, lastNotification, clearNotification, refresh, sendRequest, acceptRequest, rejectRequest, addPost, reactPost }), [friends, requests, posts, presence, lastNotification, syncEnabled, token]);
 
   return <FriendsContext.Provider value={value}>{children}</FriendsContext.Provider>;
 }
