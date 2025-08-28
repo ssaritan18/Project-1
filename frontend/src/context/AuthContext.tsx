@@ -79,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log("🔧 register called:", { syncEnabled, name, email });
     if (syncEnabled) {
       console.log("📡 Making register API call to backend...");
+      console.log("🔗 Backend URL:", process.env.EXPO_PUBLIC_BACKEND_URL);
       try {
         const res = await api.post("/auth/register", { name, email, password });
         console.log("✅ Register response:", res.data);
@@ -101,6 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (e) {
         console.error("❌ Register API call failed:", e);
+        Alert.alert("Registration Error", `API Failed: ${JSON.stringify(e)}`);
       }
       return;
     }
