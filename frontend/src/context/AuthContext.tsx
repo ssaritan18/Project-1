@@ -145,6 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // eslint-disable-next-line semi
   const signOut = async () => {
     setAuthed(false); setUser(null); setToken(null); setAuthToken(null);
     if (PERSIST_ENABLED) { await AsyncStorage.removeItem(KEYS.user); await AsyncStorage.removeItem(KEYS.token); }
