@@ -101,3 +101,55 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+## user_problem_statement: "Test Friend Request Scenario: send/accept/reject and search by name/email"
+## backend:
+##   - task: "Auth register/login JWT"
+##     implemented: true
+##     working: false
+##     file: "/app/backend/server.py"
+##     stuck_count: 0
+##     priority: "high"
+##     needs_retesting: true
+##     status_history:
+##         -working: false
+##         -agent: "main"
+##         -comment: "Added /api/auth/register and /api/auth/login. Need end-to-end curl validation."
+##   - task: "Friends: find/request/requests/accept/reject/list"
+##     implemented: true
+##     working: false
+##     file: "/app/backend/server.py"
+##     stuck_count: 0
+##     priority: "high"
+##     needs_retesting: true
+##     status_history:
+##         -working: false
+##         -agent: "main"
+##         -comment: "Added /api/friends/find, /request, /requests, /accept, /reject, /list. Test with two users."
+## frontend:
+##   - task: "Friends UI accept/reject + search add"
+##     implemented: true
+##     working: true
+##     file: "/app/frontend/app/(tabs)/friends.tsx"
+##     stuck_count: 0
+##     priority: "high"
+##     needs_retesting: false
+##     status_history:
+##         -working: true
+##         -agent: "main"
+##         -comment: "Added Accept and Reject buttons, search by name/email sends request, toast for new request."
+## metadata:
+##   created_by: "main_agent"
+##   version: "1.0"
+##   test_sequence: 1
+##   run_ui: false
+## test_plan:
+##   current_focus:
+##     - "Auth register/login JWT"
+##     - "Friends: find/request/requests/accept/reject/list"
+##   stuck_tasks: []
+##   test_all: false
+##   test_priority: "high_first"
+## agent_communication:
+##     -agent: "main"
+##     -message: "Please run curl-based tests creating two users and performing friend request, accept, reject, and search by name/email." 
