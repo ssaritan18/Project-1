@@ -427,8 +427,14 @@ async def create_friend_request(payload: FriendRequestReq, user=Depends(get_curr
         "created_at": now_iso(),
     }
     await db.friend_requests.insert_one(fr)
+    logger.info(f"📤 Friend request created: {user['_id']} -> {to['_id']} (request_id: {fr['_id']})")
+    
     fu = await db.users.find_one({"_id": user["_id"]})
-    await ws_broadcast_to_user(to["_id"], {"type": "friend_request:incoming", "request_id": fr["_id"], "from": {"id": user["_id"], "name": fu.get("name"), "email": fu.get("email")}})
+    payload_data = {"type": "friend_request:incoming", "request_id": fr["_id"], "from": {"id": user["_id"], "name": fu.get("name"), "email": fu.get("email")}}
+    logger.info(f"📡 About to broadcast friend request to user {to['_id']}: {payload_data}")
+    await ws_broadcast_to_user(to["_id"], payload_data)
+    logger.info(f"✅ Friend request broadcast completed for user {to['_id']}")
+    
     return fr
 
 @api_router.post("/friends/accept")
