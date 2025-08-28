@@ -52,6 +52,7 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
   const connectWS = () => {
     if (!syncEnabled || !wsEnabled || !token) {
       console.log("🔌 WebSocket not connecting:", { syncEnabled, wsEnabled, hasToken: !!token });
+      setWsConnectionStatus(`Not connecting: sync=${syncEnabled}, ws=${wsEnabled}, token=${!!token}`);
       return;
     }
     try {
@@ -59,17 +60,23 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
       const wsProto = base.startsWith("https") ? "wss" : "ws";
       const url = base.replace(/^https?/, wsProto) + "/api/ws?token=" + encodeURIComponent(token);
       console.log("🔌 Attempting WebSocket connection to:", url.replace(token, "***TOKEN***"));
+      setWsConnectionStatus("Connecting...");
       
       const sock = new WebSocket(url);
       sock.onopen = () => {
         console.log("✅ WebSocket connected successfully");
+        setWsConnectionStatus("Connected ✅");
+        showDebugAlert("WebSocket Connected! 🎉");
       };
       sock.onclose = (event) => {
         console.log("❌ WebSocket closed:", { code: event.code, reason: event.reason });
+        setWsConnectionStatus(`Closed (${event.code})`);
         wsRef.current = null;
       };
       sock.onerror = (error) => {
         console.error("❌ WebSocket error:", error);
+        setWsConnectionStatus("Error ❌");
+        showDebugAlert("WebSocket Error! ❌");
       };
       sock.onmessage = (ev) => {
         console.log("📨 WebSocket message received:", ev.data);
@@ -80,15 +87,18 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
             const from = data.from?.name || data.from?.email || "Friend";
             setRequests((prev) => [{ id: data.request_id, from }, ...prev]);
             setLastNotification(`Yeni arkadaş isteği: ${from}`);
+            showDebugAlert(`Friend Request Received! From: ${from} 📩`);
             console.log("✅ Friend request processed:", { from, requestId: data.request_id });
           } else if (data.type === "friend_request:accepted") {
             const by = data.by?.name || data.by?.email || "Friend";
             setLastNotification(`İsteğiniz kabul edildi: ${by}`);
+            showDebugAlert(`Request Accepted by: ${by} ✅`);
             refresh();
             console.log("✅ Friend request accepted processed:", { by });
           } else if (data.type === "friend_request:rejected") {
             const by = data.by?.name || data.by?.email || "Friend";
             setLastNotification(`İsteğiniz reddedildi: ${by}`);
+            showDebugAlert(`Request Rejected by: ${by} ❌`);
             console.log("✅ Friend request rejected processed:", { by });
           } else if (data.type === "presence:update") {
             setPresence((prev) => ({ ...prev, [data.user_id]: !!data.online }));
@@ -110,6 +120,8 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
       wsRef.current = sock;
     } catch (error) {
       console.error("❌ Failed to create WebSocket connection:", error);
+      setWsConnectionStatus("Failed ❌");
+      showDebugAlert("Failed to create WebSocket! ❌");
     }
   };
 
