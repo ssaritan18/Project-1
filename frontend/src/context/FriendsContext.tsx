@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { PERSIST_ENABLED, KEYS, SYNC_ENABLED } from "../config";
+import { PERSIST_ENABLED, KEYS } from "../config";
 import { loadJSON, saveJSON } from "../utils/persist";
 import { api } from "../lib/api";
+import { useRuntimeConfig } from "./RuntimeConfigContext";
+import { useAuth } from "./AuthContext";
 
 function uid() { return Math.random().toString(36).slice(2); }
 
@@ -23,35 +25,30 @@ type FriendsContextType = {
 const FriendsContext = createContext<FriendsContextType | undefined>(undefined);
 
 export function FriendsProvider({ children }: { children: React.ReactNode }) {
+  const { syncEnabled } = useRuntimeConfig();
+  const { token } = useAuth();
   const [hydrated, setHydrated] = useState(false);
-  const [friends, setFriends] = useState<Friend[]>([
-    { id: uid(), name: "Ava", email: "ava@example.com" },
-    { id: uid(), name: "Mia", email: "mia@example.com" },
-  ]);
-  const [requests, setRequests] = useState<FriendRequest[]>([
-    { id: uid(), from: "Noah", note: "Let's keep each other accountable!" },
-  ]);
-  const [posts, setPosts] = useState<Post[]>([
-    { id: uid(), author: "Ava", text: "Tried 25-minute sprints today, felt great!", ts: Date.now() - 3600000, reactions: { like: 2, heart: 1 } },
-  ]);
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [requests, setRequests] = useState<FriendRequest[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   const refresh = async () => {
-    if (SYNC_ENABLED) {
+    if (syncEnabled && token) {
       try {
-        const [fl, rq] = await Promise.all([
-          api.get("/friends/list"),
-          api.get("/friends/requests"),
-        ]);
+        const fl = await api.get("/friends/list");
         const serverFriends = (fl.data.friends || []).map((f: any) => ({ id: f._id, name: f.name || "Friend", email: f.email }));
-        const serverReqs = (rq.data.requests || []).map((r: any) => ({ id: r._id, from: r.from_name || r.from_email }));
         setFriends(serverFriends);
-        setRequests(serverReqs);
+        // requests endpoint optional; ignore if missing
+        try {
+          const rq = await api.get("/friends/requests");
+          const serverReqs = (rq.data.requests || []).map((r: any) => ({ id: r._id, from: r.from_name || r.from_email || "Friend" }));
+          setRequests(serverReqs);
+        } catch {}
         return;
       } catch (e) {
         // fallthrough to local
       }
     }
-    // Local hydration
     if (!hydrated && PERSIST_ENABLED) {
       const f = await loadJSON<Friend[] | null>(KEYS.friends, null);
       const r = await loadJSON<FriendRequest[] | null>(KEYS.requests, null);
@@ -63,14 +60,14 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => { refresh(); }, [syncEnabled, token]);
 
-  useEffect(() => { if (PERSIST_ENABLED && !SYNC_ENABLED && hydrated) saveJSON(KEYS.friends, friends); }, [friends, hydrated]);
-  useEffect(() => { if (PERSIST_ENABLED && !SYNC_ENABLED && hydrated) saveJSON(KEYS.requests, requests); }, [requests, hydrated]);
-  useEffect(() => { if (PERSIST_ENABLED && !SYNC_ENABLED && hydrated) saveJSON(KEYS.posts, posts); }, [posts, hydrated]);
+  useEffect(() => { if (PERSIST_ENABLED && !syncEnabled && hydrated) saveJSON(KEYS.friends, friends); }, [friends, hydrated, syncEnabled]);
+  useEffect(() => { if (PERSIST_ENABLED && !syncEnabled && hydrated) saveJSON(KEYS.requests, requests); }, [requests, hydrated, syncEnabled]);
+  useEffect(() => { if (PERSIST_ENABLED && !syncEnabled && hydrated) saveJSON(KEYS.posts, posts); }, [posts, hydrated, syncEnabled]);
 
   const sendRequest = async (email: string, note?: string) => {
-    if (SYNC_ENABLED) {
+    if (syncEnabled && token) {
       await api.post("/friends/request", { to_email: email });
       await refresh();
       return;
@@ -79,7 +76,7 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
   };
 
   const acceptRequest = async (id: string) => {
-    if (SYNC_ENABLED) {
+    if (syncEnabled && token) {
       await api.post("/friends/accept", { request_id: id });
       await refresh();
       return;
@@ -93,13 +90,9 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
 
   const reactPost = (postId: string, type: "like" | "clap" | "star" | "heart") => setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, reactions: { ...p.reactions, [type]: (p.reactions[type] || 0) + 1 } } : p)));
 
-  const value = useMemo<FriendsContextType>(() => ({ friends, requests, posts, refresh, sendRequest, acceptRequest, addPost, reactPost }), [friends, requests, posts]);
+  const value = useMemo<FriendsContextType>(() => ({ friends, requests, posts, refresh, sendRequest, acceptRequest, addPost, reactPost }), [friends, requests, posts, syncEnabled, token]);
 
   return <FriendsContext.Provider value={value}>{children}</FriendsContext.Provider>;
 }
 
-export function useFriends() {
-  const ctx = useContext(FriendsContext);
-  if (!ctx) throw new Error("useFriends must be used within FriendsProvider");
-  return ctx;
-}
+export function useFriends() { const ctx = useContext(FriendsContext); if (!ctx) throw new Error("useFriends must be used within FriendsProvider"); return ctx; }

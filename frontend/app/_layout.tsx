@@ -4,10 +4,11 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { PaperProvider, MD3LightTheme } from "react-native-paper";
+import { RuntimeConfigProvider } from "../src/context/RuntimeConfigContext";
 import { AuthProvider } from "../src/context/AuthContext";
 import { TasksProvider } from "../src/context/TasksContext";
-import { ChatProvider } from "../src/context/ChatContext";
 import { FriendsProvider } from "../src/context/FriendsContext";
+import { ChatProvider } from "../src/context/ChatContext";
 
 const theme = {
   ...MD3LightTheme,
@@ -27,16 +28,18 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <PaperProvider theme={theme as any}>
-          <AuthProvider>
-            <TasksProvider>
-              <FriendsProvider>
-                <ChatProvider>
-                  <StatusBar style="light" />
-                  <Stack screenOptions={{ headerShown: false }} />
-                </ChatProvider>
-              </FriendsProvider>
-            </TasksProvider>
-          </AuthProvider>
+          <RuntimeConfigProvider>
+            <AuthProvider>
+              <TasksProvider>
+                <FriendsProvider>
+                  <ChatProvider>
+                    <StatusBar style="light" />
+                    <Stack screenOptions={{ headerShown: false }} />
+                  </ChatProvider>
+                </FriendsProvider>
+              </TasksProvider>
+            </AuthProvider>
+          </RuntimeConfigProvider>
         </PaperProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

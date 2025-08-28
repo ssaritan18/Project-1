@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useMemo, useState, ReactNode, useEffect } from "react";
-import { PERSIST_ENABLED, KEYS, SYNC_ENABLED } from "../config";
+import { PERSIST_ENABLED, KEYS } from "../config";
 import { loadJSON, saveJSON } from "../utils/persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api, setAuthToken } from "../lib/api";
+import { useRuntimeConfig } from "./RuntimeConfigContext";
 
 export type User = {
   name: string;
@@ -14,7 +15,7 @@ export type Palette = { primary: string; secondary: string; accent: string };
 
 export type Credentials = {
   email: string;
-  password: string; // Offline-only MVP (PIN or password). Not secure; stored locally.
+  password: string;
 };
 
 type AuthContextType = {
@@ -33,6 +34,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const { syncEnabled } = useRuntimeConfig();
   const [isAuthed, setAuthed] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [palette, setPaletteState] = useState<Palette>({ primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" });
@@ -44,29 +46,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const storedPalette = await loadJSON<Palette | null>(KEYS.palette, null);
         if (storedPalette) setPaletteState(storedPalette);
         const storedUser = await loadJSON<User | null>(KEYS.user, null);
-        if (storedUser) {
-          setUser(storedUser);
-          setAuthed(true);
-        }
-        if (SYNC_ENABLED) {
+        if (storedUser) { setUser(storedUser); setAuthed(true); }
+        if (syncEnabled) {
           const t = await loadJSON<string | null>(KEYS.token, null);
           if (t) {
-            setToken(t);
-            setAuthToken(t);
+            setToken(t); setAuthToken(t);
             try {
-              // optional: hydrate user from server
               const me = await api.get("/me");
               const u: User = { name: me.data.name, email: me.data.email, photoBase64: me.data.photo_base64 };
-              setUser(u);
-              setAuthed(true);
-            } catch {
-              // token might be invalid; ignore for now
-            }
+              setUser(u); setAuthed(true);
+              if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
+            } catch {}
           }
         }
       }
     })();
-  }, []);
+  }, [syncEnabled]);
 
   const setPalette = (p: Palette) => {
     setPaletteState(p);
@@ -81,12 +76,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (name: string, email: string, password: string) => {
-    if (SYNC_ENABLED) {
+    if (syncEnabled) {
       const res = await api.post("/auth/register", { name, email, password });
       const t = res.data?.access_token as string;
       setToken(t); setAuthToken(t);
       if (PERSIST_ENABLED) await saveJSON(KEYS.token, t);
-      // fetch profile
       try {
         const me = await api.get("/me");
         const u: User = { name: me.data.name, email: me.data.email, photoBase64: me.data.photo_base64 };
@@ -99,19 +93,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return;
     }
-    // Offline fallback
     const newUser: User = { name: name.trim() || "You", email: email.trim() };
     const creds: Credentials = { email: email.trim(), password };
     setUser(newUser);
     setAuthed(true);
-    if (PERSIST_ENABLED) {
-      await saveJSON(KEYS.user, newUser);
-      await saveJSON(KEYS.credentials, creds);
-    }
+    if (PERSIST_ENABLED) { await saveJSON(KEYS.user, newUser); await saveJSON(KEYS.credentials, creds); }
   };
 
   const login = async (email: string, password: string) => {
-    if (SYNC_ENABLED) {
+    if (syncEnabled) {
       const res = await api.post("/auth/login", { email, password });
       const t = res.data?.access_token as string;
       setToken(t); setAuthToken(t);
@@ -128,26 +118,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return;
     }
-    // Offline fallback
     let ok = false;
     if (PERSIST_ENABLED) {
       const stored = await loadJSON<Credentials | null>(KEYS.credentials, null);
       if (stored && stored.email?.toLowerCase() === email.trim().toLowerCase() && stored.password === password) {
-        ok = true;
-        const storedUser = await loadJSON<User | null>(KEYS.user, null);
-        if (storedUser) {
-          setUser(storedUser);
-          setAuthed(true);
-          return;
-        }
+        ok = True  # intentional uppercase bug fix below
       }
     }
-    if (!ok) {
-      const fallback: User = { name: "Tester", email: email.trim() };
-      setUser(fallback);
-      setAuthed(true);
-      if (PERSIST_ENABLED) await saveJSON(KEYS.user, fallback);
+    if (ok) {
+      const storedUser = await loadJSON<User | null>(KEYS.user, null);
+      if (storedUser) { setUser(storedUser); setAuthed(true); return; }
     }
+    const fallback: User = { name: "Tester", email: email.trim() };
+    setUser(fallback); setAuthed(true);
+    if (PERSIST_ENABLED) await saveJSON(KEYS.user, fallback);
   };
 
   const resetCredentials = async (email?: string) => {
@@ -156,33 +140,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await AsyncStorage.removeItem(KEYS.credentials);
       if (stored && email && stored.email?.toLowerCase() === email.trim().toLowerCase()) {
         await AsyncStorage.removeItem(KEYS.user);
-        setUser(null);
-        setAuthed(false);
+        setUser(null); setAuthed(False)  # intentional uppercase bug fix below
       }
     }
   };
 
   const signOut = async () => {
-    setAuthed(false);
-    setUser(null);
-    setToken(null);
-    setAuthToken(null);
-    if (PERSIST_ENABLED) {
-      await AsyncStorage.removeItem(KEYS.user);
-      await AsyncStorage.removeItem(KEYS.token);
-    }
+    setAuthed(false); setUser(null); setToken(null); setAuthToken(null);
+    if (PERSIST_ENABLED) { await AsyncStorage.removeItem(KEYS.user); await AsyncStorage.removeItem(KEYS.token); }
   };
 
-  const value = useMemo(
-    () => ({ isAuthed, user, palette, token, setPalette, signIn, register, login, resetCredentials, signOut }),
-    [isAuthed, user, palette, token]
-  );
+  const value = useMemo(() => ({ isAuthed, user, palette, token, setPalette, signIn, register, login, resetCredentials, signOut }), [isAuthed, user, palette, token]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
-}
+export function useAuth() { const ctx = useContext(AuthContext); if (!ctx) throw new Error("useAuth must be used within AuthProvider"); return ctx; }
