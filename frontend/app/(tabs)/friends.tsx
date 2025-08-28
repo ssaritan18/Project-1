@@ -3,20 +3,23 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingVi
 import { useFriends } from "../../src/context/FriendsContext";
 import { FlashList } from "@shopify/flash-list";
 import { Ionicons } from "@expo/vector-icons";
+import { SYNC_ENABLED } from "../../src/config";
 
 export default function FriendsScreen() {
-  const { friends, requests, posts, sendRequest, acceptRequest, addPost, reactPost } = useFriends();
-  const [friendName, setFriendName] = React.useState("");
+  const { friends, requests, posts, sendRequest, acceptRequest, addPost, reactPost, refresh } = useFriends();
+  const [friendEmail, setFriendEmail] = React.useState("");
   const [postText, setPostText] = React.useState("");
+
+  React.useEffect(() => { refresh(); }, [refresh]);
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
       <View style={styles.container}>
-        <Text style={styles.header}>Friends</Text>
+        <Text style={styles.header}>Friends {SYNC_ENABLED ? "(Online)" : "(Local)"}</Text>
 
         <View style={styles.row}>
-          <TextInput style={styles.input} placeholder="Add friend by name" placeholderTextColor="#777" value={friendName} onChangeText={setFriendName} />
-          <TouchableOpacity style={styles.actionBtn} onPress={() => { if (friendName.trim()) { sendRequest(friendName.trim()); setFriendName(""); } }}>
+          <TextInput style={styles.input} placeholder="Add friend by email" placeholderTextColor="#777" value={friendEmail} onChangeText={setFriendEmail} />
+          <TouchableOpacity style={styles.actionBtn} onPress={() => { if (friendEmail.trim()) { sendRequest(friendEmail.trim()); setFriendEmail(""); } }}>
             <Ionicons name="person-add" size={20} color="#000" />
           </TouchableOpacity>
         </View>
@@ -42,7 +45,7 @@ export default function FriendsScreen() {
             keyExtractor={(f) => f.id}
             estimatedItemSize={60}
             renderItem={({ item }) => (
-              <View style={styles.itemRow}><Text style={styles.itemText}>{item.name}</Text></View>
+              <View style={styles.itemRow}><Text style={styles.itemText}>{item.name}{item.email ? ` (${item.email})` : ''}</Text></View>
             )}
             contentContainerStyle={{ paddingBottom: 12 }}
           />

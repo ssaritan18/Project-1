@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useMemo, useState, ReactNode, useEffect } from "react";
-import { PERSIST_ENABLED, KEYS } from "../config";
+import { PERSIST_ENABLED, KEYS, SYNC_ENABLED } from "../config";
 import { loadJSON, saveJSON } from "../utils/persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { api, setAuthToken } from "../lib/api";
 
 export type User = {
   name: string;
@@ -20,10 +21,9 @@ type AuthContextType = {
   isAuthed: boolean;
   user: User | null;
   palette: Palette;
+  token: string | null;
   setPalette: (p: Palette) => void;
-  // Quick sign-in (legacy continue)
   signIn: (user: Partial<User>) => Promise<void>;
-  // Auth flows
   register: (name: string, email: string, password: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   resetCredentials: (email?: string) => Promise<void>;
@@ -36,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthed, setAuthed] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [palette, setPaletteState] = useState<Palette>({ primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" });
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -46,6 +47,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (storedUser) {
           setUser(storedUser);
           setAuthed(true);
+        }
+        if (SYNC_ENABLED) {
+          const t = await loadJSON<string | null>(KEYS.token, null);
+          if (t) {
+            setToken(t);
+            setAuthToken(t);
+            try {
+              // optional: hydrate user from server
+              const me = await api.get("/me");
+              const u: User = { name: me.data.name, email: me.data.email, photoBase64: me.data.photo_base64 };
+              setUser(u);
+              setAuthed(true);
+            } catch {
+              // token might be invalid; ignore for now
+            }
+          }
         }
       }
     })();
@@ -64,6 +81,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (name: string, email: string, password: string) => {
+    if (SYNC_ENABLED) {
+      const res = await api.post("/auth/register", { name, email, password });
+      const t = res.data?.access_token as string;
+      setToken(t); setAuthToken(t);
+      if (PERSIST_ENABLED) await saveJSON(KEYS.token, t);
+      // fetch profile
+      try {
+        const me = await api.get("/me");
+        const u: User = { name: me.data.name, email: me.data.email, photoBase64: me.data.photo_base64 };
+        setUser(u); setAuthed(true);
+        if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
+      } catch {
+        const u: User = { name, email };
+        setUser(u); setAuthed(true);
+        if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
+      }
+      return;
+    }
+    // Offline fallback
     const newUser: User = { name: name.trim() || "You", email: email.trim() };
     const creds: Credentials = { email: email.trim(), password };
     setUser(newUser);
@@ -75,6 +111,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
+    if (SYNC_ENABLED) {
+      const res = await api.post("/auth/login", { email, password });
+      const t = res.data?.access_token as string;
+      setToken(t); setAuthToken(t);
+      if (PERSIST_ENABLED) await saveJSON(KEYS.token, t);
+      try {
+        const me = await api.get("/me");
+        const u: User = { name: me.data.name, email: me.data.email, photoBase64: me.data.photo_base64 };
+        setUser(u); setAuthed(true);
+        if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
+      } catch {
+        const u: User = { name: "You", email };
+        setUser(u); setAuthed(true);
+        if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
+      }
+      return;
+    }
+    // Offline fallback
     let ok = false;
     if (PERSIST_ENABLED) {
       const stored = await loadJSON<Credentials | null>(KEYS.credentials, null);
@@ -88,7 +142,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
     }
-    // If not using persistence or no creds, allow fallback: quick local sign-in
     if (!ok) {
       const fallback: User = { name: "Tester", email: email.trim() };
       setUser(fallback);
@@ -101,7 +154,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (PERSIST_ENABLED) {
       const stored = await loadJSON<Credentials | null>(KEYS.credentials, null);
       await AsyncStorage.removeItem(KEYS.credentials);
-      // If resetting for the same email, also clear the user to force new signup
       if (stored && email && stored.email?.toLowerCase() === email.trim().toLowerCase()) {
         await AsyncStorage.removeItem(KEYS.user);
         setUser(null);
@@ -113,12 +165,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     setAuthed(false);
     setUser(null);
-    if (PERSIST_ENABLED) await AsyncStorage.removeItem(KEYS.user);
+    setToken(null);
+    setAuthToken(null);
+    if (PERSIST_ENABLED) {
+      await AsyncStorage.removeItem(KEYS.user);
+      await AsyncStorage.removeItem(KEYS.token);
+    }
   };
 
   const value = useMemo(
-    () => ({ isAuthed, user, palette, setPalette, signIn, register, login, resetCredentials, signOut }),
-    [isAuthed, user, palette]
+    () => ({ isAuthed, user, palette, token, setPalette, signIn, register, login, resetCredentials, signOut }),
+    [isAuthed, user, palette, token]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
