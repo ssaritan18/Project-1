@@ -89,6 +89,17 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
         console.log("❌ WebSocket closed:", { code: event.code, reason: event.reason });
         setWsConnectionStatus(`Closed (${event.code})`);
         wsRef.current = null;
+        
+        // Auto-reconnect after 3 seconds if not normal closure
+        if (event.code !== 1000) {
+          console.log("🔄 Auto-reconnecting WebSocket in 3s...");
+          setTimeout(() => {
+            if (syncEnabled && wsEnabled && token) {
+              console.log("🔄 Attempting WebSocket reconnection...");
+              connectWS();
+            }
+          }, 3000);
+        }
       };
       sock.onerror = (error) => {
         console.error("❌ WebSocket error:", error);
