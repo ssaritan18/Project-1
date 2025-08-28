@@ -230,10 +230,19 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
 
   const acceptRequest = async (id: string) => {
     if (syncEnabled && token) {
-      await api.post("/friends/accept", { request_id: id });
-      await refresh();
+      try {
+        await api.post("/friends/accept", { request_id: id });
+        // Remove from local requests immediately
+        setRequests((prev) => prev.filter((r) => r.id !== id));
+        // Refresh friends list
+        await refresh();
+        setLastNotification("Arkadaş isteği kabul edildi");
+      } catch (e) {
+        console.error("❌ Accept request failed:", e);
+      }
       return;
     }
+    // Local-only logic
     const req = requests.find((r) => r.id === id);
     if (req) setFriends((prev) => [...prev, { id: uid(), name: req.from }]);
     setRequests((prev) => prev.filter((r) => r.id !== id));
@@ -241,10 +250,17 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
 
   const rejectRequest = async (id: string) => {
     if (syncEnabled && token) {
-      await api.post("/friends/reject", { request_id: id });
-      await refresh();
+      try {
+        await api.post("/friends/reject", { request_id: id });
+        // Remove from local requests immediately
+        setRequests((prev) => prev.filter((r) => r.id !== id));
+        setLastNotification("Arkadaş isteği reddedildi");
+      } catch (e) {
+        console.error("❌ Reject request failed:", e);
+      }
       return;
     }
+    // Local-only logic
     setRequests((prev) => prev.filter((r) => r.id !== id));
   };
 
