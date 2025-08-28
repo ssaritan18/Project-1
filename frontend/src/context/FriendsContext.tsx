@@ -50,13 +50,30 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
   };
 
   const connectWS = () => {
-    if (!syncEnabled || !wsEnabled || !token) {
-      console.log("🔌 WebSocket not connecting:", { syncEnabled, wsEnabled, hasToken: !!token });
-      setWsConnectionStatus(`Not connecting: sync=${syncEnabled}, ws=${wsEnabled}, token=${!!token}`);
+    console.log("🔧 connectWS called with:", { syncEnabled, wsEnabled, hasToken: !!token });
+    
+    if (!syncEnabled) {
+      console.log("🔌 WebSocket not connecting: syncEnabled is false");
+      setWsConnectionStatus("Sync disabled");
       return;
     }
+    
+    if (!wsEnabled) {
+      console.log("🔌 WebSocket not connecting: wsEnabled is false");
+      setWsConnectionStatus("WebSocket disabled");
+      return;
+    }
+    
+    if (!token) {
+      console.log("🔌 WebSocket not connecting: no token");
+      setWsConnectionStatus("No token");
+      return;
+    }
+
     try {
       const base = process.env.EXPO_PUBLIC_BACKEND_URL || "";
+      console.log("🔧 EXPO_PUBLIC_BACKEND_URL:", base);
+      
       const wsProto = base.startsWith("https") ? "wss" : "ws";
       const url = base.replace(/^https?/, wsProto) + "/api/ws?token=" + encodeURIComponent(token);
       console.log("🔌 Attempting WebSocket connection to:", url.replace(token, "***TOKEN***"));
