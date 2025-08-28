@@ -10,7 +10,7 @@ export default function Login() {
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
       <View style={styles.container}>
-        <Text style={styles.title}>Adhers Social Club</Text>
+        <Text style={styles.title}>ADHDers Social Club</Text>
         <Text style={styles.subtitle}>Motivate your day with tiny wins</Text>
 
         <View style={styles.inputBox}>

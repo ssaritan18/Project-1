@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "ADHDers Social Club",
+    "slug": "adhders-social-club",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "scheme": "adhders",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

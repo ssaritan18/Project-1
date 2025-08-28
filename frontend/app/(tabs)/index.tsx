@@ -12,7 +12,7 @@ import { Confetti } from "../../src/components/Confetti";
 const COLOR_PRESETS = ["#A3C9FF", "#FFCFE1", "#B8F1D9", "#FFE3A3", "#FFB3BA"];
 
 export default function HomeScreen() {
-  const { tasks, increment, addTask, remove } = useTasks();
+  const { tasks, increment, addTask, remove, reorder } = useTasks();
   const { palette } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const [title, setTitle] = useState("");
@@ -51,11 +51,7 @@ export default function HomeScreen() {
       <DraggableFlatList
         data={tasks}
         keyExtractor={(item) => item.id}
-        onDragEnd={({ data }) => {
-          // Replace tasks in place order – since state lives in context, we need a minimal workaround:
-          // We'll remove and re-add via setTasks, but TasksProvider doesn't expose setter; in MVP we'll mutate local ordering with a simple trick.
-          // Here we just map to TaskCard; order visually reflects data.
-        }}
+        onDragEnd={({ data }) => reorder(data)}
         renderItem={({ item, drag, isActive }) => (
           <ScaleDecorator>
             <View style={{ opacity: isActive ? 0.9 : 1 }}>

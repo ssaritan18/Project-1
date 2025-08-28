@@ -10,14 +10,14 @@ export default function Index() {
     const t = setTimeout(() => {
       if (isAuthed) router.replace("/(tabs)");
       else router.replace("/(auth)/login");
-    }, 800); // tiny splash
+    }, 800);
     return () => clearTimeout(t);
   }, [isAuthed]);
 
   return (
     <View style={styles.container}>
       <ActivityIndicator color="#A3C9FF" />
-      <Text style={styles.text}>Adhers Social Club</Text>
+      <Text style={styles.text}>ADHDers Social Club</Text>
     </View>
   );
 }
