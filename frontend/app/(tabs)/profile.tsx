@@ -8,6 +8,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { makeBackup, restoreBackup, resetAll } from "../../src/utils/backup";
 import { router } from "expo-router";
 import { useRuntimeConfig } from "../../src/context/RuntimeConfigContext";
+import { api } from "../../src/lib/api";
 
 const PRESETS = [
   { primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" },
@@ -51,8 +52,23 @@ export default function ProfileScreen() {
     }
   };
 
+  const seedDemo = async () => {
+    if (!syncEnabled || !token) {
+      Alert.alert("Enable Online mode", "Turn on Sync Mode and log in online to seed demo users.");
+      return;
+    }
+    try {
+      const res = await api.post("/dev/seed-demo");
+      const users = res.data?.users || [];
+      const lines = users.map((u: any) => `${u.name} — ${u.email} / ${u.password}`).join("\n");
+      Alert.alert("Demo users seeded", lines || "Seed complete.");
+    } catch (e: any) {
+      Alert.alert("Seed failed", e?.response?.data?.detail || "Please try again.");
+    }
+  };
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ padding: 16, paddingBottom: 140 }}>
+    <ScrollView style={styles.container} contentContainerStyle={{ padding: 16, paddingBottom: 180 }}>
       <Text style={styles.title}>{user?.name || "You"}</Text>
       <Text style={styles.meta}>Streak: {streak} days</Text>
 
@@ -80,7 +96,7 @@ export default function ProfileScreen() {
         <TouchableOpacity style={[styles.btn, { backgroundColor: '#A3C9FF' }]} onPress={onBackup}><Text style={styles.btnTextDark}>Backup to JSON</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.btn, { backgroundColor: '#B8F1D9' }]} onPress={onRestore}><Text style={styles.btnTextDark}>Restore from JSON</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.btn, { backgroundColor: '#FFCFE1' }]} onPress={onReset}><Text style={styles.btnTextDark}>Reset Demo Data</Text></TouchableOpacity>
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#FFE3A3' }]} onPress={() => router.push('/help')}><Text style={styles.btnTextDark}>Help & Tips</Text></TouchableOpacity>
+        <TouchableOpacity style={[styles.btn, { backgroundColor: '#E1FFA3' }]} onPress={seedDemo}><Text style={styles.btnTextDark}>Seed Demo Users</Text></TouchableOpacity>
       </View>
 
       <View style={{ marginTop: 24 }}>
