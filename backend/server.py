@@ -271,6 +271,23 @@ async def friends_list(user=Depends(get_current_user)):
         items = await db.users.find({"_id": {"$in": ids}}).to_list(200)
     return {"friends": [{"_id": u["_id"], "name": u.get("name"), "email": u.get("email") } for u in items]}
 
+@api_router.get("/friends/requests")
+async def friends_requests(user=Depends(get_current_user)):
+    # Return incoming pending requests for the current user
+    reqs = await db.friend_requests.find({"to_user_id": user["_id"], "status": "pending"}).sort("created_at", -1).to_list(200)
+    # Enrich with from user basic info
+    results = []
+    for r in reqs:
+        fu = await db.users.find_one({"_id": r["from_user_id"]})
+        results.append({
+            "_id": r["_id"],
+            "from_user_id": r["from_user_id"],
+            "from_name": fu.get("name") if fu else None,
+            "from_email": fu.get("email") if fu else None,
+            "created_at": r.get("created_at"),
+        })
+    return {"requests": results}
+
 # --- Posts ---
 @api_router.get("/posts/feed")
 async def posts_feed(limit: int = 50, user=Depends(get_current_user)):
