@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useAuth } from "../../src/context/AuthContext";
 import { useTasks } from "../../src/context/TasksContext";
 import { ProgressBar } from "../../src/components/ProgressBar";
+import { useStreak } from "../../src/hooks/useStreak";
+import { useFocusEffect } from "@react-navigation/native";
 
 const PRESETS = [
   { primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" },
@@ -16,7 +18,9 @@ export default function ProfileScreen() {
   const total = tasks.reduce((a, t) => a + t.goal, 0);
   const done = tasks.reduce((a, t) => a + t.progress, 0);
   const ratio = total ? done / total : 0;
-  const streak = Math.min(7, tasks.filter((t) => t.progress >= t.goal).length); // playful mock
+  const { streak, refresh } = useStreak();
+
+  useFocusEffect(React.useCallback(() => { refresh(); }, [refresh]));
 
   return (
     <View style={styles.container}>

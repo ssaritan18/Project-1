@@ -5,6 +5,8 @@ import { useTasks } from "../../src/context/TasksContext";
 import { useAuth } from "../../src/context/AuthContext";
 import { TaskCard } from "../../src/components/TaskCard";
 import { ProgressBar } from "../../src/components/ProgressBar";
+import { Ionicons } from "@expo/vector-icons";
+import { Celebration } from "../../src/components/Celebration";
 
 export default function HomeScreen() {
   const { tasks, increment, addTask, remove } = useTasks();
@@ -12,6 +14,7 @@ export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [title, setTitle] = useState("");
   const [goal, setGoal] = useState("5");
+  const [celebrate, setCelebrate] = useState(false);
 
   const totals = useMemo(() => {
     const total = tasks.reduce((acc, t) => acc + (t.goal || 0), 0);
@@ -28,6 +31,11 @@ export default function HomeScreen() {
     setModalVisible(false);
   };
 
+  const onIncrement = async (id: string) => {
+    const done = await increment(id);
+    if (done) setCelebrate(true);
+  };
+
   return (
     <View style={styles.container}>
       <FlashList
@@ -38,7 +46,7 @@ export default function HomeScreen() {
         renderItem={({ item }) => (
           <TaskCard
             task={{ _id: item.id, title: item.title, goal: item.goal, progress: item.progress, color: item.color }}
-            onIncrement={() => increment(item.id)}
+            onIncrement={() => onIncrement(item.id)}
             onDelete={() => remove(item.id)}
           />
         )}
@@ -48,7 +56,14 @@ export default function HomeScreen() {
           </View>
         )}
         ListEmptyComponent={() => (
-          <Text style={styles.empty}>No tasks yet. Add one below.</Text>
+          <View style={styles.emptyWrap}>
+            <Ionicons name="trophy" size={36} color="#FFE3A3" />
+            <Text style={styles.emptyTitle}>No tasks yet</Text>
+            <Text style={styles.emptyMeta}>Create your first tiny task and start the streak.</Text>
+            <TouchableOpacity style={[styles.addBtn, { backgroundColor: palette.primary }]} onPress={() => setModalVisible(true)}>
+              <Text style={styles.addText}>Add your first task</Text>
+            </TouchableOpacity>
+          </View>
         )}
       />
 
@@ -78,6 +93,8 @@ export default function HomeScreen() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
+      <Celebration visible={celebrate} onDone={() => setCelebrate(false)} />
     </View>
   );
 }
@@ -85,6 +102,9 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0c0c0c" },
   header: { color: "#fff", fontSize: 22, fontWeight: "700" },
+  emptyWrap: { alignItems: 'center', padding: 32, gap: 8 },
+  emptyTitle: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  emptyMeta: { color: '#bdbdbd', textAlign: 'center' },
   empty: { color: "#a1a1a1", textAlign: "center", marginTop: 24 },
   footer: { position: "absolute", left: 0, right: 0, bottom: 0, padding: 16, backgroundColor: "#111", borderTopColor: "#1a1a1a", borderTopWidth: 1 },
   totalText: { color: "#e5e5e5", marginBottom: 8, fontWeight: "600" },
