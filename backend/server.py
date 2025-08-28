@@ -29,7 +29,7 @@ ACCESS_EXPIRES_DAYS = 7
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Create the main app without a prefix
-app = FastAPI(title="ADHDers API", version="0.2.0")
+app = FastAPI(title="ADHDers API", version="0.2.1")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -149,6 +149,9 @@ class FriendRequestReq(BaseModel):
 class FriendAcceptReq(BaseModel):
     request_id: str
 
+class FriendRejectReq(BaseModel):
+    request_id: str
+
 # ROUTES
 @api_router.get("/")
 async def root():
@@ -242,6 +245,10 @@ async def create_friend_request(payload: FriendRequestReq, user=Depends(get_curr
     to = await db.users.find_one({"email": payload.to_email.lower()})
     if not to:
         raise HTTPException(status_code=404, detail="User not found")
+    # prevent duplicates
+    existing = await db.friend_requests.find_one({"from_user_id": user["_id"], "to_user_id": to["_id"], "status": "pending"})
+    if existing:
+        return existing
     fr = {
         "_id": str(uuid.uuid4()),
         "from_user_id": user["_id"],
@@ -263,6 +270,14 @@ async def accept_friend_request(payload: FriendAcceptReq, user=Depends(get_curre
     await db.users.update_one({"_id": fr["from_user_id"]}, {"$addToSet": {"friends": user["_id"]}})
     return {"accepted": True}
 
+@api_router.post("/friends/reject")
+async def reject_friend_request(payload: FriendRejectReq, user=Depends(get_current_user)):
+    fr = await db.friend_requests.find_one({"_id": payload.request_id})
+    if not fr or fr.get("to_user_id") != user["_id"]:
+        raise HTTPException(status_code=404, detail="Request not found")
+    await db.friend_requests.update_one({"_id": fr["_id"]}, {"$set": {"status": "rejected", "updated_at": now_iso()}})
+    return {"rejected": True}
+
 @api_router.get("/friends/list")
 async def friends_list(user=Depends(get_current_user)):
     ids = user.get("friends", [])
@@ -273,9 +288,7 @@ async def friends_list(user=Depends(get_current_user)):
 
 @api_router.get("/friends/requests")
 async def friends_requests(user=Depends(get_current_user)):
-    # Return incoming pending requests for the current user
     reqs = await db.friend_requests.find({"to_user_id": user["_id"], "status": "pending"}).sort("created_at", -1).to_list(200)
-    # Enrich with from user basic info
     results = []
     for r in reqs:
         fu = await db.users.find_one({"_id": r["from_user_id"]})
