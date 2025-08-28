@@ -116,6 +116,8 @@ export default function ProfileScreen() {
       </View>
 
       <TouchableOpacity style={[styles.signOutBtn, { backgroundColor: palette.primary }]} onPress={async () => {
+        console.log("🚪 Sign Out button clicked!");
+        Alert.alert("Debug", "Sign Out button works!");
         await signOut();
         router.replace("/(auth)/welcome");
       }}>
