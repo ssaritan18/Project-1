@@ -76,23 +76,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (name: string, email: string, password: string) => {
+    console.log("🔧 register called:", { syncEnabled, name, email });
     if (syncEnabled) {
-      const res = await api.post("/auth/register", { name, email, password });
-      const t = res.data?.access_token as string;
-      setToken(t); setAuthToken(t);
-      if (PERSIST_ENABLED) await saveJSON(KEYS.token, t);
+      console.log("📡 Making register API call to backend...");
       try {
-        const me = await api.get("/me");
-        const u: User = { name: me.data.name, email: me.data.email, photoBase64: me.data.photo_base64 };
-        setUser(u); setAuthed(true);
-        if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
-      } catch {
-        const u: User = { name, email };
-        setUser(u); setAuthed(true);
-        if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
+        const res = await api.post("/auth/register", { name, email, password });
+        console.log("✅ Register response:", res.data);
+        const t = res.data?.access_token as string;
+        console.log("🔑 Token received:", t ? "Yes" : "No");
+        setToken(t); setAuthToken(t);
+        if (PERSIST_ENABLED) await saveJSON(KEYS.token, t);
+        console.log("💾 Token saved to storage");
+        try {
+          const me = await api.get("/me");
+          const u: User = { name: me.data.name, email: me.data.email, photoBase64: me.data.photo_base64 };
+          setUser(u); setAuthed(true);
+          if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
+          console.log("✅ User profile loaded:", u);
+        } catch (e) {
+          console.log("❌ /me failed, using fallback:", e);
+          const u: User = { name, email };
+          setUser(u); setAuthed(true);
+          if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
+        }
+      } catch (e) {
+        console.error("❌ Register API call failed:", e);
       }
       return;
     }
+    console.log("📱 Using local register (sync disabled)");
     const newUser: User = { name: name.trim() || "You", email: email.trim() };
     const creds: Credentials = { email: email.trim(), password };
     setUser(newUser);
