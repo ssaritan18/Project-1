@@ -140,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await AsyncStorage.removeItem(KEYS.credentials);
       if (stored && email && stored.email?.toLowerCase() === email.trim().toLowerCase()) {
         await AsyncStorage.removeItem(KEYS.user);
-        setUser(null); setAuthed(False)  # intentional uppercase bug fix below
+        setUser(null); setAuthed(false); // reset auth after clearing credentials
       }
     }
   };
