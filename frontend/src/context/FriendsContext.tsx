@@ -168,9 +168,22 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
   }, [syncEnabled, token, wsEnabled]);
 
   useEffect(() => {
-    if (wsRef.current) { try { wsRef.current.close(); } catch {} wsRef.current = null; }
-    connectWS();
-    return () => { if (wsRef.current) { try { wsRef.current.close(); } catch {} wsRef.current = null; } };
+    // Debounce WebSocket connections to prevent rapid reconnects
+    const timeoutId = setTimeout(() => {
+      if (wsRef.current) { 
+        try { wsRef.current.close(); } catch {} 
+        wsRef.current = null; 
+      }
+      connectWS();
+    }, 500);
+
+    return () => { 
+      clearTimeout(timeoutId);
+      if (wsRef.current) { 
+        try { wsRef.current.close(); } catch {} 
+        wsRef.current = null; 
+      } 
+    };
   }, [syncEnabled, wsEnabled, token]);
 
   const refresh = async () => {
