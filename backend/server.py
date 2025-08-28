@@ -262,6 +262,12 @@ async def seed_demo(user=Depends(get_current_user)):
         "requests": [r1, r2],
     }
 
+# --- DEV: List all users for debugging ---
+@api_router.get("/dev/users")
+async def list_users():
+    users = await db.users.find({}, {"password_hash": 0}).to_list(100)
+    return {"users": users}
+
 # --- WebSocket endpoint ---
 @api_router.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket):
