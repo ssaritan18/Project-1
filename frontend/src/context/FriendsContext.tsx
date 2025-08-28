@@ -39,10 +39,15 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [presence, setPresence] = useState<Record<string, boolean>>({});
   const [lastNotification, setLastNotification] = useState<string | null>(null);
+  const [wsConnectionStatus, setWsConnectionStatus] = useState<string>("Disconnected");
   const wsRef = useRef<WebSocket | null>(null);
   const pollRef = useRef<any>(null);
 
   const clearNotification = () => setLastNotification(null);
+
+  const showDebugAlert = (message: string) => {
+    Alert.alert("🐛 Debug", message, [{ text: "OK" }]);
+  };
 
   const connectWS = () => {
     if (!syncEnabled || !wsEnabled || !token) {
