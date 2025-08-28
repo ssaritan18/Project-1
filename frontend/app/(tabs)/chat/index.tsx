@@ -6,8 +6,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
 export default function ChatList() {
-  const { chats, createGroup } = useChat();
+  const { chats, createGroup, joinByCode } = useChat();
   const [title, setTitle] = React.useState("");
+  const [code, setCode] = React.useState("");
 
   const openChat = (id: string) => router.push(`/(tabs)/chat/${id}`);
 
@@ -16,6 +17,13 @@ export default function ChatList() {
     const id = createGroup(title.trim(), ["You"]);
     setTitle("");
     openChat(id);
+  };
+
+  const join = () => {
+    if (!code.trim()) return;
+    const id = joinByCode(code.trim());
+    setCode("");
+    if (id) openChat(id);
   };
 
   return (
@@ -28,6 +36,12 @@ export default function ChatList() {
             <Ionicons name="add" size={20} color="#000" />
           </TouchableOpacity>
         </View>
+        <View style={styles.newRow}>
+          <TextInput style={styles.input} placeholder="Join by invite code" placeholderTextColor="#777" value={code} onChangeText={setCode} />
+          <TouchableOpacity style={[styles.createBtn, { backgroundColor: '#FFE3A3' }]} onPress={join}>
+            <Ionicons name="key" size={20} color="#000" />
+          </TouchableOpacity>
+        </View>
         <FlashList
           data={chats}
           keyExtractor={(i) => i.id}
@@ -36,7 +50,8 @@ export default function ChatList() {
             <TouchableOpacity style={styles.item} onPress={() => openChat(item.id)}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.meta}>{item.members.join(", ")}</Text>
+                <Text style={styles.meta}>Members: {item.members.join(", ")}</Text>
+                <Text style={styles.meta}>Invite code: {item.inviteCode}</Text>
               </View>
               {item.unread ? (
                 <View style={styles.badge}><Text style={styles.badgeText}>{item.unread}</Text></View>
