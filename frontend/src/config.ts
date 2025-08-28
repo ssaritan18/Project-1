@@ -1,4 +1,6 @@
 export const PERSIST_ENABLED = true;
+export const SYNC_ENABLED = false; // keep local-first for now
+export const WS_ENABLED = false;
 
 export const KEYS = {
   palette: "adhders_palette_v1",

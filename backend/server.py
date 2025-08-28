@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Header
+from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends, Request
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -8,10 +8,11 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 import uuid
-from datetime import datetime, timezone, date
+from datetime import datetime, timezone, timedelta, date
 import base64
 import requests
-
+from jose import jwt, JWTError
+from passlib.context import CryptContext
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -21,20 +22,27 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# Security
+JWT_SECRET = os.getenv("JWT_SECRET", "devsecret")
+ALGO = "HS256"
+ACCESS_EXPIRES_DAYS = 7
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 # Create the main app without a prefix
-app = FastAPI(title="Adhers Social Club API", version="0.1.0")
+app = FastAPI(title="ADHDers API", version="0.2.0")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-
 # Utils
+
+def now_iso():
+    return datetime.now(timezone.utc).isoformat()
 
 def today_str() -> str:
     return date.today().isoformat()
 
 async def get_or_create_user_by_google(google_payload: Dict[str, Any]):
-    # google_payload keys: sub, email, name, picture (url)
     sub = google_payload.get("sub")
     if not sub:
         raise HTTPException(status_code=400, detail="Invalid Google token: missing sub")
@@ -43,7 +51,6 @@ async def get_or_create_user_by_google(google_payload: Dict[str, Any]):
     if user:
         return user
 
-    # Download avatar and convert to base64 if available
     photo_b64 = None
     picture_url = google_payload.get("picture")
     if picture_url:
@@ -60,18 +67,43 @@ async def get_or_create_user_by_google(google_payload: Dict[str, Any]):
         "email": google_payload.get("email"),
         "name": google_payload.get("name") or "User",
         "photo_base64": photo_b64,
-        # Personalization defaults (pastel palette)
-        "palette": {
-            "primary": "#A3C9FF",  # baby blue
-            "secondary": "#FFCFE1",  # soft pink
-            "accent": "#B8F1D9"  # mint
-        },
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "palette": {"primary": "#A3C9FF", "secondary": "#FFCFE1", "accent": "#B8F1D9"},
+        "friends": [],
+        "created_at": now_iso(),
+        "updated_at": now_iso(),
     }
     await db.users.insert_one(new_user)
     return new_user
 
+# JWT helpers
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+def create_access_token(sub: str, email: Optional[str] = None) -> str:
+    payload = {
+        "sub": sub,
+        "email": email,
+        "exp": datetime.now(timezone.utc) + timedelta(days=ACCESS_EXPIRES_DAYS),
+        "iat": datetime.now(timezone.utc),
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=ALGO)
+
+async def get_current_user(authorization: str = Header(default=None)):
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Missing bearer token")
+    token = authorization.split(" ", 1)[1]
+    try:
+        data = jwt.decode(token, JWT_SECRET, algorithms=[ALGO])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    user_id = data.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token payload")
+    user = await db.users.find_one({"_id": user_id})
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
 
 # MODELS
 class StatusCheck(BaseModel):
@@ -87,216 +119,253 @@ class GoogleAuthRequest(BaseModel):
 
 class UserProfileUpdate(BaseModel):
     name: Optional[str] = None
-    photo_base64: Optional[str] = None  # must be base64 string
-    palette: Optional[Dict[str, str]] = None  # {primary, secondary, accent}
+    photo_base64: Optional[str] = None
+    palette: Optional[Dict[str, str]] = None
 
-class TaskCreate(BaseModel):
+class RegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class PostCreate(BaseModel):
+    text: str
+
+class ReactionReq(BaseModel):
+    type: str
+
+class CreateChatReq(BaseModel):
     title: str
-    goal: int = Field(gt=0, le=1000)
-    color: Optional[str] = None
 
-class TaskUpdate(BaseModel):
-    title: Optional[str] = None
-    goal: Optional[int] = Field(default=None, gt=0, le=1000)
-    color: Optional[str] = None
-    progress: Optional[int] = Field(default=None, ge=0)
+class JoinByCodeReq(BaseModel):
+    code: str
 
-class ReactionCreate(BaseModel):
-    to_user_id: str
-    type: str  # like | clap | star
-    comment: Optional[str] = None
+class FriendRequestReq(BaseModel):
+    to_email: str
 
+class FriendAcceptReq(BaseModel):
+    request_id: str
 
 # ROUTES
 @api_router.get("/")
 async def root():
-    return {"message": "Adhers Social Club API running"}
+    return {"message": "ADHDers API running"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
+    status_obj = StatusCheck(client_name=input.client_name)
+    await db.status_checks.insert_one(status_obj.dict())
     return status_obj
 
 @api_router.get("/status", response_model=List[StatusCheck])
 async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
-    return [StatusCheck(**status_check) for status_check in status_checks]
-
+    return [StatusCheck(**sc) for sc in status_checks]
 
 # --- Auth (Google) ---
 @api_router.post("/auth/google")
 async def auth_google(payload: GoogleAuthRequest):
-    # Verify token with Google tokeninfo endpoint (simple server-side verification)
     tokeninfo_url = f"https://oauth2.googleapis.com/tokeninfo?id_token={payload.id_token}"
     r = requests.get(tokeninfo_url, timeout=10)
     if r.status_code != 200:
         raise HTTPException(status_code=401, detail="Invalid Google id_token")
     data = r.json()
-    # Expect fields like: sub, email, name, picture, aud
     user = await get_or_create_user_by_google(data)
-    return {"user_id": user["_id"], "name": user.get("name"), "email": user.get("email"), "photo_base64": user.get("photo_base64"), "palette": user.get("palette")}
+    access = create_access_token(sub=user["_id"], email=user.get("email"))
+    return {"access_token": access, "token_type": "bearer"}
 
+# --- Auth (Email+Password) ---
+@api_router.post("/auth/register", response_model=Token)
+async def auth_register(req: RegisterRequest):
+    existing = await db.users.find_one({"email": req.email.lower()})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    uid = str(uuid.uuid4())
+    doc = {
+        "_id": uid,
+        "email": req.email.lower(),
+        "name": req.name,
+        "password_hash": pwd_context.hash(req.password),
+        "palette": {"primary": "#A3C9FF", "secondary": "#FFCFE1", "accent": "#B8F1D9"},
+        "friends": [],
+        "created_at": now_iso(),
+        "updated_at": now_iso(),
+    }
+    await db.users.insert_one(doc)
+    access = create_access_token(sub=uid, email=doc["email"])
+    return Token(access_token=access)
+
+@api_router.post("/auth/login", response_model=Token)
+async def auth_login(req: LoginRequest):
+    user = await db.users.find_one({"email": req.email.lower()})
+    if not user or not user.get("password_hash"):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    if not pwd_context.verify(req.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    access = create_access_token(sub=user["_id"], email=user.get("email"))
+    return Token(access_token=access)
 
 # --- Users ---
 @api_router.get("/me")
-async def get_me(x_user_id: Optional[str] = Header(default=None)):
-    if not x_user_id:
-        raise HTTPException(status_code=401, detail="Missing x-user-id header")
-    user = await db.users.find_one({"_id": x_user_id})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    # Compute today summary
+async def get_me(user=Depends(get_current_user)):
+    uid = user["_id"]
     t = today_str()
-    tasks = await db.tasks.find({"user_id": x_user_id, "date": t}).to_list(500)
+    tasks = await db.tasks.find({"user_id": uid, "date": t}).to_list(500)
     total_goal = sum(int(task.get("goal", 0)) for task in tasks)
     total_progress = sum(int(task.get("progress", 0)) for task in tasks)
     daily_ratio = (total_progress / total_goal) if total_goal else 0
-    # streak: number of consecutive days (including today) with at least one completed task
-    streak = 0
-    d = date.today()
-    while True:
-        ds = d.isoformat()
-        any_completed = await db.tasks.find_one({"user_id": x_user_id, "date": ds, "$expr": {"$gte": ["$progress", "$goal"]}})
-        if any_completed:
-            streak += 1
-            d = d.fromordinal(d.toordinal() - 1)
-        else:
-            break
     return {
-        "_id": user["_id"],
+        "_id": uid,
         "name": user.get("name"),
         "email": user.get("email"),
         "photo_base64": user.get("photo_base64"),
         "palette": user.get("palette"),
         "today": {"total_goal": total_goal, "total_progress": total_progress, "ratio": daily_ratio},
-        "streak": streak,
     }
 
 @api_router.patch("/me")
-async def update_me(update: UserProfileUpdate, x_user_id: Optional[str] = Header(default=None)):
-    if not x_user_id:
-        raise HTTPException(status_code=401, detail="Missing x-user-id header")
+async def update_me(update: UserProfileUpdate, user=Depends(get_current_user)):
     updates: Dict[str, Any] = {k: v for k, v in update.model_dump().items() if v is not None}
     if not updates:
         return {"updated": False}
-    updates["updated_at"] = datetime.now(timezone.utc).isoformat()
-    await db.users.update_one({"_id": x_user_id}, {"$set": updates})
-    user = await db.users.find_one({"_id": x_user_id})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    updates["updated_at"] = now_iso()
+    await db.users.update_one({"_id": user["_id"]}, {"$set": updates})
+    user = await db.users.find_one({"_id": user["_id"]})
     return {"updated": True, "user": user}
 
-@api_router.get("/users/community")
-async def community(limit: int = 20):
-    # Return simple cards: name, photo, today progress ratio
-    users = await db.users.find().limit(limit).to_list(length=limit)
-    cards = []
-    for u in users:
-        uid = u["_id"]
-        t = today_str()
-        tasks = await db.tasks.find({"user_id": uid, "date": t}).to_list(200)
-        total_goal = sum(int(task.get("goal", 0)) for task in tasks)
-        total_progress = sum(int(task.get("progress", 0)) for task in tasks)
-        ratio = (total_progress / total_goal) if total_goal else 0
-        cards.append({
-            "user_id": uid,
-            "name": u.get("name"),
-            "photo_base64": u.get("photo_base64"),
-            "ratio": ratio,
-            "total_progress": total_progress,
-            "total_goal": total_goal,
-        })
-    return {"users": cards}
+# --- Friends ---
+@api_router.post("/friends/request")
+async def create_friend_request(payload: FriendRequestReq, user=Depends(get_current_user)):
+    to = await db.users.find_one({"email": payload.to_email.lower()})
+    if not to:
+        raise HTTPException(status_code=404, detail="User not found")
+    fr = {
+        "_id": str(uuid.uuid4()),
+        "from_user_id": user["_id"],
+        "to_user_id": to["_id"],
+        "status": "pending",
+        "created_at": now_iso(),
+    }
+    await db.friend_requests.insert_one(fr)
+    return fr
 
+@api_router.post("/friends/accept")
+async def accept_friend_request(payload: FriendAcceptReq, user=Depends(get_current_user)):
+    fr = await db.friend_requests.find_one({"_id": payload.request_id})
+    if not fr or fr.get("to_user_id") != user["_id"]:
+        raise HTTPException(status_code=404, detail="Request not found")
+    await db.friend_requests.update_one({"_id": fr["_id"]}, {"$set": {"status": "accepted", "updated_at": now_iso()}})
+    # add each other
+    await db.users.update_one({"_id": user["_id"]}, {"$addToSet": {"friends": fr["from_user_id"]}})
+    await db.users.update_one({"_id": fr["from_user_id"]}, {"$addToSet": {"friends": user["_id"]}})
+    return {"accepted": True}
 
-# --- Tasks ---
-@api_router.get("/tasks/today")
-async def get_tasks_today(x_user_id: Optional[str] = Header(default=None)):
-    if not x_user_id:
-        raise HTTPException(status_code=401, detail="Missing x-user-id header")
-    tasks = await db.tasks.find({"user_id": x_user_id, "date": today_str()}).sort("created_at", 1).to_list(500)
-    return {"tasks": tasks}
+@api_router.get("/friends/list")
+async def friends_list(user=Depends(get_current_user)):
+    ids = user.get("friends", [])
+    items = []
+    if ids:
+        items = await db.users.find({"_id": {"$in": ids}}).to_list(200)
+    return {"friends": [{"_id": u["_id"], "name": u.get("name"), "email": u.get("email") } for u in items]}
 
-@api_router.post("/tasks")
-async def create_task(task: TaskCreate, x_user_id: Optional[str] = Header(default=None)):
-    if not x_user_id:
-        raise HTTPException(status_code=401, detail="Missing x-user-id header")
+# --- Posts ---
+@api_router.get("/posts/feed")
+async def posts_feed(limit: int = 50, user=Depends(get_current_user)):
+    posts = await db.posts.find().sort("created_at", -1).limit(limit).to_list(limit)
+    return {"posts": posts}
+
+@api_router.post("/posts")
+async def create_post(payload: PostCreate, user=Depends(get_current_user)):
     doc = {
         "_id": str(uuid.uuid4()),
-        "user_id": x_user_id,
-        "title": task.title,
-        "goal": int(task.goal),
-        "progress": 0,
-        "color": task.color or "#A3C9FF",
-        "date": today_str(),
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "author_id": user["_id"],
+        "author_name": user.get("name"),
+        "text": payload.text,
+        "reactions": {"like": 0, "heart": 0, "clap": 0, "star": 0},
+        "created_at": now_iso(),
     }
-    await db.tasks.insert_one(doc)
+    await db.posts.insert_one(doc)
     return doc
 
-@api_router.patch("/tasks/{task_id}")
-async def update_task(task_id: str, task: TaskUpdate, x_user_id: Optional[str] = Header(default=None)):
-    if not x_user_id:
-        raise HTTPException(status_code=401, detail="Missing x-user-id header")
-    updates: Dict[str, Any] = {k: v for k, v in task.model_dump().items() if v is not None}
-    if "progress" in updates and "goal" in updates:
-        # Make sure progress doesn't exceed goal
-        updates["progress"] = min(int(updates["progress"]), int(updates["goal"]))
-    updates["updated_at"] = datetime.now(timezone.utc).isoformat()
-    res = await db.tasks.update_one({"_id": task_id, "user_id": x_user_id}, {"$set": updates})
-    if res.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Task not found")
-    task_doc = await db.tasks.find_one({"_id": task_id})
-    return task_doc
-
-@api_router.post("/tasks/{task_id}/increment")
-async def increment_task(task_id: str, x_user_id: Optional[str] = Header(default=None)):
-    if not x_user_id:
-        raise HTTPException(status_code=401, detail="Missing x-user-id header")
-    task = await db.tasks.find_one({"_id": task_id, "user_id": x_user_id})
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    new_progress = min(int(task.get("progress", 0)) + 1, int(task.get("goal", 1)))
-    await db.tasks.update_one({"_id": task_id}, {"$set": {"progress": new_progress, "updated_at": datetime.now(timezone.utc).isoformat()}})
-    task = await db.tasks.find_one({"_id": task_id})
-    return task
-
-@api_router.delete("/tasks/{task_id}")
-async def delete_task(task_id: str, x_user_id: Optional[str] = Header(default=None)):
-    if not x_user_id:
-        raise HTTPException(status_code=401, detail="Missing x-user-id header")
-    res = await db.tasks.delete_one({"_id": task_id, "user_id": x_user_id})
-    if res.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Task not found")
-    return {"deleted": True}
-
-
-# --- Reactions ---
-@api_router.post("/reactions")
-async def create_reaction(r: ReactionCreate, x_user_id: Optional[str] = Header(default=None)):
-    if not x_user_id:
-        raise HTTPException(status_code=401, detail="Missing x-user-id header")
-    if r.type not in ["like", "clap", "star"]:
+@api_router.post("/posts/{post_id}/react")
+async def react_post(post_id: str, payload: ReactionReq, user=Depends(get_current_user)):
+    if payload.type not in ["like", "heart", "clap", "star"]:
         raise HTTPException(status_code=400, detail="Invalid reaction type")
+    await db.posts.update_one({"_id": post_id}, {"$inc": {f"reactions.{payload.type}": 1}})
+    post = await db.posts.find_one({"_id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return post
+
+# --- Chats (HTTP skeleton, no WS yet) ---
+@api_router.post("/chats")
+async def create_chat(payload: CreateChatReq, user=Depends(get_current_user)):
+    code = uuid.uuid4().hex[:6].upper()
     doc = {
         "_id": str(uuid.uuid4()),
-        "from_user_id": x_user_id,
-        "to_user_id": r.to_user_id,
-        "type": r.type,
-        "comment": r.comment,
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "title": payload.title,
+        "members": [user["_id"]],
+        "invite_code": code,
+        "created_at": now_iso(),
     }
-    await db.reactions.insert_one(doc)
+    await db.chats.insert_one(doc)
     return doc
 
-@api_router.get("/reactions/recent")
-async def recent_reactions(limit: int = 20):
-    items = await db.reactions.find().sort("created_at", -1).limit(limit).to_list(limit)
-    return {"reactions": items}
+@api_router.post("/chats/join")
+async def join_chat(payload: JoinByCodeReq, user=Depends(get_current_user)):
+    chat = await db.chats.find_one({"invite_code": payload.code.upper()})
+    if not chat:
+        raise HTTPException(status_code=404, detail="Invalid code")
+    await db.chats.update_one({"_id": chat["_id"]}, {"$addToSet": {"members": user["_id"]}})
+    chat = await db.chats.find_one({"_id": chat["_id"]})
+    return chat
 
+@api_router.get("/chats")
+async def list_chats(user=Depends(get_current_user)):
+    chats = await db.chats.find({"members": user["_id"]}).sort("created_at", -1).to_list(200)
+    return {"chats": chats}
+
+@api_router.get("/chats/{chat_id}/messages")
+async def list_messages(chat_id: str, limit: int = 50, user=Depends(get_current_user)):
+    chat = await db.chats.find_one({"_id": chat_id, "members": user["_id"]})
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    msgs = await db.messages.find({"chat_id": chat_id}).sort("created_at", -1).limit(limit).to_list(limit)
+    return {"messages": list(reversed(msgs))}
+
+@api_router.post("/chats/{chat_id}/messages")
+async def send_message(chat_id: str, payload: PostCreate, user=Depends(get_current_user)):
+    chat = await db.chats.find_one({"_id": chat_id, "members": user["_id"]})
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    msg = {
+        "_id": str(uuid.uuid4()),
+        "chat_id": chat_id,
+        "author_id": user["_id"],
+        "author_name": user.get("name"),
+        "text": payload.text,
+        "reactions": {"like": 0, "heart": 0, "clap": 0, "star": 0},
+        "created_at": now_iso(),
+    }
+    await db.messages.insert_one(msg)
+    return msg
+
+@api_router.post("/chats/messages/{message_id}/react")
+async def react_message(message_id: str, payload: ReactionReq, user=Depends(get_current_user)):
+    if payload.type not in ["like", "heart", "clap", "star"]:
+        raise HTTPException(status_code=400, detail="Invalid reaction type")
+    msg = await db.messages.find_one({"_id": message_id})
+    if not msg:
+        raise HTTPException(status_code=404, detail="Message not found")
+    chat = await db.chats.find_one({"_id": msg["chat_id"], "members": user["_id"]})
+    if not chat:
+        raise HTTPException(status_code=403, detail="No access to chat")
+    await db.messages.update_one({"_id": message_id}, {"$inc": {f"reactions.{payload.type}": 1}})
+    msg = await db.messages.find_one({"_id": message_id})
+    return msg
 
 # Include the router in the main app
 app.include_router(api_router)
