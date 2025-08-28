@@ -17,7 +17,7 @@ const PRESETS = [
 
 export default function ProfileScreen() {
   const { user, signOut, palette, setPalette, token } = useAuth();
-  const { syncEnabled, setSyncEnabled } = useRuntimeConfig();
+  const { syncEnabled, setSyncEnabled, wsEnabled, setWsEnabled } = useRuntimeConfig();
   const { tasks } = useTasks();
   const total = tasks.reduce((a, t) => a + t.goal, 0);
   const done = tasks.reduce((a, t) => a + t.progress, 0);
@@ -52,7 +52,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ padding: 16, paddingBottom: 120 }}>
+    <ScrollView style={styles.container} contentContainerStyle={{ padding: 16, paddingBottom: 140 }}>
       <Text style={styles.title}>{user?.name || "You"}</Text>
       <Text style={styles.meta}>Streak: {streak} days</Text>
 
@@ -88,6 +88,14 @@ export default function ProfileScreen() {
         <View style={styles.syncRow}>
           <Text style={styles.meta}>{syncEnabled ? 'Online' : 'Local'}</Text>
           <Switch value={syncEnabled} onValueChange={onToggleSync} />
+        </View>
+      </View>
+
+      <View style={{ marginTop: 16 }}>
+        <Text style={styles.sectionTitle}>Realtime (WebSocket)</Text>
+        <View style={styles.syncRow}>
+          <Text style={styles.meta}>WS {wsEnabled ? 'On' : 'Off'}</Text>
+          <Switch value={wsEnabled} onValueChange={setWsEnabled} />
         </View>
       </View>
 

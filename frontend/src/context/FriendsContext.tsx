@@ -38,6 +38,7 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
   const [presence, setPresence] = useState<Record<string, boolean>>({});
   const [lastNotification, setLastNotification] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const pollRef = useRef<any>(null);
 
   const clearNotification = () => setLastNotification(null);
 
@@ -45,8 +46,9 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     if (!syncEnabled || !wsEnabled || !token) return;
     try {
       const base = process.env.EXPO_PUBLIC_BACKEND_URL || "";
-      const wsURL = base.replace("http", "ws") + "/api/ws?token=" + encodeURIComponent(token);
-      const sock = new WebSocket(wsURL);
+      const wsProto = base.startsWith("https") ? "wss" : "ws";
+      const url = base.replace(/^https?/, wsProto) + "/api/ws?token=" + encodeURIComponent(token);
+      const sock = new WebSocket(url);
       sock.onopen = () => {};
       sock.onclose = () => { wsRef.current = null; };
       sock.onmessage = (ev) => {
@@ -55,14 +57,14 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
           if (data.type === "friend_request:incoming") {
             const from = data.from?.name || data.from?.email || "Friend";
             setRequests((prev) => [{ id: data.request_id, from }, ...prev]);
-            setLastNotification(`New friend request from ${from}`);
+            setLastNotification(`Yeni arkadaş isteği: ${from}`);
           } else if (data.type === "friend_request:accepted") {
             const by = data.by?.name || data.by?.email || "Friend";
-            setLastNotification(`Your request to ${by} has been accepted`);
+            setLastNotification(`İsteğiniz kabul edildi: ${by}`);
             refresh();
           } else if (data.type === "friend_request:rejected") {
             const by = data.by?.name || data.by?.email || "Friend";
-            setLastNotification(`Your request to ${by} was rejected`);
+            setLastNotification(`İsteğiniz reddedildi: ${by}`);
           } else if (data.type === "presence:update") {
             setPresence((prev) => ({ ...prev, [data.user_id]: !!data.online }));
           } else if (data.type === "presence:bulk") {
@@ -76,6 +78,20 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
       wsRef.current = sock;
     } catch {}
   };
+
+  // Fallback polling when WS not available
+  useEffect(() => {
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+    if (syncEnabled && token) {
+      pollRef.current = setInterval(() => {
+        // If WS is off or disconnected, poll
+        if (!wsEnabled || !wsRef.current) {
+          refresh();
+        }
+      }, 6000);
+    }
+    return () => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } };
+  }, [syncEnabled, token, wsEnabled]);
 
   useEffect(() => {
     if (wsRef.current) { try { wsRef.current.close(); } catch {} wsRef.current = null; }
