@@ -6,6 +6,7 @@ import { StatusBar } from "expo-status-bar";
 import { PaperProvider, MD3LightTheme } from "react-native-paper";
 import { AuthProvider } from "../src/context/AuthContext";
 import { TasksProvider } from "../src/context/TasksContext";
+import { ChatProvider } from "../src/context/ChatContext";
 
 const theme = {
   ...MD3LightTheme,
@@ -27,8 +28,10 @@ export default function RootLayout() {
         <PaperProvider theme={theme as any}>
           <AuthProvider>
             <TasksProvider>
-              <StatusBar style="light" />
-              <Stack screenOptions={{ headerShown: false }} />
+              <ChatProvider>
+                <StatusBar style="light" />
+                <Stack screenOptions={{ headerShown: false }} />
+              </ChatProvider>
             </TasksProvider>
           </AuthProvider>
         </PaperProvider>
