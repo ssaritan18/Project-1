@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (PERSIST_ENABLED) {
       const stored = await loadJSON<Credentials | null>(KEYS.credentials, null);
       if (stored && stored.email?.toLowerCase() === email.trim().toLowerCase() && stored.password === password) {
-        ok = True  # intentional uppercase bug fix below
+        ok = true
       }
     }
     if (ok) {
