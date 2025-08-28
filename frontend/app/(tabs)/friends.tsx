@@ -9,7 +9,7 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "
 import { useAuth } from "../../src/context/AuthContext";
 
 export default function FriendsScreen() {
-  const { friends, requests, posts, presence, sendRequest, acceptRequest, rejectRequest, addPost, reactPost, refresh, lastNotification, clearNotification } = useFriends();
+  const { friends, requests, posts, presence, wsConnectionStatus, sendRequest, acceptRequest, rejectRequest, addPost, reactPost, refresh, lastNotification, clearNotification } = useFriends();
   const { syncEnabled } = useRuntimeConfig();
   const [friendQuery, setFriendQuery] = React.useState("");
   const [postText, setPostText] = React.useState("");
