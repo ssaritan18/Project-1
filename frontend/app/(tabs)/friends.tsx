@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert } from "react-native";
 import { useFriends } from "../../src/context/FriendsContext";
 import { FlashList } from "@shopify/flash-list";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,7 +10,8 @@ import { useAuth } from "../../src/context/AuthContext";
 
 export default function FriendsScreen() {
   const { friends, requests, posts, presence, wsConnectionStatus, sendRequest, acceptRequest, rejectRequest, addPost, reactPost, refresh, lastNotification, clearNotification } = useFriends();
-  const { syncEnabled } = useRuntimeConfig();
+  const { syncEnabled, wsEnabled } = useRuntimeConfig();
+  const { token } = useAuth();
   const [friendQuery, setFriendQuery] = React.useState("");
   const [postText, setPostText] = React.useState("");
 
@@ -54,9 +55,17 @@ export default function FriendsScreen() {
       <View style={styles.container}>
         <Text style={styles.header}>Friends {syncEnabled ? "(Online)" : "(Local)"}</Text>
         {syncEnabled && (
-          <Text style={[styles.statusText, { color: wsConnectionStatus.includes('✅') ? '#3DDC84' : '#FF6B6B' }]}>
-            WebSocket: {wsConnectionStatus}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+            <Text style={[styles.statusText, { color: wsConnectionStatus.includes('✅') ? '#3DDC84' : '#FF6B6B' }]}>
+              WebSocket: {wsConnectionStatus}
+            </Text>
+            <TouchableOpacity 
+              style={{ backgroundColor: '#333', padding: 4, borderRadius: 6 }}
+              onPress={() => Alert.alert("Debug Info", `Sync: ${syncEnabled}\nWS: ${wsEnabled}\nToken: ${token ? 'Yes' : 'No'}\nStatus: ${wsConnectionStatus}`)}
+            >
+              <Text style={{ color: '#fff', fontSize: 10 }}>?</Text>
+            </TouchableOpacity>
+          </View>
         )}
 
         <Animated.View style={[styles.topCard, cardStyle]}> 
