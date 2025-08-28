@@ -34,7 +34,13 @@ export default function ProfileScreen() {
   const onRestore = async () => {
     try {
       const ok = await restoreBackup();
-      Alert.alert(ok ? "Restored" : "Cancelled", ok ? "Data restored. Please restart the app to see changes." : "No file selected.");
+      if (ok) {
+        Alert.alert("Restored", "Data restored. The app will reload now.", [
+          { text: "OK", onPress: () => { try { DevSettings.reload(); } catch { } } }
+        ]);
+      } else {
+        Alert.alert("Cancelled", "No file selected.");
+      }
     } catch (e) {
       Alert.alert("Restore failed", "Invalid file or read error.");
     }
