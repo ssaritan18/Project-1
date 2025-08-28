@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo, useState, ReactNode, useEffect } from "react";
 import { PERSIST_ENABLED, KEYS } from "../config";
 import { loadJSON, saveJSON } from "../utils/persist";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type User = {
   name: string;
@@ -14,8 +15,8 @@ type AuthContextType = {
   isAuthed: boolean;
   user: User | null;
   palette: Palette;
-  signIn: (user: Partial<User>) => void;
-  signOut: () => void;
+  signIn: (user: Partial<User>) => Promise<void>;
+  signOut: () => Promise<void>;
   setPalette: (p: Palette) => void;
 };
 
@@ -27,10 +28,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [palette, setPaletteState] = useState<Palette>({ primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" });
 
   useEffect(() => {
-    if (!PERSIST_ENABLED) return;
     (async () => {
-      const stored = await loadJSON<Palette | null>(KEYS.palette, null);
-      if (stored) setPaletteState(stored);
+      if (PERSIST_ENABLED) {
+        const storedPalette = await loadJSON<Palette | null>(KEYS.palette, null);
+        if (storedPalette) setPaletteState(storedPalette);
+        const storedUser = await loadJSON<User | null>(KEYS.user, null);
+        if (storedUser) {
+          setUser(storedUser);
+          setAuthed(true);
+        }
+      }
     })();
   }, []);
 
@@ -39,21 +46,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (PERSIST_ENABLED) saveJSON(KEYS.palette, p);
   };
 
+  const signIn = async (u: Partial<User>) => {
+    const cleaned: User = { name: (u.name || "You").trim(), email: u.email?.trim(), photoBase64: u.photoBase64 || null };
+    setUser(cleaned);
+    setAuthed(true);
+    if (PERSIST_ENABLED) await saveJSON(KEYS.user, cleaned);
+  };
+
+  const signOut = async () => {
+    setAuthed(false);
+    setUser(null);
+    if (PERSIST_ENABLED) await AsyncStorage.removeItem(KEYS.user);
+  };
+
   const value = useMemo(
-    () => ({
-      isAuthed,
-      user,
-      palette,
-      signIn: (u: Partial<User>) => {
-        setUser({ name: u.name || "You", email: u.email, photoBase64: u.photoBase64 || null });
-        setAuthed(true);
-      },
-      signOut: () => {
-        setAuthed(false);
-        setUser(null);
-      },
-      setPalette,
-    }),
+    () => ({ isAuthed, user, palette, signIn, signOut, setPalette }),
     [isAuthed, user, palette]
   );
 
