@@ -76,5 +76,4 @@ const styles = StyleSheet.create({
   input: { flex: 1, backgroundColor: '#1a1a1a', color: '#fff', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: '#222' },
   sendBtn: { backgroundColor: '#B8F1D9', paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
   iconBtn: { padding: 6 },
-  emoji: { fontSize: 18 },
 });
