@@ -6,6 +6,7 @@ import { ProgressBar } from "../../src/components/ProgressBar";
 import { useStreak } from "../../src/hooks/useStreak";
 import { useFocusEffect } from "@react-navigation/native";
 import { makeBackup, restoreBackup, resetAll } from "../../src/utils/backup";
+import { router } from "expo-router";
 
 const PRESETS = [
   { primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" },
@@ -24,28 +25,16 @@ export default function ProfileScreen() {
   useFocusEffect(React.useCallback(() => { refresh(); }, [refresh]));
 
   const onBackup = async () => {
-    try {
-      await makeBackup();
-    } catch (e) {
-      Alert.alert("Backup failed", "Could not create backup file.");
-    }
+    try { await makeBackup(); } catch { Alert.alert("Backup failed", "Could not create backup file."); }
   };
-
   const onRestore = async () => {
     try {
       const ok = await restoreBackup();
       if (ok) {
-        Alert.alert("Restored", "Data restored. The app will reload now.", [
-          { text: "OK", onPress: () => { try { DevSettings.reload(); } catch { } } }
-        ]);
-      } else {
-        Alert.alert("Cancelled", "No file selected.");
-      }
-    } catch (e) {
-      Alert.alert("Restore failed", "Invalid file or read error.");
-    }
+        Alert.alert("Restored", "Data restored. The app will reload now.", [ { text: "OK", onPress: () => { try { DevSettings.reload(); } catch {} } } ]);
+      } else { Alert.alert("Cancelled", "No file selected."); }
+    } catch { Alert.alert("Restore failed", "Invalid file or read error."); }
   };
-
   const onReset = async () => {
     Alert.alert("Reset all data?", "This will clear tasks, chats, friends, posts, and theme.", [
       { text: "Cancel", style: "cancel" },
@@ -54,7 +43,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ padding: 16, paddingBottom: 80 }}>
+    <ScrollView style={styles.container} contentContainerStyle={{ padding: 16, paddingBottom: 120 }}>
       <Text style={styles.title}>{user?.name || "You"}</Text>
       <Text style={styles.meta}>Streak: {streak} days</Text>
 
@@ -87,6 +76,9 @@ export default function ProfileScreen() {
         </TouchableOpacity>
         <TouchableOpacity style={[styles.btn, { backgroundColor: '#FFCFE1' }]} onPress={onReset}>
           <Text style={styles.btnTextDark}>Reset Demo Data</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.btn, { backgroundColor: '#FFE3A3' }]} onPress={() => router.push('/help')}>
+          <Text style={styles.btnTextDark}>Help & Tips</Text>
         </TouchableOpacity>
       </View>
 
