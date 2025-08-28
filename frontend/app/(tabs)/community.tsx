@@ -37,7 +37,7 @@ export default function CommunityScreen() {
                   <View style={[styles.progressFill, { width: `${(item.progress * 100).toFixed(0)}%` }]} />
                 </View>
                 <View style={{ flexDirection: 'row', gap: 6, marginTop: 8 }}>
-                  <TouchableOpacity style={styles.iconBtn}><Text style={styles.emoji}>👍</Text></TouchableOpacity>
+                  <TouchableOpacity style={styles.iconBtn}><Ionicons name="thumbs-up" size={20} color="#B8F1D9" /></TouchableOpacity>
                   <TouchableOpacity style={styles.iconBtn}><Text style={styles.emoji}>🔥</Text></TouchableOpacity>
                   <TouchableOpacity style={styles.iconBtn}><Text style={styles.emoji}>🎉</Text></TouchableOpacity>
                 </View>
