@@ -18,6 +18,7 @@ type FriendsContextType = {
   refresh: () => Promise<void>;
   sendRequest: (email: string, note?: string) => Promise<void>;
   acceptRequest: (id: string) => Promise<void>;
+  rejectRequest: (id: string) => Promise<void>;
   addPost: (text: string) => void;
   reactPost: (postId: string, type: "like" | "clap" | "star" | "heart") => void;
 };
@@ -38,7 +39,6 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
         const fl = await api.get("/friends/list");
         const serverFriends = (fl.data.friends || []).map((f: any) => ({ id: f._id, name: f.name || "Friend", email: f.email }));
         setFriends(serverFriends);
-        // requests endpoint optional; ignore if missing
         try {
           const rq = await api.get("/friends/requests");
           const serverReqs = (rq.data.requests || []).map((r: any) => ({ id: r._id, from: r.from_name || r.from_email || "Friend" }));
@@ -86,11 +86,20 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     setRequests((prev) => prev.filter((r) => r.id !== id));
   };
 
+  const rejectRequest = async (id: string) => {
+    if (syncEnabled && token) {
+      await api.post("/friends/reject", { request_id: id });
+      await refresh();
+      return;
+    }
+    setRequests((prev) => prev.filter((r) => r.id !== id));
+  };
+
   const addPost = (text: string) => setPosts((prev) => [{ id: uid(), author: "You", text, ts: Date.now(), reactions: {} }, ...prev]);
 
   const reactPost = (postId: string, type: "like" | "clap" | "star" | "heart") => setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, reactions: { ...p.reactions, [type]: (p.reactions[type] || 0) + 1 } } : p)));
 
-  const value = useMemo<FriendsContextType>(() => ({ friends, requests, posts, refresh, sendRequest, acceptRequest, addPost, reactPost }), [friends, requests, posts, syncEnabled, token]);
+  const value = useMemo<FriendsContextType>(() => ({ friends, requests, posts, refresh, sendRequest, acceptRequest, rejectRequest, addPost, reactPost }), [friends, requests, posts, syncEnabled, token]);
 
   return <FriendsContext.Provider value={value}>{children}</FriendsContext.Provider>;
 }

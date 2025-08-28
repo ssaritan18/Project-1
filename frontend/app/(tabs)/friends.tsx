@@ -3,10 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingVi
 import { useFriends } from "../../src/context/FriendsContext";
 import { FlashList } from "@shopify/flash-list";
 import { Ionicons } from "@expo/vector-icons";
-import { SYNC_ENABLED } from "../../src/config";
+import { useRuntimeConfig } from "../../src/context/RuntimeConfigContext";
 
 export default function FriendsScreen() {
-  const { friends, requests, posts, sendRequest, acceptRequest, addPost, reactPost, refresh } = useFriends();
+  const { friends, requests, posts, sendRequest, acceptRequest, rejectRequest, addPost, reactPost, refresh } = useFriends();
+  const { syncEnabled } = useRuntimeConfig();
   const [friendEmail, setFriendEmail] = React.useState("");
   const [postText, setPostText] = React.useState("");
 
@@ -15,7 +16,7 @@ export default function FriendsScreen() {
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
       <View style={styles.container}>
-        <Text style={styles.header}>Friends {SYNC_ENABLED ? "(Online)" : "(Local)"}</Text>
+        <Text style={styles.header}>Friends {syncEnabled ? "(Online)" : "(Local)"}</Text>
 
         <View style={styles.row}>
           <TextInput style={styles.input} placeholder="Add friend by email" placeholderTextColor="#777" value={friendEmail} onChangeText={setFriendEmail} />
@@ -30,9 +31,14 @@ export default function FriendsScreen() {
             {requests.map((r) => (
               <View key={r.id} style={styles.itemRow}>
                 <Text style={styles.itemText}>{r.from}</Text>
-                <TouchableOpacity style={styles.acceptBtn} onPress={() => acceptRequest(r.id)}>
-                  <Text style={{ color: '#000', fontWeight: '700' }}>Accept</Text>
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TouchableOpacity style={styles.acceptBtn} onPress={() => acceptRequest(r.id)}>
+                    <Text style={{ color: '#000', fontWeight: '700' }}>Accept</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.rejectBtn} onPress={() => rejectRequest(r.id)}>
+                    <Text style={{ color: '#000', fontWeight: '700' }}>Reject</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ))}
           </View>
@@ -95,7 +101,8 @@ const styles = StyleSheet.create({
   actionBtn: { backgroundColor: '#B8F1D9', padding: 10, borderRadius: 12 },
   itemRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#111', borderRadius: 12, padding: 12, marginBottom: 8 },
   itemText: { color: '#fff' },
-  acceptBtn: { backgroundColor: '#FFCFE1', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10 },
+  acceptBtn: { backgroundColor: '#B8F1D9', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10 },
+  rejectBtn: { backgroundColor: '#FFB3BA', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10 },
   postCard: { backgroundColor: '#111', borderRadius: 12, padding: 12, marginBottom: 10 },
   postAuthor: { color: '#fff', fontWeight: '800' },
   postText: { color: '#e5e5e5', marginTop: 6 },
