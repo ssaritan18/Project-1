@@ -230,17 +230,24 @@ def run_comprehensive_test():
     tokens = {}
     user_profiles = {}
     
-    # A. Register users
+    # A. Register users (or login if already exists)
     print("\n" + "=" * 50)
-    print("PHASE A: USER REGISTRATION")
+    print("PHASE A: USER REGISTRATION/LOGIN")
     print("=" * 50)
     
     for user in users_to_test:
-        result = tester.test_auth_register(user["name"], user["email"], user["password"])
-        if not result["success"]:
-            print(f"❌ CRITICAL: Registration failed for {user['email']}")
-            return False
-        tokens[user["email"]] = result["token"]
+        # Try login first
+        login_result = tester.test_auth_login(user["email"], user["password"])
+        if login_result["success"]:
+            print(f"✅ User {user['email']} already exists, logged in successfully")
+            tokens[user["email"]] = login_result["token"]
+        else:
+            # If login fails, try registration
+            result = tester.test_auth_register(user["name"], user["email"], user["password"])
+            if not result["success"]:
+                print(f"❌ CRITICAL: Both registration and login failed for {user['email']}")
+                return False
+            tokens[user["email"]] = result["token"]
     
     # B. Login users and capture tokens
     print("\n" + "=" * 50)
