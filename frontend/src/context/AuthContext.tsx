@@ -118,46 +118,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log("📡 Making login API call to backend...");
       try {
         const res = await api.post("/auth/login", { email, password });
-        console.log("✅ Login response:", res.data);
-        const t = res.data?.access_token as string;
-        console.log("🔑 Login token received:", t ? "Yes" : "No");
-        setToken(t); setAuthToken(t);
-        if (PERSIST_ENABLED) await saveJSON(KEYS.token, t);
-        console.log("💾 Login token saved to storage");
-        try {
-          const me = await api.get("/me");
-          const u: User = { name: me.data.name, email: me.data.email, photoBase64: me.data.photo_base64 };
-          setUser(u); setAuthed(true);
-          if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
-          console.log("✅ Login user profile loaded:", u);
-        } catch (e) {
-          console.log("❌ /me failed during login, using fallback:", e);
-          const u: User = { name: "You", email };
-          setUser(u); setAuthed(true);
-          if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
+        console.log("✅ Login API response received:", res.status);
+        
+        if (res.data?.access_token) {
+          const token = res.data.access_token;
+          setToken(token);
+          setAuthToken(token);
+          await saveJSON(KEYS.token, token);
+          
+          // Try to get user profile
+          try {
+            const profileRes = await api.get("/auth/me");
+            if (profileRes.data) {
+              const userData = { 
+                name: profileRes.data.name || email, 
+                email: profileRes.data.email || email 
+              };
+              setUser(userData);
+              await saveJSON(KEYS.user, userData);
+              setAuthed(true);
+              console.log("✅ Login successful, user profile loaded:", userData.name);
+            }
+          } catch (profileError) {
+            console.warn("⚠️ Profile fetch failed, using email as name:", profileError);
+            const userData = { name: email, email };
+            setUser(userData);
+            await saveJSON(KEYS.user, userData);
+            setAuthed(true);
+          }
+        } else {
+          throw new Error("No access token received");
         }
-      } catch (e) {
-        console.error("❌ Login API call failed:", e);
-        Alert.alert("Login Error", `Login failed: ${JSON.stringify(e)}`);
-        throw e; // Don't proceed with local login if online login fails
+      } catch (error: any) {
+        console.error("❌ Login error:", error);
+        
+        // Handle specific error types
+        if (error.response?.status === 401) {
+          throw new Error("Invalid email or password. Please check your credentials.");
+        } else if (error.response?.status === 403) {
+          throw new Error("Account not verified. Please check your email for verification instructions.");
+        } else if (error.code === 'NETWORK_ERROR' || error.message?.includes('timeout')) {
+          throw new Error("Connection timeout. Please check your internet connection and try again.");
+        } else if (error.response?.status >= 500) {
+          throw new Error("Server error. Please try again later.");
+        } else {
+          throw new Error(error.response?.data?.detail || error.message || "Login failed. Please try again.");
+        }
       }
-      return;
+    } else {
+      // Local mode fallback
+      const fakeUser = { name: email.split("@")[0], email };
+      setUser(fakeUser);
+      await saveJSON(KEYS.user, fakeUser);
+      setAuthed(true);
     }
-    console.log("📱 Using local login (sync disabled)");
-    let ok = false;
-    if (PERSIST_ENABLED) {
-      const stored = await loadJSON<Credentials | null>(KEYS.credentials, null);
-      if (stored && stored.email?.toLowerCase() === email.trim().toLowerCase() && stored.password === password) {
-        ok = true
-      }
-    }
-    if (ok) {
-      const storedUser = await loadJSON<User | null>(KEYS.user, null);
-      if (storedUser) { setUser(storedUser); setAuthed(true); return; }
-    }
-    const fallback: User = { name: "Tester", email: email.trim() };
-    setUser(fallback); setAuthed(true);
-    if (PERSIST_ENABLED) await saveJSON(KEYS.user, fallback);
   };
 
   const resetCredentials = async (email?: string) => {
