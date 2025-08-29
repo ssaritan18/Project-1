@@ -132,7 +132,6 @@ export default function ChatList() {
                 {/* Show chat type for debugging */}
                 <Text style={{ color: '#666', fontSize: 10 }}>
                   Type: {item.type || 'unknown'} | ID: {item.id?.slice(0, 8)}...
-                </Text>
               </View>
               </View>
               {item.unread ? (
