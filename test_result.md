@@ -235,4 +235,15 @@
 ##         -comment: "✅ PASSED: WebSocket Real-time Features fully tested. WebSocket connections established successfully for both users, chat:new_message broadcasting working (message received by ssaritan2), chat:message_reaction broadcasting working (reaction received by ssaritan), presence:update and presence:bulk messages working correctly. Real-time message delivery and reaction notifications functioning properly across all chat members."
 ##         -working: true
 ##         -agent: "testing"
-##         -comment: "✅ COMPREHENSIVE END-TO-END VERIFIED: WebSocket real-time features tested in comprehensive end-to-end scenario. Both direct chat and group chat WebSocket messaging working perfectly. Real-time message delivery (chat:new_message), real-time reactions (chat:message_reaction), and presence updates (presence:update, presence:bulk) all functioning correctly. WebSocket connections stable for both test users throughout entire test suite." 
+##         -comment: "✅ COMPREHENSIVE END-TO-END VERIFIED: WebSocket real-time features tested in comprehensive end-to-end scenario. Both direct chat and group chat WebSocket messaging working perfectly. Real-time message delivery (chat:new_message), real-time reactions (chat:message_reaction), and presence updates (presence:update, presence:bulk) all functioning correctly. WebSocket connections stable for both test users throughout entire test suite."
+##   - task: "Direct Chat (1-to-1) Functionality"
+##     implemented: true
+##     working: true
+##     file: "/app/backend/server.py"
+##     stuck_count: 0
+##     priority: "high"
+##     needs_retesting: false
+##     status_history:
+##         -working: true
+##         -agent: "testing"
+##         -comment: "✅ PASSED: Direct Chat (1-to-1) functionality fully tested in end-to-end scenario. POST /api/chats/direct/{friend_id} successfully creates direct chats between friends (chat_4106a9a1_77bc913f created). Both users can access the direct chat, send messages, receive real-time notifications, and react to messages. Direct chat persistence verified with 2 messages and reactions stored correctly in MongoDB. This key new feature is working perfectly and ready for production use." 
