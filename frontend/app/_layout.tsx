@@ -4,9 +4,9 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { PaperProvider, MD3LightTheme } from "react-native-paper";
-import { AuthProvider } from "../src/context/AuthContext";
+import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { RuntimeConfigProvider } from "../src/context/RuntimeConfigContext";
-import { TasksProvider } from "../src/context/TasksContext";
+import { TasksProvider } from "../src/context/TasksProvider";
 import { FriendsProvider } from "../src/context/FriendsContext";
 import { ChatProvider } from "../src/context/ChatContext";
 
@@ -23,23 +23,9 @@ const theme = {
   },
 };
 
-export default function RootLayout() {
-  return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <PaperProvider theme={theme as any}>
-          <AuthProvider>
-            <RuntimeConfigWrapper />
-          </AuthProvider>
-        </PaperProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
-  );
-}
-
-// Wrapper to access token from AuthContext and pass to RuntimeConfigProvider
-function RuntimeConfigWrapper() {
-  const { token } = React.useContext(require('../src/context/AuthContext').AuthContext);
+// Wrapper to pass token to RuntimeConfigProvider
+function AppWrapper() {
+  const { token } = useAuth();
   
   return (
     <RuntimeConfigProvider token={token}>
@@ -52,5 +38,19 @@ function RuntimeConfigWrapper() {
         </FriendsProvider>
       </TasksProvider>
     </RuntimeConfigProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <PaperProvider theme={theme as any}>
+          <AuthProvider>
+            <AppWrapper />
+          </AuthProvider>
+        </PaperProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
