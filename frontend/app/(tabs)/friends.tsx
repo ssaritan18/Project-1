@@ -145,6 +145,7 @@ export default function FriendsScreen() {
             <Text style={{ color: '#fff', fontSize: 11 }}>Status: {wsConnectionStatus}</Text>
             <Text style={{ color: '#fff', fontSize: 11 }}>Friends Count: {friends.length}</Text>
             <Text style={{ color: '#fff', fontSize: 11 }}>Token Preview: {token ? token.slice(0, 20) + '...' : 'null'}</Text>
+            <Text style={{ color: '#fff', fontSize: 11 }}>Friends Data: {JSON.stringify(friends).slice(0, 100)}...</Text>
           </View>
         )}
       </View>
