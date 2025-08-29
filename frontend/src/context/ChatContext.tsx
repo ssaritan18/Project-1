@@ -468,7 +468,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     },
   }), [
     chats, 
-    messagesByChat, 
+    backendMessages,
+    localMessages,
     mode, 
     isAuthenticated, 
     token, 
