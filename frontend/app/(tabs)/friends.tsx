@@ -135,6 +135,18 @@ export default function FriendsScreen() {
         {lastNotification ? (
           <View style={styles.toast}><Text style={styles.toastText}>{lastNotification}</Text></View>
         ) : null}
+
+        {showDebug && (
+          <View style={{ backgroundColor: '#1a1a1a', padding: 12, margin: 16, borderRadius: 8 }}>
+            <Text style={{ color: '#A3C9FF', fontSize: 12, fontWeight: 'bold', marginBottom: 4 }}>🔍 Debug Info:</Text>
+            <Text style={{ color: '#fff', fontSize: 11 }}>Sync: {syncEnabled ? 'true' : 'false'}</Text>
+            <Text style={{ color: '#fff', fontSize: 11 }}>WebSocket: {wsEnabled ? 'true' : 'false'}</Text>
+            <Text style={{ color: '#fff', fontSize: 11 }}>Token: {token ? 'Yes' : 'No'}</Text>
+            <Text style={{ color: '#fff', fontSize: 11 }}>Status: {wsConnectionStatus}</Text>
+            <Text style={{ color: '#fff', fontSize: 11 }}>Friends Count: {friends.length}</Text>
+            <Text style={{ color: '#fff', fontSize: 11 }}>Token Preview: {token ? token.slice(0, 20) + '...' : 'null'}</Text>
+          </View>
+        )}
       </View>
     </KeyboardAvoidingView>
   );
