@@ -53,6 +53,18 @@ export default function FriendsScreen() {
     }
   };
 
+  const handleMessageFriend = async (friend: any) => {
+    try {
+      console.log("💬 Starting direct chat with friend:", friend);
+      const chatId = await openDirectChat(friend.id || friend._id);
+      console.log("✅ Direct chat opened, navigating to:", chatId);
+      router.push(`/(tabs)/chat/${chatId}`);
+    } catch (error: any) {
+      console.error("❌ Failed to open direct chat:", error);
+      Alert.alert("Chat Error", error.message || "Mesaj başlatılamadı. Tekrar deneyin.");
+    }
+  };
+
   const firstReq = requests[0];
 
   return (
