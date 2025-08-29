@@ -65,15 +65,6 @@ export default function FriendsScreen() {
             >
               <Text style={{ color: '#fff', fontSize: 10 }}>?</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={{ backgroundColor: '#A3C9FF', padding: 6, borderRadius: 6, marginLeft: 8 }}
-              onPress={() => {
-                console.log("📱 Manual refresh button pressed");
-                refresh();
-              }}
-            >
-              <Text style={{ color: '#0c0c0c', fontSize: 10, fontWeight: 'bold' }}>🔄</Text>
-            </TouchableOpacity>
           </View>
         )}
 
@@ -85,27 +76,9 @@ export default function FriendsScreen() {
                 <TouchableOpacity style={styles.acceptBtn} onPress={() => acceptRequest(firstReq.id)}>
                   <Text style={{ color: '#000', fontWeight: '700' }}>Accept</Text>
                 </TouchableOpacity>
-            <TouchableOpacity 
-              style={{ backgroundColor: '#A3C9FF', padding: 6, borderRadius: 6, marginLeft: 8 }}
-              onPress={() => {
-                console.log("📱 Manual refresh button pressed");
-                refresh();
-              }}
-            >
-              <Text style={{ color: '#0c0c0c', fontSize: 10, fontWeight: 'bold' }}>🔄</Text>
-            </TouchableOpacity>
                 <TouchableOpacity style={styles.rejectBtn} onPress={() => rejectRequest(firstReq.id)}>
                   <Text style={{ color: '#000', fontWeight: '700' }}>Reject</Text>
                 </TouchableOpacity>
-            <TouchableOpacity 
-              style={{ backgroundColor: '#A3C9FF', padding: 6, borderRadius: 6, marginLeft: 8 }}
-              onPress={() => {
-                console.log("📱 Manual refresh button pressed");
-                refresh();
-              }}
-            >
-              <Text style={{ color: '#0c0c0c', fontSize: 10, fontWeight: 'bold' }}>🔄</Text>
-            </TouchableOpacity>
               </View>
             </View>
           ) : null}
@@ -116,15 +89,6 @@ export default function FriendsScreen() {
           <TouchableOpacity style={styles.actionBtn} onPress={addFriend}>
             <Ionicons name="person-add" size={20} color="#000" />
           </TouchableOpacity>
-            <TouchableOpacity 
-              style={{ backgroundColor: '#A3C9FF', padding: 6, borderRadius: 6, marginLeft: 8 }}
-              onPress={() => {
-                console.log("📱 Manual refresh button pressed");
-                refresh();
-              }}
-            >
-              <Text style={{ color: '#0c0c0c', fontSize: 10, fontWeight: 'bold' }}>🔄</Text>
-            </TouchableOpacity>
         </View>
 
         <View style={{ marginTop: 16 }}>
@@ -151,15 +115,6 @@ export default function FriendsScreen() {
             <TextInput style={styles.input} placeholder="What would you like to share?" placeholderTextColor="#777" value={postText} onChangeText={setPostText} />
             <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#A3C9FF' }]} onPress={() => { if (postText.trim()) { addPost(postText.trim()); setPostText(""); } }}>
               <Ionicons name="send" size={20} color="#000" />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={{ backgroundColor: '#A3C9FF', padding: 6, borderRadius: 6, marginLeft: 8 }}
-              onPress={() => {
-                console.log("📱 Manual refresh button pressed");
-                refresh();
-              }}
-            >
-              <Text style={{ color: '#0c0c0c', fontSize: 10, fontWeight: 'bold' }}>🔄</Text>
             </TouchableOpacity>
           </View>
         </View>
