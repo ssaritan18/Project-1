@@ -16,14 +16,18 @@ export default function SignUp() {
     if (params?.email && typeof params.email === 'string') setEmail(params.email);
   }, [params?.email]);
 
-  const valid = useMemo(() => emailRegex.test(email.trim()) && (password.trim().length >= 4), [email, password]);
+  const valid = useMemo(() => 
+    emailRegex.test(email.trim()) && 
+    name.trim().length >= 2 && 
+    password.trim().length >= 4, 
+  [email, name, password]);
 
   const submit = async () => {
     if (!valid) {
-      Alert.alert("Invalid", "Enter a valid email and a PIN/password (min 4 chars)");
+      Alert.alert("Invalid Input", "Please fill all fields:\n• Valid email\n• Name (min 2 chars)\n• PIN/Password (min 4 chars)");
       return;
     }
-    await register(name, email, password);
+    await register(name.trim(), email.trim(), password.trim());
     router.replace("/(tabs)");
   };
 
