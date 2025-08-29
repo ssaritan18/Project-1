@@ -9,6 +9,7 @@ type RuntimeConfig = {
   hydrated: boolean;
   syncEnabled: boolean;
   wsEnabled: boolean;
+  webSocket: WebSocket | null;
   setSyncEnabled: (v: boolean) => Promise<void>;
   setWsEnabled: (v: boolean) => Promise<void>;
 };
