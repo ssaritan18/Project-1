@@ -130,6 +130,9 @@ export default function ChatDetail() {
             onChangeText={setText}
             multiline
             maxLength={500}
+            onSubmitEditing={onSend}
+            blurOnSubmit={false}
+            returnKeyType="send"
           />
           <TouchableOpacity onPress={onSend} style={[styles.sendBtn, { opacity: text.trim() ? 1 : 0.5 }]} disabled={!text.trim()}>
             <Ionicons name="send" size={18} color="#000" />
