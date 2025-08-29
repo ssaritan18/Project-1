@@ -35,6 +35,111 @@ export function RuntimeConfigProvider({ children }: { children: React.ReactNode 
     })();
   }, []);
 
+  // WebSocket management
+  useEffect(() => {
+    let ws: WebSocket | null = null;
+    let reconnectTimer: NodeJS.Timeout | null = null;
+    let heartbeatTimer: NodeJS.Timeout | null = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    const reconnectDelay = 3000; // 3 seconds
+
+    const connectWebSocket = () => {
+      if (!syncEnabled || !token) {
+        setWebSocket(null);
+        setWsEnabled(false);
+        return;
+      }
+
+      try {
+        const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${token}`;
+        console.log('🔌 Connecting WebSocket:', wsUrl.replace(token, 'TOKEN_HIDDEN'));
+        
+        ws = new WebSocket(wsUrl);
+        
+        ws.onopen = () => {
+          console.log('✅ WebSocket connected successfully');
+          setWebSocket(ws);
+          setWsEnabled(true);
+          reconnectAttempts = 0; // Reset attempts on successful connection
+          
+          // Start heartbeat to keep connection alive
+          if (heartbeatTimer) clearInterval(heartbeatTimer);
+          heartbeatTimer = setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: 'ping' }));
+              console.log('💓 Heartbeat sent');
+            }
+          }, 30000); // Send heartbeat every 30 seconds
+        };
+        
+        ws.onclose = () => {
+          console.log('🔌 WebSocket closed');
+          setWebSocket(null);
+          setWsEnabled(false);
+          
+          if (heartbeatTimer) {
+            clearInterval(heartbeatTimer);
+            heartbeatTimer = null;
+          }
+          
+          // Auto-reconnect if sync mode is still enabled and we haven't exceeded attempts
+          if (syncEnabled && token && reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            console.log(`🔄 Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`);
+            
+            if (reconnectTimer) clearTimeout(reconnectTimer);
+            reconnectTimer = setTimeout(connectWebSocket, reconnectDelay);
+          } else if (reconnectAttempts >= maxReconnectAttempts) {
+            console.log('❌ Max reconnection attempts reached');
+          }
+        };
+        
+        ws.onerror = (error) => {
+          console.error('❌ WebSocket error:', error);
+        };
+        
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            
+            // Handle pong response to keep connection alive
+            if (data.type === 'pong') {
+              console.log('💓 Heartbeat pong received');
+              return;
+            }
+            
+            // Handle other WebSocket messages
+            console.log('📨 WebSocket message received:', data.type);
+          } catch (error) {
+            console.error('❌ WebSocket message parsing error:', error);
+          }
+        };
+        
+      } catch (error) {
+        console.error('❌ WebSocket connection error:', error);
+        setWsEnabled(false);
+      }
+    };
+
+    // Connect if sync is enabled and we have a token
+    if (syncEnabled && token) {
+      connectWebSocket();
+    }
+
+    // Cleanup on unmount or dependency change
+    return () => {
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      if (heartbeatTimer) clearInterval(heartbeatTimer);
+      
+      if (ws) {
+        ws.close();
+        setWebSocket(null);
+        setWsEnabled(false);
+      }
+    };
+  }, [syncEnabled, token]);
+
   const setSyncEnabled = async (v: boolean) => {
     setSyncEnabledState(v);
     try { await AsyncStorage.setItem(KEY_SYNC, v ? "true" : "false"); } catch {}
