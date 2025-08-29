@@ -258,23 +258,36 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     refresh,
     
     sendText: async (chatId: string, text: string) => {
+      console.log("🚀 SEND TEXT CALLED:", { chatId, text, mode, isAuthenticated });
+      
       if (mode === "sync" && isAuthenticated) {
         try {
+          console.log("📤 Sending message to backend API...");
           const newMessage = await chatAPI.sendMessage(chatId, text, "text");
+          console.log("✅ Backend response received:", newMessage);
+          
           const convertedMessage = convertBackendMessage(newMessage);
+          console.log("🔄 Converted message:", convertedMessage);
           
           // Add message to local state immediately for responsive UI
-          setBackendMessages(prev => ({
-            ...prev,
-            [chatId]: [...(prev[chatId] || []), convertedMessage]
-          }));
+          setBackendMessages(prev => {
+            const currentMessages = prev[chatId] || [];
+            const updatedMessages = [...currentMessages, convertedMessage];
+            console.log("📝 Adding message to local state. Chat:", chatId, "Previous count:", currentMessages.length, "New count:", updatedMessages.length);
+            
+            return {
+              ...prev,
+              [chatId]: updatedMessages
+            };
+          });
           
-          console.log("✅ Chat: Sent message:", text);
+          console.log("✅ Message sent and added locally:", text);
         } catch (error) {
-          console.error("❌ Chat: Failed to send message:", error);
+          console.error("❌ Failed to send message:", error);
           throw error;
         }
       } else {
+        console.log("📱 Local mode - adding message locally only");
         // Local mode
         const msg: Message = { 
           id: uid(), 
