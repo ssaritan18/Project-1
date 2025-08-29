@@ -418,33 +418,27 @@ def run_comprehensive_chat_test():
     print("STARTING COMPREHENSIVE CHAT BACKEND API TEST")
     print("=" * 80)
     
-    # Test users for chat functionality
+    # Use existing verified test users for chat functionality
     users_to_test = [
-        {"name": "ChatUser1", "email": "chatuser1@example.com", "password": "Passw0rd!"},
-        {"name": "ChatUser2", "email": "chatuser2@example.com", "password": "Passw0rd!"}
+        {"name": "ssaritan", "email": "ssaritan@example.com", "password": "Passw0rd!"},
+        {"name": "ssaritan2", "email": "ssaritan2@example.com", "password": "Passw0rd!"}
     ]
     
     tokens = {}
     user_profiles = {}
     
-    # A. Setup users (register/login)
+    # A. Setup users (login existing verified users)
     print("\n" + "=" * 50)
     print("PHASE A: USER SETUP FOR CHAT TESTING")
     print("=" * 50)
     
     for user in users_to_test:
-        # Try login first
+        # Login existing verified users
         login_result = tester.test_auth_login(user["email"], user["password"])
-        if login_result["success"]:
-            print(f"✅ User {user['email']} already exists, logged in successfully")
-            tokens[user["email"]] = login_result["token"]
-        else:
-            # If login fails, try registration
-            result = tester.test_auth_register(user["name"], user["email"], user["password"])
-            if not result["success"]:
-                print(f"❌ CRITICAL: Both registration and login failed for {user['email']}")
-                return False
-            tokens[user["email"]] = result["token"]
+        if not login_result["success"]:
+            print(f"❌ CRITICAL: Login failed for {user['email']}: {login_result.get('error', 'Unknown error')}")
+            return False
+        tokens[user["email"]] = login_result["token"]
         
         # Get user profile
         me_result = tester.test_get_me(tokens[user["email"]], user["name"])
@@ -458,11 +452,11 @@ def run_comprehensive_chat_test():
     print("PHASE B: CHAT CREATION & MANAGEMENT")
     print("=" * 50)
     
-    user1_email = "chatuser1@example.com"
-    user2_email = "chatuser2@example.com"
+    user1_email = "ssaritan@example.com"
+    user2_email = "ssaritan2@example.com"
     
     # User 1: Create a chat
-    create_result = tester.test_create_chat(tokens[user1_email], "Test Chat Room", "ChatUser1")
+    create_result = tester.test_create_chat(tokens[user1_email], "Test Chat Room", "ssaritan")
     if not create_result["success"]:
         print("❌ CRITICAL: Chat creation failed")
         return False
@@ -472,7 +466,7 @@ def run_comprehensive_chat_test():
     invite_code = chat_data["invite_code"]
     
     # User 1: List chats (should include the created chat)
-    list_result = tester.test_list_chats(tokens[user1_email], "ChatUser1")
+    list_result = tester.test_list_chats(tokens[user1_email], "ssaritan")
     if not list_result["success"]:
         print("❌ CRITICAL: Chat listing failed for User 1")
         return False
@@ -482,13 +476,13 @@ def run_comprehensive_chat_test():
         return False
     
     # User 2: Join the chat using invite code
-    join_result = tester.test_join_chat(tokens[user2_email], invite_code, "ChatUser2")
+    join_result = tester.test_join_chat(tokens[user2_email], invite_code, "ssaritan2")
     if not join_result["success"]:
         print("❌ CRITICAL: Chat join failed for User 2")
         return False
     
     # User 2: List chats (should now include the joined chat)
-    list_result2 = tester.test_list_chats(tokens[user2_email], "ChatUser2")
+    list_result2 = tester.test_list_chats(tokens[user2_email], "ssaritan2")
     if not list_result2["success"]:
         print("❌ CRITICAL: Chat listing failed for User 2")
         return False
@@ -503,7 +497,7 @@ def run_comprehensive_chat_test():
     print("=" * 50)
     
     # User 1: Send a message
-    msg1_result = tester.test_send_message(tokens[user1_email], chat_id, "Hello from User 1!", "ChatUser1")
+    msg1_result = tester.test_send_message(tokens[user1_email], chat_id, "Hello from ssaritan! 👋", "ssaritan")
     if not msg1_result["success"]:
         print("❌ CRITICAL: Message send failed for User 1")
         return False
@@ -511,7 +505,7 @@ def run_comprehensive_chat_test():
     message1_id = msg1_result["data"]["_id"]
     
     # User 2: Send a message
-    msg2_result = tester.test_send_message(tokens[user2_email], chat_id, "Hello from User 2!", "ChatUser2")
+    msg2_result = tester.test_send_message(tokens[user2_email], chat_id, "Hello from ssaritan2! How are you? 😊", "ssaritan2")
     if not msg2_result["success"]:
         print("❌ CRITICAL: Message send failed for User 2")
         return False
@@ -519,7 +513,7 @@ def run_comprehensive_chat_test():
     message2_id = msg2_result["data"]["_id"]
     
     # User 1: Get messages (should see both messages)
-    get_msgs_result = tester.test_get_messages(tokens[user1_email], chat_id, "ChatUser1")
+    get_msgs_result = tester.test_get_messages(tokens[user1_email], chat_id, "ssaritan")
     if not get_msgs_result["success"]:
         print("❌ CRITICAL: Message retrieval failed for User 1")
         return False
@@ -530,7 +524,7 @@ def run_comprehensive_chat_test():
         return False
     
     # User 2: Get messages (should see both messages)
-    get_msgs_result2 = tester.test_get_messages(tokens[user2_email], chat_id, "ChatUser2")
+    get_msgs_result2 = tester.test_get_messages(tokens[user2_email], chat_id, "ssaritan2")
     if not get_msgs_result2["success"]:
         print("❌ CRITICAL: Message retrieval failed for User 2")
         return False
@@ -541,7 +535,7 @@ def run_comprehensive_chat_test():
     print("=" * 50)
     
     # User 2: React to User 1's message with "like"
-    react_result = tester.test_react_to_message(tokens[user2_email], chat_id, message1_id, "like", "ChatUser2")
+    react_result = tester.test_react_to_message(tokens[user2_email], chat_id, message1_id, "like", "ssaritan2")
     if not react_result["success"]:
         print("❌ CRITICAL: Message reaction failed")
         return False
@@ -552,7 +546,7 @@ def run_comprehensive_chat_test():
         return False
     
     # User 1: React to User 2's message with "heart"
-    react_result2 = tester.test_react_to_message(tokens[user1_email], chat_id, message2_id, "heart", "ChatUser1")
+    react_result2 = tester.test_react_to_message(tokens[user1_email], chat_id, message2_id, "heart", "ssaritan")
     if not react_result2["success"]:
         print("❌ CRITICAL: Message reaction failed for User 1")
         return False
@@ -563,12 +557,12 @@ def run_comprehensive_chat_test():
     print("=" * 50)
     
     # Setup WebSocket connections for both users
-    ws1_success = tester.setup_websocket(tokens[user1_email], "ChatUser1")
+    ws1_success = tester.setup_websocket(tokens[user1_email], "ssaritan")
     if not ws1_success:
         print("❌ CRITICAL: WebSocket setup failed for User 1")
         return False
     
-    ws2_success = tester.setup_websocket(tokens[user2_email], "ChatUser2")
+    ws2_success = tester.setup_websocket(tokens[user2_email], "ssaritan2")
     if not ws2_success:
         print("❌ CRITICAL: WebSocket setup failed for User 2")
         return False
@@ -577,7 +571,7 @@ def run_comprehensive_chat_test():
     tester.ws_messages = {}
     
     # User 1: Send a message (should trigger WebSocket notification to User 2)
-    ws_msg_result = tester.test_send_message(tokens[user1_email], chat_id, "WebSocket test message!", "ChatUser1")
+    ws_msg_result = tester.test_send_message(tokens[user1_email], chat_id, "WebSocket test message! 🚀", "ssaritan")
     if not ws_msg_result["success"]:
         print("❌ CRITICAL: WebSocket message send failed")
         return False
@@ -585,19 +579,19 @@ def run_comprehensive_chat_test():
     ws_message_id = ws_msg_result["data"]["_id"]
     
     # Check if User 2 received WebSocket notification
-    ws_received = tester.check_websocket_messages("ChatUser2", "chat:new_message", timeout=10)
+    ws_received = tester.check_websocket_messages("ssaritan2", "chat:new_message", timeout=10)
     if not ws_received:
         print("❌ CRITICAL: WebSocket message notification not received by User 2")
         return False
     
     # User 2: React to the WebSocket message (should trigger reaction notification to User 1)
-    ws_react_result = tester.test_react_to_message(tokens[user2_email], chat_id, ws_message_id, "clap", "ChatUser2")
+    ws_react_result = tester.test_react_to_message(tokens[user2_email], chat_id, ws_message_id, "clap", "ssaritan2")
     if not ws_react_result["success"]:
         print("❌ CRITICAL: WebSocket reaction failed")
         return False
     
     # Check if User 1 received WebSocket reaction notification
-    ws_reaction_received = tester.check_websocket_messages("ChatUser1", "chat:message_reaction", timeout=10)
+    ws_reaction_received = tester.check_websocket_messages("ssaritan", "chat:message_reaction", timeout=10)
     if not ws_reaction_received:
         print("❌ CRITICAL: WebSocket reaction notification not received by User 1")
         return False
@@ -608,9 +602,9 @@ def run_comprehensive_chat_test():
     
     # Summary
     print("\nCHAT TEST SUMMARY:")
-    print(f"✅ Chat Creation: Successfully created chat with invite code")
+    print(f"✅ Chat Creation: Successfully created chat with invite code {invite_code}")
     print(f"✅ Chat Listing: Both users can list their chats")
-    print(f"✅ Chat Joining: User 2 successfully joined via invite code")
+    print(f"✅ Chat Joining: ssaritan2 successfully joined via invite code")
     print(f"✅ Message Sending: Both users can send messages")
     print(f"✅ Message Retrieval: Both users can retrieve chat messages")
     print(f"✅ Message Reactions: Both users can react to messages")
