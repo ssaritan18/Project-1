@@ -116,12 +116,11 @@ export default function FriendsScreen() {
           >
             <Text style={{ color: '#fff', fontSize: 12, textAlign: 'center' }}>📱 Mobile Debug</Text>
           </TouchableOpacity>
-          <FlashList
+          <FlatList
             data={friends}
             keyExtractor={(f) => f.id}
-            estimatedItemSize={60}
             renderItem={({ item }) => {
-              console.log("🎯 FlashList rendering item:", item);
+              console.log("🎯 FlatList rendering item:", item);
               return (
                 <View style={styles.itemRow}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -134,7 +133,7 @@ export default function FriendsScreen() {
             contentContainerStyle={{ paddingBottom: 12 }}
             ListEmptyComponent={() => (
               <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>
-                🔍 FlashList Empty (Data exists: {friends.length} items)
+                🔍 FlatList Empty (Data exists: {friends.length} items)
               </Text>
             )}
           />
