@@ -9,6 +9,7 @@ import { makeBackup, restoreBackup, resetAll } from "../../src/utils/backup";
 import { router } from "expo-router";
 import { useRuntimeConfig } from "../../src/context/RuntimeConfigContext";
 import { api } from "../../src/lib/api";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const PRESETS = [
   { primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" },
