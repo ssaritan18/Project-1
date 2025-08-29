@@ -157,28 +157,48 @@ api_router = APIRouter(prefix="/api")
 CONNECTIONS: Dict[str, Set[WebSocket]] = {}
 ONLINE: Set[str] = set()
 
-async def ws_broadcast_to_user(user_id: str, payload: Dict[str, Any]):
-  conns = CONNECTIONS.get(user_id)
-  logger.info(f"🔔 Broadcasting to user {user_id}: {payload}. Active connections: {len(conns) if conns else 0}")
-  if not conns:
-    logger.warning(f"❌ No WebSocket connections found for user {user_id}")
-    return
-  dead = []
-  sent_count = 0
-  for ws in list(conns):
-    try:
-      await ws.send_json(payload)
-      sent_count += 1
-      logger.info(f"✅ Message sent to WebSocket connection for user {user_id}")
-    except Exception as e:
-      logger.error(f"❌ Failed to send to WebSocket for user {user_id}: {e}")
-      dead.append(ws)
-  for d in dead:
-    try:
-      conns.remove(d)
-    except Exception:
-      pass
-  logger.info(f"📊 Broadcast summary for user {user_id}: {sent_count} sent, {len(dead)} dead connections removed")
+async def ws_broadcast_to_user(user_id: str, payload: dict):
+    """Broadcast WebSocket message to all connections of a specific user."""
+    connections = CONNECTIONS.get(user_id, set())
+    logger.info(f"📡 Attempting to broadcast to user {user_id}. Active connections: {len(connections)}")
+    
+    if not connections:
+        logger.warning(f"❌ No WebSocket connections found for user {user_id}. Total users with connections: {len(CONNECTIONS)}")
+        # Debug: Show all connected users
+        connected_users = list(CONNECTIONS.keys())
+        logger.info(f"🔍 Currently connected users: {connected_users}")
+        return
+    
+    # Prepare message payload
+    message = json.dumps(payload)
+    
+    # Send to all active connections for this user
+    active_connections = set()
+    for ws in list(connections):  # Create a copy to iterate safely
+        try:
+            if ws.client_state == WebSocketState.CONNECTED:
+                await ws.send_text(message)
+                active_connections.add(ws)
+                logger.info(f"✅ Message sent to user {user_id} connection")
+            else:
+                logger.warning(f"🔌 Removing disconnected WebSocket for user {user_id}")
+                connections.discard(ws)
+        except Exception as e:
+            logger.error(f"❌ Failed to send WebSocket message to user {user_id}: {e}")
+            # Remove failed connection
+            connections.discard(ws)
+    
+    # Update connections list with only active ones
+    if active_connections:
+        CONNECTIONS[user_id] = active_connections
+        logger.info(f"📊 User {user_id} now has {len(active_connections)} active connections")
+    else:
+        # Remove user from connections if no active connections remain
+        if user_id in CONNECTIONS:
+            del CONNECTIONS[user_id]
+            logger.info(f"🗑️ Removed user {user_id} from connections (no active connections)")
+    
+    logger.info(f"📡 Broadcast completed for user {user_id}. Message type: {payload.get('type', 'unknown')}")
 
 async def ws_broadcast_to_friends(user_id: str, payload: Dict[str, Any]):
   user = await db.users.find_one({"_id": user_id})
