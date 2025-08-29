@@ -539,6 +539,75 @@ async def verify_email(token: str):
         "token_type": "bearer"
     }
 
+@api_router.post("/auth/forgot-password")
+async def forgot_password(req: PasswordResetRequest):
+    """Send password reset email"""
+    user = await db.users.find_one({"email": req.email.lower()})
+    
+    # Always return success message for security (don't reveal if email exists)
+    success_message = "If this email exists in our system, you will receive a password reset link shortly."
+    
+    if not user:
+        logger.info(f"Password reset requested for non-existent email: {req.email}")
+        return {"message": success_message}
+    
+    # Create reset token (expires in 1 hour)
+    reset_token = str(uuid.uuid4())
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+    
+    # Store reset token
+    await db.users.update_one(
+        {"_id": user["_id"]},
+        {
+            "$set": {
+                "reset_token": reset_token,
+                "reset_expires": expires_at.isoformat(),
+                "updated_at": now_iso()
+            }
+        }
+    )
+    
+    # Send reset email
+    email_sent = await send_password_reset_email(req.email.lower(), reset_token)
+    
+    if EMAIL_ENABLED and not email_sent:
+        logger.warning(f"Failed to send password reset email to {req.email}")
+    
+    return {"message": success_message, "email_sent": email_sent}
+
+@api_router.post("/auth/reset-password")
+async def reset_password(req: PasswordResetConfirm):
+    """Reset password using token"""
+    user = await db.users.find_one({"reset_token": req.token})
+    
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    
+    # Check if token is expired
+    expires_at = datetime.fromisoformat(user.get("reset_expires", ""))
+    if datetime.now(timezone.utc) > expires_at:
+        raise HTTPException(status_code=400, detail="Reset token has expired")
+    
+    # Update password and clear reset token
+    new_password_hash = pwd_context.hash(req.new_password)
+    await db.users.update_one(
+        {"_id": user["_id"]},
+        {
+            "$set": {
+                "password_hash": new_password_hash,
+                "updated_at": now_iso()
+            },
+            "$unset": {
+                "reset_token": "",
+                "reset_expires": ""
+            }
+        }
+    )
+    
+    logger.info(f"Password reset completed for user: {user['email']}")
+    
+    return {"message": "Password reset successful! You can now log in with your new password."}
+
 @api_router.post("/auth/login", response_model=Token)
 async def auth_login(req: LoginRequest):
     user = await db.users.find_one({"email": req.email.lower()})
