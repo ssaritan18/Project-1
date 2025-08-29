@@ -17,9 +17,11 @@ type RuntimeConfig = {
 const Ctx = createContext<RuntimeConfig | undefined>(undefined);
 
 export function RuntimeConfigProvider({ children }: { children: React.ReactNode }) {
+  const { token } = useAuth();
   const [hydrated, setHydrated] = useState(false);
   const [syncEnabled, setSyncEnabledState] = useState(false);
   const [wsEnabled, setWsEnabledState] = useState(true);
+  const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
     (async () => {
