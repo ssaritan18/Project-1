@@ -29,19 +29,28 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <PaperProvider theme={theme as any}>
           <AuthProvider>
-            <RuntimeConfigProvider>
-              <TasksProvider>
-                <FriendsProvider>
-                  <ChatProvider>
-                    <StatusBar style="light" />
-                    <Stack screenOptions={{ headerShown: false }} />
-                  </ChatProvider>
-                </FriendsProvider>
-              </TasksProvider>
-            </RuntimeConfigProvider>
+            <RuntimeConfigWrapper />
           </AuthProvider>
         </PaperProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
+  );
+}
+
+// Wrapper to access token from AuthContext and pass to RuntimeConfigProvider
+function RuntimeConfigWrapper() {
+  const { token } = React.useContext(require('../src/context/AuthContext').AuthContext);
+  
+  return (
+    <RuntimeConfigProvider token={token}>
+      <TasksProvider>
+        <FriendsProvider>
+          <ChatProvider>
+            <StatusBar style="light" />
+            <Stack screenOptions={{ headerShown: false }} />
+          </ChatProvider>
+        </FriendsProvider>
+      </TasksProvider>
+    </RuntimeConfigProvider>
   );
 }
