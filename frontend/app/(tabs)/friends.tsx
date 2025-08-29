@@ -166,7 +166,6 @@ export default function FriendsScreen() {
                     _id: friend._id,
                     name: friend.name,
                     email: friend.email,
-                    fullObject: friend
                   });
                   
                   return (
