@@ -716,10 +716,30 @@ async def accept_friend_request(payload: FriendAcceptReq, user=Depends(get_curre
     await db.friend_requests.update_one({"_id": fr["_id"]}, {"$set": {"status": "accepted", "updated_at": now_iso()}})
     await db.users.update_one({"_id": user["_id"]}, {"$addToSet": {"friends": fr["from_user_id"]}})
     await db.users.update_one({"_id": fr["from_user_id"]}, {"$addToSet": {"friends": user["_id"]}})
+
+    # Create automatic 1-to-1 chat for these friends
+    participants = sorted([user["_id"], fr["from_user_id"]])  # Sort for consistent chat_id
+    chat_id = f"chat_{participants[0][:8]}_{participants[1][:8]}"
+    
+    # Check if chat already exists
+    existing_chat = await db.chats.find_one({"_id": chat_id})
+    if not existing_chat:
+        chat_doc = {
+            "_id": chat_id,
+            "type": "direct",  # Mark as direct message
+            "title": f"Chat between {user.get('name', 'User')} and friend",
+            "members": participants,
+            "invite_code": None,  # No invite code for direct chats
+            "created_by": user["_id"],
+            "created_at": now_iso(),
+        }
+        await db.chats.insert_one(chat_doc)
+        logger.info(f"✅ Created automatic 1-to-1 chat {chat_id} for users {participants}")
+
     await ws_broadcast_to_user(fr["from_user_id"], {"type": "friend_request:accepted", "by": {"id": user["_id"], "name": user.get("name"), "email": user.get("email")}})
     await ws_broadcast_to_friends(user["_id"], {"type": "friends:list:update"})
     await ws_broadcast_to_friends(fr["from_user_id"], {"type": "friends:list:update"})
-    return {"accepted": True}
+    return {"accepted": True, "chat_id": chat_id}
 
 @api_router.post("/friends/reject")
 async def reject_friend_request(payload: FriendRejectReq, user=Depends(get_current_user)):
