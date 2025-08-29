@@ -328,6 +328,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     joinByCode: async (code: string) => {
       if (mode === "sync" && isAuthenticated) {
         try {
+          console.log("🔑 Attempting to join chat with code:", code);
           const joinedChat = await chatAPI.joinChat(code);
           const convertedChat = convertBackendChat(joinedChat);
           
@@ -343,11 +344,23 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           // Fetch messages for the joined chat
           await fetchMessages(convertedChat.id);
           
-          console.log("✅ Chat: Joined chat with code:", code);
+          console.log("✅ Chat: Successfully joined chat:", convertedChat.title, "ID:", convertedChat.id);
           return convertedChat.id;
-        } catch (error) {
-          console.error("❌ Chat: Failed to join chat:", error);
-          return null;
+        } catch (error: any) {
+          console.error("❌ Chat: Failed to join chat with code:", code, "Error:", error);
+          
+          // Handle specific error types
+          if (error.response?.status === 404) {
+            console.log("❌ Invalid invite code");
+            return null; // Invalid code
+          } else if (error.response?.status === 403) {
+            throw new Error("Bu chat'e katılma yetkiniz yok. Arkadaş olmanız gerekebilir.");
+          } else if (error.response?.status === 401) {
+            throw new Error("Giriş yapmalısınız. Profile → Sync Mode'u açın.");
+          } else {
+            // Network or server error
+            throw new Error(error.response?.data?.detail || error.message || "Bağlantı hatası. Tekrar deneyin.");
+          }
         }
       } else {
         // Local mode
