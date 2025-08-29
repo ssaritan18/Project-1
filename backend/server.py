@@ -546,6 +546,11 @@ async def auth_login(req: LoginRequest):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     if not pwd_context.verify(req.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Check if email is verified
+    if not user.get("email_verified", False):
+        raise HTTPException(status_code=403, detail="Please verify your email before logging in")
+    
     access = create_access_token(sub=user["_id"], email=user.get("email"))
     return Token(access_token=access)
 
