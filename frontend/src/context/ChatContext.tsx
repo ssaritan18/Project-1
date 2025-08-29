@@ -206,8 +206,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   // Auto-fetch on mode/auth change
   useEffect(() => {
+    console.log("🔄 ChatContext: Mode/auth change detected", { mode, isAuthenticated, hasToken: !!token });
+    
     if (mode === "sync" && isAuthenticated) {
+      console.log("📡 ChatContext: Starting sync mode operations...");
       refresh();
+    } else {
+      console.log("📱 ChatContext: Staying in local mode", { mode, isAuthenticated });
     }
   }, [mode, isAuthenticated, refresh]);
 
