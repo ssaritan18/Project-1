@@ -71,7 +71,10 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ padding: 16, paddingBottom: 180 }}>
+    <ScrollView 
+      style={[styles.container, { paddingTop: insets.top }]} 
+      contentContainerStyle={{ padding: 16, paddingBottom: Math.max(insets.bottom, 180) }}
+    >
       <Text style={styles.title}>{user?.name || "You"}</Text>
       <Text style={styles.meta}>Streak: {streak} days</Text>
 
