@@ -160,6 +160,7 @@ export default function FriendsScreen() {
                   ✅ Found {friends.length} friends - Rendering now:
                 </Text>
                 {friends.map((friend, index) => {
+                  // Extra logging for debugging
                   // Only log occasionally to prevent infinite loop
                   if (index < 3) {
                     console.log(`🔍 FRIEND ${index}:`, friend.name || friend.email);
