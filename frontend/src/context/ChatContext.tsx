@@ -41,6 +41,7 @@ type ChatContextType = {
   sendVoiceMock: (chatId: string, durationSec?: number) => void;
   markRead: (chatId: string) => void;
   createGroup: (title: string, members?: string[]) => Promise<string>; // returns chatId
+  openDirectChat: (friendId: string) => Promise<string>; // returns chatId
   joinByCode: (code: string) => Promise<string | null>; // returns chatId
   reactMessage: (chatId: string, messageId: string, type: ReactionType) => Promise<void>;
   refresh: () => Promise<void>;
