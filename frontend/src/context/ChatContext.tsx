@@ -300,16 +300,16 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     createGroup: async (title: string, members: string[] = []) => {
       if (mode === "sync" && isAuthenticated) {
         try {
-          const newChat = await chatAPI.createChat(title);
+          const newChat = await chatAPI.createGroupChat(title);
           const convertedChat = convertBackendChat(newChat);
           
           setBackendChats(prev => [convertedChat, ...prev]);
           setBackendMessages(prev => ({ ...prev, [convertedChat.id]: [] }));
           
-          console.log("✅ Chat: Created new chat:", title);
+          console.log("✅ Chat: Created new GROUP chat:", title);
           return convertedChat.id;
         } catch (error) {
-          console.error("❌ Chat: Failed to create chat:", error);
+          console.error("❌ Chat: Failed to create group chat:", error);
           throw error;
         }
       } else {
@@ -319,6 +319,48 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         const newChat = { id, title, members: ["You", ...members], unread: 0, inviteCode: code };
         
         setLocalChats(prev => [newChat, ...prev]);
+        setLocalMessages(prev => ({ ...prev, [id]: [] }));
+        
+        return id;
+      }
+    },
+
+    // NEW: Open direct chat with friend
+    openDirectChat: async (friendId: string) => {
+      if (mode === "sync" && isAuthenticated) {
+        try {
+          console.log("💬 Opening direct chat with friend:", friendId);
+          const chat = await chatAPI.openDirectChat(friendId);
+          const convertedChat = convertBackendChat(chat);
+          
+          // Add or update chat in list
+          setBackendChats(prev => {
+            const existing = prev.find(c => c.id === convertedChat.id);
+            if (existing) {
+              return prev; // Already exists
+            }
+            return [convertedChat, ...prev];
+          });
+          
+          // Fetch messages for the chat
+          await fetchMessages(convertedChat.id);
+          
+          console.log("✅ Chat: Opened direct chat:", convertedChat.id);
+          return convertedChat.id;
+        } catch (error) {
+          console.error("❌ Chat: Failed to open direct chat:", error);
+          throw error;
+        }
+      } else {
+        // Local mode fallback
+        const id = `direct_${friendId}`;
+        const newChat = { id, title: "Direct Chat", members: ["You", "Friend"], unread: 0, inviteCode: "" };
+        
+        setLocalChats(prev => {
+          const existing = prev.find(c => c.id === id);
+          if (existing) return prev;
+          return [newChat, ...prev];
+        });
         setLocalMessages(prev => ({ ...prev, [id]: [] }));
         
         return id;
