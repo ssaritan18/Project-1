@@ -76,7 +76,7 @@ export default function ChatList() {
           <View style={styles.newRow}>
             <TextInput 
               style={styles.input} 
-              placeholder="New group title" 
+              placeholder="New GROUP chat title" 
               placeholderTextColor="#777" 
               value={title} 
               onChangeText={setTitle}
