@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (name: string, email: string, password: string) => {
     console.log("🔧 register called:", { syncEnabled: true, name, email });
-    if (syncEnabled) {
+    if (true) {
       console.log("📡 Making register API call to backend...");
       console.log("🔗 Backend URL:", process.env.EXPO_PUBLIC_BACKEND_URL);
       try {
