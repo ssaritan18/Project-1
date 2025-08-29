@@ -104,39 +104,27 @@ export default function FriendsScreen() {
         </View>
 
         <View style={{ marginTop: 16 }}>
-          <Text style={styles.section}>My Friends</Text>
+          <Text style={styles.section}>My Friends ({friends.length})</Text>
           
-          {/* Mobile Debug Alert - Temporary */}
-          <TouchableOpacity 
-            style={{ backgroundColor: '#ff6b6b', padding: 8, marginBottom: 8, borderRadius: 4 }}
-            onPress={() => {
-              const debugInfo = `Friends Count: ${friends.length}\nFriends Data: ${JSON.stringify(friends).slice(0, 200)}`;
-              alert(debugInfo);
-            }}
-          >
-            <Text style={{ color: '#fff', fontSize: 12, textAlign: 'center' }}>📱 Mobile Debug</Text>
-          </TouchableOpacity>
-          <FlatList
-            data={friends}
-            keyExtractor={(f) => f.id}
-            renderItem={({ item }) => {
-              console.log("🎯 FlatList rendering item:", item);
-              return (
-                <View style={styles.itemRow}>
+          {/* NUCLEAR OPTION: Manual friends rendering */}
+          <View style={{ minHeight: 200, backgroundColor: '#111', borderRadius: 12, padding: 8 }}>
+            {friends.length === 0 ? (
+              <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>
+                No friends data or empty array
+              </Text>
+            ) : (
+              friends.map((friend, index) => (
+                <View key={friend.id || index} style={styles.itemRow}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    {presence[item.id] ? <View style={styles.dotOnline} /> : <View style={styles.dotOffline} />}
-                    <Text style={styles.itemText}>{item.name}{item.email ? ` (${item.email})` : ''}</Text>
+                    <View style={presence[friend.id] ? styles.dotOnline : styles.dotOffline} />
+                    <Text style={styles.itemText}>
+                      {friend.name || 'No Name'} {friend.email ? `(${friend.email})` : ''}
+                    </Text>
                   </View>
                 </View>
-              );
-            }}
-            contentContainerStyle={{ paddingBottom: 12 }}
-            ListEmptyComponent={() => (
-              <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>
-                🔍 FlatList Empty (Data exists: {friends.length} items)
-              </Text>
+              ))
             )}
-          />
+          </View>
         </View>
 
         <View style={{ marginTop: 16 }}>
