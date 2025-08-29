@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAuth } from "./AuthContext";
 
 const KEY_SYNC = "adhders_sync_enabled";
 const KEY_WS = "adhders_ws_enabled";
@@ -16,8 +15,7 @@ type RuntimeConfig = {
 
 const Ctx = createContext<RuntimeConfig | undefined>(undefined);
 
-export function RuntimeConfigProvider({ children }: { children: React.ReactNode }) {
-  const { token } = useAuth();
+export function RuntimeConfigProvider({ children, token }: { children: React.ReactNode; token?: string }) {
   const [hydrated, setHydrated] = useState(false);
   const [syncEnabled, setSyncEnabledState] = useState(false);
   const [wsEnabled, setWsEnabledState] = useState(true);
