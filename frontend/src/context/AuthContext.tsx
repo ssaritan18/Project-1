@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (storedPalette) setPaletteState(storedPalette);
         const storedUser = await loadJSON<User | null>(KEYS.user, null);
         if (storedUser) { setUser(storedUser); setAuthed(true); }
-        if (syncEnabled) {
+        if (true) {
           const t = await loadJSON<string | null>(KEYS.token, null);
           if (t) {
             setToken(t); setAuthToken(t);
