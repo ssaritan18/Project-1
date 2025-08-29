@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useMemo, useState, ReactNode, useEffect } from "react";
+import { Alert } from "react-native";
 import { PERSIST_ENABLED, KEYS } from "../config";
 import { loadJSON, saveJSON } from "../utils/persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
