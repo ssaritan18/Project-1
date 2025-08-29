@@ -812,11 +812,8 @@ async def open_direct_chat(friend_id: str, user=Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="User not found")
         
     # Check if they are friends
-    friendship = await db.friends.find_one({
-        "user_id": user["_id"], 
-        "friend_id": friend_id
-    })
-    if not friendship:
+    user_friends = user.get("friends", [])
+    if friend_id not in user_friends:
         raise HTTPException(status_code=403, detail="You must be friends to start a chat")
     
     # Generate consistent chat ID
