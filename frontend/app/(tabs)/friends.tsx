@@ -14,6 +14,7 @@ export default function FriendsScreen() {
   const { friends, requests, posts, presence, wsConnectionStatus, sendRequest, acceptRequest, rejectRequest, addPost, reactPost, refresh, lastNotification, clearNotification } = useFriends();
   const { syncEnabled, wsEnabled } = useRuntimeConfig();
   const { token } = useAuth();
+  const { openDirectChat } = useChat();
   const insets = useSafeAreaInsets();
   const [friendQuery, setFriendQuery] = React.useState("");
   const [postText, setPostText] = React.useState("");
