@@ -310,6 +310,16 @@ class FriendAcceptReq(BaseModel):
 class FriendRejectReq(BaseModel):
     request_id: str
 
+class EmailVerificationRequest(BaseModel):
+    email: str
+
+class PasswordResetRequest(BaseModel):
+    email: str
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    new_password: str
+
 # ROUTES
 @api_router.get("/")
 async def root():
