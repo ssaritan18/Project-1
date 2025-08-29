@@ -294,6 +294,13 @@ class LoginRequest(BaseModel):
 class PostCreate(BaseModel):
     text: str
 
+class MessageCreate(BaseModel):
+    text: str
+    type: str = "text"  # "text" or "voice" 
+
+class MessageReaction(BaseModel):
+    type: str  # "like", "heart", "clap", "star"
+
 class ReactionReq(BaseModel):
     type: str
 
