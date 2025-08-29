@@ -52,8 +52,17 @@ type ChatContextType = {
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
+  console.log("🔥 CHAT PROVIDER STARTING!");
+  
   const { token, isAuthenticated } = useAuth();
   const { mode, webSocket } = useRuntimeConfig();
+  
+  console.log("🔥 CHAT PROVIDER STATE:", { 
+    hasToken: !!token, 
+    isAuthenticated, 
+    mode, 
+    hasWebSocket: !!webSocket 
+  });
   
   const [hydrated, setHydrated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
