@@ -149,7 +149,7 @@ export function RuntimeConfigProvider({ children }: { children: React.ReactNode 
     try { await AsyncStorage.setItem(KEY_WS, v ? "true" : "false"); } catch {}
   };
 
-  const value = useMemo(() => ({ hydrated, syncEnabled, wsEnabled, setSyncEnabled, setWsEnabled }), [hydrated, syncEnabled, wsEnabled]);
+  const value = useMemo(() => ({ hydrated, syncEnabled, wsEnabled, webSocket, setSyncEnabled, setWsEnabled }), [hydrated, syncEnabled, wsEnabled, webSocket]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
