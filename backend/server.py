@@ -817,7 +817,7 @@ async def list_messages(chat_id: str, limit: int = 50, user=Depends(get_current_
     return {"messages": list(reversed(msgs))}
 
 @api_router.post("/chats/{chat_id}/messages")
-async def send_message(chat_id: str, payload: PostCreate, user=Depends(get_current_user)):
+async def send_message(chat_id: str, payload: MessageCreate, user=Depends(get_current_user)):
     chat = await db.chats.find_one({"_id": chat_id, "members": user["_id"]})
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")
@@ -827,6 +827,7 @@ async def send_message(chat_id: str, payload: PostCreate, user=Depends(get_curre
         "author_id": user["_id"],
         "author_name": user.get("name"),
         "text": payload.text,
+        "type": payload.type,
         "reactions": {"like": 0, "heart": 0, "clap": 0, "star": 0},
         "created_at": now_iso(),
     }
@@ -842,6 +843,7 @@ async def send_message(chat_id: str, payload: PostCreate, user=Depends(get_curre
             "author_id": msg["author_id"],
             "author_name": msg["author_name"],
             "text": msg["text"],
+            "message_type": msg["type"],
             "reactions": msg["reactions"],
             "created_at": msg["created_at"]
         }
