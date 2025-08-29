@@ -238,12 +238,15 @@
 ##   run_ui: false
 ## test_plan:
 ##   current_focus:
-##     - "Chat Creation & Management"
-##     - "Message Management"
-##     - "WebSocket Real-time Features"
-##   stuck_tasks: []
+##     - "Login and Authentication Flow"
+##     - "Profile and Sync Mode Toggle"
+##     - "Friends Tab and Direct Messaging"
+##     - "Chat Tab and Group Chat Creation"
+##     - "Real-time Messaging and WebSocket"
+##   stuck_tasks:
+##     - "Login and Authentication Flow"
 ##   test_all: false
-##   test_priority: "high_first"
+##   test_priority: "stuck_first"
 ## agent_communication:
 ##     -agent: "main"
 ##     -message: "Please run curl-based tests creating two users and performing friend request, accept, reject, and search by name/email."
