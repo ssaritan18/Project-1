@@ -65,6 +65,15 @@ export default function FriendsScreen() {
             >
               <Text style={{ color: '#fff', fontSize: 10 }}>?</Text>
             </TouchableOpacity>
+            <TouchableOpacity 
+              style={{ backgroundColor: '#A3C9FF', padding: 6, borderRadius: 6, marginLeft: 8 }}
+              onPress={() => {
+                console.log("📱 Manual refresh button pressed");
+                refresh();
+              }}
+            >
+              <Text style={{ color: '#0c0c0c', fontSize: 10, fontWeight: 'bold' }}>🔄</Text>
+            </TouchableOpacity>
           </View>
         )}
 
