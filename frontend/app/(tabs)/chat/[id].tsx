@@ -15,6 +15,15 @@ export default function ChatDetail() {
   const [text, setText] = React.useState("");
   const chat = chats.find((c) => c.id === id);
   const msgs = messagesByChat[id || ""] || [];
+  
+  console.log("🔍 CHAT DETAIL RENDER:", {
+    chatId: id,
+    chatFound: !!chat,
+    chatTitle: chat?.title,
+    messagesCount: msgs.length,
+    allMessages: msgs,
+    messagesByChat: messagesByChat
+  });
 
   React.useEffect(() => { 
     if (id) markRead(id); 
