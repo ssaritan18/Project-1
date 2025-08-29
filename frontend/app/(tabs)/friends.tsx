@@ -121,15 +121,23 @@ export default function FriendsScreen() {
             data={friends}
             keyExtractor={(f) => f.id}
             estimatedItemSize={60}
-            renderItem={({ item }) => (
-              <View style={styles.itemRow}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  {presence[item.id] ? <View style={styles.dotOnline} /> : <View style={styles.dotOffline} />}
-                  <Text style={styles.itemText}>{item.name}{item.email ? ` (${item.email})` : ''}</Text>
+            renderItem={({ item }) => {
+              console.log("🎯 FlashList rendering item:", item);
+              return (
+                <View style={styles.itemRow}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    {presence[item.id] ? <View style={styles.dotOnline} /> : <View style={styles.dotOffline} />}
+                    <Text style={styles.itemText}>{item.name}{item.email ? ` (${item.email})` : ''}</Text>
+                  </View>
                 </View>
-              </View>
-            )}
+              );
+            }}
             contentContainerStyle={{ paddingBottom: 12 }}
+            ListEmptyComponent={() => (
+              <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>
+                🔍 FlashList Empty (Data exists: {friends.length} items)
+              </Text>
+            )}
           />
         </View>
 
