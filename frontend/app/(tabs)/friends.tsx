@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert, FlatList } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert, FlatList, ScrollView } from "react-native";
 import { useFriends } from "../../src/context/FriendsContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRuntimeConfig } from "../../src/context/RuntimeConfigContext";
