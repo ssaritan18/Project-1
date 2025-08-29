@@ -94,7 +94,7 @@ export default function ChatList() {
           <View style={styles.newRow}>
             <TextInput 
               style={styles.input} 
-              placeholder="Join by invite code" 
+              placeholder="Join GROUP chat by invite code" 
               placeholderTextColor="#777" 
               value={code} 
               onChangeText={setCode}
