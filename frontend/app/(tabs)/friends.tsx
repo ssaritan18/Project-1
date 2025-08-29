@@ -106,24 +106,74 @@ export default function FriendsScreen() {
         <View style={{ marginTop: 16 }}>
           <Text style={styles.section}>My Friends ({friends.length})</Text>
           
-          {/* NUCLEAR OPTION: Manual friends rendering */}
+          {/* ENHANCED MANUAL FRIENDS RENDERING WITH DEBUG */}
           <View style={{ minHeight: 200, backgroundColor: '#111', borderRadius: 12, padding: 8 }}>
-            {friends.length === 0 ? (
-              <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>
-                No friends data or empty array
+            {/* Debug information */}
+            <View style={{ backgroundColor: '#222', padding: 6, marginBottom: 8, borderRadius: 4 }}>
+              <Text style={{ color: '#A3C9FF', fontSize: 10 }}>
+                🔍 DEBUG: Array.isArray={String(Array.isArray(friends))}, Length={friends.length}
               </Text>
+              <Text style={{ color: '#A3C9FF', fontSize: 10 }}>
+                Type: {typeof friends}, Content: {JSON.stringify(friends).slice(0, 100)}...
+              </Text>
+            </View>
+
+            {friends.length === 0 ? (
+              <View>
+                <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>
+                  No friends data (Array length: {friends.length})
+                </Text>
+                <Text style={{ color: '#666', textAlign: 'center', fontSize: 10, marginTop: 8 }}>
+                  Array check: {Array.isArray(friends) ? 'IS ARRAY' : 'NOT ARRAY'}
+                </Text>
+              </View>
             ) : (
-              friends.map((friend, index) => (
-                <View key={friend.id || index} style={styles.itemRow}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <View style={presence[friend.id] ? styles.dotOnline : styles.dotOffline} />
-                    <Text style={styles.itemText}>
-                      {friend.name || 'No Name'} {friend.email ? `(${friend.email})` : ''}
-                    </Text>
-                  </View>
-                </View>
-              ))
+              <View>
+                <Text style={{ color: '#4CAF50', fontSize: 12, marginBottom: 8, textAlign: 'center' }}>
+                  ✅ Found {friends.length} friends - Rendering now:
+                </Text>
+                {friends.map((friend, index) => {
+                  // Extra logging for debugging
+                  console.log(`🔍 MOBILE: Rendering friend ${index}:`, {
+                    id: friend.id,
+                    _id: friend._id,
+                    name: friend.name,
+                    email: friend.email,
+                    fullObject: friend
+                  });
+                  
+                  return (
+                    <View 
+                      key={friend.id || friend._id || `friend-${index}`} 
+                      style={[styles.itemRow, { borderColor: '#4CAF50', borderWidth: 1 }]}
+                    >
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
+                        <View style={presence[friend.id] || presence[friend._id] ? styles.dotOnline : styles.dotOffline} />
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.itemText, { fontSize: 14, fontWeight: 'bold' }]}>
+                            {friend.name || 'No Name'}
+                          </Text>
+                          {friend.email && (
+                            <Text style={[styles.itemText, { fontSize: 11, opacity: 0.7 }]}>
+                              {friend.email}
+                            </Text>
+                          )}
+                        </View>
+                        <Text style={{ color: '#4CAF50', fontSize: 10 }}>#{index + 1}</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
             )}
+
+            {/* Always show raw data for debugging */}
+            <View style={{ marginTop: 12, backgroundColor: '#333', padding: 4, borderRadius: 4 }}>
+              <Text style={{ color: '#fff', fontSize: 9 }}>Raw Friends Data:</Text>
+              <Text style={{ color: '#fff', fontSize: 8, fontFamily: 'monospace' }}>
+                {JSON.stringify(friends, null, 1).slice(0, 300)}
+              </Text>
+            </View>
           </View>
         </View>
 
