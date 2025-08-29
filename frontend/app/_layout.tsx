@@ -28,8 +28,8 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <PaperProvider theme={theme as any}>
-          <RuntimeConfigProvider>
-            <AuthProvider>
+          <AuthProvider>
+            <RuntimeConfigProvider>
               <TasksProvider>
                 <FriendsProvider>
                   <ChatProvider>
@@ -38,8 +38,8 @@ export default function RootLayout() {
                   </ChatProvider>
                 </FriendsProvider>
               </TasksProvider>
-            </AuthProvider>
-          </RuntimeConfigProvider>
+            </RuntimeConfigProvider>
+          </AuthProvider>
         </PaperProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
