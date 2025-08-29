@@ -14,7 +14,7 @@ from typing import Dict, Optional, List
 
 # Base URL from frontend .env
 BASE_URL = "https://adhd-connect.preview.emergentagent.com/api"
-WS_URL = "wss://adhdsocial-fix.preview.emergentagent.com/api/ws"
+WS_URL = "wss://adhd-connect.preview.emergentagent.com/api/ws"
 
 class APITester:
     def __init__(self):
