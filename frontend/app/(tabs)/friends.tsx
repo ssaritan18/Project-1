@@ -54,33 +54,43 @@ export default function FriendsScreen() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <Text style={styles.header}>Friends {syncEnabled ? "(Online)" : "(Local)"}</Text>
-        {syncEnabled && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
-            <Text style={[styles.statusText, { color: wsConnectionStatus.includes('✅') ? '#3DDC84' : '#FF6B6B' }]}>
-              WebSocket: {wsConnectionStatus}
-            </Text>
-            <TouchableOpacity 
-              style={{ backgroundColor: '#333', padding: 4, borderRadius: 6 }}
-              onPress={() => {
-                console.log("🔍 DEBUG CLICKED");
-                setShowDebug(!showDebug);
-              }}
-            >
-              <Text style={{ color: '#fff', fontSize: 10 }}>?</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={{ backgroundColor: '#A3C9FF', padding: 6, borderRadius: 6, marginLeft: 8 }}
-              onPress={() => {
-                console.log("📱 Manual refresh button pressed");
-                refresh();
-              }}
-            >
-              <Text style={{ color: '#0c0c0c', fontSize: 10, fontWeight: 'bold' }}>🔄</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: 0 }]}>
+        {/* Fixed Header */}
+        <View style={{ paddingBottom: 12 }}>
+          <Text style={styles.header}>Friends {syncEnabled ? "(Online)" : "(Local)"}</Text>
+          {syncEnabled && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+              <Text style={[styles.statusText, { color: wsConnectionStatus.includes('✅') ? '#3DDC84' : '#FF6B6B' }]}>
+                WebSocket: {wsConnectionStatus}
+              </Text>
+              <TouchableOpacity 
+                style={{ backgroundColor: '#333', padding: 4, borderRadius: 6 }}
+                onPress={() => {
+                  console.log("🔍 DEBUG CLICKED");
+                  setShowDebug(!showDebug);
+                }}
+              >
+                <Text style={{ color: '#fff', fontSize: 10 }}>?</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ backgroundColor: '#A3C9FF', padding: 6, borderRadius: 6, marginLeft: 8 }}
+                onPress={() => {
+                  console.log("📱 Manual refresh button pressed");
+                  refresh();
+                }}
+              >
+                <Text style={{ color: '#0c0c0c', fontSize: 10, fontWeight: 'bold' }}>🔄</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        {/* Scrollable Content */}
+        <ScrollView 
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 24) }}
+          showsVerticalScrollIndicator={true}
+        >
 
         <Animated.View style={[styles.topCard, cardStyle]}> 
           {firstReq ? (
