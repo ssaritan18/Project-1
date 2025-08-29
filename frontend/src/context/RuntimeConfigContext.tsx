@@ -36,6 +36,8 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
 
   // WebSocket management
   useEffect(() => {
+    console.log("🔌 RuntimeConfig: WebSocket effect triggered", { syncEnabled, token: !!token });
+    
     let ws: WebSocket | null = null;
     let reconnectTimer: NodeJS.Timeout | null = null;
     let heartbeatTimer: NodeJS.Timeout | null = null;
@@ -45,6 +47,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
 
     const connectWebSocket = () => {
       if (!syncEnabled || !token) {
+        console.log("🔌 RuntimeConfig: Skipping WebSocket - not ready", { syncEnabled, hasToken: !!token });
         setWebSocket(null);
         setWsEnabled(false);
         return;
@@ -52,12 +55,12 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
 
       try {
         const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${token}`;
-        console.log('🔌 Connecting WebSocket:', wsUrl.replace(token, 'TOKEN_HIDDEN'));
+        console.log('🔌 RuntimeConfig: Connecting WebSocket:', wsUrl.replace(token, 'TOKEN_HIDDEN'));
         
         ws = new WebSocket(wsUrl);
         
         ws.onopen = () => {
-          console.log('✅ WebSocket connected successfully');
+          console.log('✅ RuntimeConfig: WebSocket connected successfully');
           setWebSocket(ws);
           setWsEnabled(true);
           reconnectAttempts = 0; // Reset attempts on successful connection
@@ -67,13 +70,13 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
           heartbeatTimer = setInterval(() => {
             if (ws && ws.readyState === WebSocket.OPEN) {
               ws.send(JSON.stringify({ type: 'ping' }));
-              console.log('💓 Heartbeat sent');
+              console.log('💓 RuntimeConfig: Heartbeat sent');
             }
           }, 30000); // Send heartbeat every 30 seconds
         };
         
         ws.onclose = () => {
-          console.log('🔌 WebSocket closed');
+          console.log('🔌 RuntimeConfig: WebSocket closed');
           setWebSocket(null);
           setWsEnabled(false);
           
@@ -85,17 +88,17 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
           // Auto-reconnect if sync mode is still enabled and we haven't exceeded attempts
           if (syncEnabled && token && reconnectAttempts < maxReconnectAttempts) {
             reconnectAttempts++;
-            console.log(`🔄 Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`);
+            console.log(`🔄 RuntimeConfig: Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`);
             
             if (reconnectTimer) clearTimeout(reconnectTimer);
             reconnectTimer = setTimeout(connectWebSocket, reconnectDelay);
           } else if (reconnectAttempts >= maxReconnectAttempts) {
-            console.log('❌ Max reconnection attempts reached');
+            console.log('❌ RuntimeConfig: Max reconnection attempts reached');
           }
         };
         
         ws.onerror = (error) => {
-          console.error('❌ WebSocket error:', error);
+          console.error('❌ RuntimeConfig: WebSocket error:', error);
         };
         
         ws.onmessage = (event) => {
@@ -104,30 +107,34 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
             
             // Handle pong response to keep connection alive
             if (data.type === 'pong') {
-              console.log('💓 Heartbeat pong received');
+              console.log('💓 RuntimeConfig: Heartbeat pong received');
               return;
             }
             
             // Handle other WebSocket messages
-            console.log('📨 WebSocket message received:', data.type);
+            console.log('📨 RuntimeConfig: WebSocket message received:', data.type);
           } catch (error) {
-            console.error('❌ WebSocket message parsing error:', error);
+            console.error('❌ RuntimeConfig: WebSocket message parsing error:', error);
           }
         };
         
       } catch (error) {
-        console.error('❌ WebSocket connection error:', error);
+        console.error('❌ RuntimeConfig: WebSocket connection error:', error);
         setWsEnabled(false);
       }
     };
 
     // Connect if sync is enabled and we have a token
     if (syncEnabled && token) {
+      console.log('🚀 RuntimeConfig: Initiating WebSocket connection...');
       connectWebSocket();
+    } else {
+      console.log('📱 RuntimeConfig: Staying in local mode');
     }
 
     // Cleanup on unmount or dependency change
     return () => {
+      console.log('🧹 RuntimeConfig: Cleaning up WebSocket...');
       if (reconnectTimer) clearTimeout(reconnectTimer);
       if (heartbeatTimer) clearInterval(heartbeatTimer);
       
