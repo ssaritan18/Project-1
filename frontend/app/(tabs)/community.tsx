@@ -51,7 +51,6 @@ export default function CommunityScreen() {
               </View>
             </View>
           )}
-          ListHeaderComponent={() => <Text style={styles.header}>Community</Text>}
         />
 
         <View style={styles.footer}>
