@@ -824,6 +824,28 @@ async def send_message(chat_id: str, payload: PostCreate, user=Depends(get_curre
         "created_at": now_iso(),
     }
     await db.messages.insert_one(msg)
+    
+    # Broadcast message to all chat members via WebSocket
+    message_payload = {
+        "type": "chat:new_message",
+        "chat_id": chat_id,
+        "message": {
+            "id": msg["_id"],
+            "chat_id": chat_id,
+            "author_id": msg["author_id"],
+            "author_name": msg["author_name"],
+            "text": msg["text"],
+            "reactions": msg["reactions"],
+            "created_at": msg["created_at"]
+        }
+    }
+    
+    # Send to all chat members
+    for member_id in chat.get("members", []):
+        if member_id != user["_id"]:  # Don't send to the sender
+            await ws_broadcast_to_user(member_id, message_payload)
+            logger.info(f"📨 Sent new message notification to user {member_id} for chat {chat_id}")
+    
     return msg
 
 @api_router.post("/chats/messages/{message_id}/react")
