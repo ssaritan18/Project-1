@@ -35,7 +35,6 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { syncEnabled } = useRuntimeConfig();
   const [isAuthed, setAuthed] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [palette, setPaletteState] = useState<Palette>({ primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" });
