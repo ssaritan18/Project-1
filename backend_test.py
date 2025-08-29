@@ -136,25 +136,9 @@ class APITester:
         else:
             self.log(f"❌ Group chat creation failed: {response.status_code} - {response.text}", "ERROR")
             return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
-        """Test creating a new chat"""
-        url = f"{self.base_url}/chats"
-        headers = {"Authorization": f"Bearer {token}"}
-        payload = {"title": title}
-        
-        self.log(f"Testing chat creation '{title}' by {user_name}")
-        response = self.session.post(url, json=payload, headers=headers)
-        
-        if response.status_code == 200:
-            data = response.json()
-            if "_id" in data and "title" in data and "invite_code" in data:
-                self.log(f"✅ Chat creation successful: {data['_id']} with invite code {data['invite_code']}")
-                return {"success": True, "data": data}
-            else:
-                self.log(f"❌ Chat creation response missing required fields", "ERROR")
-                return {"success": False, "error": "Missing required fields in response"}
-        else:
-            self.log(f"❌ Chat creation failed: {response.status_code} - {response.text}", "ERROR")
-            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    def test_create_chat(self, token: str, title: str, user_name: str) -> Dict:
+        """Test creating a new group chat (legacy method for compatibility)"""
+        return self.test_create_group_chat(token, title, user_name)
     
     def test_list_chats(self, token: str, user_name: str) -> Dict:
         """Test listing user's chats"""
