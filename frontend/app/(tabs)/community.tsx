@@ -13,6 +13,7 @@ const SAMPLE = [
 ];
 
 export default function CommunityScreen() {
+  const insets = useSafeAreaInsets();
   const [items, setItems] = React.useState(SAMPLE);
   const [comment, setComment] = React.useState("");
 
