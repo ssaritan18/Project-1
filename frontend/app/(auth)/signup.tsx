@@ -73,4 +73,6 @@ const styles = StyleSheet.create({
   primaryText: { color: "#0c0c0c", fontWeight: "700" },
   disabledBtn: { opacity: 0.5 },
   disabledText: { color: "#333" },
+  backBtn: { backgroundColor: "transparent", paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, minWidth: 240, alignItems: "center", marginTop: 12, borderWidth: 1, borderColor: "#333" },
+  backText: { color: "#bdbdbd", fontWeight: "600" },
 });
