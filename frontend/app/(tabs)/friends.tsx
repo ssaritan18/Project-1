@@ -161,7 +161,12 @@ export default function FriendsScreen() {
                 </Text>
                 {friends.map((friend, index) => {
                   // Extra logging for debugging
-                  console.log(`🔍 MOBILE: Rendering friend ${index}:`, {
+                  // Only log occasionally to prevent infinite loop
+                  if (index < 3) {
+                    console.log(`🔍 FRIEND ${index}:`, friend.name || friend.email);
+                  }
+                  
+                  return (
                     id: friend.id,
                     _id: friend._id,
                     name: friend.name,
