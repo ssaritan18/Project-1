@@ -123,16 +123,9 @@ export default function ChatList() {
                 <Text style={styles.meta} numberOfLines={1}>
                   Members: {Array.isArray(item.members) ? item.members.join(", ") : "Loading..."}
                 </Text>
-                {/* Only show invite code for GROUP chats */}
-                {(item.inviteCode || item.invite_code) && (
-                  <Text style={styles.inviteCode}>
-                    Group Code: {item.inviteCode || item.invite_code}
-                  </Text>
-                )}
-                {/* Show chat type for debugging */}
-                <Text style={{ color: '#666', fontSize: 10 }}>
-                  Type: {item.type || 'unknown'} | ID: {item.id?.slice(0, 8)}...
-              </View>
+                <Text style={styles.inviteCode}>
+                  Code: {item.inviteCode || item.invite_code}
+                </Text>
               </View>
               {item.unread ? (
                 <View style={styles.badge}>
