@@ -371,8 +371,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     joinByCode: async (code: string) => {
       if (mode === "sync" && isAuthenticated) {
         try {
-          console.log("🔑 Attempting to join chat with code:", code);
-          const joinedChat = await chatAPI.joinChat(code);
+          console.log("🔑 Attempting to join GROUP chat with code:", code);
+          const joinedChat = await chatAPI.joinGroupChat(code);
           const convertedChat = convertBackendChat(joinedChat);
           
           // Update or add chat to list
@@ -387,17 +387,17 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           // Fetch messages for the joined chat
           await fetchMessages(convertedChat.id);
           
-          console.log("✅ Chat: Successfully joined chat:", convertedChat.title, "ID:", convertedChat.id);
+          console.log("✅ Chat: Successfully joined GROUP chat:", convertedChat.title, "ID:", convertedChat.id);
           return convertedChat.id;
         } catch (error: any) {
-          console.error("❌ Chat: Failed to join chat with code:", code, "Error:", error);
+          console.error("❌ Chat: Failed to join GROUP chat with code:", code, "Error:", error);
           
           // Handle specific error types
           if (error.response?.status === 404) {
             console.log("❌ Invalid invite code");
             return null; // Invalid code
           } else if (error.response?.status === 403) {
-            throw new Error("Bu chat'e katılma yetkiniz yok. Arkadaş olmanız gerekebilir.");
+            throw new Error("Bu grup chat'e katılma yetkiniz yok.");
           } else if (error.response?.status === 401) {
             throw new Error("Giriş yapmalısınız. Profile → Sync Mode'u açın.");
           } else {
