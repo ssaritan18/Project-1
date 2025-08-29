@@ -53,6 +53,10 @@ export default function SignUp() {
         <TouchableOpacity style={[styles.primaryBtn, !valid && styles.disabledBtn]} onPress={submit} disabled={!valid}>
           <Text style={[styles.primaryText, !valid && styles.disabledText]}>Sign Up</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+          <Text style={styles.backText}>Back to Welcome</Text>
+        </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
