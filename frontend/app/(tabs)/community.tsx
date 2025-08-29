@@ -24,12 +24,17 @@ export default function CommunityScreen() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.header}>Community</Text>
+          <Text style={styles.subtitle}>Connect with fellow ADHDers</Text>
+        </View>
+        
         <FlashList
           data={items}
           keyExtractor={(item) => item.id}
           estimatedItemSize={120}
-          contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
+          contentContainerStyle={{ padding: 16, paddingBottom: Math.max(insets.bottom, 120) }}
           renderItem={({ item }) => (
             <View style={styles.card}>
               <Image source={require("../../assets/images/icon.png")} style={styles.avatar} />
