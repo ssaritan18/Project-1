@@ -802,18 +802,51 @@ async def react_post(post_id: str, payload: ReactionReq, user=Depends(get_curren
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
-@api_router.post("/chats")
-async def create_chat(payload: CreateChatReq, user=Depends(get_current_user)):
-    code = uuid.uuid4().hex[:6].upper()
-    doc = {
-        "_id": str(uuid.uuid4()),
-        "title": payload.title,
-        "members": [user["_id"]],
-        "invite_code": code,
+@api_router.post("/chats/direct/{friend_id}")
+async def open_direct_chat(friend_id: str, user=Depends(get_current_user)):
+    """Open or get existing 1-to-1 chat with a friend"""
+    
+    # Verify friendship
+    friend = await db.users.find_one({"_id": friend_id})
+    if not friend:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    # Check if they are friends
+    friendship = await db.friends.find_one({
+        "user_id": user["_id"], 
+        "friend_id": friend_id
+    })
+    if not friendship:
+        raise HTTPException(status_code=403, detail="You must be friends to start a chat")
+    
+    # Generate consistent chat ID
+    participants = sorted([user["_id"], friend_id])
+    chat_id = f"chat_{participants[0][:8]}_{participants[1][:8]}"
+    
+    # Check if chat already exists
+    existing_chat = await db.chats.find_one({"_id": chat_id})
+    if existing_chat:
+        logger.info(f"📱 Returning existing direct chat {chat_id}")
+        return existing_chat
+    
+    # Create new direct chat
+    friend_name = friend.get("name", "Friend")
+    user_name = user.get("name", "User")
+    
+    chat_doc = {
+        "_id": chat_id,
+        "type": "direct",
+        "title": f"{user_name} & {friend_name}",
+        "members": participants,
+        "invite_code": None,
+        "created_by": user["_id"],
         "created_at": now_iso(),
     }
-    await db.chats.insert_one(doc)
-    return doc
+    
+    await db.chats.insert_one(chat_doc)
+    logger.info(f"✅ Created new direct chat {chat_id} between {user_name} and {friend_name}")
+    
+    return chat_doc
 
 @api_router.post("/chats/join")
 async def join_chat(payload: JoinByCodeReq, user=Depends(get_current_user)):
