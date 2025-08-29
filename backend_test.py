@@ -1,23 +1,30 @@
 #!/usr/bin/env python3
 """
 Backend API Test Suite for ADHDers API
-Tests Auth and Friends endpoints as per test_result.md requirements
+Tests Auth, Friends, and Chat endpoints as per test_result.md requirements
 """
 
 import requests
 import json
 import sys
-from typing import Dict, Optional
+import websocket
+import threading
+import time
+from typing import Dict, Optional, List
 
 # Base URL from frontend .env
 BASE_URL = "https://adhdsocial-fix.preview.emergentagent.com/api"
+WS_URL = "wss://adhdsocial-fix.preview.emergentagent.com/api/ws"
 
 class APITester:
     def __init__(self):
         self.base_url = BASE_URL
+        self.ws_url = WS_URL
         self.session = requests.Session()
         self.tokens = {}
         self.users = {}
+        self.websockets = {}
+        self.ws_messages = {}
         
     def log(self, message: str, level: str = "INFO"):
         print(f"[{level}] {message}")
@@ -88,7 +95,198 @@ class APITester:
         else:
             self.log(f"❌ /me failed for {user_name}: {response.status_code} - {response.text}", "ERROR")
             return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    # Chat-related test methods
+    def test_create_chat(self, token: str, title: str, user_name: str) -> Dict:
+        """Test creating a new chat"""
+        url = f"{self.base_url}/chats"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {"title": title}
+        
+        self.log(f"Testing chat creation '{title}' by {user_name}")
+        response = self.session.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "_id" in data and "title" in data and "invite_code" in data:
+                self.log(f"✅ Chat creation successful: {data['_id']} with invite code {data['invite_code']}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Chat creation response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Chat creation failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
     
+    def test_list_chats(self, token: str, user_name: str) -> Dict:
+        """Test listing user's chats"""
+        url = f"{self.base_url}/chats"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing chat list for {user_name}")
+        response = self.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "chats" in data:
+                self.log(f"✅ Chat list successful for {user_name} - found {len(data['chats'])} chats")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Chat list response missing 'chats' field", "ERROR")
+                return {"success": False, "error": "Missing 'chats' field in response"}
+        else:
+            self.log(f"❌ Chat list failed for {user_name}: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    
+    def test_join_chat(self, token: str, invite_code: str, user_name: str) -> Dict:
+        """Test joining a chat by invite code"""
+        url = f"{self.base_url}/chats/join"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {"code": invite_code}
+        
+        self.log(f"Testing chat join with code '{invite_code}' by {user_name}")
+        response = self.session.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "_id" in data and "members" in data:
+                self.log(f"✅ Chat join successful by {user_name}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Chat join response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Chat join failed by {user_name}: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    
+    def test_send_message(self, token: str, chat_id: str, text: str, user_name: str) -> Dict:
+        """Test sending a message to a chat"""
+        url = f"{self.base_url}/chats/{chat_id}/messages"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {"text": text, "type": "text"}
+        
+        self.log(f"Testing message send to chat {chat_id} by {user_name}: '{text}'")
+        response = self.session.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "_id" in data and "text" in data and "author_id" in data:
+                self.log(f"✅ Message send successful: {data['_id']}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Message send response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Message send failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    
+    def test_get_messages(self, token: str, chat_id: str, user_name: str) -> Dict:
+        """Test getting messages from a chat"""
+        url = f"{self.base_url}/chats/{chat_id}/messages"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing message retrieval from chat {chat_id} by {user_name}")
+        response = self.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "messages" in data:
+                self.log(f"✅ Message retrieval successful - found {len(data['messages'])} messages")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Message retrieval response missing 'messages' field", "ERROR")
+                return {"success": False, "error": "Missing 'messages' field in response"}
+        else:
+            self.log(f"❌ Message retrieval failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    
+    def test_react_to_message(self, token: str, chat_id: str, message_id: str, reaction_type: str, user_name: str) -> Dict:
+        """Test reacting to a message"""
+        url = f"{self.base_url}/chats/{chat_id}/messages/{message_id}/react"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {"type": reaction_type}
+        
+        self.log(f"Testing message reaction '{reaction_type}' to message {message_id} by {user_name}")
+        response = self.session.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "reactions" in data:
+                self.log(f"✅ Message reaction successful - new count: {data['reactions'].get(reaction_type, 0)}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Message reaction response missing 'reactions' field", "ERROR")
+                return {"success": False, "error": "Missing 'reactions' field in response"}
+        else:
+            self.log(f"❌ Message reaction failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    # WebSocket testing methods
+    def setup_websocket(self, token: str, user_name: str) -> bool:
+        """Setup WebSocket connection for a user"""
+        try:
+            ws_url_with_token = f"{self.ws_url}?token={token}"
+            self.log(f"Setting up WebSocket for {user_name}")
+            
+            def on_message(ws, message):
+                try:
+                    data = json.loads(message)
+                    if user_name not in self.ws_messages:
+                        self.ws_messages[user_name] = []
+                    self.ws_messages[user_name].append(data)
+                    self.log(f"📨 WebSocket message received by {user_name}: {data.get('type', 'unknown')}")
+                except Exception as e:
+                    self.log(f"❌ Error parsing WebSocket message for {user_name}: {e}", "ERROR")
+            
+            def on_error(ws, error):
+                self.log(f"❌ WebSocket error for {user_name}: {error}", "ERROR")
+            
+            def on_close(ws, close_status_code, close_msg):
+                self.log(f"🔌 WebSocket closed for {user_name}")
+            
+            def on_open(ws):
+                self.log(f"✅ WebSocket connected for {user_name}")
+            
+            ws = websocket.WebSocketApp(
+                ws_url_with_token,
+                on_message=on_message,
+                on_error=on_error,
+                on_close=on_close,
+                on_open=on_open
+            )
+            
+            # Start WebSocket in a separate thread
+            def run_ws():
+                ws.run_forever()
+            
+            ws_thread = threading.Thread(target=run_ws, daemon=True)
+            ws_thread.start()
+            
+            # Give it a moment to connect
+            time.sleep(2)
+            
+            self.websockets[user_name] = ws
+            return True
+            
+        except Exception as e:
+            self.log(f"❌ Failed to setup WebSocket for {user_name}: {e}", "ERROR")
+            return False
+    
+    def check_websocket_messages(self, user_name: str, expected_type: str, timeout: int = 5) -> bool:
+        """Check if user received expected WebSocket message type"""
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            if user_name in self.ws_messages:
+                for msg in self.ws_messages[user_name]:
+                    if msg.get("type") == expected_type:
+                        self.log(f"✅ WebSocket message '{expected_type}' received by {user_name}")
+                        return True
+            time.sleep(0.1)
+        
+        self.log(f"❌ WebSocket message '{expected_type}' not received by {user_name} within {timeout}s", "ERROR")
+        return False
+
+    # Legacy friends methods (keeping for compatibility)
     def test_friends_find(self, token: str, query: str, user_name: str) -> Dict:
         """Test friends find endpoint"""
         url = f"{self.base_url}/friends/find?q={query}"
