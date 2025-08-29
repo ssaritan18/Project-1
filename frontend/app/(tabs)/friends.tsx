@@ -186,6 +186,16 @@ export default function FriendsScreen() {
                             </Text>
                           )}
                         </View>
+                        
+                        {/* Message Button */}
+                        <TouchableOpacity 
+                          style={styles.messageBtn}
+                          onPress={() => handleMessageFriend(friend)}
+                        >
+                          <Ionicons name="chatbubble" size={16} color="#000" />
+                          <Text style={styles.messageBtnText}>Message</Text>
+                        </TouchableOpacity>
+                        
                         <Text style={{ color: '#4CAF50', fontSize: 10 }}>#{index + 1}</Text>
                       </View>
                     </View>
@@ -268,4 +278,6 @@ const styles = StyleSheet.create({
   dotOffline: { width: 10, height: 10, borderRadius: 6, backgroundColor: '#444' },
   toast: { position: 'absolute', bottom: 100, left: 24, right: 24, backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 12, padding: 12, alignItems: 'center' },
   toastText: { color: '#000', fontWeight: '800' },
+  messageBtn: { backgroundColor: '#A3C9FF', paddingVertical: 6, paddingHorizontal: 8, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 4 },
+  messageBtnText: { color: '#000', fontSize: 10, fontWeight: '600' },
 });
