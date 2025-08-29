@@ -805,6 +805,23 @@ async def react_post(post_id: str, payload: ReactionReq, user=Depends(get_curren
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
+@api_router.post("/chats/group")
+async def create_group_chat(payload: ChatCreate, user=Depends(get_current_user)):
+    """Create a new group chat with invitation code"""
+    code = uuid.uuid4().hex[:6].upper()
+    doc = {
+        "_id": str(uuid.uuid4()),
+        "type": "group",
+        "title": payload.title,
+        "members": [user["_id"]],
+        "invite_code": code,
+        "created_by": user["_id"],
+        "created_at": now_iso(),
+    }
+    await db.chats.insert_one(doc)
+    logger.info(f"✅ Created group chat: {payload.title} with invite code: {code}")
+    return doc
+
 @api_router.post("/chats/direct/{friend_id}")
 async def open_direct_chat(friend_id: str, user=Depends(get_current_user)):
     """Open or get existing 1-to-1 chat with a friend"""
