@@ -21,12 +21,21 @@ export default function ChatDetail() {
   }, [id, markRead]);
 
   const onSend = async () => { 
-    if (!id || !text.trim()) return; 
+    console.log("🔥 SEND BUTTON CLICKED! Text:", text, "Chat ID:", id);
+    
+    if (!id || !text.trim()) {
+      console.log("❌ Cannot send - missing ID or text");
+      return;
+    }
+    
     try {
+      console.log("🚀 Calling sendText function...");
       await sendText(id, text.trim()); 
+      console.log("✅ sendText completed successfully");
       setText(""); 
+      console.log("✅ Text input cleared");
     } catch (error) {
-      console.error("Failed to send message:", error);
+      console.error("❌ Send error:", error);
       Alert.alert("Error", "Failed to send message. Please try again.");
     }
   };
