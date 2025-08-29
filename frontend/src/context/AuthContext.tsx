@@ -83,26 +83,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const res = await api.post("/auth/register", { name, email, password });
         console.log("✅ Register response:", res.data);
-        const t = res.data?.access_token as string;
-        console.log("🔑 Token received:", t ? "Yes" : "No");
-        setToken(t); setAuthToken(t);
-        if (PERSIST_ENABLED) await saveJSON(KEYS.token, t);
-        console.log("💾 Token saved to storage");
-        try {
-          const me = await api.get("/me");
-          const u: User = { name: me.data.name, email: me.data.email, photoBase64: me.data.photo_base64 };
-          setUser(u); setAuthed(true);
-          if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
-          console.log("✅ User profile loaded:", u);
-        } catch (e) {
-          console.log("❌ /me failed, using fallback:", e);
-          const u: User = { name, email };
-          setUser(u); setAuthed(true);
-          if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
-        }
+        
+        // New flow: Registration returns message instead of token
+        const message = res.data?.message || "Registration successful!";
+        const emailSent = res.data?.email_sent || false;
+        
+        Alert.alert(
+          "Registration Successful! 🎉", 
+          `${message}\n\n${emailSent ? "📧 Verification email sent!" : "⚠️ Email not configured - check with admin"}`,
+          [{ text: "OK" }]
+        );
+        
+        console.log("📧 Email verification required - user should check email");
+        // Don't set token or auto-login - user needs to verify email first
+        
       } catch (e) {
         console.error("❌ Register API call failed:", e);
-        Alert.alert("Registration Error", `API Failed: ${JSON.stringify(e)}`);
+        Alert.alert("Registration Error", `Registration failed: ${JSON.stringify(e)}`);
+        throw e;
       }
       return;
     }
