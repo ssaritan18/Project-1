@@ -32,6 +32,117 @@ ALGO = "HS256"
 ACCESS_EXPIRES_DAYS = 7
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# Email Configuration
+SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USERNAME = os.getenv("SMTP_USERNAME", "")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", "noreply@adhders.com")
+EMAIL_ENABLED = bool(SMTP_USERNAME and SMTP_PASSWORD)
+
+# Email Templates
+email_template = jinja2.Template("""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ subject }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #A3C9FF; color: #0c0c0c; padding: 20px; text-align: center; }
+        .content { padding: 30px; background: #f9f9f9; }
+        .button { display: inline-block; background: #A3C9FF; color: #0c0c0c; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ADHDers Social Club</h1>
+        </div>
+        <div class="content">
+            {{ content | safe }}
+        </div>
+        <div class="footer">
+            <p>This email was sent by ADHDers Social Club</p>
+        </div>
+    </div>
+</body>
+</html>
+""")
+
+# Email Functions
+async def send_email(to_email: str, subject: str, content: str) -> bool:
+    """Send email using SMTP"""
+    if not EMAIL_ENABLED:
+        logger.warning(f"📧 Email not configured, would send to {to_email}: {subject}")
+        return False
+    
+    try:
+        logger.info(f"📧 Sending email to {to_email}: {subject}")
+        
+        # Create message
+        message = MIMEMultipart("alternative")
+        message["Subject"] = subject
+        message["From"] = SMTP_FROM_EMAIL
+        message["To"] = to_email
+        
+        # HTML content
+        html_content = email_template.render(subject=subject, content=content)
+        html_part = MIMEText(html_content, "html")
+        message.attach(html_part)
+        
+        # Send email
+        await aiosmtplib.send(
+            message,
+            hostname=SMTP_HOST,
+            port=SMTP_PORT,
+            start_tls=True,
+            username=SMTP_USERNAME,
+            password=SMTP_PASSWORD,
+        )
+        
+        logger.info(f"✅ Email sent successfully to {to_email}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to send email to {to_email}: {e}")
+        return False
+
+async def send_verification_email(user_email: str, token: str) -> bool:
+    """Send email verification email"""
+    verify_url = f"https://focus-buddy-45.preview.emergentagent.com/api/auth/verify?token={token}"
+    
+    content = f"""
+    <h2>Welcome to ADHDers Social Club! 🎉</h2>
+    <p>Thanks for signing up! Please verify your email address to complete your registration.</p>
+    <p>
+        <a href="{verify_url}" class="button">Verify Email Address</a>
+    </p>
+    <p>Or copy and paste this link: <br><code>{verify_url}</code></p>
+    <p>This link will expire in 24 hours.</p>
+    """
+    
+    return await send_email(user_email, "Verify Your Email - ADHDers Social Club", content)
+
+async def send_password_reset_email(user_email: str, token: str) -> bool:
+    """Send password reset email"""
+    reset_url = f"https://focus-buddy-45.preview.emergentagent.com/auth/reset-password?token={token}"
+    
+    content = f"""
+    <h2>Password Reset Request</h2>
+    <p>We received a request to reset your password for ADHDers Social Club.</p>
+    <p>
+        <a href="{reset_url}" class="button">Reset Password</a>
+    </p>
+    <p>Or copy and paste this link: <br><code>{reset_url}</code></p>
+    <p>This link will expire in 1 hour.</p>
+    <p>If you didn't request this, you can safely ignore this email.</p>
+    """
+    
+    return await send_email(user_email, "Reset Your Password - ADHDers Social Club", content)
+
 # Create the main app without a prefix
 app = FastAPI(title="ADHDers API", version="0.3.1")
 
