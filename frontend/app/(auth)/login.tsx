@@ -92,4 +92,6 @@ const styles = StyleSheet.create({
   googleText: { color: "#000", fontWeight: "700" },
   forgotBtn: { marginTop: 12, alignItems: "center" },
   forgotText: { color: '#A3C9FF', fontWeight: '700' },
+  backBtn: { backgroundColor: "transparent", paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, minWidth: 240, alignItems: "center", marginTop: 12, borderWidth: 1, borderColor: "#A3C9FF" },
+  backText: { color: "#A3C9FF", fontWeight: "700" },
 });
