@@ -226,6 +226,7 @@ export default function FriendsScreen() {
             </ScrollView>
           </View>
         )}
+        </ScrollView>
       </View>
     </KeyboardAvoidingView>
   );
