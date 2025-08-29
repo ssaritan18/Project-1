@@ -8,136 +8,282 @@ import { ProgressBar } from "../../src/components/ProgressBar";
 import { Ionicons } from "@expo/vector-icons";
 import { Celebration } from "../../src/components/Celebration";
 import { Confetti } from "../../src/components/Confetti";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const COLOR_PRESETS = ["#A3C9FF", "#FFCFE1", "#B8F1D9", "#FFE3A3", "#FFB3BA"];
 
 export default function HomeScreen() {
   const { tasks, increment, addTask, remove, reorder } = useTasks();
   const { palette } = useAuth();
+  const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
   const [title, setTitle] = useState("");
   const [goal, setGoal] = useState("5");
   const [color, setColor] = useState(COLOR_PRESETS[0]);
-  const [celebrate, setCelebrate] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
 
-  const totals = useMemo(() => {
-    const total = tasks.reduce((acc, t) => acc + (t.goal || 0), 0);
-    const prog = tasks.reduce((acc, t) => acc + (t.progress || 0), 0);
-    return { total, prog, ratio: total ? prog / total : 0 };
+  const dayTotal = useMemo(() => {
+    const total = tasks.reduce((acc, task) => acc + parseInt(task.goal), 0);
+    const progress = tasks.reduce((acc, task) => acc + parseInt(task.progress), 0);
+    return { total, progress, ratio: total > 0 ? progress / total : 0 };
   }, [tasks]);
 
-  const saveTask = () => {
-    if (!title.trim()) return;
-    const g = Math.max(1, parseInt(goal || '1', 10));
-    addTask(title.trim(), g, color);
-    setTitle("");
-    setGoal("5");
-    setColor(COLOR_PRESETS[0]);
-    setModalVisible(false);
-  };
-
-  const onIncrement = async (id: string) => {
-    const done = await increment(id);
-    if (done) {
-      setCelebrate(true);
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 1300);
+  const addNewTask = () => {
+    if (title.trim() && goal.trim()) {
+      addTask({ title: title.trim(), goal: parseInt(goal), color });
+      setTitle("");
+      setGoal("5");
+      setColor(COLOR_PRESETS[0]);
+      setModalVisible(false);
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <DraggableFlatList
-        data={tasks}
-        keyExtractor={(item) => item.id}
-        onDragEnd={({ data }) => reorder(data)}
-        renderItem={({ item, drag, isActive }) => (
-          <ScaleDecorator>
-            <View style={{ opacity: isActive ? 0.9 : 1 }}>
-              <TaskCard
-                task={{ _id: item.id, title: item.title, goal: item.goal, progress: item.progress, color: item.color }}
-                onIncrement={() => onIncrement(item.id)}
-                onDelete={() => remove(item.id)}
-                onDrag={drag}
-              />
-            </View>
-          </ScaleDecorator>
-        )}
-        contentContainerStyle={{ padding: 16, paddingBottom: 140 }}
-        ListHeaderComponent={() => (
-          <View style={{ marginBottom: 12 }}>
-            <Text style={styles.header}>Today's Tasks</Text>
-          </View>
-        )}
-        ListEmptyComponent={() => (
-          <View style={styles.emptyWrap}>
-            <Ionicons name="trophy" size={36} color="#FFE3A3" />
-            <Text style={styles.emptyTitle}>No tasks yet</Text>
-            <Text style={styles.emptyMeta}>Create your first tiny task and start the streak.</Text>
-            <TouchableOpacity style={[styles.addBtn, { backgroundColor: palette.primary }]} onPress={() => setModalVisible(true)}>
-              <Text style={styles.addText}>Add your first task</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+  const renderTask = ({ item, drag }) => (
+    <ScaleDecorator>
+      <TaskCard
+        task={item}
+        onIncrement={() => increment(item.id)}
+        onRemove={() => remove(item.id)}
+        onDrag={drag}
+        palette={palette}
       />
+    </ScaleDecorator>
+  );
 
-      <View style={styles.footer}>
-        <Text style={styles.totalText}>Daily Progress</Text>
-        <ProgressBar progress={totals.ratio} color={palette.accent} height={14} />
-        <Text style={styles.totalMeta}>{totals.prog} / {totals.total}</Text>
-        <TouchableOpacity style={[styles.addBtn, { backgroundColor: palette.primary }]} onPress={() => setModalVisible(true)}>
-          <Text style={styles.addText}>Add Task</Text>
-        </TouchableOpacity>
-      </View>
+  return (
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+        {/* Header */}
+        <View style={styles.headerContainer}>
+          <Text style={styles.header}>Today's Tasks</Text>
+          <TouchableOpacity 
+            style={[styles.addBtn, { backgroundColor: palette?.primary || '#A3C9FF' }]}
+            onPress={() => setModalVisible(true)}
+          >
+            <Ionicons name="add" size={20} color="#000" />
+          </TouchableOpacity>
+        </View>
 
-      <Modal visible={modalVisible} animationType="slide" transparent onRequestClose={() => setModalVisible(false)}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalWrap}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>New Task</Text>
-            <TextInput placeholder="Title" placeholderTextColor="#777" style={styles.input} value={title} onChangeText={setTitle} />
-            <TextInput placeholder="Goal (number)" placeholderTextColor="#777" style={styles.input} keyboardType="number-pad" value={goal} onChangeText={setGoal} />
-            <Text style={styles.modalLabel}>Color</Text>
-            <View style={styles.colorRow}>
-              {COLOR_PRESETS.map((c) => (
-                <TouchableOpacity key={c} onPress={() => setColor(c)} style={[styles.colorDot, { backgroundColor: c, borderWidth: color === c ? 2 : 1 }]} />
-              ))}
+        {/* Progress Section */}
+        <View style={[styles.progressCard, { backgroundColor: palette?.secondary || '#FFCFE1' }]}>
+          <Text style={styles.progressTitle}>Daily Progress</Text>
+          <ProgressBar 
+            progress={dayTotal.progress} 
+            total={dayTotal.total} 
+            color={palette?.primary || '#A3C9FF'} 
+          />
+          <Text style={styles.progressText}>
+            {dayTotal.progress} / {dayTotal.total} completed ({Math.round(dayTotal.ratio * 100)}%)
+          </Text>
+        </View>
+
+        {/* Tasks List */}
+        <DraggableFlatList
+          data={tasks}
+          keyExtractor={(item) => item.id}
+          renderItem={renderTask}
+          onDragEnd={({ data }) => reorder(data)}
+          contentContainerStyle={{ 
+            paddingHorizontal: 16, 
+            paddingBottom: Math.max(insets.bottom, 24)
+          }}
+          ListEmptyComponent={() => (
+            <View style={styles.emptyState}>
+              <Ionicons name="checkbox-outline" size={64} color="#444" />
+              <Text style={styles.emptyText}>No tasks yet</Text>
+              <Text style={styles.emptySubtext}>Tap + to add your first task!</Text>
             </View>
-            <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#222' }]} onPress={() => setModalVisible(false)}>
-                <Text style={{ color: '#fff' }}>Cancel</Text>
+          )}
+          showsVerticalScrollIndicator={false}
+        />
+
+        {/* Add Task Modal */}
+        <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
+          <View style={[styles.modalContainer, { paddingTop: insets.top }]}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#fff" />
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: palette.secondary }]} onPress={saveTask}>
-                <Text style={{ color: '#000', fontWeight: '700' }}>Save</Text>
+              <Text style={styles.modalTitle}>Add New Task</Text>
+              <TouchableOpacity onPress={addNewTask}>
+                <Text style={[styles.saveText, { color: palette?.primary || '#A3C9FF' }]}>Save</Text>
               </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalContent}>
+              <Text style={styles.label}>Task Title</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter task title"
+                placeholderTextColor="#777"
+                value={title}
+                onChangeText={setTitle}
+                maxLength={50}
+              />
+
+              <Text style={styles.label}>Daily Goal</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter goal (e.g., 5)"
+                placeholderTextColor="#777"
+                value={goal}
+                onChangeText={setGoal}
+                keyboardType="numeric"
+                maxLength={3}
+              />
+
+              <Text style={styles.label}>Color</Text>
+              <View style={styles.colorRow}>
+                {COLOR_PRESETS.map((presetColor) => (
+                  <TouchableOpacity
+                    key={presetColor}
+                    style={[
+                      styles.colorOption,
+                      { backgroundColor: presetColor },
+                      color === presetColor && styles.selectedColor,
+                    ]}
+                    onPress={() => setColor(presetColor)}
+                  >
+                    {color === presetColor && (
+                      <Ionicons name="checkmark" size={16} color="#000" />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
           </View>
-        </KeyboardAvoidingView>
-      </Modal>
+        </Modal>
 
-      <Celebration visible={celebrate} onDone={() => setCelebrate(false)} />
-      <Confetti visible={showConfetti} />
-    </View>
+        <Celebration />
+        <Confetti />
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0c0c0c" },
-  header: { color: "#fff", fontSize: 22, fontWeight: "700" },
-  emptyWrap: { alignItems: 'center', padding: 32, gap: 8 },
-  emptyTitle: { color: '#fff', fontSize: 18, fontWeight: '700' },
-  emptyMeta: { color: '#bdbdbd', textAlign: 'center' },
-  footer: { position: "absolute", left: 0, right: 0, bottom: 0, padding: 16, backgroundColor: "#111", borderTopColor: "#1a1a1a", borderTopWidth: 1 },
-  totalText: { color: "#e5e5e5", marginBottom: 8, fontWeight: "600" },
-  totalMeta: { color: "#bdbdbd", marginTop: 6 },
-  addBtn: { marginTop: 12, paddingVertical: 14, borderRadius: 12, alignItems: "center" },
-  addText: { color: "#0c0c0c", fontWeight: "700" },
-  modalWrap: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  modalCard: { backgroundColor: '#111', padding: 16, borderTopLeftRadius: 16, borderTopRightRadius: 16 },
-  modalTitle: { color: '#fff', fontSize: 18, fontWeight: '700', marginBottom: 8 },
-  input: { backgroundColor: '#1a1a1a', color: '#fff', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: '#222', marginBottom: 8 },
-  modalBtn: { flex: 1, paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
-  modalLabel: { color: '#bdbdbd', marginTop: 4, marginBottom: 6 },
-  colorRow: { flexDirection: 'row', gap: 10 },
-  colorDot: { width: 28, height: 28, borderRadius: 16, borderColor: '#333' },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#0c0c0c' 
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#111',
+    borderBottomWidth: 1,
+    borderBottomColor: '#1a1a1a',
+  },
+  header: { 
+    color: '#fff', 
+    fontSize: 22, 
+    fontWeight: '700' 
+  },
+  addBtn: { 
+    padding: 10, 
+    borderRadius: 12,
+    elevation: 2
+  },
+  progressCard: {
+    margin: 16,
+    padding: 16,
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  progressTitle: { 
+    color: '#000', 
+    fontSize: 16, 
+    fontWeight: '700', 
+    marginBottom: 8 
+  },
+  progressText: { 
+    color: '#000', 
+    fontSize: 12, 
+    marginTop: 8,
+    textAlign: 'center'
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 80,
+    paddingHorizontal: 40,
+  },
+  emptyText: {
+    color: '#777',
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 16,
+  },
+  emptySubtext: {
+    color: '#555',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  modalContainer: { 
+    flex: 1, 
+    backgroundColor: '#0c0c0c' 
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#111',
+    borderBottomWidth: 1,
+    borderBottomColor: '#1a1a1a',
+  },
+  modalTitle: { 
+    color: '#fff', 
+    fontSize: 18, 
+    fontWeight: '700' 
+  },
+  saveText: { 
+    fontSize: 16, 
+    fontWeight: '600' 
+  },
+  modalContent: { 
+    padding: 16 
+  },
+  label: { 
+    color: '#fff', 
+    fontSize: 14, 
+    fontWeight: '600', 
+    marginBottom: 8, 
+    marginTop: 16 
+  },
+  input: {
+    backgroundColor: '#111',
+    color: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: '#333',
+    fontSize: 15,
+  },
+  colorRow: { 
+    flexDirection: 'row', 
+    gap: 12, 
+    marginTop: 8 
+  },
+  colorOption: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+  },
+  selectedColor: {
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
 });
