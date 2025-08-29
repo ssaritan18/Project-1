@@ -10,7 +10,7 @@ import sys
 from typing import Dict, Optional
 
 # Base URL from frontend .env
-BASE_URL = "https://focus-buddy-45.preview.emergentagent.com/api"
+BASE_URL = "https://friendsync-debug.preview.emergentagent.com/api"
 
 class APITester:
     def __init__(self):
