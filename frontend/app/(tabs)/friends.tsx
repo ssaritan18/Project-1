@@ -192,15 +192,26 @@ export default function FriendsScreen() {
         ) : null}
 
         {showDebug && (
-          <View style={{ backgroundColor: '#1a1a1a', padding: 12, margin: 16, borderRadius: 8 }}>
+          <View style={{ 
+            backgroundColor: '#1a1a1a', 
+            padding: 12, 
+            margin: 16, 
+            borderRadius: 8,
+            maxHeight: 200,
+          }}>
             <Text style={{ color: '#A3C9FF', fontSize: 12, fontWeight: 'bold', marginBottom: 4 }}>🔍 Debug Info:</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>Sync: {syncEnabled ? 'true' : 'false'}</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>WebSocket: {wsEnabled ? 'true' : 'false'}</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>Token: {token ? 'Yes' : 'No'}</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>Status: {wsConnectionStatus}</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>Friends Count: {friends.length}</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>Token Preview: {token ? token.slice(0, 20) + '...' : 'null'}</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>Friends Data: {JSON.stringify(friends).slice(0, 100)}...</Text>
+            <ScrollView style={{ maxHeight: 150 }} showsVerticalScrollIndicator={true}>
+              <Text style={{ color: '#fff', fontSize: 11 }}>Sync: {syncEnabled ? 'true' : 'false'}</Text>
+              <Text style={{ color: '#fff', fontSize: 11 }}>WebSocket: {wsEnabled ? 'true' : 'false'}</Text>
+              <Text style={{ color: '#fff', fontSize: 11 }}>Token: {token ? 'Yes' : 'No'}</Text>
+              <Text style={{ color: '#fff', fontSize: 11 }}>Status: {wsConnectionStatus}</Text>
+              <Text style={{ color: '#fff', fontSize: 11 }}>Friends Count: {friends.length}</Text>
+              <Text style={{ color: '#fff', fontSize: 11 }}>Token Preview: {token ? token.slice(0, 20) + '...' : 'null'}</Text>
+              <Text style={{ color: '#fff', fontSize: 11, lineHeight: 14 }}>Friends Data: {JSON.stringify(friends, null, 2)}</Text>
+              <Text style={{ color: '#A3C9FF', fontSize: 11, marginTop: 8 }}>Array.isArray: {Array.isArray(friends) ? 'true' : 'false'}</Text>
+              <Text style={{ color: '#A3C9FF', fontSize: 11 }}>Length: {friends.length}</Text>
+              <Text style={{ color: '#A3C9FF', fontSize: 11, marginBottom: 10 }}>Type: {typeof friends}</Text>
+            </ScrollView>
           </View>
         )}
       </View>
