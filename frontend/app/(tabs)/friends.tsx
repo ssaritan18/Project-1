@@ -106,6 +106,17 @@ export default function FriendsScreen() {
 
         <View style={{ marginTop: 16 }}>
           <Text style={styles.section}>My Friends</Text>
+          
+          {/* Mobile Debug Alert - Temporary */}
+          <TouchableOpacity 
+            style={{ backgroundColor: '#ff6b6b', padding: 8, marginBottom: 8, borderRadius: 4 }}
+            onPress={() => {
+              const debugInfo = `Friends Count: ${friends.length}\nFriends Data: ${JSON.stringify(friends).slice(0, 200)}`;
+              alert(debugInfo);
+            }}
+          >
+            <Text style={{ color: '#fff', fontSize: 12, textAlign: 'center' }}>📱 Mobile Debug</Text>
+          </TouchableOpacity>
           <FlashList
             data={friends}
             keyExtractor={(f) => f.id}
