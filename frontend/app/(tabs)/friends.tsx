@@ -6,11 +6,13 @@ import { useRuntimeConfig } from "../../src/context/RuntimeConfigContext";
 import { api } from "../../src/lib/api";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useAuth } from "../../src/context/AuthContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function FriendsScreen() {
   const { friends, requests, posts, presence, wsConnectionStatus, sendRequest, acceptRequest, rejectRequest, addPost, reactPost, refresh, lastNotification, clearNotification } = useFriends();
   const { syncEnabled, wsEnabled } = useRuntimeConfig();
   const { token } = useAuth();
+  const insets = useSafeAreaInsets();
   const [friendQuery, setFriendQuery] = React.useState("");
   const [postText, setPostText] = React.useState("");
   const [showDebug, setShowDebug] = React.useState(false);
