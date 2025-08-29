@@ -463,12 +463,18 @@ async def auth_google(payload: GoogleAuthRequest):
     return {"access_token": access, "token_type": "bearer"}
 
 # --- Auth (Email+Password) ---
-@api_router.post("/auth/register", response_model=Token)
+@api_router.post("/auth/register")
 async def auth_register(req: RegisterRequest):
     existing = await db.users.find_one({"email": req.email.lower()})
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
+    
     uid = str(uuid.uuid4())
+    
+    # Create verification token (expires in 24 hours)
+    verification_token = str(uuid.uuid4())
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
+    
     doc = {
         "_id": uid,
         "email": req.email.lower(),
@@ -476,12 +482,62 @@ async def auth_register(req: RegisterRequest):
         "password_hash": pwd_context.hash(req.password),
         "palette": {"primary": "#A3C9FF", "secondary": "#FFCFE1", "accent": "#B8F1D9"},
         "friends": [],
+        "email_verified": False,
+        "verification_token": verification_token,
+        "verification_expires": expires_at.isoformat(),
         "created_at": now_iso(),
         "updated_at": now_iso(),
     }
     await db.users.insert_one(doc)
-    access = create_access_token(sub=uid, email=doc["email"])
-    return Token(access_token=access)
+    
+    # Send verification email
+    email_sent = await send_verification_email(req.email.lower(), verification_token)
+    
+    if EMAIL_ENABLED and not email_sent:
+        logger.warning(f"Failed to send verification email to {req.email}")
+    
+    return {
+        "message": "Registration successful! Please check your email to verify your account.",
+        "email_sent": email_sent,
+        "user_id": uid
+    }
+
+@api_router.get("/auth/verify")
+async def verify_email(token: str):
+    """Verify email address using token"""
+    user = await db.users.find_one({"verification_token": token})
+    
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or expired verification token")
+    
+    # Check if token is expired
+    expires_at = datetime.fromisoformat(user.get("verification_expires", ""))
+    if datetime.now(timezone.utc) > expires_at:
+        raise HTTPException(status_code=400, detail="Verification token has expired")
+    
+    # Update user as verified
+    await db.users.update_one(
+        {"_id": user["_id"]},
+        {
+            "$set": {
+                "email_verified": True,
+                "updated_at": now_iso()
+            },
+            "$unset": {
+                "verification_token": "",
+                "verification_expires": ""
+            }
+        }
+    )
+    
+    # Create access token
+    access = create_access_token(sub=user["_id"], email=user["email"])
+    
+    return {
+        "message": "Email verified successfully! You are now logged in.",
+        "access_token": access,
+        "token_type": "bearer"
+    }
 
 @api_router.post("/auth/login", response_model=Token)
 async def auth_login(req: LoginRequest):
