@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
     })();
-  }, [syncEnabled]);
+  }, []);
 
   const setPalette = (p: Palette) => {
     setPaletteState(p);
