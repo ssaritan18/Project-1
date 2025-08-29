@@ -9,6 +9,7 @@ type RuntimeConfig = {
   syncEnabled: boolean;
   wsEnabled: boolean;
   webSocket: WebSocket | null;
+  mode: "sync" | "local";
   setSyncEnabled: (v: boolean) => Promise<void>;
   setWsEnabled: (v: boolean) => Promise<void>;
 };
