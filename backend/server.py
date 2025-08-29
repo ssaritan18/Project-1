@@ -116,7 +116,9 @@ async def send_email(to_email: str, subject: str, content: str) -> bool:
 
 async def send_verification_email(user_email: str, token: str) -> bool:
     """Send email verification email"""
-    verify_url = f"https://adhdsocial-fix.preview.emergentagent.com/api/auth/verify?token={token}"
+    # Use environment variable for base URL
+    base_url = os.getenv("BASE_URL", "http://localhost:3000")
+    verify_url = f"{base_url}/api/auth/verify?token={token}"
     
     content = f"""
     <h2>Welcome to ADHDers Social Club! 🎉</h2>
