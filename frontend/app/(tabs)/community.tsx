@@ -72,7 +72,9 @@ export default function CommunityScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0c0c0c" },
-  header: { color: "#fff", fontSize: 22, fontWeight: "700", marginBottom: 12 },
+  headerContainer: { padding: 16, paddingBottom: 8 },
+  header: { color: "#fff", fontSize: 22, fontWeight: "700", marginBottom: 4 },
+  subtitle: { color: "#888", fontSize: 14, fontWeight: "400" },
   card: { flexDirection: "row", backgroundColor: "#111", borderRadius: 16, padding: 12, marginBottom: 12, alignItems: "center" },
   avatar: { width: 48, height: 48, borderRadius: 24, marginRight: 12 },
   name: { color: "#fff", fontSize: 16, fontWeight: "600", marginBottom: 8 },
