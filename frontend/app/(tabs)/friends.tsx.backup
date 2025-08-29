@@ -1,17 +1,18 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert, FlatList, ScrollView } from "react-native";
 import { useFriends } from "../../src/context/FriendsContext";
-import { FlashList } from "@shopify/flash-list";
 import { Ionicons } from "@expo/vector-icons";
 import { useRuntimeConfig } from "../../src/context/RuntimeConfigContext";
 import { api } from "../../src/lib/api";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useAuth } from "../../src/context/AuthContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function FriendsScreen() {
   const { friends, requests, posts, presence, wsConnectionStatus, sendRequest, acceptRequest, rejectRequest, addPost, reactPost, refresh, lastNotification, clearNotification } = useFriends();
   const { syncEnabled, wsEnabled } = useRuntimeConfig();
   const { token } = useAuth();
+  const insets = useSafeAreaInsets();
   const [friendQuery, setFriendQuery] = React.useState("");
   const [postText, setPostText] = React.useState("");
   const [showDebug, setShowDebug] = React.useState(false);
@@ -53,33 +54,43 @@ export default function FriendsScreen() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <Text style={styles.header}>Friends {syncEnabled ? "(Online)" : "(Local)"}</Text>
-        {syncEnabled && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
-            <Text style={[styles.statusText, { color: wsConnectionStatus.includes('✅') ? '#3DDC84' : '#FF6B6B' }]}>
-              WebSocket: {wsConnectionStatus}
-            </Text>
-            <TouchableOpacity 
-              style={{ backgroundColor: '#333', padding: 4, borderRadius: 6 }}
-              onPress={() => {
-                console.log("🔍 DEBUG CLICKED");
-                setShowDebug(!showDebug);
-              }}
-            >
-              <Text style={{ color: '#fff', fontSize: 10 }}>?</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={{ backgroundColor: '#A3C9FF', padding: 6, borderRadius: 6, marginLeft: 8 }}
-              onPress={() => {
-                console.log("📱 Manual refresh button pressed");
-                refresh();
-              }}
-            >
-              <Text style={{ color: '#0c0c0c', fontSize: 10, fontWeight: 'bold' }}>🔄</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: 0 }]}>
+        {/* Fixed Header */}
+        <View style={{ paddingBottom: 12 }}>
+          <Text style={styles.header}>Friends {syncEnabled ? "(Online)" : "(Local)"}</Text>
+          {syncEnabled && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+              <Text style={[styles.statusText, { color: wsConnectionStatus.includes('✅') ? '#3DDC84' : '#FF6B6B' }]}>
+                WebSocket: {wsConnectionStatus}
+              </Text>
+              <TouchableOpacity 
+                style={{ backgroundColor: '#333', padding: 4, borderRadius: 6 }}
+                onPress={() => {
+                  console.log("🔍 DEBUG CLICKED");
+                  setShowDebug(!showDebug);
+                }}
+              >
+                <Text style={{ color: '#fff', fontSize: 10 }}>?</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ backgroundColor: '#A3C9FF', padding: 6, borderRadius: 6, marginLeft: 8 }}
+                onPress={() => {
+                  console.log("📱 Manual refresh button pressed");
+                  refresh();
+                }}
+              >
+                <Text style={{ color: '#0c0c0c', fontSize: 10, fontWeight: 'bold' }}>🔄</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        {/* Scrollable Content */}
+        <ScrollView 
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 24) }}
+          showsVerticalScrollIndicator={true}
+        >
 
         <Animated.View style={[styles.topCard, cardStyle]}> 
           {firstReq ? (
@@ -105,21 +116,77 @@ export default function FriendsScreen() {
         </View>
 
         <View style={{ marginTop: 16 }}>
-          <Text style={styles.section}>My Friends</Text>
-          <FlashList
-            data={friends}
-            keyExtractor={(f) => f.id}
-            estimatedItemSize={60}
-            renderItem={({ item }) => (
-              <View style={styles.itemRow}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  {presence[item.id] ? <View style={styles.dotOnline} /> : <View style={styles.dotOffline} />}
-                  <Text style={styles.itemText}>{item.name}{item.email ? ` (${item.email})` : ''}</Text>
-                </View>
+          <Text style={styles.section}>My Friends ({friends.length})</Text>
+          
+          {/* ENHANCED MANUAL FRIENDS RENDERING WITH DEBUG */}
+          <View style={{ minHeight: 200, backgroundColor: '#111', borderRadius: 12, padding: 8 }}>
+            {/* Debug information */}
+            <View style={{ backgroundColor: '#222', padding: 6, marginBottom: 8, borderRadius: 4 }}>
+              <Text style={{ color: '#A3C9FF', fontSize: 10 }}>
+                🔍 DEBUG: Array.isArray={String(Array.isArray(friends))}, Length={friends.length}
+              </Text>
+              <Text style={{ color: '#A3C9FF', fontSize: 10 }}>
+                Type: {typeof friends}, Content: {JSON.stringify(friends).slice(0, 100)}...
+              </Text>
+            </View>
+
+            {friends.length === 0 ? (
+              <View>
+                <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>
+                  No friends data (Array length: {friends.length})
+                </Text>
+                <Text style={{ color: '#666', textAlign: 'center', fontSize: 10, marginTop: 8 }}>
+                  Array check: {Array.isArray(friends) ? 'IS ARRAY' : 'NOT ARRAY'}
+                </Text>
+              </View>
+            ) : (
+              <View>
+                <Text style={{ color: '#4CAF50', fontSize: 12, marginBottom: 8, textAlign: 'center' }}>
+                  ✅ Found {friends.length} friends - Rendering now:
+                </Text>
+                {friends.map((friend, index) => {
+                  // Extra logging for debugging
+                  console.log(`🔍 MOBILE: Rendering friend ${index}:`, {
+                    id: friend.id,
+                    _id: friend._id,
+                    name: friend.name,
+                    email: friend.email,
+                    fullObject: friend
+                  });
+                  
+                  return (
+                    <View 
+                      key={friend.id || friend._id || `friend-${index}`} 
+                      style={[styles.itemRow, { borderColor: '#4CAF50', borderWidth: 1 }]}
+                    >
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
+                        <View style={presence[friend.id] || presence[friend._id] ? styles.dotOnline : styles.dotOffline} />
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.itemText, { fontSize: 14, fontWeight: 'bold' }]}>
+                            {friend.name || 'No Name'}
+                          </Text>
+                          {friend.email && (
+                            <Text style={[styles.itemText, { fontSize: 11, opacity: 0.7 }]}>
+                              {friend.email}
+                            </Text>
+                          )}
+                        </View>
+                        <Text style={{ color: '#4CAF50', fontSize: 10 }}>#{index + 1}</Text>
+                      </View>
+                    </View>
+                  );
+                })}
               </View>
             )}
-            contentContainerStyle={{ paddingBottom: 12 }}
-          />
+
+            {/* Always show raw data for debugging */}
+            <View style={{ marginTop: 12, backgroundColor: '#333', padding: 4, borderRadius: 4 }}>
+              <Text style={{ color: '#fff', fontSize: 9 }}>Raw Friends Data:</Text>
+              <Text style={{ color: '#fff', fontSize: 8, fontFamily: 'monospace' }}>
+                {JSON.stringify(friends, null, 1).slice(0, 300)}
+              </Text>
+            </View>
+          </View>
         </View>
 
         <View style={{ marginTop: 16 }}>
@@ -137,17 +204,29 @@ export default function FriendsScreen() {
         ) : null}
 
         {showDebug && (
-          <View style={{ backgroundColor: '#1a1a1a', padding: 12, margin: 16, borderRadius: 8 }}>
+          <View style={{ 
+            backgroundColor: '#1a1a1a', 
+            padding: 12, 
+            margin: 16, 
+            borderRadius: 8,
+            maxHeight: 200,
+          }}>
             <Text style={{ color: '#A3C9FF', fontSize: 12, fontWeight: 'bold', marginBottom: 4 }}>🔍 Debug Info:</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>Sync: {syncEnabled ? 'true' : 'false'}</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>WebSocket: {wsEnabled ? 'true' : 'false'}</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>Token: {token ? 'Yes' : 'No'}</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>Status: {wsConnectionStatus}</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>Friends Count: {friends.length}</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>Token Preview: {token ? token.slice(0, 20) + '...' : 'null'}</Text>
-            <Text style={{ color: '#fff', fontSize: 11 }}>Friends Data: {JSON.stringify(friends).slice(0, 100)}...</Text>
+            <ScrollView style={{ maxHeight: 150 }} showsVerticalScrollIndicator={true}>
+              <Text style={{ color: '#fff', fontSize: 11 }}>Sync: {syncEnabled ? 'true' : 'false'}</Text>
+              <Text style={{ color: '#fff', fontSize: 11 }}>WebSocket: {wsEnabled ? 'true' : 'false'}</Text>
+              <Text style={{ color: '#fff', fontSize: 11 }}>Token: {token ? 'Yes' : 'No'}</Text>
+              <Text style={{ color: '#fff', fontSize: 11 }}>Status: {wsConnectionStatus}</Text>
+              <Text style={{ color: '#fff', fontSize: 11 }}>Friends Count: {friends.length}</Text>
+              <Text style={{ color: '#fff', fontSize: 11 }}>Token Preview: {token ? token.slice(0, 20) + '...' : 'null'}</Text>
+              <Text style={{ color: '#fff', fontSize: 11, lineHeight: 14 }}>Friends Data: {JSON.stringify(friends, null, 2)}</Text>
+              <Text style={{ color: '#A3C9FF', fontSize: 11, marginTop: 8 }}>Array.isArray: {Array.isArray(friends) ? 'true' : 'false'}</Text>
+              <Text style={{ color: '#A3C9FF', fontSize: 11 }}>Length: {friends.length}</Text>
+              <Text style={{ color: '#A3C9FF', fontSize: 11, marginBottom: 10 }}>Type: {typeof friends}</Text>
+            </ScrollView>
           </View>
         )}
+        </ScrollView>
       </View>
     </KeyboardAvoidingView>
   );
