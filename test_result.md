@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-## user_problem_statement: "Test Friend Request Scenario: send/accept/reject and search by name/email"
+## user_problem_statement: "Develop CHAT system with backend integration and real-time messaging"
 ## backend:
 ##   - task: "Auth register/login JWT"
 ##     implemented: true
