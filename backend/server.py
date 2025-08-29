@@ -450,9 +450,27 @@ async def websocket_endpoint(ws: WebSocket):
     try:
         while True:
             msg = await ws.receive_text()
+            
+            # Handle simple ping-pong
             if msg == "ping":
                 await ws.send_text("pong")
-                logger.debug(f"🏓 Ping-pong with user {user_id}")
+                logger.debug(f"🏓 Simple ping-pong with user {user_id}")
+                continue
+            
+            # Handle JSON messages
+            try:
+                data = json.loads(msg)
+                message_type = data.get("type")
+                
+                if message_type == "ping":
+                    await ws.send_json({"type": "pong"})
+                    logger.debug(f"💓 JSON heartbeat ping-pong with user {user_id}")
+                else:
+                    logger.info(f"📨 WebSocket JSON message from user {user_id}: {message_type}")
+                    
+            except json.JSONDecodeError:
+                logger.debug(f"📨 WebSocket text message from user {user_id}: {msg[:50]}...")
+                
     except WebSocketDisconnect:
         logger.info(f"🔌 WebSocket disconnected for user {user_id}")
         try:
