@@ -67,6 +67,10 @@ export default function Login() {
           <Text style={styles.googleText}>Continue with Google (mock)</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+          <Text style={styles.backText}>Back to Welcome</Text>
+        </TouchableOpacity>
+
 
       </View>
     </KeyboardAvoidingView>
