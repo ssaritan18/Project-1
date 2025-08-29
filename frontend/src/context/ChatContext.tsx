@@ -78,9 +78,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [backendChats, setBackendChats] = useState<Chat[]>([]);
   const [backendMessages, setBackendMessages] = useState<Record<string, Message[]>>({});
 
-  // Use local or backend data based on mode
-  const chats = mode === "sync" ? backendChats : localChats;
-  const messagesByChat = mode === "sync" ? backendMessages : localMessages;
+  console.log("🔍 CHAT CONTEXT RENDER:", {
+    mode,
+    isAuthenticated, 
+    syncEnabled: mode === "sync",
+    totalChats: chats.length,
+    backendChatsCount: backendChats.length,
+    localChatsCount: localChats.length,
+    usingBackend: mode === "sync" ? true : false
+  });
 
   // Load persisted data on mount
   useEffect(() => {
