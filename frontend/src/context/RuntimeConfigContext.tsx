@@ -148,7 +148,15 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
     try { await AsyncStorage.setItem(KEY_WS, v ? "true" : "false"); } catch {}
   };
 
-  const value = useMemo(() => ({ hydrated, syncEnabled, wsEnabled, webSocket, setSyncEnabled, setWsEnabled }), [hydrated, syncEnabled, wsEnabled, webSocket]);
+  const value = useMemo<RuntimeConfig>(() => ({
+    hydrated,
+    syncEnabled,
+    wsEnabled,
+    webSocket,
+    mode: syncEnabled ? "sync" : "local",
+    setSyncEnabled,
+    setWsEnabled,
+  }), [hydrated, syncEnabled, wsEnabled, webSocket]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
