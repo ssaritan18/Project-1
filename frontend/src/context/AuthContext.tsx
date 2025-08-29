@@ -114,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     console.log("🔧 login called:", { syncEnabled: true, email });
-    if (syncEnabled) {
+    if (true) {
       console.log("📡 Making login API call to backend...");
       try {
         const res = await api.post("/auth/login", { email, password });
