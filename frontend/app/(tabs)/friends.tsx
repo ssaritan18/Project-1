@@ -14,6 +14,7 @@ export default function FriendsScreen() {
   const { token } = useAuth();
   const [friendQuery, setFriendQuery] = React.useState("");
   const [postText, setPostText] = React.useState("");
+  const [showDebug, setShowDebug] = React.useState(false);
 
   React.useEffect(() => { refresh(); }, [refresh]);
 
