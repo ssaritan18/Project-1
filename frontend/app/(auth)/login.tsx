@@ -31,16 +31,7 @@ export default function Login() {
     router.replace("/(tabs)");
   };
 
-  const forgot = async () => {
-    if (!validEmail) {
-      Alert.alert("Enter email", "Type your email first, then tap Forgot PIN.");
-      return;
-    }
-    Alert.alert("Reset PIN?", "This will clear your saved PIN for this email.", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Reset", style: "destructive", onPress: async () => { await resetCredentials(email); router.push({ pathname: '/(auth)/signup', params: { email } }); } },
-    ]);
-  };
+
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
@@ -62,16 +53,21 @@ export default function Login() {
         </View>
 
         <TouchableOpacity style={[styles.primaryBtn, !validEmail && styles.disabledBtn]} onPress={submit} disabled={!validEmail}>
-          <Text style={[styles.primaryText, !validEmail && styles.disabledText]}>Continue</Text>
+          <Text style={[styles.primaryText, !validEmail && styles.disabledText]}>Log In</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.forgotBtn} 
+          onPress={() => router.push("/(auth)/forgot-pin")}
+        >
+          <Text style={styles.forgotText}>Forgot PIN?</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.googleBtn} onPress={submitMockGoogle}>
           <Text style={styles.googleText}>Continue with Google (mock)</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={forgot} style={{ marginTop: 12 }}>
-          <Text style={{ color: '#A3C9FF', fontWeight: '700' }}>Forgot PIN?</Text>
-        </TouchableOpacity>
+
       </View>
     </KeyboardAvoidingView>
   );
@@ -90,4 +86,6 @@ const styles = StyleSheet.create({
   disabledText: { color: "#333" },
   googleBtn: { backgroundColor: "#fff", paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, minWidth: 240, alignItems: "center", marginTop: 12 },
   googleText: { color: "#000", fontWeight: "700" },
+  forgotBtn: { marginTop: 12, alignItems: "center" },
+  forgotText: { color: '#A3C9FF', fontWeight: '700' },
 });
