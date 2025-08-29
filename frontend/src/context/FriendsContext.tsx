@@ -154,6 +154,14 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  React.useEffect(() => {
+    // Global debug access for console
+    if (typeof window !== 'undefined') {
+      (window as any).friendsDebug = { friends, requests, posts, presence };
+      console.log("🔍 Friends Debug Updated:", { friendsCount: friends.length, friends: friends.slice(0, 2) });
+    }
+  }, [friends, requests, posts, presence]);
+
   // Fallback polling when WS not available
   useEffect(() => {
     if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
