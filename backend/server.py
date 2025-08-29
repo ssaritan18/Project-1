@@ -134,7 +134,8 @@ async def send_verification_email(user_email: str, token: str) -> bool:
 
 async def send_password_reset_email(user_email: str, token: str) -> bool:
     """Send password reset email"""
-    reset_url = f"https://adhdsocial-fix.preview.emergentagent.com/auth/reset-password?token={token}"
+    base_url = os.getenv("BASE_URL", "http://localhost:3000")
+    reset_url = f"{base_url}/auth/reset-password?token={token}"
     
     content = f"""
     <h2>Password Reset Request</h2>
