@@ -96,8 +96,46 @@ class APITester:
             self.log(f"❌ /me failed for {user_name}: {response.status_code} - {response.text}", "ERROR")
             return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
 
-    # Chat-related test methods
-    def test_create_chat(self, token: str, title: str, user_name: str) -> Dict:
+    def test_open_direct_chat(self, token: str, friend_id: str, user_name: str) -> Dict:
+        """Test opening direct chat with a friend"""
+        url = f"{self.base_url}/chats/direct/{friend_id}"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing direct chat creation with friend {friend_id} by {user_name}")
+        response = self.session.post(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "_id" in data and "type" in data and data["type"] == "direct":
+                self.log(f"✅ Direct chat creation successful: {data['_id']}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Direct chat response missing required fields or wrong type", "ERROR")
+                return {"success": False, "error": "Missing required fields or wrong chat type"}
+        else:
+            self.log(f"❌ Direct chat creation failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def test_create_group_chat(self, token: str, title: str, user_name: str) -> Dict:
+        """Test creating a new group chat"""
+        url = f"{self.base_url}/chats/group"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {"title": title}
+        
+        self.log(f"Testing group chat creation '{title}' by {user_name}")
+        response = self.session.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "_id" in data and "title" in data and "invite_code" in data:
+                self.log(f"✅ Group chat creation successful: {data['_id']} with invite code {data['invite_code']}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Group chat creation response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Group chat creation failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
         """Test creating a new chat"""
         url = f"{self.base_url}/chats"
         headers = {"Authorization": f"Bearer {token}"}
