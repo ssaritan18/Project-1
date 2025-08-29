@@ -63,14 +63,8 @@ export default function FriendsScreen() {
             <TouchableOpacity 
               style={{ backgroundColor: '#333', padding: 4, borderRadius: 6 }}
               onPress={() => {
-                const debugInfo = `Sync: ${syncEnabled}\nWS: ${wsEnabled}\nToken: ${token ? 'Yes' : 'No'}\nStatus: ${wsConnectionStatus}`;
-                console.log("🔍 DEBUG INFO:", debugInfo);
-                // Try both alert methods for cross-platform
-                if (typeof window !== 'undefined' && window.alert) {
-                  window.alert("Debug Info\n\n" + debugInfo);
-                } else {
-                  Alert.alert("Debug Info", debugInfo);
-                }
+                console.log("🔍 DEBUG CLICKED");
+                setShowDebug(!showDebug);
               }}
             >
               <Text style={{ color: '#fff', fontSize: 10 }}>?</Text>
