@@ -307,6 +307,9 @@ class ReactionReq(BaseModel):
 class CreateChatReq(BaseModel):
     title: str
 
+class ChatCreate(BaseModel):
+    title: str
+
 class JoinByCodeReq(BaseModel):
     code: str
 
