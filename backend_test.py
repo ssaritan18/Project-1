@@ -1128,9 +1128,23 @@ def run_comprehensive_test():
     return True
 
 if __name__ == "__main__":
-    # Check if we should run chat tests specifically
-    if len(sys.argv) > 1 and sys.argv[1] == "chat":
-        success = run_comprehensive_chat_test()
+    # Check command line arguments for specific test types
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "chat":
+            success = run_comprehensive_chat_test()
+        elif sys.argv[1] == "e2e" or sys.argv[1] == "end-to-end":
+            success = run_end_to_end_chat_test()
+        elif sys.argv[1] == "full":
+            success = run_comprehensive_test()
+        else:
+            print("Usage: python backend_test.py [chat|e2e|end-to-end|full]")
+            print("  chat: Run comprehensive chat functionality tests")
+            print("  e2e/end-to-end: Run end-to-end chat system tests")
+            print("  full: Run full backend API tests")
+            print("  (no args): Run end-to-end chat tests by default")
+            sys.exit(1)
     else:
-        success = run_comprehensive_test()
+        # Default to end-to-end chat test as requested
+        success = run_end_to_end_chat_test()
+    
     sys.exit(0 if success else 1)
