@@ -252,7 +252,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<ChatContextType>(() => ({
     chats,
-    messagesByChat,
+    messagesByChat: mode === "sync" ? backendMessages : localMessages,
     isLoading,
     error,
     refresh,
