@@ -857,19 +857,47 @@ async def send_message(chat_id: str, payload: MessageCreate, user=Depends(get_cu
     
     return msg
 
-@api_router.post("/chats/messages/{message_id}/react")
-async def react_message(message_id: str, payload: ReactionReq, user=Depends(get_current_user)):
-    if payload.type not in ["like", "heart", "clap", "star"]:
-        raise HTTPException(status_code=400, detail="Invalid reaction type")
-    msg = await db.messages.find_one({"_id": message_id})
+@api_router.post("/chats/{chat_id}/messages/{message_id}/react")
+async def react_chat_message(chat_id: str, message_id: str, payload: MessageReaction, user=Depends(get_current_user)):
+    # Verify user has access to the chat
+    chat = await db.chats.find_one({"_id": chat_id, "members": user["_id"]})
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    
+    # Verify message exists and belongs to the chat
+    msg = await db.messages.find_one({"_id": message_id, "chat_id": chat_id})
     if not msg:
         raise HTTPException(status_code=404, detail="Message not found")
-    chat = await db.chats.find_one({"_id": msg["chat_id"], "members": user["_id"]})
-    if not chat:
-        raise HTTPException(status_code=403, detail="No access to chat")
-    await db.messages.update_one({"_id": message_id}, {"$inc": {f"reactions.{payload.type}": 1}})
-    msg = await db.messages.find_one({"_id": message_id})
-    return msg
+    
+    # Validate reaction type
+    if payload.type not in ["like", "heart", "clap", "star"]:
+        raise HTTPException(status_code=400, detail="Invalid reaction type")
+    
+    # Update reaction count
+    await db.messages.update_one(
+        {"_id": message_id}, 
+        {"$inc": {f"reactions.{payload.type}": 1}}
+    )
+    
+    # Get updated message
+    updated_msg = await db.messages.find_one({"_id": message_id})
+    
+    # Broadcast reaction to all chat members via WebSocket
+    reaction_payload = {
+        "type": "chat:message_reaction",
+        "chat_id": chat_id,
+        "message_id": message_id,
+        "reaction_type": payload.type,
+        "user_name": user.get("name"),
+        "new_count": updated_msg["reactions"][payload.type]
+    }
+    
+    # Send to all chat members
+    for member_id in chat.get("members", []):
+        await ws_broadcast_to_user(member_id, reaction_payload)
+        logger.info(f"📨 Sent message reaction to user {member_id} for chat {chat_id}")
+    
+    return updated_msg
 
 # Include the router in the main app
 app.include_router(api_router)
