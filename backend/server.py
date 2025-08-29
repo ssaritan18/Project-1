@@ -114,7 +114,7 @@ async def send_email(to_email: str, subject: str, content: str) -> bool:
 
 async def send_verification_email(user_email: str, token: str) -> bool:
     """Send email verification email"""
-    verify_url = f"https://friendsync-debug.preview.emergentagent.com/api/auth/verify?token={token}"
+    verify_url = f"https://adhdsocial-fix.preview.emergentagent.com/api/auth/verify?token={token}"
     
     content = f"""
     <h2>Welcome to ADHDers Social Club! 🎉</h2>
@@ -130,7 +130,7 @@ async def send_verification_email(user_email: str, token: str) -> bool:
 
 async def send_password_reset_email(user_email: str, token: str) -> bool:
     """Send password reset email"""
-    reset_url = f"https://friendsync-debug.preview.emergentagent.com/auth/reset-password?token={token}"
+    reset_url = f"https://adhdsocial-fix.preview.emergentagent.com/auth/reset-password?token={token}"
     
     content = f"""
     <h2>Password Reset Request</h2>
