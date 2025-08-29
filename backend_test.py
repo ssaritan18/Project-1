@@ -432,6 +432,332 @@ class APITester:
             self.log(f"❌ Friends list failed for {user_name}: {response.status_code} - {response.text}", "ERROR")
             return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
 
+def run_end_to_end_chat_test():
+    """Run comprehensive END-TO-END chat system testing as requested"""
+    tester = APITester()
+    
+    print("=" * 80)
+    print("STARTING COMPREHENSIVE END-TO-END CHAT SYSTEM TEST")
+    print("Testing: Two-User Chat Flow, Direct Chat, Message Reactions, Chat Persistence")
+    print("=" * 80)
+    
+    # Test users as specified in the request
+    user1 = {"name": "ssaritan", "email": "ssaritan@example.com", "password": "Passw0rd!"}
+    user2 = {"name": "ssaritan2", "email": "ssaritan2@example.com", "password": "Passw0rd!"}
+    
+    tokens = {}
+    user_profiles = {}
+    
+    # PHASE 1: User Authentication Setup
+    print("\n" + "=" * 60)
+    print("PHASE 1: USER AUTHENTICATION SETUP")
+    print("=" * 60)
+    
+    for user in [user1, user2]:
+        # Login existing users
+        login_result = tester.test_auth_login(user["email"], user["password"])
+        if not login_result["success"]:
+            print(f"❌ CRITICAL: Login failed for {user['email']}: {login_result.get('error', 'Unknown error')}")
+            return False
+        tokens[user["email"]] = login_result["token"]
+        
+        # Get user profile
+        me_result = tester.test_get_me(tokens[user["email"]], user["name"])
+        if not me_result["success"]:
+            print(f"❌ CRITICAL: /me endpoint failed for {user['email']}")
+            return False
+        user_profiles[user["email"]] = me_result["data"]
+        print(f"✅ User {user['name']} authenticated successfully")
+    
+    # PHASE 2: Establish Friendship (Required for Direct Chat)
+    print("\n" + "=" * 60)
+    print("PHASE 2: ESTABLISH FRIENDSHIP FOR DIRECT CHAT")
+    print("=" * 60)
+    
+    user1_email = user1["email"]
+    user2_email = user2["email"]
+    
+    # Check if they are already friends
+    friends_result = tester.test_friends_list(tokens[user1_email], user1["name"])
+    if not friends_result["success"]:
+        print("❌ CRITICAL: Failed to get friends list")
+        return False
+    
+    # Check if user2 is already in user1's friends list
+    user2_id = user_profiles[user2_email]["_id"]
+    already_friends = any(friend["_id"] == user2_id for friend in friends_result["data"]["friends"])
+    
+    if not already_friends:
+        print("🔗 Users are not friends yet, establishing friendship...")
+        
+        # Send friend request from user1 to user2
+        request_result = tester.test_friends_request(tokens[user1_email], user2_email, user1["name"])
+        if not request_result["success"]:
+            print("❌ CRITICAL: Friend request failed")
+            return False
+        
+        # Get pending requests for user2
+        requests_result = tester.test_friends_requests(tokens[user2_email], user2["name"])
+        if not requests_result["success"]:
+            print("❌ CRITICAL: Getting friend requests failed")
+            return False
+        
+        # Find the request from user1
+        request_id = None
+        for req in requests_result["data"]["requests"]:
+            if req["from_user_id"] == user_profiles[user1_email]["_id"]:
+                request_id = req["_id"]
+                break
+        
+        if not request_id:
+            print("❌ CRITICAL: Friend request not found")
+            return False
+        
+        # Accept the friend request
+        accept_result = tester.test_friends_accept(tokens[user2_email], request_id, user2["name"])
+        if not accept_result["success"]:
+            print("❌ CRITICAL: Friend accept failed")
+            return False
+        
+        print("✅ Friendship established successfully")
+    else:
+        print("✅ Users are already friends")
+    
+    # PHASE 3: Direct Chat Testing (1-to-1 Chat)
+    print("\n" + "=" * 60)
+    print("PHASE 3: DIRECT CHAT TESTING (1-to-1)")
+    print("=" * 60)
+    
+    # User1: Open direct chat with User2
+    direct_chat_result = tester.test_open_direct_chat(tokens[user1_email], user2_id, user1["name"])
+    if not direct_chat_result["success"]:
+        print("❌ CRITICAL: Direct chat creation failed")
+        return False
+    
+    direct_chat_id = direct_chat_result["data"]["_id"]
+    print(f"✅ Direct chat created successfully: {direct_chat_id}")
+    
+    # Verify both users can see the direct chat
+    for user_email, user_name in [(user1_email, user1["name"]), (user2_email, user2["name"])]:
+        list_result = tester.test_list_chats(tokens[user_email], user_name)
+        if not list_result["success"]:
+            print(f"❌ CRITICAL: Chat listing failed for {user_name}")
+            return False
+        
+        # Check if direct chat is in the list
+        direct_chat_found = any(chat["_id"] == direct_chat_id for chat in list_result["data"]["chats"])
+        if not direct_chat_found:
+            print(f"❌ CRITICAL: Direct chat not found in {user_name}'s chat list")
+            return False
+        print(f"✅ {user_name} can see the direct chat")
+    
+    # PHASE 4: Group Chat Testing (Two-User Chat Flow)
+    print("\n" + "=" * 60)
+    print("PHASE 4: GROUP CHAT TESTING (Two-User Chat Flow)")
+    print("=" * 60)
+    
+    # User1: Create a group chat
+    group_chat_result = tester.test_create_group_chat(tokens[user1_email], "Test Group Chat", user1["name"])
+    if not group_chat_result["success"]:
+        print("❌ CRITICAL: Group chat creation failed")
+        return False
+    
+    group_chat_id = group_chat_result["data"]["_id"]
+    invite_code = group_chat_result["data"]["invite_code"]
+    print(f"✅ Group chat created with invite code: {invite_code}")
+    
+    # User2: Join the group chat using invite code
+    join_result = tester.test_join_chat(tokens[user2_email], invite_code, user2["name"])
+    if not join_result["success"]:
+        print("❌ CRITICAL: Group chat join failed")
+        return False
+    print(f"✅ {user2['name']} joined the group chat successfully")
+    
+    # PHASE 5: WebSocket Real-time Setup
+    print("\n" + "=" * 60)
+    print("PHASE 5: WEBSOCKET REAL-TIME SETUP")
+    print("=" * 60)
+    
+    # Setup WebSocket connections for both users
+    ws1_success = tester.setup_websocket(tokens[user1_email], user1["name"])
+    if not ws1_success:
+        print(f"❌ CRITICAL: WebSocket setup failed for {user1['name']}")
+        return False
+    
+    ws2_success = tester.setup_websocket(tokens[user2_email], user2["name"])
+    if not ws2_success:
+        print(f"❌ CRITICAL: WebSocket setup failed for {user2['name']}")
+        return False
+    
+    print("✅ WebSocket connections established for both users")
+    
+    # PHASE 6: Message Testing in Direct Chat
+    print("\n" + "=" * 60)
+    print("PHASE 6: MESSAGE TESTING IN DIRECT CHAT")
+    print("=" * 60)
+    
+    # Clear WebSocket messages
+    tester.ws_messages = {}
+    
+    # User1: Send message in direct chat
+    msg1_result = tester.test_send_message(tokens[user1_email], direct_chat_id, "Hello in our direct chat! 💬", user1["name"])
+    if not msg1_result["success"]:
+        print("❌ CRITICAL: Direct chat message send failed")
+        return False
+    
+    direct_msg1_id = msg1_result["data"]["_id"]
+    
+    # Check if User2 received WebSocket notification
+    ws_received = tester.check_websocket_messages(user2["name"], "chat:new_message", timeout=10)
+    if not ws_received:
+        print("❌ CRITICAL: WebSocket message notification not received in direct chat")
+        return False
+    print("✅ Real-time message delivery working in direct chat")
+    
+    # User2: Reply in direct chat
+    msg2_result = tester.test_send_message(tokens[user2_email], direct_chat_id, "Hi there! Direct messaging works great! 🎉", user2["name"])
+    if not msg2_result["success"]:
+        print("❌ CRITICAL: Direct chat reply failed")
+        return False
+    
+    # PHASE 7: Message Testing in Group Chat
+    print("\n" + "=" * 60)
+    print("PHASE 7: MESSAGE TESTING IN GROUP CHAT")
+    print("=" * 60)
+    
+    # Clear WebSocket messages
+    tester.ws_messages = {}
+    
+    # User1: Send message in group chat
+    group_msg1_result = tester.test_send_message(tokens[user1_email], group_chat_id, "Welcome to our group chat! 🎊", user1["name"])
+    if not group_msg1_result["success"]:
+        print("❌ CRITICAL: Group chat message send failed")
+        return False
+    
+    group_msg1_id = group_msg1_result["data"]["_id"]
+    
+    # Check if User2 received WebSocket notification
+    ws_received = tester.check_websocket_messages(user2["name"], "chat:new_message", timeout=10)
+    if not ws_received:
+        print("❌ CRITICAL: WebSocket message notification not received in group chat")
+        return False
+    print("✅ Real-time message delivery working in group chat")
+    
+    # User2: Reply in group chat
+    group_msg2_result = tester.test_send_message(tokens[user2_email], group_chat_id, "Thanks for creating this group! Let's chat! 🚀", user2["name"])
+    if not group_msg2_result["success"]:
+        print("❌ CRITICAL: Group chat reply failed")
+        return False
+    
+    group_msg2_id = group_msg2_result["data"]["_id"]
+    
+    # PHASE 8: Message Reactions Testing
+    print("\n" + "=" * 60)
+    print("PHASE 8: MESSAGE REACTIONS TESTING")
+    print("=" * 60)
+    
+    # Clear WebSocket messages
+    tester.ws_messages = {}
+    
+    # User2: React to User1's direct chat message
+    react1_result = tester.test_react_to_message(tokens[user2_email], direct_chat_id, direct_msg1_id, "heart", user2["name"])
+    if not react1_result["success"]:
+        print("❌ CRITICAL: Direct chat message reaction failed")
+        return False
+    
+    # Check if User1 received WebSocket reaction notification
+    ws_reaction_received = tester.check_websocket_messages(user1["name"], "chat:message_reaction", timeout=10)
+    if not ws_reaction_received:
+        print("❌ CRITICAL: WebSocket reaction notification not received in direct chat")
+        return False
+    print("✅ Real-time message reactions working in direct chat")
+    
+    # User1: React to User2's group chat message
+    react2_result = tester.test_react_to_message(tokens[user1_email], group_chat_id, group_msg2_id, "clap", user1["name"])
+    if not react2_result["success"]:
+        print("❌ CRITICAL: Group chat message reaction failed")
+        return False
+    
+    # Check if User2 received WebSocket reaction notification
+    ws_reaction_received = tester.check_websocket_messages(user2["name"], "chat:message_reaction", timeout=10)
+    if not ws_reaction_received:
+        print("❌ CRITICAL: WebSocket reaction notification not received in group chat")
+        return False
+    print("✅ Real-time message reactions working in group chat")
+    
+    # PHASE 9: Chat Persistence Testing
+    print("\n" + "=" * 60)
+    print("PHASE 9: CHAT PERSISTENCE TESTING")
+    print("=" * 60)
+    
+    # Test message retrieval in direct chat
+    direct_msgs_result = tester.test_get_messages(tokens[user1_email], direct_chat_id, user1["name"])
+    if not direct_msgs_result["success"]:
+        print("❌ CRITICAL: Direct chat message retrieval failed")
+        return False
+    
+    direct_messages = direct_msgs_result["data"]["messages"]
+    if len(direct_messages) < 2:
+        print(f"❌ CRITICAL: Expected at least 2 messages in direct chat, found {len(direct_messages)}")
+        return False
+    print(f"✅ Direct chat persistence verified: {len(direct_messages)} messages retrieved")
+    
+    # Test message retrieval in group chat
+    group_msgs_result = tester.test_get_messages(tokens[user2_email], group_chat_id, user2["name"])
+    if not group_msgs_result["success"]:
+        print("❌ CRITICAL: Group chat message retrieval failed")
+        return False
+    
+    group_messages = group_msgs_result["data"]["messages"]
+    if len(group_messages) < 2:
+        print(f"❌ CRITICAL: Expected at least 2 messages in group chat, found {len(group_messages)}")
+        return False
+    print(f"✅ Group chat persistence verified: {len(group_messages)} messages retrieved")
+    
+    # Verify reactions persisted
+    for msg in direct_messages:
+        if msg["_id"] == direct_msg1_id:
+            if msg["reactions"]["heart"] != 1:
+                print(f"❌ CRITICAL: Direct chat reaction not persisted correctly")
+                return False
+            print("✅ Direct chat reaction persistence verified")
+            break
+    
+    for msg in group_messages:
+        if msg["_id"] == group_msg2_id:
+            if msg["reactions"]["clap"] != 1:
+                print(f"❌ CRITICAL: Group chat reaction not persisted correctly")
+                return False
+            print("✅ Group chat reaction persistence verified")
+            break
+    
+    # FINAL SUMMARY
+    print("\n" + "=" * 80)
+    print("🎉 ALL END-TO-END CHAT TESTS PASSED SUCCESSFULLY!")
+    print("=" * 80)
+    
+    print("\nCOMPREHENSIVE TEST SUMMARY:")
+    print("✅ User Authentication: Both test users logged in successfully")
+    print("✅ Friendship Establishment: Users are friends and can create direct chats")
+    print("✅ Direct Chat (1-to-1): Successfully created and accessible by both users")
+    print("✅ Group Chat Flow: Created, joined via invite code, accessible by both users")
+    print("✅ WebSocket Connections: Real-time connections established for both users")
+    print("✅ Direct Chat Messaging: Messages sent and received in real-time")
+    print("✅ Group Chat Messaging: Messages sent and received in real-time")
+    print("✅ Message Reactions: Reactions work in real-time for both chat types")
+    print("✅ Chat Persistence: Messages and reactions persist correctly in MongoDB")
+    print("✅ Real-time Delivery: WebSocket notifications working for messages and reactions")
+    
+    print(f"\nTEST DETAILS:")
+    print(f"• Direct Chat ID: {direct_chat_id}")
+    print(f"• Group Chat ID: {group_chat_id}")
+    print(f"• Group Chat Invite Code: {invite_code}")
+    print(f"• Messages Tested: Direct chat ({len(direct_messages)}), Group chat ({len(group_messages)})")
+    print(f"• Reactions Tested: Heart reactions in direct chat, Clap reactions in group chat")
+    print(f"• WebSocket Events: chat:new_message, chat:message_reaction, presence updates")
+    
+    return True
+
 def run_comprehensive_chat_test():
     """Run comprehensive chat functionality tests as per review request"""
     tester = APITester()
