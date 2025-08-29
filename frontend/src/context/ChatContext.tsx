@@ -199,17 +199,33 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     const handleWebSocketMessage = (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data);
+        console.log("🔥 CHAT WEBSOCKET MESSAGE RECEIVED:", data);
         
         if (data.type === "chat:new_message") {
           const message = convertBackendMessage(data.message);
-          setBackendMessages(prev => ({
-            ...prev,
-            [message.chatId]: [...(prev[message.chatId] || []), message]
-          }));
-          console.log("📨 Chat: Received new message via WebSocket:", message.text);
+          console.log("💬 Converting and adding new message:", {
+            chatId: message.chatId,
+            text: message.text,
+            author: message.author,
+            messageId: message.id
+          });
+          
+          setBackendMessages(prev => {
+            const currentMessages = prev[message.chatId] || [];
+            const updatedMessages = [...currentMessages, message];
+            console.log("📝 Updated messages for chat", message.chatId, ":", updatedMessages.length, "total messages");
+            
+            return {
+              ...prev,
+              [message.chatId]: updatedMessages
+            };
+          });
+          
+          console.log("✅ Message added to chat:", message.chatId, "- Total chats with messages:", Object.keys(backendMessages).length);
         }
         
         if (data.type === "chat:message_reaction") {
+          console.log("👍 Processing message reaction:", data);
           setBackendMessages(prev => ({
             ...prev,
             [data.chat_id]: (prev[data.chat_id] || []).map(msg => 
@@ -218,7 +234,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
                 : msg
             )
           }));
-          console.log("👍 Chat: Received message reaction via WebSocket:", data.reaction_type);
         }
         
       } catch (error) {
@@ -226,12 +241,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
+    console.log("🔌 Setting up WebSocket message listener for chat messages");
     webSocket.addEventListener('message', handleWebSocketMessage);
     
     return () => {
+      console.log("🔌 Cleaning up WebSocket message listener");
       webSocket.removeEventListener('message', handleWebSocketMessage);
     };
-  }, [webSocket, mode, convertBackendMessage]);
+  }, [webSocket, mode, convertBackendMessage, backendMessages]);
 
   const value = useMemo<ChatContextType>(() => ({
     chats,
