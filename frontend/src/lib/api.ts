@@ -22,9 +22,15 @@ api.interceptors.request.use((config) => {
 
 // Chat API functions
 export const chatAPI = {
-  // Create new chat
-  createChat: async (title: string) => {
-    const response = await api.post("/chats", { title });
+  // Create new GROUP chat (with invite code)
+  createGroupChat: async (title: string) => {
+    const response = await api.post("/chats/group", { title });
+    return response.data;
+  },
+
+  // Open or create 1-to-1 direct chat with friend
+  openDirectChat: async (friendId: string) => {
+    const response = await api.post(`/chats/direct/${friendId}`);
     return response.data;
   },
 
@@ -34,8 +40,8 @@ export const chatAPI = {
     return response.data.chats;
   },
 
-  // Join chat by invite code
-  joinChat: async (code: string) => {
+  // Join GROUP chat by invite code
+  joinGroupChat: async (code: string) => {
     const response = await api.post("/chats/join", { code });
     return response.data;
   },
