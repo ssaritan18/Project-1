@@ -358,31 +358,46 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
     // NEW: Open direct chat with friend
     openDirectChat: async (friendId: string) => {
+      console.log("💬 openDirectChat called with friendId:", friendId);
+      
       if (mode === "sync" && isAuthenticated) {
         try {
-          console.log("💬 Opening direct chat with friend:", friendId);
+          console.log("📡 Making API call to open direct chat...");
           const chat = await chatAPI.openDirectChat(friendId);
+          console.log("✅ Backend returned chat:", chat);
+          
           const convertedChat = convertBackendChat(chat);
+          console.log("🔄 Converted chat:", convertedChat);
           
           // Add or update chat in list
           setBackendChats(prev => {
             const existing = prev.find(c => c.id === convertedChat.id);
             if (existing) {
+              console.log("📝 Chat already exists, keeping existing");
               return prev; // Already exists
             }
+            console.log("➕ Adding new chat to list");
             return [convertedChat, ...prev];
           });
           
+          // Initialize empty messages for this chat
+          setBackendMessages(prev => ({
+            ...prev,
+            [convertedChat.id]: []
+          }));
+          
           // Fetch messages for the chat
+          console.log("📥 Fetching messages for chat...");
           await fetchMessages(convertedChat.id);
           
-          console.log("✅ Chat: Opened direct chat:", convertedChat.id);
+          console.log("✅ Chat: Opened direct chat successfully:", convertedChat.id);
           return convertedChat.id;
         } catch (error) {
           console.error("❌ Chat: Failed to open direct chat:", error);
           throw error;
         }
       } else {
+        console.log("📱 Local mode - creating local direct chat");
         // Local mode fallback
         const id = `direct_${friendId}`;
         const newChat = { id, title: "Direct Chat", members: ["You", "Friend"], unread: 0, inviteCode: "" };
