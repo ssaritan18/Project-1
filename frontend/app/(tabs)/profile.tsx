@@ -21,6 +21,7 @@ export default function ProfileScreen() {
   console.log("🏠 ProfileScreen rendering...");
   const { user, signOut, palette, setPalette, token } = useAuth();
   const { syncEnabled, setSyncEnabled, wsEnabled, setWsEnabled } = useRuntimeConfig();
+  const insets = useSafeAreaInsets();
   const { tasks } = useTasks();
   const total = tasks.reduce((a, t) => a + t.goal, 0);
   const done = tasks.reduce((a, t) => a + t.progress, 0);
