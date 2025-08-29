@@ -20,25 +20,7 @@ export default function ChatDetail() {
     if (id) markRead(id); 
   }, [id, markRead]);
 
-  const onSend = async () => {
-    console.log("🔥 SEND BUTTON CLICKED! Text:", text, "Chat ID:", id);
-
-    if (!id || !text.trim()) {
-      console.log("❌ Cannot send - missing ID or text");
-      return;
-    }
-
-    try {
-      console.log("🚀 Calling sendText function...");
-      await sendText(id, text.trim());
-      console.log("✅ sendText completed successfully");
-      setText("");
-      console.log("✅ Text input cleared");
-    } catch (error) {
-      console.error("❌ Send error:", error);
-      Alert.alert("Error", "Failed to send message. Please try again.");
-    }
-  };
+  const onSend = async () => { 
     if (!id || !text.trim()) return; 
     try {
       await sendText(id, text.trim()); 
@@ -47,6 +29,7 @@ export default function ChatDetail() {
       console.error("Failed to send message:", error);
       Alert.alert("Error", "Failed to send message. Please try again.");
     }
+  };
 
   const onVoice = () => { 
     if (!id) return; 
