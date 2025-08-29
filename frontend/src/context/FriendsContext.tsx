@@ -268,7 +268,13 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
   const addPost = (text: string) => setPosts((prev) => [{ id: uid(), author: "You", text, ts: Date.now(), reactions: {} }, ...prev]);
   const reactPost = (postId: string, type: "like" | "clap" | "star" | "heart") => setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, reactions: { ...p.reactions, [type]: (p.reactions[type] || 0) + 1 } } : p)));
 
-  const value = useMemo<FriendsContextType>(() => ({ friends, requests, posts, presence, lastNotification, wsConnectionStatus, clearNotification, refresh, sendRequest, acceptRequest, rejectRequest, addPost, reactPost }), [friends, requests, posts, presence, lastNotification, wsConnectionStatus, syncEnabled, token]);
+  const value = useMemo<FriendsContextType>(() => {
+    // Global debug access
+    if (typeof window !== 'undefined') {
+      (window as any).friendsDebug = { friends, requests, posts, presence };
+    }
+    return { friends, requests, posts, presence, lastNotification, wsConnectionStatus, clearNotification, refresh, sendRequest, acceptRequest, rejectRequest, addPost, reactPost };
+  }, [friends, requests, posts, presence, lastNotification, wsConnectionStatus, syncEnabled, token]);
 
   return <FriendsContext.Provider value={value}>{children}</FriendsContext.Provider>;
 }
