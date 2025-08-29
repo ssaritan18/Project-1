@@ -151,8 +151,9 @@
 ##   run_ui: false
 ## test_plan:
 ##   current_focus:
-##     - "Auth register/login JWT"
-##     - "Friends: find/request/requests/accept/reject/list"
+##     - "Chat Creation & Management"
+##     - "Message Management"
+##     - "WebSocket Real-time Features"
 ##   stuck_tasks: []
 ##   test_all: false
 ##   test_priority: "high_first"
