@@ -41,6 +41,16 @@ const styles = StyleSheet.create({
     flex: 1, 
     backgroundColor: '#0c0c0c' 
   },
+  header: { color: "#fff", fontSize: 28, fontWeight: "900", textAlign: "center", marginVertical: 20 },
+  testText: { color: "#fff", fontSize: 16, textAlign: "center", marginVertical: 10, paddingHorizontal: 20 },
+  testButton: { 
+    backgroundColor: "#A3C9FF", 
+    padding: 16, 
+    borderRadius: 12, 
+    margin: 20, 
+    alignItems: "center" 
+  },
+  testButtonText: { color: "#000", fontSize: 16, fontWeight: "600" },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
