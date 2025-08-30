@@ -68,6 +68,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // Throttling state for message sending
+  const lastSendTime = useRef<number>(0);
+  const sendThrottleMs = 1000; // 1 second between messages
+  
   // Local fallback data
   const [localChats, setLocalChats] = useState<Chat[]>([
     { id: "adhd_support", title: "ADHD Support Group", members: ["You", "Ava", "Mia", "Noah"], unread: 1, inviteCode: makeCode() },
