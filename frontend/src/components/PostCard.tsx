@@ -6,6 +6,7 @@ type PostCardProps = {
   post: Post;
   onReact: (postId: string, reactionType: string) => void;
   onDelete?: (postId: string) => void;
+  onComment?: (postId: string) => void;
   isOwner?: boolean;
 };
 
