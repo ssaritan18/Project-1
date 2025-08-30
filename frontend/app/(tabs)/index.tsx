@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Modal } from "react-native";
+import React, { useMemo, useState, useEffect } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Modal, Alert } from "react-native";
 import DraggableFlatList, { ScaleDecorator } from "react-native-draggable-flatlist";
 import { useTasks } from "../../src/context/TasksContext";
 import { useAuth } from "../../src/context/AuthContext";
@@ -9,6 +9,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { Celebration } from "../../src/components/Celebration";
 import { Confetti } from "../../src/components/Confetti";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+// ADHD-friendly Phase 2 components
+import { SegmentedProgressBar } from "../../src/components/SegmentedProgressBar";
+import { FocusModeTimer } from "../../src/components/FocusModeTimer";
 
 const COLOR_PRESETS = ["#A3C9FF", "#FFCFE1", "#B8F1D9", "#FFE3A3", "#FFB3BA"];
 
