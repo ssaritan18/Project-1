@@ -282,7 +282,7 @@ export default function ProfileScreen() {
                         key={achievement.id}
                         achievement={achievement}
                         size="small"
-                        showUnlockAnimation={true}
+                        showUnlockAnimation={false}
                       />
                     ))}
                   </View>
