@@ -10,7 +10,7 @@ type PostCardProps = {
   isOwner?: boolean;
 };
 
-export function PostCard({ post, onReact, onDelete, isOwner }: PostCardProps) {
+export function PostCard({ post, onReact, onDelete, onComment, isOwner }: PostCardProps) {
   const formatTimeAgo = (dateString: string) => {
     const now = new Date();
     const postDate = new Date(dateString);
