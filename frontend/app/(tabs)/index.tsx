@@ -174,7 +174,7 @@ export default function HomeScreen() {
           segments={timeSegments}
           currentTimeHour={currentTime.getHours()}
           onSegmentPress={handleSegmentPress}
-          showAnimation={true}
+          showAnimation={false}
         />
 
         {/* Focus Mode Timer (Conditional) */}
@@ -183,7 +183,7 @@ export default function HomeScreen() {
             onSessionComplete={handleFocusSessionComplete}
             onBreakStart={() => Alert.alert("Break time!", "Take a moment to recharge 🔋")}
             onFocusStart={() => Alert.alert("Focus mode!", "Let's get things done! 🎯")}
-            showAnimation={true}
+            showAnimation={false}
           />
         )}
 
