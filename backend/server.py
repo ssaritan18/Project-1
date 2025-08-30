@@ -1117,21 +1117,6 @@ async def add_comment(post_id: str, payload: CommentCreate, user=Depends(get_cur
     return comment_doc
 
 # --- Existing Chat System (unchanged) ---
-        "reactions": {"like": 0, "heart": 0, "clap": 0, "star": 0},
-        "created_at": now_iso(),
-    }
-    await db.posts.insert_one(doc)
-    return doc
-
-@api_router.post("/posts/{post_id}/react")
-async def react_post(post_id: str, payload: ReactionReq, user=Depends(get_current_user)):
-    if payload.type not in ["like", "heart", "clap", "star"]:
-        raise HTTPException(status_code=400, detail="Invalid reaction type")
-    await db.posts.update_one({"_id": post_id}, {"$inc": {f"reactions.{payload.type}": 1}})
-    post = await db.posts.find_one({"_id": post_id})
-    if not post:
-        raise HTTPException(status_code=404, detail="Post not found")
-    return post
 
 @api_router.post("/chats/group")
 async def create_group_chat(payload: ChatCreate, user=Depends(get_current_user)):
