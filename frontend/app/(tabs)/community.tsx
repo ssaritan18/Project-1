@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCommunity } from "../../src/context/CommunityContext";
 import { PostCard } from "../../src/components/PostCard";
 import { CreatePostModal } from "../../src/components/CreatePostModal";
+import { CommentModal } from "../../src/components/CommentModal";
 
 export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
