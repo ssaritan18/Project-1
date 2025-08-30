@@ -32,10 +32,12 @@ function AppWrapper() {
     <RuntimeConfigProvider token={token}>
       <TasksProvider>
         <FriendsProvider>
-          <ChatProvider>
-            <StatusBar style="light" />
-            <Stack screenOptions={{ headerShown: false }} />
-          </ChatProvider>
+          <ErrorBoundary>
+            <ChatProvider>
+              <StatusBar style="light" />
+              <Stack screenOptions={{ headerShown: false }} />
+            </ChatProvider>
+          </ErrorBoundary>
         </FriendsProvider>
       </TasksProvider>
     </RuntimeConfigProvider>
