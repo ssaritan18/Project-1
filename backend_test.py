@@ -4087,8 +4087,10 @@ if __name__ == "__main__":
             success = run_community_feed_test()
         elif sys.argv[1] == "privacy":
             success = run_community_feed_privacy_test()
+        elif sys.argv[1] == "profile":
+            success = run_comprehensive_profile_management_test()
         else:
-            print("Usage: python backend_test.py [privacy|chat|e2e|end-to-end|full|websocket|ws|message|msg|ratelimit|rate|invite|invite_code|community|feed|posts]")
+            print("Usage: python backend_test.py [privacy|chat|e2e|end-to-end|full|websocket|ws|message|msg|ratelimit|rate|invite|invite_code|community|feed|posts|profile]")
             print("  privacy: Run Community Feed Privacy Fix Verification (Sprint 1 Final Test)")
             print("  chat: Run comprehensive chat functionality tests")
             print("  e2e/end-to-end: Run end-to-end chat system tests")
@@ -4098,10 +4100,11 @@ if __name__ == "__main__":
             print("  ratelimit/rate: Run rate limiting optimization test")
             print("  invite/invite_code: Run comprehensive invite code system test")
             print("  community/feed/posts: Run comprehensive community feed system test")
-            print("  (no args): Run privacy test by default (as per review request)")
+            print("  profile: Run comprehensive profile management system test")
+            print("  (no args): Run profile test by default (as per review request)")
             sys.exit(1)
     else:
-        # Default to privacy test as requested in review
-        success = run_community_feed_privacy_test()
+        # Default to profile test as requested in review
+        success = run_comprehensive_profile_management_test()
     
     sys.exit(0 if success else 1)
