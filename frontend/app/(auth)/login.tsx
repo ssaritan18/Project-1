@@ -37,14 +37,19 @@ export default function Login() {
   }, []);
 
   const submit = async () => {
+    console.log("🚀 LOGIN SUBMIT CALLED", { email, password: password ? "***" : "", validEmail });
+    
     if (!validEmail) {
+      console.log("❌ Invalid email, showing alert");
       Alert.alert("Geçersiz Email", "Lütfen geçerli bir email girin (örn: test@example.com)");
       return;
     }
     
+    console.log("✅ Email valid, starting login process");
     setIsLoading(true);
     
     try {
+      console.log("💾 Saving email preference...");
       // Save email if remember me is checked
       if (rememberMe) {
         await AsyncStorage.setItem(REMEMBER_EMAIL_KEY, email.trim());
@@ -52,16 +57,23 @@ export default function Login() {
         await AsyncStorage.removeItem(REMEMBER_EMAIL_KEY);
       }
       
+      console.log("🔐 Calling auth function...");
       if (password.trim().length > 0) {
+        console.log("📡 Using login with password");
         await login(email, password);
       } else {
+        console.log("📱 Using signIn without password");
         await signIn({ name, email });
       }
+      
+      console.log("✅ Auth successful, navigating...");
       router.replace("/(tabs)");
     } catch (error) {
-      Alert.alert("Giriş Hatası", "Email/şifre kontrol edin ve tekrar deneyin");
+      console.error("❌ LOGIN ERROR:", error);
+      Alert.alert("Giriş Hatası", `Error: ${error.message || 'Email/şifre kontrol edin ve tekrar deneyin'}`);
     } finally {
       setIsLoading(false);
+      console.log("🏁 Login process completed");
     }
   };
 
