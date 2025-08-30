@@ -2069,17 +2069,20 @@ if __name__ == "__main__":
             success = run_websocket_broadcasting_test()
         elif sys.argv[1] == "message" or sys.argv[1] == "msg":
             success = run_message_sending_focus_test()
+        elif sys.argv[1] == "ratelimit" or sys.argv[1] == "rate":
+            success = run_rate_limiting_test()
         else:
-            print("Usage: python backend_test.py [chat|e2e|end-to-end|full|websocket|ws|message|msg]")
+            print("Usage: python backend_test.py [chat|e2e|end-to-end|full|websocket|ws|message|msg|ratelimit|rate]")
             print("  chat: Run comprehensive chat functionality tests")
             print("  e2e/end-to-end: Run end-to-end chat system tests")
             print("  full: Run full backend API tests")
             print("  websocket/ws: Run WebSocket broadcasting system test")
             print("  message/msg: Run focused message sending functionality test")
-            print("  (no args): Run focused message sending test by default")
+            print("  ratelimit/rate: Run rate limiting optimization test")
+            print("  (no args): Run rate limiting test by default")
             sys.exit(1)
     else:
-        # Default to focused message sending test as requested in review
-        success = run_message_sending_focus_test()
+        # Default to rate limiting test as requested in review
+        success = run_rate_limiting_test()
     
     sys.exit(0 if success else 1)
