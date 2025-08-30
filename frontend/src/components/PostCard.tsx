@@ -105,7 +105,12 @@ export function PostCard({ post, onReact, onDelete, onComment, isOwner }: PostCa
         {/* Comments */}
         <TouchableOpacity 
           style={styles.commentsButton}
-          onPress={() => onComment && onComment(post._id)}
+          onPress={() => {
+            console.log('Comment button clicked, onComment:', !!onComment);
+            if (onComment) {
+              onComment(post._id);
+            }
+          }}
         >
           <Text style={styles.commentsEmoji}>💬</Text>
           <Text style={styles.commentsCount}>
