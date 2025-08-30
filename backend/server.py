@@ -875,19 +875,222 @@ async def friends_requests(user=Depends(get_current_user)):
         })
     return {"requests": results}
 
-# --- Posts, Chats unchanged below ---
+# --- Community Posts CRUD System ---
+
 @api_router.get("/posts/feed")
 async def posts_feed(limit: int = 50, user=Depends(get_current_user)):
-    posts = await db.posts.find().sort("created_at", -1).limit(limit).to_list(limit)
+    """Get personalized feed - friends' posts + public posts"""
+    # Get user's friends list
+    user_friends = user.get("friends", [])
+    
+    # Create filter: friends' posts (any visibility) + public posts from others
+    filter_query = {
+        "$or": [
+            # Friends' posts (all visibility levels)
+            {"author_id": {"$in": user_friends}},
+            # Public posts from anyone
+            {"visibility": "public"},
+            # User's own posts
+            {"author_id": user["_id"]}
+        ]
+    }
+    
+    posts = await db.posts.find(filter_query).sort("created_at", -1).limit(limit).to_list(limit)
+    
+    # Enrich posts with reaction counts and user info
+    for post in posts:
+        # Count reactions
+        reactions = post.get("reactions", {})
+        post["reaction_counts"] = {
+            "like": reactions.get("like", 0),
+            "heart": reactions.get("heart", 0), 
+            "clap": reactions.get("clap", 0),
+            "star": reactions.get("star", 0)
+        }
+        post["total_reactions"] = sum(post["reaction_counts"].values())
+        
+        # Add comments count
+        comment_count = await db.comments.count_documents({"post_id": post["_id"]})
+        post["comments_count"] = comment_count
+        
     return {"posts": posts}
 
 @api_router.post("/posts")
 async def create_post(payload: PostCreate, user=Depends(get_current_user)):
+    """Create a new community post"""
+    # Check rate limiting for posts
+    if not check_rate_limit(user["_id"]):
+        logger.warning(f"🚫 Post rate limit exceeded for user {user['_id']}")
+        raise HTTPException(status_code=429, detail="Too many posts. Please slow down.")
+        
     doc = {
         "_id": str(uuid.uuid4()),
         "author_id": user["_id"],
         "author_name": user.get("name"),
-        "text": payload.text,
+        "author_email": user.get("email"),
+        "text": payload.text.strip(),
+        "image_url": payload.image_url,
+        "attachments": payload.attachments or [],
+        "tags": payload.tags or [],
+        "visibility": payload.visibility or "friends",
+        "reactions": {"like": 0, "heart": 0, "clap": 0, "star": 0},
+        "created_at": now_iso(),
+        "updated_at": now_iso()
+    }
+    
+    await db.posts.insert_one(doc)
+    logger.info(f"✅ Created post: {doc['_id']} by {user.get('name')}")
+    return doc
+
+@api_router.get("/posts/{post_id}")
+async def get_post(post_id: str, user=Depends(get_current_user)):
+    """Get a specific post with comments"""
+    post = await db.posts.find_one({"_id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Check if user can view this post
+    if post["visibility"] == "private" and post["author_id"] != user["_id"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    elif post["visibility"] == "friends":
+        user_friends = user.get("friends", [])
+        if post["author_id"] != user["_id"] and post["author_id"] not in user_friends:
+            raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Get comments
+    comments = await db.comments.find({"post_id": post_id}).sort("created_at", 1).to_list(100)
+    post["comments"] = comments
+    
+    return post
+
+@api_router.put("/posts/{post_id}")
+async def update_post(post_id: str, payload: PostUpdate, user=Depends(get_current_user)):
+    """Update user's own post"""
+    post = await db.posts.find_one({"_id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    if post["author_id"] != user["_id"]:
+        raise HTTPException(status_code=403, detail="Can only update your own posts")
+    
+    # Update fields
+    update_data = {"updated_at": now_iso()}
+    if payload.text is not None:
+        update_data["text"] = payload.text.strip()
+    if payload.image_url is not None:
+        update_data["image_url"] = payload.image_url
+    if payload.attachments is not None:
+        update_data["attachments"] = payload.attachments
+    if payload.tags is not None:
+        update_data["tags"] = payload.tags
+    if payload.visibility is not None:
+        update_data["visibility"] = payload.visibility
+    
+    await db.posts.update_one({"_id": post_id}, {"$set": update_data})
+    
+    updated_post = await db.posts.find_one({"_id": post_id})
+    logger.info(f"✅ Updated post: {post_id} by {user.get('name')}")
+    return updated_post
+
+@api_router.delete("/posts/{post_id}")
+async def delete_post(post_id: str, user=Depends(get_current_user)):
+    """Delete user's own post"""
+    post = await db.posts.find_one({"_id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    if post["author_id"] != user["_id"]:
+        raise HTTPException(status_code=403, detail="Can only delete your own posts")
+    
+    # Delete post and related comments
+    await db.posts.delete_one({"_id": post_id})
+    await db.comments.delete_many({"post_id": post_id})
+    
+    logger.info(f"✅ Deleted post: {post_id} by {user.get('name')}")
+    return {"deleted": True}
+
+@api_router.post("/posts/{post_id}/react")
+async def react_to_post(post_id: str, payload: PostReaction, user=Depends(get_current_user)):
+    """Add reaction to a post"""
+    post = await db.posts.find_one({"_id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Check access permissions
+    if post["visibility"] == "private" and post["author_id"] != user["_id"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    elif post["visibility"] == "friends":
+        user_friends = user.get("friends", [])
+        if post["author_id"] != user["_id"] and post["author_id"] not in user_friends:
+            raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Update reaction count
+    reaction_type = payload.type
+    if reaction_type not in ["like", "heart", "clap", "star"]:
+        raise HTTPException(status_code=400, detail="Invalid reaction type")
+    
+    # Check if user already reacted
+    user_reaction = await db.post_reactions.find_one({
+        "post_id": post_id,
+        "user_id": user["_id"],
+        "type": reaction_type
+    })
+    
+    if user_reaction:
+        # Remove reaction
+        await db.post_reactions.delete_one({"_id": user_reaction["_id"]})
+        await db.posts.update_one(
+            {"_id": post_id},
+            {"$inc": {f"reactions.{reaction_type}": -1}}
+        )
+        logger.info(f"👎 Removed {reaction_type} reaction from post {post_id} by {user.get('name')}")
+        return {"reacted": False, "type": reaction_type}
+    else:
+        # Add reaction
+        reaction_doc = {
+            "_id": str(uuid.uuid4()),
+            "post_id": post_id,
+            "user_id": user["_id"],
+            "type": reaction_type,
+            "created_at": now_iso()
+        }
+        await db.post_reactions.insert_one(reaction_doc)
+        await db.posts.update_one(
+            {"_id": post_id},
+            {"$inc": {f"reactions.{reaction_type}": 1}}
+        )
+        logger.info(f"👍 Added {reaction_type} reaction to post {post_id} by {user.get('name')}")
+        return {"reacted": True, "type": reaction_type}
+
+@api_router.post("/posts/{post_id}/comments")
+async def add_comment(post_id: str, payload: CommentCreate, user=Depends(get_current_user)):
+    """Add comment to a post"""
+    post = await db.posts.find_one({"_id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Check access permissions  
+    if post["visibility"] == "private" and post["author_id"] != user["_id"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    elif post["visibility"] == "friends":
+        user_friends = user.get("friends", [])
+        if post["author_id"] != user["_id"] and post["author_id"] not in user_friends:
+            raise HTTPException(status_code=403, detail="Access denied")
+    
+    comment_doc = {
+        "_id": str(uuid.uuid4()),
+        "post_id": post_id,
+        "author_id": user["_id"],
+        "author_name": user.get("name"),
+        "text": payload.text.strip(),
+        "created_at": now_iso()
+    }
+    
+    await db.comments.insert_one(comment_doc)
+    logger.info(f"✅ Added comment to post {post_id} by {user.get('name')}")
+    return comment_doc
+
+# --- Existing Chat System (unchanged) ---
         "reactions": {"like": 0, "heart": 0, "clap": 0, "star": 0},
         "created_at": now_iso(),
     }
