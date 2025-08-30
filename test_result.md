@@ -250,13 +250,13 @@
 ##   run_ui: false
 ## test_plan:
 ##   current_focus:
-##     - "WhatsApp-Style Message Processing"
-##     - "Real-time Messaging and WebSocket"
-##     - "Login and Authentication Flow"
+##     - "Community Feed Posts CRUD Operations"
+##     - "Community Feed Reactions System"
+##     - "Community Feed Comments System"
 ##   stuck_tasks:
-##     - "Login and Authentication Flow"
+##     - "Community Feed Posts CRUD Operations"
 ##   test_all: false
-##   test_priority: "stuck_first"
+##   test_priority: "high_first"
 ## agent_communication:
 ##     -agent: "main"
 ##     -message: "User reports message sending button not working despite frontend loading successfully. Need to test if backend message processing is still working correctly after WhatsApp-style message system implementation. Test message sending/receiving between existing users ssaritan@example.com and ssaritan2@example.com to verify backend functionality is intact."
