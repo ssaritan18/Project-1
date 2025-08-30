@@ -1357,6 +1357,105 @@ async def send_voice_message(chat_id: str, payload: VoiceMessageCreate, user=Dep
         logger.error(f"❌ Failed to send voice message: {e}")
         raise HTTPException(status_code=400, detail=f"Failed to send voice message: {str(e)}")
 
+# --- Chat Message Reactions ---
+
+@api_router.post("/chats/{chat_id}/messages/{message_id}/react")
+async def react_to_message(chat_id: str, message_id: str, payload: PostReaction, user=Depends(get_current_user)):
+    """Add or remove reaction to a chat message"""
+    try:
+        # Validate chat access
+        chat = await db.chats.find_one({"_id": chat_id})
+        if not chat:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        
+        if user["_id"] not in chat.get("members", []):
+            raise HTTPException(status_code=403, detail="Not a member of this chat")
+
+        # Validate message exists
+        message = await db.messages.find_one({"_id": message_id, "chat_id": chat_id})
+        if not message:
+            raise HTTPException(status_code=404, detail="Message not found")
+
+        # Check rate limiting for reactions
+        if not check_rate_limit(user["_id"]):
+            logger.warning(f"🚫 Reaction rate limit exceeded for user {user['_id']}")
+            raise HTTPException(status_code=429, detail="Too many reactions. Please slow down.")
+
+        reaction_type = payload.type
+        if reaction_type not in ["like", "heart", "clap", "star"]:
+            raise HTTPException(status_code=400, detail="Invalid reaction type")
+
+        # Check if user already reacted with this type
+        user_reaction = await db.message_reactions.find_one({
+            "message_id": message_id,
+            "user_id": user["_id"],
+            "type": reaction_type
+        })
+
+        if user_reaction:
+            # Remove reaction
+            await db.message_reactions.delete_one({"_id": user_reaction["_id"]})
+            await db.messages.update_one(
+                {"_id": message_id},
+                {"$inc": {f"reactions.{reaction_type}": -1}}
+            )
+            logger.info(f"👎 Removed {reaction_type} reaction from message {message_id} by {user.get('name')}")
+            reacted = False
+        else:
+            # Add reaction
+            reaction_doc = {
+                "_id": str(uuid.uuid4()),
+                "message_id": message_id,
+                "user_id": user["_id"],
+                "type": reaction_type,
+                "created_at": now_iso()
+            }
+            await db.message_reactions.insert_one(reaction_doc)
+            await db.messages.update_one(
+                {"_id": message_id},
+                {"$inc": {f"reactions.{reaction_type}": 1}}
+            )
+            logger.info(f"👍 Added {reaction_type} reaction to message {message_id} by {user.get('name')}")
+            reacted = True
+
+        # Get updated message for broadcasting
+        updated_message = await db.messages.find_one({"_id": message_id})
+        
+        # Broadcast reaction update to chat members
+        websocket_payload = {
+            "type": "chat:message_reaction",
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "reaction_type": reaction_type,
+            "reacted": reacted,
+            "user_id": user["_id"],
+            "updated_reactions": updated_message.get("reactions", {})
+        }
+        
+        broadcast_count = 0
+        for member_id in chat.get("members", []):
+            if member_id != user["_id"]:
+                try:
+                    await ws_broadcast_to_user(member_id, websocket_payload)
+                    broadcast_count += 1
+                except Exception as e:
+                    logger.error(f"❌ Failed to broadcast reaction to user {member_id}: {e}")
+
+        logger.info(f"📡 Reaction update broadcast to {broadcast_count} chat members")
+
+        return {
+            "reacted": reacted,
+            "type": reaction_type,
+            "message_id": message_id,
+            "reactions": updated_message.get("reactions", {})
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Failed to process message reaction: {e}")
+        raise HTTPException(status_code=400, detail=f"Failed to process reaction: {str(e)}")
+
 # --- Existing Chat System (unchanged) ---
 
 @api_router.post("/chats/group")
