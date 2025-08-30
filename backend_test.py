@@ -1036,8 +1036,7 @@ def run_comprehensive_profile_management_test():
     
     return True
 
-    # Profile Management Testing Methods
-    def test_get_profile_settings(self, token: str, user_name: str = "") -> Dict:
+def run_comprehensive_profile_management_test():
         """Test getting user profile and settings"""
         url = f"{self.base_url}/profile/settings"
         headers = {"Authorization": f"Bearer {token}"}
