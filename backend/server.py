@@ -973,6 +973,12 @@ async def send_message(chat_id: str, payload: MessageCreate, user=Depends(get_cu
     """Send a message to a chat - WhatsApp-style backend processing"""
     logger.info(f"📤 Processing message from user {user['_id']} to chat {chat_id}")
     
+    # Check rate limiting
+    user_id = user["_id"]
+    if not check_rate_limit(user_id):
+        logger.warning(f"🚫 Rate limit exceeded for user {user_id}")
+        raise HTTPException(status_code=429, detail="Too many requests. Please slow down.")
+    
     try:
         # 1. Validate chat exists and user is a member
         chat = await db.chats.find_one({"_id": chat_id})
