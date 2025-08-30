@@ -160,6 +160,12 @@ export default function EditProfileScreen() {
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {/* Profile Picture */}
+          <ProfilePictureUpload
+            currentImageUrl={profileData.profile_image}
+            onUploadComplete={(imageUrl) => setProfileData(prev => ({ ...prev, profile_image: imageUrl }))}
+          />
+
           {/* Name */}
           <View style={styles.section}>
             <Text style={styles.label}>Display Name</Text>
