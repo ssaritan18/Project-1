@@ -140,18 +140,56 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   }), []);
 
   // Convert backend message data to frontend format
-  const convertBackendMessage = useCallback((backendMsg: any): Message => ({
-    id: backendMsg._id,
-    chatId: backendMsg.chat_id,
-    author: backendMsg.author_id === token ? "me" : (backendMsg.author_name || "Unknown"),
-    author_id: backendMsg.author_id,
-    author_name: backendMsg.author_name,
-    type: backendMsg.type || "text",
-    text: backendMsg.text,
-    ts: new Date(backendMsg.created_at).getTime(),
-    created_at: backendMsg.created_at,
-    reactions: backendMsg.reactions || { like: 0, heart: 0, clap: 0, star: 0 }
-  }), [token]);
+  const convertBackendMessage = useCallback((backendMsg: any): Message => {
+    console.log("🔄 convertBackendMessage called with:", backendMsg);
+    
+    if (!backendMsg) {
+      console.error("❌ convertBackendMessage: backendMsg is null or undefined");
+      throw new Error("Cannot convert null or undefined message");
+    }
+    
+    // Validate required fields
+    if (!backendMsg._id) {
+      console.error("❌ convertBackendMessage: Missing _id field:", backendMsg);
+      throw new Error("Message missing required _id field");
+    }
+    
+    if (!backendMsg.chat_id) {
+      console.error("❌ convertBackendMessage: Missing chat_id field:", backendMsg);
+      throw new Error("Message missing required chat_id field");
+    }
+    
+    // Safely parse timestamp
+    let timestamp = Date.now(); // fallback to current time
+    if (backendMsg.created_at) {
+      try {
+        timestamp = new Date(backendMsg.created_at).getTime();
+        if (isNaN(timestamp)) {
+          console.warn("⚠️ convertBackendMessage: Invalid created_at, using current time:", backendMsg.created_at);
+          timestamp = Date.now();
+        }
+      } catch (error) {
+        console.warn("⚠️ convertBackendMessage: Error parsing created_at, using current time:", error);
+        timestamp = Date.now();
+      }
+    }
+    
+    const convertedMessage = {
+      id: backendMsg._id,
+      chatId: backendMsg.chat_id,
+      author: backendMsg.author_id === token ? "me" : (backendMsg.author_name || "Unknown"),
+      author_id: backendMsg.author_id || "unknown",
+      author_name: backendMsg.author_name || "Unknown User",
+      type: backendMsg.type || "text",
+      text: backendMsg.text || "",
+      ts: timestamp,
+      created_at: backendMsg.created_at || new Date().toISOString(),
+      reactions: backendMsg.reactions || { like: 0, heart: 0, clap: 0, star: 0 }
+    };
+    
+    console.log("✅ convertBackendMessage result:", convertedMessage);
+    return convertedMessage;
+  }, [token]);
 
   // Fetch chats from backend
   const fetchChats = useCallback(async () => {
