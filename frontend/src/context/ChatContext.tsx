@@ -308,17 +308,37 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     sendText: async (chatId: string, text: string) => {
       console.log("🚀 SEND TEXT CALLED:", { chatId, text, mode, isAuthenticated });
       
+      if (!chatId || !text.trim()) {
+        console.error("❌ Invalid parameters for sendText:", { chatId, text });
+        throw new Error("Invalid chat ID or message text");
+      }
+      
       if (mode === "sync" && isAuthenticated) {
         try {
           console.log("📤 Sending message to backend API...");
           const newMessage = await chatAPI.sendMessage(chatId, text, "text");
           console.log("✅ Backend response received:", newMessage);
           
+          if (!newMessage || typeof newMessage !== 'object') {
+            console.error("❌ Invalid backend response:", newMessage);
+            throw new Error("Invalid response from backend");
+          }
+          
           const convertedMessage = convertBackendMessage(newMessage);
           console.log("🔄 Converted message:", convertedMessage);
           
+          if (!convertedMessage || !convertedMessage.id) {
+            console.error("❌ Message conversion failed:", convertedMessage);
+            throw new Error("Failed to convert message");
+          }
+          
           // Add message to local state immediately for responsive UI
           setBackendMessages(prev => {
+            if (!prev || typeof prev !== 'object') {
+              console.warn("⚠️ Invalid previous messages state, initializing...");
+              prev = {};
+            }
+            
             const currentMessages = prev[chatId] || [];
             const updatedMessages = [...currentMessages, convertedMessage];
             console.log("📝 Adding message to local state. Chat:", chatId, "Previous count:", currentMessages.length, "New count:", updatedMessages.length);
@@ -332,21 +352,48 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           console.log("✅ Message sent and added locally:", text);
         } catch (error) {
           console.error("❌ Failed to send message:", error);
-          throw error;
+          console.error("❌ Error details:", {
+            message: error?.message || 'Unknown error',
+            stack: error?.stack || 'No stack trace',
+            chatId,
+            text,
+            mode,
+            isAuthenticated
+          });
+          throw new Error(`Failed to send message: ${error?.message || 'Unknown error'}`);
         }
       } else {
         console.log("📱 Local mode - adding message locally only");
-        // Local mode
-        const msg: Message = { 
-          id: uid(), 
-          chatId, 
-          author: "me", 
-          type: "text", 
-          text, 
-          ts: Date.now(), 
-          reactions: { like: 0, heart: 0, clap: 0, star: 0 } 
-        };
-        setLocalMessages(prev => ({ ...prev, [chatId]: [...(prev[chatId] || []), msg] }));
+        try {
+          // Local mode
+          const msg: Message = { 
+            id: uid(), 
+            chatId, 
+            author: "me", 
+            type: "text", 
+            text, 
+            ts: Date.now(), 
+            reactions: { like: 0, heart: 0, clap: 0, star: 0 } 
+          };
+          
+          setLocalMessages(prev => {
+            if (!prev || typeof prev !== 'object') {
+              console.warn("⚠️ Invalid previous local messages state, initializing...");
+              prev = {};
+            }
+            
+            const currentMessages = prev[chatId] || [];
+            return { 
+              ...prev, 
+              [chatId]: [...currentMessages, msg] 
+            };
+          });
+          
+          console.log("✅ Local message added successfully");
+        } catch (error) {
+          console.error("❌ Failed to add local message:", error);
+          throw new Error(`Failed to add local message: ${error?.message || 'Unknown error'}`);
+        }
       }
     },
     
