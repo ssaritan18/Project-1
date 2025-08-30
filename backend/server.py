@@ -365,6 +365,32 @@ class CommentCreate(BaseModel):
     text: str
     post_id: str
 
+# Profile Management Models
+class ProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    bio: Optional[str] = None
+    location: Optional[str] = None
+    website: Optional[str] = None
+    birth_date: Optional[str] = None
+    privacy_settings: Optional[Dict[str, Any]] = None
+
+class ProfilePictureUpload(BaseModel):
+    image_data: str  # Base64 encoded image
+    filename: Optional[str] = None
+
+# Voice Message Models  
+class VoiceMessageCreate(BaseModel):
+    chat_id: str
+    audio_data: str  # Base64 encoded audio
+    duration_ms: int
+    filename: Optional[str] = None
+
+# Settings Models
+class UserSettings(BaseModel):
+    notifications: Optional[Dict[str, bool]] = None
+    privacy: Optional[Dict[str, str]] = None
+    preferences: Optional[Dict[str, Any]] = None
+
 class MessageCreate(BaseModel):
     text: str
     type: str = "text"  # "text" or "voice" 
