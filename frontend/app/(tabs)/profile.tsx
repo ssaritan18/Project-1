@@ -25,15 +25,20 @@ const PRESETS = [
 ];
 
 export default function ProfileScreen() {
-  console.log("🏠 ProfileScreen rendering...");
+  console.log("🏠 ProfileScreen rendering with ADHD-friendly enhancements...");
   const { user, signOut, palette, setPalette, token } = useAuth();
   const { syncEnabled, setSyncEnabled, wsEnabled, setWsEnabled } = useRuntimeConfig();
   const insets = useSafeAreaInsets();
   const { tasks } = useTasks();
+  const { streak, refresh } = useStreak();
+  const { achievements, getCompletionStats, getAchievementsByCategory } = useAchievements();
+  
+  // UI State
+  const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'stats' | 'completion'>('overview');
+  
   const total = tasks.reduce((a, t) => a + t.goal, 0);
   const done = tasks.reduce((a, t) => a + t.progress, 0);
   const ratio = total ? done / total : 0;
-  const { streak, refresh } = useStreak();
 
   useFocusEffect(React.useCallback(() => { refresh(); }, [refresh]));
   
@@ -85,90 +90,272 @@ export default function ProfileScreen() {
     }
   };
 
+  // Achievement and stats data
+  const completionStats = getCompletionStats();
+  const recentAchievements = achievements.filter(a => a.unlocked).slice(-4);
+
+  // Mock data for statistics (in real app, this would come from backend)
+  const mockWeeklyStats = [
+    { label: "Tasks", value: done, maxValue: total, color: "#00C851", emoji: "✅", subtitle: "This week" },
+    { label: "Streak", value: streak, maxValue: 7, color: "#FF6B35", emoji: "🔥", subtitle: "Current" },
+    { label: "Friends", value: 5, maxValue: 10, color: "#6C5CE7", emoji: "👥", subtitle: "Active" },
+    { label: "Posts", value: 3, maxValue: 5, color: "#4A90E2", emoji: "📝", subtitle: "Shared" },
+  ];
+
+  const mockMonthlyStats = [
+    { label: "Tasks", value: done * 4, maxValue: total * 4, color: "#00C851", emoji: "✅", subtitle: "This month" },
+    { label: "Best Streak", value: Math.max(streak, 8), maxValue: 30, color: "#FF6B35", emoji: "🏆", subtitle: "Personal best" },
+    { label: "Friends", value: 8, maxValue: 20, color: "#6C5CE7", emoji: "👥", subtitle: "Total" },
+    { label: "Posts", value: 12, maxValue: 20, color: "#4A90E2", emoji: "📝", subtitle: "Monthly" },
+  ];
+
+  // Profile completion items
+  const completionItems = [
+    {
+      id: 'profile_pic',
+      title: 'Add Profile Picture',
+      description: 'Upload a photo to personalize your profile',
+      emoji: '📸',
+      completed: !!user?.profile_image,
+      reward: { points: 50, badge: '📸', description: 'Picture Perfect badge unlocked!' },
+      action: navigateToEdit
+    },
+    {
+      id: 'bio',
+      title: 'Write Your Bio',
+      description: 'Tell the community about your ADHD journey',
+      emoji: '✍️',
+      completed: !!user?.bio,
+      reward: { points: 75, badge: '✍️', description: 'Storyteller badge unlocked!' },
+      action: navigateToEdit
+    },
+    {
+      id: 'first_task',
+      title: 'Complete First Task',
+      description: 'Mark your first task as complete',
+      emoji: '✅',
+      completed: done > 0,
+      reward: { points: 100, badge: '🎯', description: 'Task Master badge unlocked!' },
+    },
+    {
+      id: 'friend',
+      title: 'Make a Friend',
+      description: 'Connect with someone in the community',
+      emoji: '🤝',
+      completed: Math.random() > 0.5, // Mock completion
+      reward: { points: 100, badge: '🤝', description: 'Social Butterfly badge unlocked!' },
+    },
+    {
+      id: 'streak',
+      title: 'Start Your Streak',
+      description: 'Complete tasks for 3 days in a row',
+      emoji: '🔥',
+      completed: streak >= 3,
+      reward: { points: 200, badge: '🔥', description: 'Streak Starter badge unlocked!' },
+    }
+  ];
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'achievements':
+        return (
+          <View style={styles.tabContent}>
+            <Text style={styles.sectionTitle}>🏆 Achievement Gallery</Text>
+            <View style={styles.achievementGrid}>
+              {achievements.map((achievement, index) => (
+                <AchievementBadge
+                  key={achievement.id}
+                  achievement={achievement}
+                  size="medium"
+                  showUnlockAnimation={achievement.unlocked && index < 6}
+                  onPress={() => Alert.alert(achievement.name, achievement.description)}
+                />
+              ))}
+            </View>
+            <Text style={styles.achievementSummary}>
+              🎯 {completionStats.unlocked}/{completionStats.total} unlocked • {completionStats.totalPoints.toLocaleString()} points earned
+            </Text>
+          </View>
+        );
+      case 'stats':
+        return (
+          <ProfileStatistics
+            weeklyStats={mockWeeklyStats}
+            monthlyStats={mockMonthlyStats}
+            totalStats={{
+              tasksCompleted: done,
+              communityPosts: 3,
+              friendsCount: 5,
+              achievementsUnlocked: completionStats.unlocked
+            }}
+          />
+        );
+      case 'completion':
+        return (
+          <ProfileCompletionGuide
+            completionItems={completionItems}
+            onItemPress={(item) => {
+              if (item.action) {
+                item.action();
+              } else {
+                Alert.alert("Great idea!", `Let's work on: ${item.title}`);
+              }
+            }}
+          />
+        );
+      default:
+        return (
+          <View style={styles.tabContent}>
+            {/* Enhanced Streak Visualization */}
+            <StreakVisualization
+              streak={streak}
+              bestStreak={Math.max(streak, 8)}
+              onPress={() => Alert.alert("Streak Info", "Keep going! Every day counts towards building your habits.")}
+              showAnimation={true}
+            />
+
+            {/* Recent Achievements */}
+            <View style={styles.recentAchievements}>
+              <Text style={styles.sectionTitle}>🎉 Recent Achievements</Text>
+              {recentAchievements.length > 0 ? (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View style={styles.achievementRow}>
+                    {recentAchievements.map((achievement) => (
+                      <AchievementBadge
+                        key={achievement.id}
+                        achievement={achievement}
+                        size="small"
+                        showUnlockAnimation={true}
+                      />
+                    ))}
+                  </View>
+                </ScrollView>
+              ) : (
+                <Text style={styles.emptyText}>Complete tasks to unlock achievements! 🎯</Text>
+              )}
+            </View>
+
+            {/* Quick Stats */}
+            <View style={styles.quickStats}>
+              <View style={styles.statCard}>
+                <Text style={styles.statEmoji}>✅</Text>
+                <Text style={styles.statValue}>{done}</Text>
+                <Text style={styles.statLabel}>Tasks Done</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statEmoji}>🏆</Text>
+                <Text style={styles.statValue}>{completionStats.unlocked}</Text>
+                <Text style={styles.statLabel}>Badges</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statEmoji}>⭐</Text>
+                <Text style={styles.statValue}>{completionStats.totalPoints}</Text>
+                <Text style={styles.statLabel}>Points</Text>
+              </View>
+            </View>
+
+            {/* Quick Actions */}
+            <View style={styles.quickActions}>
+              <Text style={styles.sectionTitle}>⚡ Quick Actions</Text>
+              <View style={styles.actionGrid}>
+                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#4A90E2' }]} onPress={navigateToEdit}>
+                  <Text style={styles.actionEmoji}>✏️</Text>
+                  <Text style={styles.actionText}>Edit Profile</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#6C5CE7' }]} onPress={navigateToSettings}>
+                  <Text style={styles.actionEmoji}>⚙️</Text>
+                  <Text style={styles.actionText}>Settings</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Advanced Controls (Collapsible) */}
+            <View style={styles.advancedSection}>
+              <Text style={styles.sectionTitle}>🔧 Advanced</Text>
+              <View style={styles.syncRow}>
+                <Text style={styles.meta}>Sync: {syncEnabled ? 'Online' : 'Local'}</Text>
+                <Switch value={syncEnabled} onValueChange={onToggleSync} />
+              </View>
+              <View style={styles.syncRow}>
+                <Text style={styles.meta}>WebSocket: {wsEnabled ? 'On' : 'Off'}</Text>
+                <Switch value={wsEnabled} onValueChange={setWsEnabled} />
+              </View>
+            </View>
+          </View>
+        );
+    }
+  };
+
   return (
-    <ScrollView 
-      style={[styles.container, { paddingTop: insets.top }]} 
-      contentContainerStyle={{ padding: 16, paddingBottom: Math.max(insets.bottom, 180) }}
-    >
-      <Text style={styles.title}>{user?.name || "You"}</Text>
-      <Text style={styles.meta}>Streak: {streak} days</Text>
-
-      <View style={{ marginTop: 16 }}>
-        <Text style={styles.sectionTitle}>Overall Progress</Text>
-        <ProgressBar progress={ratio} color={palette.accent} height={16} />
-        <Text style={styles.meta}>{done} / {total}</Text>
-      </View>
-
-      <View style={{ marginTop: 24 }}>
-        <Text style={styles.sectionTitle}>Personalize</Text>
-        <View style={styles.paletteRow}>
-          {PRESETS.map((p, i) => (
-            <TouchableOpacity key={i} style={styles.paletteItem} onPress={() => setPalette(p)}>
-              <View style={[styles.swatch, { backgroundColor: p.primary }]} />
-              <View style={[styles.swatch, { backgroundColor: p.secondary }]} />
-              <View style={[styles.swatch, { backgroundColor: p.accent }]} />
-            </TouchableOpacity>
-          ))}
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.profileHeader}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {(user?.name || "You").charAt(0).toUpperCase()}
+            </Text>
+          </View>
+          <View style={styles.headerInfo}>
+            <Text style={styles.title}>{user?.name || "You"}</Text>
+            <Text style={styles.subtitle}>ADHD Champion • Level {Math.floor(completionStats.totalPoints / 100) + 1}</Text>
+          </View>
         </View>
       </View>
 
-      <View style={{ marginTop: 24, gap: 12 }}>
-        <Text style={styles.sectionTitle}>Profile Management</Text>
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#4A90E2' }]} onPress={navigateToEdit}>
-          <Text style={styles.btnTextLight}>✏️ Edit Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#6C5CE7' }]} onPress={navigateToSettings}>
-          <Text style={styles.btnTextLight}>⚙️ Settings</Text>
-        </TouchableOpacity>
+      {/* Tab Navigation */}
+      <View style={styles.tabNav}>
+        {[
+          { key: 'overview', label: '🏠', title: 'Overview' },
+          { key: 'achievements', label: '🏆', title: 'Badges' },
+          { key: 'stats', label: '📊', title: 'Stats' },
+          { key: 'completion', label: '🎯', title: 'Tasks' },
+        ].map(tab => (
+          <TouchableOpacity
+            key={tab.key}
+            style={[styles.tab, activeTab === tab.key && styles.activeTab]}
+            onPress={() => setActiveTab(tab.key as any)}
+          >
+            <Text style={styles.tabEmoji}>{tab.label}</Text>
+            <Text style={[styles.tabLabel, activeTab === tab.key && styles.activeTabLabel]}>
+              {tab.title}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      <View style={{ marginTop: 24, gap: 12 }}>
-        <Text style={styles.sectionTitle}>Data Tools</Text>
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#A3C9FF' }]} onPress={onBackup}><Text style={styles.btnTextDark}>Backup to JSON</Text></TouchableOpacity>
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#B8F1D9' }]} onPress={onRestore}><Text style={styles.btnTextDark}>Restore from JSON</Text></TouchableOpacity>
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#FFCFE1' }]} onPress={onReset}><Text style={styles.btnTextDark}>Reset Demo Data</Text></TouchableOpacity>
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#E1FFA3' }]} onPress={seedDemo}><Text style={styles.btnTextDark}>Seed Demo Users</Text></TouchableOpacity>
-      </View>
-
-      <View style={{ marginTop: 24 }}>
-        <Text style={styles.sectionTitle}>Sync Mode</Text>
-        <View style={styles.syncRow}>
-          <Text style={styles.meta}>{syncEnabled ? 'Online' : 'Local'}</Text>
-          <Switch value={syncEnabled} onValueChange={onToggleSync} />
-        </View>
-      </View>
-
-      <View style={{ marginTop: 16 }}>
-        <Text style={styles.sectionTitle}>Realtime (WebSocket)</Text>
-        <View style={styles.syncRow}>
-          <Text style={styles.meta}>WS {wsEnabled ? 'On' : 'Off'}</Text>
-          <Switch value={wsEnabled} onValueChange={setWsEnabled} />
-        </View>
-      </View>
-
-      {/* DEBUG: Simple test button */}
-      <TouchableOpacity 
-        style={{ backgroundColor: 'red', padding: 20, margin: 10, alignItems: 'center' }}
-        onPress={() => Alert.alert("TEST", "Simple button works!")}
+      {/* Tab Content */}
+      <ScrollView 
+        style={styles.content}
+        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 120) }}
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>TEST BUTTON</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={[styles.signOutBtn, { backgroundColor: palette.primary }]} onPress={async () => {
-        console.log("🚪 Sign Out button clicked!");
-        Alert.alert("Debug", "Sign Out button works!");
-        await signOut();
-        router.replace("/(auth)/welcome");
-      }}>
-        <Text style={styles.signOutText}>Sign Out</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {renderTabContent()}
+        
+        {/* Sign Out Button */}
+        <TouchableOpacity 
+          style={[styles.signOutBtn, { backgroundColor: palette.primary, marginTop: 32 }]} 
+          onPress={async () => {
+            Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+              { text: "Cancel", style: "cancel" },
+              { text: "Sign Out", style: "destructive", onPress: async () => {
+                await signOut();
+                router.replace("/(auth)/welcome");
+              }}
+            ]);
+          }}
+        >
+          <Text style={styles.signOutText}>🚪 Sign Out</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0c0c0c" },
   title: { color: "#fff", fontSize: 22, fontWeight: "700" },
+  subtitle: { color: "#bdbdbd", fontSize: 14, marginTop: 2 },
   meta: { color: "#bdbdbd", marginTop: 6 },
   sectionTitle: { color: "#fff", fontSize: 18, fontWeight: "700", marginBottom: 10 },
   paletteRow: { flexDirection: "row", justifyContent: "space-between" },
@@ -180,4 +367,149 @@ const styles = StyleSheet.create({
   signOutBtn: { marginTop: 24, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
   signOutText: { color: '#0c0c0c', fontWeight: '700' },
   syncRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  
+  // New styles for enhanced UI
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#4A90E2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  avatarText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  headerInfo: {
+    flex: 1,
+  },
+  tabNav: {
+    flexDirection: 'row',
+    backgroundColor: '#111',
+    marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 12,
+    padding: 4,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  activeTab: {
+    backgroundColor: '#333',
+  },
+  tabEmoji: {
+    fontSize: 16,
+    marginBottom: 2,
+  },
+  tabLabel: {
+    color: '#bdbdbd',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  activeTabLabel: {
+    color: '#fff',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  tabContent: {
+    paddingTop: 16,
+  },
+  achievementGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 16,
+  },
+  achievementSummary: {
+    color: '#bdbdbd',
+    textAlign: 'center',
+    fontSize: 14,
+  },
+  recentAchievements: {
+    marginBottom: 24,
+  },
+  achievementRow: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingHorizontal: 4,
+  },
+  emptyText: {
+    color: '#bdbdbd',
+    textAlign: 'center',
+    fontStyle: 'italic',
+    paddingVertical: 20,
+  },
+  quickStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    gap: 12,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: '#111',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  statEmoji: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  statValue: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  statLabel: {
+    color: '#bdbdbd',
+    fontSize: 12,
+  },
+  quickActions: {
+    marginBottom: 24,
+  },
+  actionGrid: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  actionBtn: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  actionEmoji: {
+    fontSize: 20,
+    marginBottom: 8,
+  },
+  actionText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  advancedSection: {
+    backgroundColor: '#111',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 24,
+  },
 });
