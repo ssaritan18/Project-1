@@ -258,6 +258,7 @@ export default function ProfileScreen() {
                 Alert.alert("Great idea!", `Let's work on: ${item.title}`);
               }
             }}
+            showAnimation={false}
           />
         );
       default:
