@@ -105,6 +105,7 @@ export default function CommunityScreen() {
       post={item}
       onReact={handleReaction}
       onDelete={handleDeletePost}
+      onComment={handleComment}
       isOwner={item.author_name === 'You' || item.author_id === 'current_user'}
     />
   );
