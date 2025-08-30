@@ -29,6 +29,14 @@ export default function ProfileScreen() {
   const { streak, refresh } = useStreak();
 
   useFocusEffect(React.useCallback(() => { refresh(); }, [refresh]));
+  
+  const navigateToEdit = () => {
+    router.push('/profile/edit');
+  };
+
+  const navigateToSettings = () => {
+    router.push('/profile/settings');
+  };
 
   const onBackup = async () => { try { await makeBackup(); } catch { Alert.alert("Backup failed", "Could not create backup file."); } };
   const onRestore = async () => {
