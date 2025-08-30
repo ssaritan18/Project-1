@@ -243,6 +243,40 @@ export function CommunityProvider({ children }: { children: React.ReactNode }) {
     refreshPosts();
   }, [mode, isAuthenticated]);
 
+  const addComment = async (postId: string, text: string) => {
+    if (mode === 'sync' && isAuthenticated) {
+      try {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/posts/${postId}/comments`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${user?.token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ text, post_id: postId })
+        });
+
+        if (response.ok) {
+          // Refresh posts to get updated comment count
+          await refreshPosts();
+          Alert.alert('Success', 'Comment added successfully!');
+        } else {
+          throw new Error(`Failed to add comment: ${response.status}`);
+        }
+      } catch (err) {
+        console.error('Failed to add comment:', err);
+        Alert.alert('Error', 'Failed to add comment');
+      }
+    } else {
+      // Local mode - increment comment count
+      setPosts(prev => prev.map(post => 
+        post._id === postId 
+          ? { ...post, comments_count: (post.comments_count || 0) + 1 }
+          : post
+      ));
+      Alert.alert('Success', 'Comment added (local mode)');
+    }
+  };
+
   return (
     <CommunityContext.Provider value={{
       posts,
@@ -251,7 +285,8 @@ export function CommunityProvider({ children }: { children: React.ReactNode }) {
       refreshPosts,
       createPost,
       reactToPost,
-      deletePost
+      deletePost,
+      addComment
     }}>
       {children}
     </CommunityContext.Provider>
