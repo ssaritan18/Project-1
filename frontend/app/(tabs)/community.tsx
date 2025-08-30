@@ -187,6 +187,16 @@ export default function CommunityScreen() {
           onClose={() => setShowCreateModal(false)}
           onCreatePost={handleCreatePost}
         />
+
+        <CommentModal
+          visible={showCommentModal}
+          onClose={() => {
+            setShowCommentModal(false);
+            setSelectedPostId(null);
+          }}
+          onSubmit={handleCommentSubmit}
+          loading={commentLoading}
+        />
       </View>
     </KeyboardAvoidingView>
   );
