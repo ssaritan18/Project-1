@@ -17,313 +17,22 @@ import { FocusModeTimer } from "../../src/components/FocusModeTimer";
 const COLOR_PRESETS = ["#A3C9FF", "#FFCFE1", "#B8F1D9", "#FFE3A3", "#FFB3BA"];
 
 export default function HomeScreen() {
+  console.log("🏠 HomeScreen rendering...");
+  
   const { tasks, increment, addTask, remove, reorder } = useTasks();
   const { palette } = useAuth();
   const insets = useSafeAreaInsets();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [title, setTitle] = useState("");
-  const [goal, setGoal] = useState("5");
-  const [color, setColor] = useState(COLOR_PRESETS[0]);
   
-  // Phase 2: ADHD-friendly dashboard state
-  const [showFocusMode, setShowFocusMode] = useState(false);
-  const [currentTime] = useState(new Date());
-  const [focusSessionsToday, setFocusSessionsToday] = useState(2);
-
-  const dayTotal = useMemo(() => {
-    const total = tasks.reduce((acc, task) => acc + parseInt(task.goal), 0);
-    const progress = tasks.reduce((acc, task) => acc + parseInt(task.progress), 0);
-    return { total, progress, ratio: total > 0 ? progress / total : 0 };
-  }, [tasks]);
-
-  // Create time-based segments for ADHD-friendly progress tracking
-  const createTimeSegments = () => {
-    const morningTasks = tasks.filter(t => t.color === COLOR_PRESETS[0]); // Blue tasks for morning
-    const afternoonTasks = tasks.filter(t => t.color === COLOR_PRESETS[1]); // Pink tasks for afternoon  
-    const eveningTasks = tasks.filter(t => t.color === COLOR_PRESETS[2]); // Green tasks for evening
-    const nightTasks = tasks.filter(t => t.color === COLOR_PRESETS[3]); // Yellow tasks for night
-
-    return [
-      {
-        id: 'morning',
-        label: 'Morning',
-        emoji: '🌅',
-        timeRange: '6:00 - 12:00',
-        color: '#FFD700',
-        progress: morningTasks.reduce((sum, t) => sum + t.progress, 0),
-        maxProgress: morningTasks.reduce((sum, t) => sum + t.goal, 0) || 1,
-        isActive: currentTime.getHours() >= 6 && currentTime.getHours() < 12,
-        isCompleted: morningTasks.length > 0 && morningTasks.every(t => t.progress >= t.goal),
-      },
-      {
-        id: 'afternoon',
-        label: 'Afternoon', 
-        emoji: '☀️',
-        timeRange: '12:00 - 17:00',
-        color: '#FF6B35',
-        progress: afternoonTasks.reduce((sum, t) => sum + t.progress, 0),
-        maxProgress: afternoonTasks.reduce((sum, t) => sum + t.goal, 0) || 1,
-        isActive: currentTime.getHours() >= 12 && currentTime.getHours() < 17,
-        isCompleted: afternoonTasks.length > 0 && afternoonTasks.every(t => t.progress >= t.goal),
-      },
-      {
-        id: 'evening',
-        label: 'Evening',
-        emoji: '🌆', 
-        timeRange: '17:00 - 21:00',
-        color: '#6C5CE7',
-        progress: eveningTasks.reduce((sum, t) => sum + t.progress, 0),
-        maxProgress: eveningTasks.reduce((sum, t) => sum + t.goal, 0) || 1,
-        isActive: currentTime.getHours() >= 17 && currentTime.getHours() < 21,
-        isCompleted: eveningTasks.length > 0 && eveningTasks.every(t => t.progress >= t.goal),
-      },
-      {
-        id: 'night',
-        label: 'Night',
-        emoji: '🌙',
-        timeRange: '21:00 - 6:00', 
-        color: '#4A90E2',
-        progress: nightTasks.reduce((sum, t) => sum + t.progress, 0),
-        maxProgress: nightTasks.reduce((sum, t) => sum + t.goal, 0) || 1,
-        isActive: currentTime.getHours() >= 21 || currentTime.getHours() < 6,
-        isCompleted: nightTasks.length > 0 && nightTasks.every(t => t.progress >= t.goal),
-      }
-    ];
-  };
-
-  const timeSegments = createTimeSegments();
-
-  const addNewTask = () => {
-    if (title.trim() && goal.trim()) {
-      addTask({ title: title.trim(), goal: parseInt(goal), color });
-      setTitle("");
-      setGoal("5");
-      setColor(COLOR_PRESETS[0]);
-      setModalVisible(false);
-      
-      // ADHD-friendly feedback
-      Alert.alert("✅ Task Added!", "Great! You're building your daily structure.", [
-        { text: "Add Another", onPress: () => setModalVisible(true) },
-        { text: "Perfect!", style: "default" }
-      ]);
-    }
-  };
-
-  const handleSegmentPress = (segment: any) => {
-    Alert.alert(
-      `${segment.emoji} ${segment.label}`,
-      `${segment.timeRange}\nProgress: ${segment.progress}/${segment.maxProgress}`,
-      [
-        { text: "Add Task", onPress: () => setModalVisible(true) },
-        { text: "Focus Mode", onPress: () => setShowFocusMode(true) },
-        { text: "OK", style: "cancel" }
-      ]
-    );
-  };
-
-  const handleFocusSessionComplete = (session: any) => {
-    setFocusSessionsToday(prev => prev + 1);
-    // Could trigger task progress here
-    Alert.alert("🎉 Session Complete!", `Great ${session.type} session! Keep up the momentum.`);
-  };
-
-  const renderTask = ({ item, drag }: any) => (
-    <ScaleDecorator>
-      <TaskCard
-        task={item}
-        onIncrement={() => increment(item.id)}
-        onRemove={() => remove(item.id)}
-        onDrag={drag}
-        palette={palette}
-      />
-    </ScaleDecorator>
-  );
-
+  // Simple test render first
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-        
-        {/* ADHD-Friendly Header with Focus Stats */}
-        <View style={styles.headerContainer}>
-          <View style={styles.headerContent}>
-            <Text style={styles.header}>🎯 Your ADHD Journey</Text>
-            <Text style={styles.headerSubtitle}>
-              {focusSessionsToday} focus sessions today • {Math.round(dayTotal.ratio * 100)}% complete
-            </Text>
-          </View>
-          
-          <View style={styles.headerActions}>
-            <TouchableOpacity 
-              style={[styles.focusBtn, { backgroundColor: '#4A90E2' }]}
-              onPress={() => setShowFocusMode(!showFocusMode)}
-            >
-              <Text style={styles.focusBtnText}>{showFocusMode ? '📋' : '🧠'}</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.addBtn, { backgroundColor: palette?.primary || '#A3C9FF' }]}
-              onPress={() => setModalVisible(true)}
-            >
-              <Ionicons name="add" size={20} color="#000" />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Phase 2: Segmented Progress Bar - "You Are Here" Journey */}
-        <SegmentedProgressBar
-          segments={timeSegments}
-          currentTimeHour={currentTime.getHours()}
-          onSegmentPress={handleSegmentPress}
-          showAnimation={false}
-        />
-
-        {/* Focus Mode Timer (Conditional) */}
-        {showFocusMode && (
-          <FocusModeTimer
-            onSessionComplete={handleFocusSessionComplete}
-            onBreakStart={() => Alert.alert("Break time!", "Take a moment to recharge 🔋")}
-            onFocusStart={() => Alert.alert("Focus mode!", "Let's get things done! 🎯")}
-            showAnimation={false}
-          />
-        )}
-
-        {/* Enhanced Progress Section */}
-        {!showFocusMode && (
-          <View style={[styles.progressCard, { backgroundColor: palette?.secondary || '#FFCFE1' }]}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressTitle}>📊 Today's Progress</Text>
-              <TouchableOpacity onPress={() => Alert.alert("Progress Info", "Track your daily task completion across different time periods for better ADHD management.")}>
-                <Ionicons name="information-circle" size={20} color="#666" />
-              </TouchableOpacity>
-            </View>
-            
-            <ProgressBar 
-              progress={dayTotal.progress} 
-              total={dayTotal.total} 
-              color={palette?.primary || '#A3C9FF'} 
-            />
-            <Text style={styles.progressText}>
-              {dayTotal.progress} / {dayTotal.total} completed ({Math.round(dayTotal.ratio * 100)}%)
-            </Text>
-            
-            {/* ADHD-friendly motivational message */}
-            <View style={styles.motivationContainer}>
-              {dayTotal.ratio === 0 && (
-                <Text style={styles.motivationText}>
-                  🌱 Ready to start? Break down big tasks into smaller, manageable steps!
-                </Text>
-              )}
-              {dayTotal.ratio > 0 && dayTotal.ratio < 0.5 && (
-                <Text style={styles.motivationText}>
-                  🚀 Great start! You're building momentum. Every step counts!
-                </Text>
-              )}
-              {dayTotal.ratio >= 0.5 && dayTotal.ratio < 1 && (
-                <Text style={styles.motivationText}>
-                  💪 You're more than halfway there! Keep up the amazing work!
-                </Text>
-              )}
-              {dayTotal.ratio === 1 && (
-                <Text style={styles.motivationText}>
-                  🎉 INCREDIBLE! You've completed all your tasks. You're absolutely crushing it!
-                </Text>
-              )}
-            </View>
-          </View>
-        )}
-
-        {/* Tasks List with ADHD-friendly organization */}
-        {!showFocusMode && (
-          <View style={styles.tasksSection}>
-            <View style={styles.tasksSectionHeader}>
-              <Text style={styles.tasksSectionTitle}>📝 Today's Tasks</Text>
-              <Text style={styles.tasksSectionSubtitle}>
-                Drag to reorder • Color-coded by time of day
-              </Text>
-            </View>
-            
-            <DraggableFlatList
-          data={tasks}
-          keyExtractor={(item) => item.id}
-          renderItem={renderTask}
-          onDragEnd={({ data }) => reorder(data)}
-          contentContainerStyle={{ 
-            paddingHorizontal: 16, 
-            paddingBottom: Math.max(insets.bottom, 24)
-          }}
-          ListEmptyComponent={() => (
-            <View style={styles.emptyState}>
-              <Ionicons name="checkbox-outline" size={64} color="#444" />
-              <Text style={styles.emptyText}>No tasks yet</Text>
-              <Text style={styles.emptySubtext}>Tap + to add your first task!</Text>
-            </View>
-          )}
-          showsVerticalScrollIndicator={false}
-        />
-          </View>
-        )}
-
-        {/* Add Task Modal */}
-        <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
-          <View style={[styles.modalContainer, { paddingTop: insets.top }]}>
-            <View style={styles.modalHeader}>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={24} color="#fff" />
-              </TouchableOpacity>
-              <Text style={styles.modalTitle}>Add New Task</Text>
-              <TouchableOpacity onPress={addNewTask}>
-                <Text style={[styles.saveText, { color: palette?.primary || '#A3C9FF' }]}>Save</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.modalContent}>
-              <Text style={styles.label}>Task Title</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter task title"
-                placeholderTextColor="#777"
-                value={title}
-                onChangeText={setTitle}
-                maxLength={50}
-              />
-
-              <Text style={styles.label}>Daily Goal</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter goal (e.g., 5)"
-                placeholderTextColor="#777"
-                value={goal}
-                onChangeText={setGoal}
-                keyboardType="numeric"
-                maxLength={3}
-              />
-
-              <Text style={styles.label}>Color</Text>
-              <View style={styles.colorRow}>
-                {COLOR_PRESETS.map((presetColor) => (
-                  <TouchableOpacity
-                    key={presetColor}
-                    style={[
-                      styles.colorOption,
-                      { backgroundColor: presetColor },
-                      color === presetColor && styles.selectedColor,
-                    ]}
-                    onPress={() => setColor(presetColor)}
-                  >
-                    {color === presetColor && (
-                      <Ionicons name="checkmark" size={16} color="#000" />
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          </View>
-        </Modal>
-
-        <Celebration />
-        <Confetti />
-      </View>
-    </KeyboardAvoidingView>
+    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+      <Text style={styles.header}>🎯 ADHD Social Club</Text>
+      <Text style={styles.testText}>App is working! Phase 1 & 2 components loading...</Text>
+      
+      <TouchableOpacity style={styles.testButton} onPress={() => Alert.alert("Test", "Button works!")}>
+        <Text style={styles.testButtonText}>Test Button</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -346,6 +55,26 @@ const styles = StyleSheet.create({
     color: '#fff', 
     fontSize: 22, 
     fontWeight: '700' 
+  },
+  testText: {
+    color: '#fff',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  testButton: {
+    backgroundColor: '#A3C9FF',
+    padding: 15,
+    borderRadius: 12,
+    marginHorizontal: 20,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  testButtonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: '600',
   },
   addBtn: { 
     padding: 10, 
