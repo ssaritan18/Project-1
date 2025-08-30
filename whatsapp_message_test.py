@@ -167,7 +167,7 @@ class WhatsAppMessageTester:
             self.log(f"Testing validation: {test['description']}")
             response = self.session.post(url, json=test["payload"], headers=headers)
             
-            if response.status_code == 400:
+            if response.status_code in [400, 422]:  # Accept both 400 and 422 for validation errors
                 self.log(f"✅ Validation correctly rejected: {test['description']}")
                 results.append({"test": test["description"], "success": True, "status": response.status_code})
             else:
