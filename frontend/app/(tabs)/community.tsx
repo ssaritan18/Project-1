@@ -19,7 +19,7 @@ import { CreatePostModal } from "../../src/components/CreatePostModal";
 
 export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
-  const { posts, loading, error, refreshPosts, createPost, reactToPost, deletePost } = useCommunity();
+  const { posts, loading, error, refreshPosts, createPost, reactToPost, deletePost, addComment } = useCommunity();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
