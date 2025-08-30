@@ -226,18 +226,37 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         console.log("🔥 CHAT WEBSOCKET MESSAGE RECEIVED:", data);
         
         if (data.type === "chat:new_message") {
+          console.log("📨 PROCESSING chat:new_message EVENT:", {
+            messageId: data.message?.id,
+            chatId: data.chat_id,
+            authorId: data.message?.author_id,
+            text: data.message?.text,
+            fullPayload: data
+          });
+          
           const message = convertBackendMessage(data.message);
           console.log("💬 Converting and adding new message:", {
             chatId: message.chatId,
             text: message.text,
             author: message.author,
-            messageId: message.id
+            messageId: message.id,
+            convertedMessage: message
           });
           
           setBackendMessages(prev => {
             const currentMessages = prev[message.chatId] || [];
+            console.log("📝 Current messages for chat before update:", message.chatId, currentMessages.length);
+            
+            // Check for duplicates
+            const isDuplicate = currentMessages.some(msg => msg.id === message.id);
+            if (isDuplicate) {
+              console.log("⚠️ Duplicate message detected, skipping:", message.id);
+              return prev;
+            }
+            
             const updatedMessages = [...currentMessages, message];
             console.log("📝 Updated messages for chat", message.chatId, ":", updatedMessages.length, "total messages");
+            console.log("📝 All messages in chat:", updatedMessages.map(m => ({id: m.id, text: m.text, author: m.author})));
             
             return {
               ...prev,
@@ -245,7 +264,12 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             };
           });
           
-          console.log("✅ Message added to chat:", message.chatId, "- Total chats with messages:", Object.keys(backendMessages).length);
+          console.log("✅ Message processed and added to chat:", message.chatId);
+        } else {
+          console.log("🔍 Non-chat WebSocket message received:", {
+            type: data.type,
+            data: data
+          });
         }
         
         if (data.type === "chat:message_reaction") {
