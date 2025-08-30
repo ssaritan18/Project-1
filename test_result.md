@@ -244,11 +244,9 @@
 ##   run_ui: false
 ## test_plan:
 ##   current_focus:
-##     - "Login and Authentication Flow"
-##     - "Profile and Sync Mode Toggle"
-##     - "Friends Tab and Direct Messaging"
-##     - "Chat Tab and Group Chat Creation"
+##     - "WhatsApp-Style Message Processing"
 ##     - "Real-time Messaging and WebSocket"
+##     - "Login and Authentication Flow"
 ##   stuck_tasks:
 ##     - "Login and Authentication Flow"
 ##   test_all: false
