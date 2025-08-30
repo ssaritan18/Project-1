@@ -2431,18 +2431,21 @@ if __name__ == "__main__":
             success = run_message_sending_focus_test()
         elif sys.argv[1] == "ratelimit" or sys.argv[1] == "rate":
             success = run_rate_limiting_test()
+        elif sys.argv[1] == "invite" or sys.argv[1] == "invite_code":
+            success = run_invite_code_system_test()
         else:
-            print("Usage: python backend_test.py [chat|e2e|end-to-end|full|websocket|ws|message|msg|ratelimit|rate]")
+            print("Usage: python backend_test.py [chat|e2e|end-to-end|full|websocket|ws|message|msg|ratelimit|rate|invite|invite_code]")
             print("  chat: Run comprehensive chat functionality tests")
             print("  e2e/end-to-end: Run end-to-end chat system tests")
             print("  full: Run full backend API tests")
             print("  websocket/ws: Run WebSocket broadcasting system test")
             print("  message/msg: Run focused message sending functionality test")
             print("  ratelimit/rate: Run rate limiting optimization test")
-            print("  (no args): Run rate limiting test by default")
+            print("  invite/invite_code: Run comprehensive invite code system test")
+            print("  (no args): Run invite code test by default (as per review request)")
             sys.exit(1)
     else:
-        # Default to rate limiting test as requested in review
-        success = run_rate_limiting_test()
+        # Default to invite code test as requested in review
+        success = run_invite_code_system_test()
     
     sys.exit(0 if success else 1)
