@@ -18,7 +18,11 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const validEmail = useMemo(() => emailRegex.test(email.trim()), [email]);
+  const validEmail = useMemo(() => {
+    const result = emailRegex.test(email.trim());
+    console.log("📧 EMAIL VALIDATION:", { email, result, trimmed: email.trim() });
+    return result;
+  }, [email]);
 
   // Load saved email on component mount
   useEffect(() => {
