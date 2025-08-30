@@ -22,8 +22,62 @@ export default function HomeScreen() {
   const { tasks, increment, addTask, remove, reorder } = useTasks();
   const { palette } = useAuth();
   const insets = useSafeAreaInsets();
+  const [showFullDashboard, setShowFullDashboard] = useState(false);
   
-  // Simple test render first
+  // If full dashboard is enabled, show ADHD-friendly components
+  if (showFullDashboard) {
+    return (
+      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+        <Text style={styles.header}>🎯 Your ADHD Journey</Text>
+        <Text style={styles.testText}>Full ADHD-friendly dashboard with Phase 1 & 2 features!</Text>
+        
+        <TouchableOpacity 
+          style={[styles.testButton, { backgroundColor: '#FF6B35' }]} 
+          onPress={() => {
+            setShowFullDashboard(false);
+            Alert.alert("🔙 Switched!", "Back to simple test mode");
+          }}
+        >
+          <Text style={styles.testButtonText}>← Back to Test Mode</Text>
+        </TouchableOpacity>
+        
+        {/* Phase 2: Mini Progress Indicator */}
+        <View style={styles.miniProgressContainer}>
+          <Text style={styles.miniProgressTitle}>📊 Today's Progress</Text>
+          <View style={styles.miniProgressBar}>
+            <View style={[styles.miniProgressFill, { width: '65%' }]} />
+          </View>
+          <Text style={styles.miniProgressText}>6/10 tasks completed (60%)</Text>
+        </View>
+        
+        {/* Quick Actions */}
+        <View style={styles.quickActions}>
+          <TouchableOpacity 
+            style={[styles.actionBtn, { backgroundColor: '#4A90E2' }]}
+            onPress={() => Alert.alert("🧠 Focus Mode", "Focus timer would start here!")}
+          >
+            <Text style={styles.actionBtnText}>🧠 Focus Mode</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.actionBtn, { backgroundColor: '#00C851' }]}
+            onPress={() => Alert.alert("📝 Add Task", "Task creation modal would open here!")}
+          >
+            <Text style={styles.actionBtnText}>📝 Add Task</Text>
+          </TouchableOpacity>
+        </View>
+        
+        {/* Motivation Message */}
+        <View style={styles.motivationCard}>
+          <Text style={styles.motivationText}>
+            💪 You're making great progress today! Keep up the amazing work.
+          </Text>
+        </View>
+      </View>
+    );
+  }
+  
+  // Simple test mode
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <Text style={styles.header}>🎯 ADHD Social Club</Text>
@@ -37,6 +91,16 @@ export default function HomeScreen() {
         }}
       >
         <Text style={styles.testButtonText}>Test Button</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity 
+        style={[styles.testButton, { backgroundColor: '#00C851', marginTop: 10 }]} 
+        onPress={() => {
+          setShowFullDashboard(true);
+          Alert.alert("🚀 Loading!", "Switching to full ADHD dashboard...");
+        }}
+      >
+        <Text style={styles.testButtonText}>🚀 Show ADHD Dashboard</Text>
       </TouchableOpacity>
     </View>
   );
@@ -254,5 +318,67 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 12,
     marginTop: 2,
+  },
+  // New styles for ADHD dashboard
+  miniProgressContainer: {
+    margin: 16,
+    padding: 16,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  miniProgressTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  miniProgressBar: {
+    height: 8,
+    backgroundColor: '#333',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  miniProgressFill: {
+    height: '100%',
+    backgroundColor: '#00C851',
+    borderRadius: 4,
+  },
+  miniProgressText: {
+    color: '#999',
+    fontSize: 12,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  quickActions: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  actionBtn: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  actionBtnText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  motivationCard: {
+    margin: 16,
+    padding: 16,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  motivationText: {
+    color: '#fff',
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });
