@@ -167,17 +167,116 @@ export default function CommunityScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0c0c0c" },
-  headerContainer: { padding: 16, paddingBottom: 8 },
-  header: { color: "#fff", fontSize: 22, fontWeight: "700", marginBottom: 4 },
-  subtitle: { color: "#888", fontSize: 14, fontWeight: "400" },
-  card: { flexDirection: "row", backgroundColor: "#111", borderRadius: 16, padding: 12, marginBottom: 12, alignItems: "center" },
-  avatar: { width: 48, height: 48, borderRadius: 24, marginRight: 12 },
-  name: { color: "#fff", fontSize: 16, fontWeight: "600", marginBottom: 8 },
-  progressTrack: { height: 10, backgroundColor: "#222", borderRadius: 8, overflow: "hidden" },
-  progressFill: { height: "100%", borderRadius: 8, backgroundColor: "#FFCFE1" },
-  footer: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: 12, backgroundColor: '#111', flexDirection: 'row', gap: 8, borderTopWidth: 1, borderTopColor: '#1a1a1a' },
-  input: { flex: 1, backgroundColor: '#1a1a1a', color: '#fff', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: '#222' },
-  sendBtn: { backgroundColor: '#B8F1D9', paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
-  iconBtn: { padding: 6 },
+  container: { 
+    flex: 1, 
+    backgroundColor: "#000" 
+  },
+  headerContainer: { 
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16, 
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333'
+  },
+  headerTitleContainer: {
+    flex: 1
+  },
+  header: { 
+    color: "#fff", 
+    fontSize: 24, 
+    fontWeight: "700", 
+    marginBottom: 4 
+  },
+  subtitle: { 
+    color: "#888", 
+    fontSize: 14, 
+    fontWeight: "400" 
+  },
+  createButton: {
+    backgroundColor: '#4A90E2',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#4A90E2',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  errorContainer: {
+    backgroundColor: '#2D1B1B',
+    margin: 16,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#8B0000',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  errorText: {
+    color: '#FF6B6B',
+    fontSize: 14,
+    flex: 1
+  },
+  retryButton: {
+    backgroundColor: '#4A90E2',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6
+  },
+  retryButtonText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600'
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32
+  },
+  loadingText: {
+    color: '#888',
+    fontSize: 16,
+    marginTop: 16,
+    textAlign: 'center'
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+    paddingTop: 80
+  },
+  emptyTitle: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: '600',
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center'
+  },
+  emptySubtitle: {
+    color: '#888',
+    fontSize: 15,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 24
+  },
+  createFirstPostButton: {
+    backgroundColor: '#4A90E2',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 20
+  },
+  createFirstPostButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600'
+  }
 });
