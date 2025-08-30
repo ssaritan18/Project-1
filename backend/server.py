@@ -1714,6 +1714,160 @@ async def react_chat_message(chat_id: str, message_id: str, payload: MessageReac
     
     return updated_msg
 
+# Achievement System APIs for ADHD-friendly gamification
+@api_router.get("/achievements")
+async def get_all_achievements():
+    """Get all available achievements"""
+    achievements = [
+        {
+            "id": "first_day",
+            "name": "First Step",
+            "icon": "🌱",
+            "description": "Complete your first day of tasks",
+            "category": "streak",
+            "reward": {"points": 50, "badge": "Starter", "description": "Every journey begins with a single step!"}
+        },
+        {
+            "id": "week_warrior", 
+            "name": "Week Warrior",
+            "icon": "⚔️",
+            "description": "Maintain a 7-day streak",
+            "category": "streak",
+            "reward": {"points": 200, "badge": "Consistent", "description": "One week of consistency - you're building a habit!"}
+        },
+        {
+            "id": "task_starter",
+            "name": "Task Starter", 
+            "icon": "✅",
+            "description": "Complete your first 10 tasks",
+            "category": "tasks",
+            "reward": {"points": 100, "badge": "Achiever", "description": "You're getting things done!"}
+        },
+        {
+            "id": "community_voice",
+            "name": "Community Voice",
+            "icon": "📢", 
+            "description": "Share your first community post",
+            "category": "community",
+            "reward": {"points": 100, "badge": "Contributor", "description": "Thank you for sharing with the community!"}
+        },
+        {
+            "id": "profile_complete",
+            "name": "Profile Master",
+            "icon": "👤",
+            "description": "Complete your entire profile", 
+            "category": "profile",
+            "reward": {"points": 150, "badge": "Complete", "description": "Your profile is looking great!"}
+        }
+    ]
+    return {"achievements": achievements}
+
+@api_router.get("/user/achievements")
+async def get_user_achievements(current_user: dict = Depends(get_current_user)):
+    """Get user's unlocked achievements with mock data"""
+    # Mock user achievement data
+    unlocked = ["first_day", "task_starter"] if random.random() > 0.3 else ["first_day"]
+    
+    user_achievements = []
+    all_achievements = await get_all_achievements()
+    
+    for achievement in all_achievements["achievements"]:
+        user_achievement = {
+            **achievement,
+            "unlocked": achievement["id"] in unlocked,
+            "unlockedAt": "2024-08-30T10:00:00Z" if achievement["id"] in unlocked else None,
+            "progress": 10 if achievement["id"] == "task_starter" else (1 if achievement["id"] == "first_day" else 0),
+            "maxProgress": 10 if achievement["id"] == "task_starter" else 1
+        }
+        user_achievements.append(user_achievement)
+    
+    return {"achievements": user_achievements}
+
+@api_router.get("/user/points")
+async def get_user_points(current_user: dict = Depends(get_current_user)):
+    """Get user's total points"""
+    # Mock calculation based on achievements
+    base_points = 150
+    bonus_points = random.randint(0, 200)
+    total_points = base_points + bonus_points
+    
+    return {
+        "total_points": total_points,
+        "level": (total_points // 100) + 1,
+        "points_to_next_level": 100 - (total_points % 100),
+        "breakdown": {
+            "achievements": base_points,
+            "tasks": bonus_points,
+            "community": random.randint(0, 50),
+            "streaks": random.randint(0, 100)
+        }
+    }
+
+@api_router.get("/user/streak") 
+async def get_user_streak(current_user: dict = Depends(get_current_user)):
+    """Get user's streak information"""
+    current_streak = random.randint(1, 12)
+    best_streak = max(current_streak, random.randint(5, 30))
+    
+    return {
+        "current_streak": current_streak,
+        "best_streak": best_streak,
+        "streak_start_date": "2024-08-20",
+        "last_activity_date": "2024-08-30",
+        "milestones_reached": [7, 14] if current_streak >= 14 else ([7] if current_streak >= 7 else [])
+    }
+
+@api_router.get("/user/stats")
+async def get_user_stats(current_user: dict = Depends(get_current_user)):
+    """Get user statistics for ADHD-friendly dashboard"""
+    return {
+        "tasks_completed": random.randint(15, 50),
+        "community_posts": random.randint(2, 8),
+        "friends_count": random.randint(3, 12),
+        "achievements_unlocked": random.randint(2, 6),
+        "current_streak": random.randint(1, 15),
+        "total_points": random.randint(200, 1000),
+        "weekly_stats": {
+            "tasks": random.randint(5, 15),
+            "posts": random.randint(1, 4), 
+            "friends_made": random.randint(0, 3),
+            "streak_days": min(7, random.randint(1, 15))
+        },
+        "monthly_stats": {
+            "tasks": random.randint(20, 60),
+            "posts": random.randint(4, 15),
+            "friends_made": random.randint(2, 8),
+            "best_streak": random.randint(8, 30)
+        }
+    }
+
+@api_router.get("/profile/completion")
+async def get_profile_completion(current_user: dict = Depends(get_current_user)):
+    """Calculate profile completion percentage"""
+    completion_items = [
+        {"id": "profile_pic", "completed": bool(current_user.get("profile_image")), "points": 50},
+        {"id": "bio", "completed": bool(current_user.get("bio")), "points": 75},
+        {"id": "name", "completed": bool(current_user.get("name")), "points": 25},
+        {"id": "location", "completed": bool(current_user.get("location")), "points": 25},
+        {"id": "first_task", "completed": True, "points": 100},  # Mock
+        {"id": "first_friend", "completed": random.random() > 0.5, "points": 100}  # Mock
+    ]
+    
+    total_items = len(completion_items)
+    completed_items = sum(1 for item in completion_items if item["completed"])
+    completion_percentage = (completed_items / total_items) * 100
+    
+    total_points = sum(item["points"] for item in completion_items if item["completed"])
+    
+    return {
+        "completion_percentage": round(completion_percentage, 1),
+        "completed_items": completed_items,
+        "total_items": total_items,
+        "completion_items": completion_items,
+        "points_earned": total_points,
+        "max_points": sum(item["points"] for item in completion_items)
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
