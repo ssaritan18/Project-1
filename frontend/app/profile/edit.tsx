@@ -23,6 +23,7 @@ type ProfileData = {
   location?: string;
   website?: string;
   birth_date?: string;
+  profile_image?: string;
 };
 
 export default function EditProfileScreen() {
