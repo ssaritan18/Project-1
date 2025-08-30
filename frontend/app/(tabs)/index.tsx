@@ -451,4 +451,61 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#fff',
   },
+  // New ADHD-friendly styles
+  headerContent: {
+    flex: 1,
+  },
+  headerSubtitle: {
+    color: '#999',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  focusBtn: {
+    padding: 10,
+    borderRadius: 12,
+    elevation: 2,
+  },
+  focusBtnText: {
+    fontSize: 16,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  motivationContainer: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 8,
+  },
+  motivationText: {
+    color: '#333',
+    fontSize: 13,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  tasksSection: {
+    flex: 1,
+  },
+  tasksSectionHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  tasksSectionTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  tasksSectionSubtitle: {
+    color: '#999',
+    fontSize: 12,
+    marginTop: 2,
+  },
 });
