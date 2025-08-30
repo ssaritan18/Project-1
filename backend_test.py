@@ -1450,6 +1450,349 @@ def run_websocket_broadcasting_test():
     
     return True
 
+def run_rate_limiting_test():
+    """
+    RATE LIMITING TEST: Message Sending Rate Limiting Optimization
+    
+    Tests the new rate limiting optimization for message sending to ensure 429 "Too Many Requests" 
+    errors are properly handled.
+    
+    SPECIFIC TESTS:
+    1. Test normal message sending (should work fine with rate limiting of 30 messages per minute)
+    2. Test rapid message sending to trigger rate limiting (send more than 30 messages quickly)
+    3. Verify 429 error response is returned when rate limit is exceeded
+    4. Test that rate limiting resets after 60 seconds
+    5. Verify real-time messaging still works with rate limiting in place
+    
+    Uses existing users ssaritan@example.com and ssaritan2@example.com as requested.
+    """
+    tester = APITester()
+    
+    print("=" * 80)
+    print("RATE LIMITING TEST - Message Sending Optimization")
+    print("Testing: 30 messages per minute rate limit with 60-second window")
+    print("=" * 80)
+    
+    # Test users as specified in the request
+    user1 = {"name": "ssaritan", "email": "ssaritan@example.com", "password": "Passw0rd!"}
+    user2 = {"name": "ssaritan2", "email": "ssaritan2@example.com", "password": "Passw0rd!"}
+    
+    tokens = {}
+    user_profiles = {}
+    
+    # PHASE 1: User Authentication Setup
+    print("\n" + "=" * 60)
+    print("PHASE 1: USER AUTHENTICATION SETUP")
+    print("=" * 60)
+    
+    for user in [user1, user2]:
+        # Login existing users
+        login_result = tester.test_auth_login(user["email"], user["password"])
+        if not login_result["success"]:
+            print(f"❌ CRITICAL: Login failed for {user['email']}: {login_result.get('error', 'Unknown error')}")
+            return False
+        tokens[user["email"]] = login_result["token"]
+        
+        # Get user profile
+        me_result = tester.test_get_me(tokens[user["email"]], user["name"])
+        if not me_result["success"]:
+            print(f"❌ CRITICAL: /me endpoint failed for {user['email']}")
+            return False
+        user_profiles[user["email"]] = me_result["data"]
+        print(f"✅ User {user['name']} authenticated successfully")
+    
+    # PHASE 2: Setup Direct Chat for Testing
+    print("\n" + "=" * 60)
+    print("PHASE 2: SETUP DIRECT CHAT FOR RATE LIMITING TESTS")
+    print("=" * 60)
+    
+    user1_email = user1["email"]
+    user2_email = user2["email"]
+    user2_id = user_profiles[user2_email]["_id"]
+    
+    # Ensure they are friends and create/access direct chat
+    friends_result = tester.test_friends_list(tokens[user1_email], user1["name"])
+    if not friends_result["success"]:
+        print("❌ CRITICAL: Failed to get friends list")
+        return False
+    
+    # Check if user2 is already in user1's friends list
+    already_friends = any(friend["_id"] == user2_id for friend in friends_result["data"]["friends"])
+    
+    if not already_friends:
+        print("🔗 Users are not friends yet, establishing friendship...")
+        
+        # Send friend request from user1 to user2
+        request_result = tester.test_friends_request(tokens[user1_email], user2_email, user1["name"])
+        if not request_result["success"]:
+            print("❌ CRITICAL: Friend request failed")
+            return False
+        
+        # Get pending requests for user2
+        requests_result = tester.test_friends_requests(tokens[user2_email], user2["name"])
+        if not requests_result["success"]:
+            print("❌ CRITICAL: Getting friend requests failed")
+            return False
+        
+        # Find the request from user1
+        request_id = None
+        for req in requests_result["data"]["requests"]:
+            if req["from_user_id"] == user_profiles[user1_email]["_id"]:
+                request_id = req["_id"]
+                break
+        
+        if not request_id:
+            print("❌ CRITICAL: Friend request not found")
+            return False
+        
+        # Accept the friend request
+        accept_result = tester.test_friends_accept(tokens[user2_email], request_id, user2["name"])
+        if not accept_result["success"]:
+            print("❌ CRITICAL: Friend accept failed")
+            return False
+        
+        print("✅ Friendship established successfully")
+    else:
+        print("✅ Users are already friends")
+    
+    # Create/access direct chat
+    direct_chat_result = tester.test_open_direct_chat(tokens[user1_email], user2_id, user1["name"])
+    if not direct_chat_result["success"]:
+        print("❌ CRITICAL: Direct chat creation failed")
+        return False
+    
+    chat_id = direct_chat_result["data"]["_id"]
+    print(f"✅ Direct chat ready for testing: {chat_id}")
+    
+    # PHASE 3: Test Normal Message Sending (Within Rate Limit)
+    print("\n" + "=" * 60)
+    print("PHASE 3: TEST NORMAL MESSAGE SENDING (WITHIN RATE LIMIT)")
+    print("=" * 60)
+    
+    print("📤 Testing normal message sending (should work fine with rate limiting)...")
+    
+    # Send 5 normal messages (well within the 30/minute limit)
+    normal_messages = [
+        "Normal message 1 - testing rate limiting 📝",
+        "Normal message 2 - should work fine 👍",
+        "Normal message 3 - within limits ✅",
+        "Normal message 4 - no issues expected 🎯",
+        "Normal message 5 - rate limit allows this 🚀"
+    ]
+    
+    successful_normal_messages = 0
+    for i, message_text in enumerate(normal_messages, 1):
+        msg_result = tester.test_send_message(tokens[user1_email], chat_id, message_text, user1["name"])
+        if msg_result["success"]:
+            successful_normal_messages += 1
+            print(f"✅ Normal message {i}/5 sent successfully")
+        else:
+            print(f"❌ Normal message {i}/5 failed: {msg_result.get('error', 'Unknown error')}")
+            return False
+        
+        # Small delay between messages to simulate normal usage
+        time.sleep(0.5)
+    
+    print(f"✅ Normal message sending test passed: {successful_normal_messages}/5 messages sent successfully")
+    
+    # PHASE 4: Test Rapid Message Sending (Trigger Rate Limit)
+    print("\n" + "=" * 60)
+    print("PHASE 4: TEST RAPID MESSAGE SENDING (TRIGGER RATE LIMIT)")
+    print("=" * 60)
+    
+    print("🚀 Testing rapid message sending to trigger rate limiting...")
+    print("📊 Rate limit: 30 messages per minute (60-second window)")
+    print("🎯 Strategy: Send 35 messages rapidly to exceed the limit")
+    
+    successful_rapid_messages = 0
+    rate_limited_messages = 0
+    first_429_message_number = None
+    
+    # Send 35 messages rapidly to trigger rate limiting
+    for i in range(1, 36):  # Messages 1-35
+        message_text = f"Rapid message {i}/35 - testing rate limit trigger 🔥"
+        
+        msg_result = tester.test_send_message(tokens[user1_email], chat_id, message_text, user1["name"])
+        
+        if msg_result["success"]:
+            successful_rapid_messages += 1
+            print(f"✅ Rapid message {i}/35 sent successfully")
+        else:
+            # Check if this is a 429 rate limit error
+            error_msg = msg_result.get('error', '')
+            if '429' in error_msg or 'Too many requests' in error_msg or 'rate limit' in error_msg.lower():
+                rate_limited_messages += 1
+                if first_429_message_number is None:
+                    first_429_message_number = i
+                print(f"🚫 Rapid message {i}/35 rate limited (429): {error_msg}")
+            else:
+                print(f"❌ Rapid message {i}/35 failed with unexpected error: {error_msg}")
+                return False
+        
+        # No delay - send as fast as possible to trigger rate limiting
+    
+    print(f"\n📊 Rapid messaging test results:")
+    print(f"✅ Successful messages: {successful_rapid_messages}")
+    print(f"🚫 Rate limited messages (429): {rate_limited_messages}")
+    print(f"🎯 First rate limit triggered at message: {first_429_message_number}")
+    
+    # PHASE 5: Verify 429 Error Response
+    print("\n" + "=" * 60)
+    print("PHASE 5: VERIFY 429 ERROR RESPONSE")
+    print("=" * 60)
+    
+    if rate_limited_messages == 0:
+        print("❌ CRITICAL: No 429 rate limit errors were triggered!")
+        print("🔍 Expected: Some messages should be rate limited after 30 messages")
+        return False
+    
+    if first_429_message_number is None:
+        print("❌ CRITICAL: Rate limiting was not triggered at the expected threshold")
+        return False
+    
+    if first_429_message_number > 32:  # Allow some tolerance (30 + buffer)
+        print(f"❌ CRITICAL: Rate limiting triggered too late at message {first_429_message_number}")
+        print("🔍 Expected: Rate limiting should trigger around message 30-32")
+        return False
+    
+    print(f"✅ Rate limiting working correctly:")
+    print(f"  • First 429 error at message: {first_429_message_number}")
+    print(f"  • Total rate limited messages: {rate_limited_messages}")
+    print(f"  • Rate limit threshold appears to be working as expected")
+    
+    # PHASE 6: Test Rate Limit Reset (60-second window)
+    print("\n" + "=" * 60)
+    print("PHASE 6: TEST RATE LIMIT RESET (60-SECOND WINDOW)")
+    print("=" * 60)
+    
+    print("⏰ Testing rate limit reset after 60-second window...")
+    print("🕐 Waiting 65 seconds for rate limit window to reset...")
+    
+    # Wait for rate limit window to reset (60 seconds + 5 second buffer)
+    for remaining in range(65, 0, -5):
+        print(f"⏳ Waiting... {remaining} seconds remaining")
+        time.sleep(5)
+    
+    print("✅ Wait period completed, testing if rate limit has reset...")
+    
+    # Try sending a message after the reset period
+    reset_test_message = "Rate limit reset test - should work after 60 seconds ⏰"
+    reset_result = tester.test_send_message(tokens[user1_email], chat_id, reset_test_message, user1["name"])
+    
+    if not reset_result["success"]:
+        error_msg = reset_result.get('error', '')
+        if '429' in error_msg or 'Too many requests' in error_msg or 'rate limit' in error_msg.lower():
+            print("❌ CRITICAL: Rate limit did not reset after 60 seconds")
+            print(f"🔍 Still getting rate limit error: {error_msg}")
+            return False
+        else:
+            print(f"❌ CRITICAL: Unexpected error after rate limit reset: {error_msg}")
+            return False
+    
+    print("✅ Rate limit reset test passed: Message sent successfully after 60-second window")
+    
+    # PHASE 7: Test Real-time Messaging with Rate Limiting
+    print("\n" + "=" * 60)
+    print("PHASE 7: TEST REAL-TIME MESSAGING WITH RATE LIMITING")
+    print("=" * 60)
+    
+    print("📡 Testing that real-time messaging still works with rate limiting in place...")
+    
+    # Setup WebSocket connections for both users
+    ws1_success = tester.setup_websocket(tokens[user1_email], user1["name"])
+    if not ws1_success:
+        print(f"❌ CRITICAL: WebSocket setup failed for {user1['name']}")
+        return False
+    
+    ws2_success = tester.setup_websocket(tokens[user2_email], user2["name"])
+    if not ws2_success:
+        print(f"❌ CRITICAL: WebSocket setup failed for {user2['name']}")
+        return False
+    
+    print("✅ WebSocket connections established for both users")
+    
+    # Wait for connections to stabilize
+    time.sleep(3)
+    
+    # Clear WebSocket messages
+    tester.ws_messages = {}
+    
+    # User 1 sends a message (should work and broadcast in real-time)
+    realtime_message = "Real-time test with rate limiting active 📡🚀"
+    print(f"📤 {user1['name']} sending real-time test message...")
+    
+    realtime_result = tester.test_send_message(tokens[user1_email], chat_id, realtime_message, user1["name"])
+    if not realtime_result["success"]:
+        print(f"❌ CRITICAL: Real-time message send failed: {realtime_result.get('error', 'Unknown error')}")
+        return False
+    
+    print("✅ Real-time message sent successfully")
+    
+    # Check if User 2 received WebSocket notification
+    print(f"🔍 Checking if {user2['name']} received WebSocket notification...")
+    ws_received = tester.check_websocket_messages(user2["name"], "chat:new_message", timeout=10)
+    
+    if not ws_received:
+        print("❌ CRITICAL: WebSocket message notification not received")
+        print("🔍 Rate limiting may have broken real-time messaging")
+        return False
+    
+    print("✅ Real-time messaging working correctly with rate limiting active")
+    
+    # User 2 sends a reply (test bidirectional real-time with rate limiting)
+    reply_message = "Reply: Real-time still works great! 🎉"
+    print(f"📤 {user2['name']} sending reply...")
+    
+    reply_result = tester.test_send_message(tokens[user2_email], chat_id, reply_message, user2["name"])
+    if not reply_result["success"]:
+        print(f"❌ CRITICAL: Reply message send failed: {reply_result.get('error', 'Unknown error')}")
+        return False
+    
+    # Check if User 1 received WebSocket notification for the reply
+    ws_reply_received = tester.check_websocket_messages(user1["name"], "chat:new_message", timeout=10)
+    if not ws_reply_received:
+        print("❌ CRITICAL: WebSocket reply notification not received")
+        return False
+    
+    print("✅ Bidirectional real-time messaging working with rate limiting")
+    
+    # FINAL SUMMARY
+    print("\n" + "=" * 80)
+    print("🎉 RATE LIMITING TEST COMPLETED SUCCESSFULLY!")
+    print("=" * 80)
+    
+    print("\nRATE LIMITING TEST SUMMARY:")
+    print("✅ Normal Message Sending: 5/5 messages sent successfully within rate limits")
+    print(f"✅ Rate Limit Triggering: Rate limiting triggered at message {first_429_message_number} (expected ~30)")
+    print(f"✅ 429 Error Response: {rate_limited_messages} messages properly rate limited with 429 errors")
+    print("✅ Rate Limit Reset: Rate limit properly reset after 60-second window")
+    print("✅ Real-time Messaging: WebSocket broadcasting works correctly with rate limiting active")
+    print("✅ Bidirectional Real-time: Both users can send/receive in real-time with rate limiting")
+    
+    print(f"\nRATE LIMITING CONFIGURATION VERIFIED:")
+    print(f"• Rate Limit: 30 messages per minute per user ✅")
+    print(f"• Time Window: 60 seconds ✅")
+    print(f"• Error Response: HTTP 429 'Too Many Requests' ✅")
+    print(f"• Reset Behavior: Rate limit resets after window expires ✅")
+    print(f"• Real-time Impact: No negative impact on WebSocket messaging ✅")
+    
+    print(f"\nTEST STATISTICS:")
+    print(f"• Normal messages sent: {successful_normal_messages}/5")
+    print(f"• Rapid messages sent: {successful_rapid_messages}/35")
+    print(f"• Rate limited messages: {rate_limited_messages}/35")
+    print(f"• First rate limit at: Message {first_429_message_number}")
+    print(f"• Rate limit reset: Working after 60 seconds")
+    print(f"• Real-time messages: 2/2 with WebSocket notifications")
+    
+    print(f"\nCONCLUSION:")
+    print(f"🟢 Rate limiting optimization is working correctly")
+    print(f"🟢 429 'Too Many Requests' errors are properly handled")
+    print(f"🟢 Normal chat flow is not disrupted by rate limiting")
+    print(f"🟢 Real-time messaging continues to work with rate limiting active")
+    print(f"🟢 Rate limiting provides protection against spam without breaking functionality")
+    
+    return True
+
 def run_message_sending_focus_test():
     """
     FOCUSED TEST: Message Sending Button Issue Investigation
