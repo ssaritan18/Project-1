@@ -197,7 +197,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const value = useMemo(() => ({ isAuthed, user, palette, token, setPalette, signIn, register, login, resetCredentials, signOut }), [isAuthed, user, palette, token]);
+  const value = useMemo(() => ({ 
+    isAuthed, 
+    isAuthenticated: isAuthed,  // Add alias for compatibility
+    user, 
+    palette, 
+    token, 
+    setPalette, 
+    signIn, 
+    register, 
+    login, 
+    resetCredentials, 
+    signOut 
+  }), [isAuthed, user, palette, token]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
