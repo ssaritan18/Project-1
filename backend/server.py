@@ -909,15 +909,21 @@ async def posts_feed(limit: int = 50, user=Depends(get_current_user)):
     # Get user's friends list
     user_friends = user.get("friends", [])
     
-    # Create filter: friends' posts (any visibility) + public posts from others
+    # Create SECURE privacy-aware filter query (2025 best practices)
     filter_query = {
         "$or": [
-            # Friends' posts (all visibility levels)
-            {"author_id": {"$in": user_friends}},
-            # Public posts from anyone
-            {"visibility": "public"},
-            # User's own posts
-            {"author_id": user["_id"]}
+            # User's own posts (any visibility level)
+            {"author_id": user["_id"]},
+            # Friends' posts that are NOT private
+            {
+                "author_id": {"$in": user_friends},
+                "visibility": {"$in": ["public", "friends"]}
+            },
+            # Public posts from anyone (except user's own, already covered above)
+            {
+                "author_id": {"$ne": user["_id"]},
+                "visibility": "public"
+            }
         ]
     }
     
