@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Platform, DevSettings, Switch } from "react-native";
 import { useAuth } from "../../src/context/AuthContext";
 import { useTasks } from "../../src/context/TasksContext";
@@ -10,6 +10,13 @@ import { router } from "expo-router";
 import { useRuntimeConfig } from "../../src/context/RuntimeConfigContext";
 import { api } from "../../src/lib/api";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+// New ADHD-friendly components
+import { AchievementBadge } from "../../src/components/AchievementBadge";
+import { StreakVisualization } from "../../src/components/StreakVisualization";
+import { ProfileStatistics } from "../../src/components/ProfileStatistics";
+import { ProfileCompletionGuide } from "../../src/components/ProfileCompletionGuide";
+import { useAchievements } from "../../src/hooks/useAchievements";
 
 const PRESETS = [
   { primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" },
