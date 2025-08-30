@@ -9,6 +9,7 @@ import { RuntimeConfigProvider } from "../src/context/RuntimeConfigContext";
 import { TasksProvider } from "../src/context/TasksContext";
 import { FriendsProvider } from "../src/context/FriendsContext";
 import { ChatProvider } from "../src/context/ChatContext";
+import { ErrorBoundary } from "../src/components/ErrorBoundary";
 
 const theme = {
   ...MD3LightTheme,
