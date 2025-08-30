@@ -403,11 +403,24 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     sendText: async (chatId: string, text: string) => {
       console.log("🚀 SEND TEXT CALLED (WhatsApp-style):", { chatId, text, mode, isAuthenticated });
       
+      // Throttling check to prevent rate limit errors
+      const currentTime = Date.now();
+      const timeSinceLastSend = currentTime - lastSendTime.current;
+      
+      if (timeSinceLastSend < sendThrottleMs) {
+        const waitTime = sendThrottleMs - timeSinceLastSend;
+        console.warn(`⏱️ Message throttled. Please wait ${waitTime}ms before sending another message.`);
+        throw new Error(`Please wait ${Math.ceil(waitTime / 1000)} seconds before sending another message.`);
+      }
+      
       // Input validation
       if (!chatId || !text.trim()) {
         console.error("❌ Invalid parameters for sendText:", { chatId, text });
         throw new Error("Chat ID and message text are required");
       }
+      
+      // Update last send time
+      lastSendTime.current = currentTime;
       
       const trimmedText = text.trim();
       
