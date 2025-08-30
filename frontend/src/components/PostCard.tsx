@@ -101,12 +101,16 @@ export function PostCard({ post, onReact, onDelete, isOwner }: PostCardProps) {
           <Text style={styles.reactionCount}>{post.reactions.star}</Text>
         </TouchableOpacity>
 
-        {/* Comments count */}
-        <View style={styles.commentsInfo}>
+        {/* Comments */}
+        <TouchableOpacity 
+          style={styles.commentsButton}
+          onPress={() => onComment && onComment(post._id)}
+        >
+          <Text style={styles.commentsEmoji}>💬</Text>
           <Text style={styles.commentsCount}>
             {post.comments_count || 0} comments
           </Text>
-        </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
