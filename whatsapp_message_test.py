@@ -557,12 +557,26 @@ def run_whatsapp_message_processing_test():
     
     # Find our test messages and verify they have normalized structure
     test_messages_found = 0
+    # Expected structure for persisted messages (database doesn't store 'id' field, only '_id')
+    persisted_expected_fields = {
+        "_id": str,
+        "chat_id": str,
+        "author_id": str,
+        "author_name": str,
+        "text": str,
+        "type": str,
+        "status": str,
+        "reactions": dict,
+        "created_at": str,
+        "server_timestamp": str
+    }
+    
     for msg in messages:
         if msg["_id"] in message_ids or msg["_id"] == ws_message_id:
             test_messages_found += 1
             
-            # Verify normalized structure in persisted message
-            for field in expected_structure.keys():
+            # Verify normalized structure in persisted message (excluding 'id' field which is only in API responses)
+            for field in persisted_expected_fields.keys():
                 if field not in msg:
                     print(f"❌ CRITICAL: Persisted message missing field '{field}'")
                     return False
