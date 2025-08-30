@@ -74,6 +74,32 @@ export default function CommunityScreen() {
     );
   }, [deletePost]);
 
+  const handleComment = useCallback(async (postId: string) => {
+    Alert.prompt(
+      'Add Comment',
+      'Share your thoughts on this post:',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Post Comment',
+          onPress: async (text?: string) => {
+            if (text && text.trim()) {
+              try {
+                await addComment(postId, text.trim());
+              } catch (error) {
+                console.error('Failed to add comment:', error);
+                Alert.alert('Error', 'Failed to add comment. Please try again.');
+              }
+            }
+          }
+        }
+      ],
+      'plain-text',
+      '',
+      'default'
+    );
+  }, [addComment]);
+
   const renderPost = ({ item }: { item: any }) => (
     <PostCard
       post={item}
