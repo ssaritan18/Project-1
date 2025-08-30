@@ -432,6 +432,162 @@ class APITester:
             self.log(f"❌ Friends list failed for {user_name}: {response.status_code} - {response.text}", "ERROR")
             return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
 
+    # Community Posts Testing Methods
+    def test_create_post(self, token: str, text: str, visibility: str = "friends", user_name: str = "") -> Dict:
+        """Test creating a community post"""
+        url = f"{self.base_url}/posts"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {
+            "text": text,
+            "visibility": visibility,
+            "tags": ["test", "community"],
+            "attachments": []
+        }
+        
+        self.log(f"Testing post creation by {user_name}: '{text[:50]}...' (visibility: {visibility})")
+        response = self.session.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "_id" in data and "text" in data and "visibility" in data:
+                self.log(f"✅ Post creation successful: {data['_id']}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Post creation response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Post creation failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    
+    def test_get_feed(self, token: str, user_name: str = "", limit: int = 50) -> Dict:
+        """Test getting personalized feed"""
+        url = f"{self.base_url}/posts/feed?limit={limit}"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing feed retrieval for {user_name}")
+        response = self.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "posts" in data:
+                self.log(f"✅ Feed retrieval successful - found {len(data['posts'])} posts")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Feed response missing 'posts' field", "ERROR")
+                return {"success": False, "error": "Missing 'posts' field in response"}
+        else:
+            self.log(f"❌ Feed retrieval failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    
+    def test_get_post(self, token: str, post_id: str, user_name: str = "") -> Dict:
+        """Test getting individual post with comments"""
+        url = f"{self.base_url}/posts/{post_id}"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing individual post retrieval by {user_name}: {post_id}")
+        response = self.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "_id" in data and "text" in data:
+                self.log(f"✅ Post retrieval successful: {post_id}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Post retrieval response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Post retrieval failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    
+    def test_update_post(self, token: str, post_id: str, text: str, user_name: str = "") -> Dict:
+        """Test updating user's own post"""
+        url = f"{self.base_url}/posts/{post_id}"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {
+            "text": text,
+            "tags": ["updated", "test"]
+        }
+        
+        self.log(f"Testing post update by {user_name}: {post_id}")
+        response = self.session.put(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "_id" in data and "text" in data:
+                self.log(f"✅ Post update successful: {post_id}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Post update response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Post update failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    
+    def test_delete_post(self, token: str, post_id: str, user_name: str = "") -> Dict:
+        """Test deleting user's own post"""
+        url = f"{self.base_url}/posts/{post_id}"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing post deletion by {user_name}: {post_id}")
+        response = self.session.delete(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "deleted" in data and data["deleted"]:
+                self.log(f"✅ Post deletion successful: {post_id}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Post deletion response missing 'deleted: true'", "ERROR")
+                return {"success": False, "error": "Missing 'deleted: true' in response"}
+        else:
+            self.log(f"❌ Post deletion failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    
+    def test_react_to_post(self, token: str, post_id: str, reaction_type: str, user_name: str = "") -> Dict:
+        """Test reacting to a post"""
+        url = f"{self.base_url}/posts/{post_id}/react"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {"type": reaction_type}
+        
+        self.log(f"Testing post reaction '{reaction_type}' by {user_name}: {post_id}")
+        response = self.session.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "reacted" in data and "type" in data:
+                self.log(f"✅ Post reaction successful: {reaction_type} - reacted: {data['reacted']}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Post reaction response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Post reaction failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    
+    def test_add_comment(self, token: str, post_id: str, text: str, user_name: str = "") -> Dict:
+        """Test adding comment to a post"""
+        url = f"{self.base_url}/posts/{post_id}/comments"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {
+            "text": text,
+            "post_id": post_id
+        }
+        
+        self.log(f"Testing comment addition by {user_name}: '{text[:30]}...'")
+        response = self.session.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "_id" in data and "text" in data and "post_id" in data:
+                self.log(f"✅ Comment addition successful: {data['_id']}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Comment addition response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Comment addition failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
 def run_end_to_end_chat_test():
     """Run comprehensive END-TO-END chat system testing as requested"""
     tester = APITester()
