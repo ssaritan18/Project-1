@@ -371,33 +371,50 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     refresh,
     
     sendText: async (chatId: string, text: string) => {
-      console.log("🚀 SEND TEXT CALLED:", { chatId, text, mode, isAuthenticated });
+      console.log("🚀 SEND TEXT CALLED (WhatsApp-style):", { chatId, text, mode, isAuthenticated });
       
+      // Input validation
       if (!chatId || !text.trim()) {
         console.error("❌ Invalid parameters for sendText:", { chatId, text });
-        throw new Error("Invalid chat ID or message text");
+        throw new Error("Chat ID and message text are required");
       }
+      
+      const trimmedText = text.trim();
       
       if (mode === "sync" && isAuthenticated) {
         try {
-          console.log("📤 Sending message to backend API...");
-          const newMessage = await chatAPI.sendMessage(chatId, text, "text");
-          console.log("✅ Backend response received:", newMessage);
+          console.log("📤 Sending message to WhatsApp-style backend API...");
           
-          if (!newMessage || typeof newMessage !== 'object') {
-            console.error("❌ Invalid backend response:", newMessage);
+          // Call backend - expect normalized response
+          const normalizedMessage = await chatAPI.sendMessage(chatId, trimmedText, "text");
+          console.log("✅ Backend normalized response received:", normalizedMessage);
+          
+          // Validate backend response (WhatsApp-style validation)
+          if (!normalizedMessage || typeof normalizedMessage !== 'object') {
+            console.error("❌ Invalid backend response:", normalizedMessage);
             throw new Error("Invalid response from backend");
           }
           
-          const convertedMessage = convertBackendMessage(newMessage);
-          console.log("🔄 Converted message:", convertedMessage);
-          
-          if (!convertedMessage || !convertedMessage.id) {
-            console.error("❌ Message conversion failed:", convertedMessage);
-            throw new Error("Failed to convert message");
+          if (!normalizedMessage.id && !normalizedMessage._id) {
+            console.error("❌ Backend response missing ID:", normalizedMessage);
+            throw new Error("Backend response missing message ID");
           }
           
-          // Add message to local state immediately for responsive UI
+          // Ensure message has consistent ID structure
+          const messageWithId = {
+            ...normalizedMessage,
+            id: normalizedMessage.id || normalizedMessage._id,
+            _id: normalizedMessage._id || normalizedMessage.id
+          };
+          
+          console.log("🔄 Message processed with consistent IDs:", {
+            id: messageWithId.id,
+            _id: messageWithId._id,
+            text: messageWithId.text,
+            status: messageWithId.status
+          });
+          
+          // Add to local state immediately (WhatsApp-style optimistic update)
           setBackendMessages(prev => {
             if (!prev || typeof prev !== 'object') {
               console.warn("⚠️ Invalid previous messages state, initializing...");
@@ -405,8 +422,21 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             }
             
             const currentMessages = prev[chatId] || [];
-            const updatedMessages = [...currentMessages, convertedMessage];
-            console.log("📝 Adding message to local state. Chat:", chatId, "Previous count:", currentMessages.length, "New count:", updatedMessages.length);
+            
+            // Check for duplicates using both ID fields
+            const isDuplicate = currentMessages.some(msg => 
+              msg.id === messageWithId.id || 
+              msg._id === messageWithId._id ||
+              (msg.id && messageWithId.id && msg.id === messageWithId.id)
+            );
+            
+            if (isDuplicate) {
+              console.log("⚠️ Duplicate message detected, skipping:", messageWithId.id);
+              return prev;
+            }
+            
+            const updatedMessages = [...currentMessages, messageWithId];
+            console.log("📝 WhatsApp-style message added. Chat:", chatId, "Count:", updatedMessages.length);
             
             return {
               ...prev,
@@ -414,31 +444,36 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             };
           });
           
-          console.log("✅ Message sent and added locally:", text);
+          console.log("✅ WhatsApp-style message sent and processed:", trimmedText);
+          
         } catch (error) {
-          console.error("❌ Failed to send message:", error);
+          console.error("❌ Failed to send WhatsApp-style message:", error);
           console.error("❌ Error details:", {
             message: error?.message || 'Unknown error',
             stack: error?.stack || 'No stack trace',
             chatId,
-            text,
+            text: trimmedText,
             mode,
             isAuthenticated
           });
           throw new Error(`Failed to send message: ${error?.message || 'Unknown error'}`);
         }
       } else {
-        console.log("📱 Local mode - adding message locally only");
+        console.log("📱 Local mode - creating WhatsApp-style local message");
         try {
-          // Local mode
-          const msg: Message = { 
+          // Local mode - create message with WhatsApp-style structure
+          const localMessage: Message = { 
             id: uid(), 
+            _id: uid(), // Backup ID for compatibility
             chatId, 
             author: "me", 
             type: "text", 
-            text, 
+            text: trimmedText, 
             ts: Date.now(), 
-            reactions: { like: 0, heart: 0, clap: 0, star: 0 } 
+            status: "sent", // WhatsApp-style status
+            reactions: { like: 0, heart: 0, clap: 0, star: 0 },
+            created_at: new Date().toISOString(),
+            server_timestamp: new Date().toISOString()
           };
           
           setLocalMessages(prev => {
@@ -448,15 +483,23 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             }
             
             const currentMessages = prev[chatId] || [];
+            const updatedMessages = [...currentMessages, localMessage];
+            
+            console.log("📝 WhatsApp-style local message added:", {
+              id: localMessage.id,
+              text: localMessage.text,
+              status: localMessage.status
+            });
+            
             return { 
               ...prev, 
-              [chatId]: [...currentMessages, msg] 
+              [chatId]: updatedMessages 
             };
           });
           
-          console.log("✅ Local message added successfully");
+          console.log("✅ WhatsApp-style local message added successfully");
         } catch (error) {
-          console.error("❌ Failed to add local message:", error);
+          console.error("❌ Failed to add WhatsApp-style local message:", error);
           throw new Error(`Failed to add local message: ${error?.message || 'Unknown error'}`);
         }
       }
