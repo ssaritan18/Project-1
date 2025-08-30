@@ -153,7 +153,10 @@ export default function Login() {
           {/* Submit Button */}
           <Pressable 
             style={[styles.submitBtn, { opacity: validEmail && !isLoading ? 1 : 0.5 }]} 
-            onPress={submit}
+            onPress={() => {
+              console.log("🚨 BUTTON CLICKED - DIRECT HANDLER", { validEmail, isLoading });
+              submit();
+            }}
             disabled={!validEmail || isLoading}
           >
             {isLoading ? (
