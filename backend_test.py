@@ -1127,6 +1127,329 @@ def run_comprehensive_test():
     
     return True
 
+def run_websocket_broadcasting_test():
+    """
+    Run REAL-TIME MESSAGING test to verify WebSocket broadcasting system
+    Focus on the specific scenario requested in the review:
+    - Two-User Setup: Use existing users (ssaritan@example.com, ssaritan2@example.com)
+    - Create Direct Chat: Ensure they are friends and have a direct chat between them
+    - Send Message: User 1 sends a message via POST /api/chats/{chat_id}/messages
+    - Verify Broadcasting: Confirm backend emits WebSocket event to User 2
+    - Check Payload: Verify the WebSocket message has correct format
+    """
+    tester = APITester()
+    
+    print("=" * 80)
+    print("REAL-TIME MESSAGING TEST - WebSocket Broadcasting System")
+    print("Focus: Debug why real-time messaging isn't working between authenticated users")
+    print("=" * 80)
+    
+    # Test users as specified in the review request
+    user1 = {"name": "ssaritan", "email": "ssaritan@example.com", "password": "Passw0rd!"}
+    user2 = {"name": "ssaritan2", "email": "ssaritan2@example.com", "password": "Passw0rd!"}
+    
+    tokens = {}
+    user_profiles = {}
+    
+    # STEP 1: Two-User Setup - Use existing users
+    print("\n" + "=" * 60)
+    print("STEP 1: TWO-USER SETUP")
+    print("=" * 60)
+    
+    for user in [user1, user2]:
+        # Login existing users
+        login_result = tester.test_auth_login(user["email"], user["password"])
+        if not login_result["success"]:
+            print(f"❌ CRITICAL: Login failed for {user['email']}: {login_result.get('error', 'Unknown error')}")
+            return False
+        tokens[user["email"]] = login_result["token"]
+        
+        # Get user profile
+        me_result = tester.test_get_me(tokens[user["email"]], user["name"])
+        if not me_result["success"]:
+            print(f"❌ CRITICAL: /me endpoint failed for {user['email']}")
+            return False
+        user_profiles[user["email"]] = me_result["data"]
+        print(f"✅ User {user['name']} authenticated successfully (ID: {user_profiles[user['email']]['_id'][:8]}...)")
+    
+    # STEP 2: Ensure they are friends and create direct chat
+    print("\n" + "=" * 60)
+    print("STEP 2: ENSURE FRIENDSHIP & CREATE DIRECT CHAT")
+    print("=" * 60)
+    
+    user1_email = user1["email"]
+    user2_email = user2["email"]
+    user2_id = user_profiles[user2_email]["_id"]
+    
+    # Check if they are already friends
+    friends_result = tester.test_friends_list(tokens[user1_email], user1["name"])
+    if not friends_result["success"]:
+        print("❌ CRITICAL: Failed to get friends list")
+        return False
+    
+    # Check if user2 is already in user1's friends list
+    already_friends = any(friend["_id"] == user2_id for friend in friends_result["data"]["friends"])
+    
+    if not already_friends:
+        print("🔗 Users are not friends yet, establishing friendship...")
+        
+        # Send friend request from user1 to user2
+        request_result = tester.test_friends_request(tokens[user1_email], user2_email, user1["name"])
+        if not request_result["success"]:
+            print("❌ CRITICAL: Friend request failed")
+            return False
+        
+        # Get pending requests for user2
+        requests_result = tester.test_friends_requests(tokens[user2_email], user2["name"])
+        if not requests_result["success"]:
+            print("❌ CRITICAL: Getting friend requests failed")
+            return False
+        
+        # Find the request from user1
+        request_id = None
+        for req in requests_result["data"]["requests"]:
+            if req["from_user_id"] == user_profiles[user1_email]["_id"]:
+                request_id = req["_id"]
+                break
+        
+        if not request_id:
+            print("❌ CRITICAL: Friend request not found")
+            return False
+        
+        # Accept the friend request
+        accept_result = tester.test_friends_accept(tokens[user2_email], request_id, user2["name"])
+        if not accept_result["success"]:
+            print("❌ CRITICAL: Friend accept failed")
+            return False
+        
+        print("✅ Friendship established successfully")
+    else:
+        print("✅ Users are already friends")
+    
+    # Create direct chat between friends
+    direct_chat_result = tester.test_open_direct_chat(tokens[user1_email], user2_id, user1["name"])
+    if not direct_chat_result["success"]:
+        print("❌ CRITICAL: Direct chat creation failed")
+        return False
+    
+    direct_chat_id = direct_chat_result["data"]["_id"]
+    print(f"✅ Direct chat created/accessed successfully: {direct_chat_id}")
+    
+    # STEP 3: Setup WebSocket connections for both users
+    print("\n" + "=" * 60)
+    print("STEP 3: WEBSOCKET CONNECTION SETUP")
+    print("=" * 60)
+    
+    # Setup WebSocket connections for both users
+    ws1_success = tester.setup_websocket(tokens[user1_email], user1["name"])
+    if not ws1_success:
+        print(f"❌ CRITICAL: WebSocket setup failed for {user1['name']}")
+        return False
+    
+    ws2_success = tester.setup_websocket(tokens[user2_email], user2["name"])
+    if not ws2_success:
+        print(f"❌ CRITICAL: WebSocket setup failed for {user2['name']}")
+        return False
+    
+    print("✅ WebSocket connections established for both users")
+    
+    # Wait a moment for connections to stabilize
+    time.sleep(3)
+    
+    # STEP 4: Send Message via POST /api/chats/{chat_id}/messages
+    print("\n" + "=" * 60)
+    print("STEP 4: SEND MESSAGE & VERIFY BROADCASTING")
+    print("=" * 60)
+    
+    # Clear WebSocket messages to focus on this test
+    tester.ws_messages = {}
+    
+    # User 1 sends a message via POST /api/chats/{chat_id}/messages
+    test_message = "Real-time messaging test! 🚀 This should broadcast to User 2"
+    print(f"📤 {user1['name']} sending message: '{test_message}'")
+    
+    msg_result = tester.test_send_message(tokens[user1_email], direct_chat_id, test_message, user1["name"])
+    if not msg_result["success"]:
+        print("❌ CRITICAL: Message send failed")
+        return False
+    
+    message_id = msg_result["data"]["_id"]
+    print(f"✅ Message sent successfully (ID: {message_id})")
+    
+    # STEP 5: Verify Broadcasting - Confirm backend emits WebSocket event to User 2
+    print("\n" + "=" * 60)
+    print("STEP 5: VERIFY WEBSOCKET BROADCASTING")
+    print("=" * 60)
+    
+    # Check if User 2 received WebSocket notification
+    print(f"🔍 Checking if {user2['name']} received WebSocket notification...")
+    ws_received = tester.check_websocket_messages(user2["name"], "chat:new_message", timeout=15)
+    
+    if not ws_received:
+        print("❌ CRITICAL: WebSocket message notification NOT received by User 2")
+        print("🔍 DEBUG: Checking what WebSocket messages were received...")
+        
+        if user2["name"] in tester.ws_messages:
+            received_messages = tester.ws_messages[user2["name"]]
+            print(f"📨 User 2 received {len(received_messages)} WebSocket messages:")
+            for i, msg in enumerate(received_messages):
+                print(f"  {i+1}. Type: {msg.get('type', 'unknown')}, Data: {json.dumps(msg, indent=2)}")
+        else:
+            print("📨 User 2 received NO WebSocket messages at all")
+        
+        return False
+    
+    print(f"✅ WebSocket message notification received by {user2['name']}")
+    
+    # STEP 6: Check Payload - Verify the WebSocket message has correct format
+    print("\n" + "=" * 60)
+    print("STEP 6: VERIFY WEBSOCKET PAYLOAD FORMAT")
+    print("=" * 60)
+    
+    # Find the chat:new_message in received messages
+    chat_message = None
+    if user2["name"] in tester.ws_messages:
+        for msg in tester.ws_messages[user2["name"]]:
+            if msg.get("type") == "chat:new_message":
+                chat_message = msg
+                break
+    
+    if not chat_message:
+        print("❌ CRITICAL: chat:new_message not found in WebSocket messages")
+        return False
+    
+    print("🔍 Verifying WebSocket payload structure...")
+    print(f"📨 Received WebSocket message: {json.dumps(chat_message, indent=2)}")
+    
+    # Verify required fields in WebSocket payload
+    required_fields = {
+        "type": "chat:new_message",
+        "chat_id": direct_chat_id,
+        "message": {
+            "id": message_id,
+            "chat_id": direct_chat_id,
+            "author_id": user_profiles[user1_email]["_id"],
+            "author_name": user1["name"],
+            "text": test_message,
+            "message_type": "text"
+        }
+    }
+    
+    # Check top-level fields
+    if chat_message.get("type") != "chat:new_message":
+        print(f"❌ CRITICAL: Wrong message type. Expected 'chat:new_message', got '{chat_message.get('type')}'")
+        return False
+    
+    if chat_message.get("chat_id") != direct_chat_id:
+        print(f"❌ CRITICAL: Wrong chat_id. Expected '{direct_chat_id}', got '{chat_message.get('chat_id')}'")
+        return False
+    
+    # Check message object
+    message_obj = chat_message.get("message", {})
+    if not message_obj:
+        print("❌ CRITICAL: Missing 'message' object in WebSocket payload")
+        return False
+    
+    if message_obj.get("id") != message_id:
+        print(f"❌ CRITICAL: Wrong message ID. Expected '{message_id}', got '{message_obj.get('id')}'")
+        return False
+    
+    if message_obj.get("author_id") != user_profiles[user1_email]["_id"]:
+        print(f"❌ CRITICAL: Wrong author_id. Expected '{user_profiles[user1_email]['_id']}', got '{message_obj.get('author_id')}'")
+        return False
+    
+    if message_obj.get("text") != test_message:
+        print(f"❌ CRITICAL: Wrong message text. Expected '{test_message}', got '{message_obj.get('text')}'")
+        return False
+    
+    print("✅ WebSocket payload structure is correct!")
+    
+    # STEP 7: Verify message is saved to MongoDB
+    print("\n" + "=" * 60)
+    print("STEP 7: VERIFY MESSAGE PERSISTENCE IN MONGODB")
+    print("=" * 60)
+    
+    # Get messages from the chat to verify persistence
+    get_msgs_result = tester.test_get_messages(tokens[user2_email], direct_chat_id, user2["name"])
+    if not get_msgs_result["success"]:
+        print("❌ CRITICAL: Message retrieval failed")
+        return False
+    
+    messages = get_msgs_result["data"]["messages"]
+    
+    # Find our test message
+    test_msg_found = False
+    for msg in messages:
+        if msg["_id"] == message_id and msg["text"] == test_message:
+            test_msg_found = True
+            print(f"✅ Message persisted in MongoDB: {msg['_id']}")
+            break
+    
+    if not test_msg_found:
+        print("❌ CRITICAL: Test message not found in MongoDB")
+        return False
+    
+    # STEP 8: Test bidirectional messaging
+    print("\n" + "=" * 60)
+    print("STEP 8: TEST BIDIRECTIONAL MESSAGING")
+    print("=" * 60)
+    
+    # Clear WebSocket messages
+    tester.ws_messages = {}
+    
+    # User 2 sends a reply
+    reply_message = "Got your message! Real-time is working! 🎉"
+    print(f"📤 {user2['name']} sending reply: '{reply_message}'")
+    
+    reply_result = tester.test_send_message(tokens[user2_email], direct_chat_id, reply_message, user2["name"])
+    if not reply_result["success"]:
+        print("❌ CRITICAL: Reply message send failed")
+        return False
+    
+    reply_id = reply_result["data"]["_id"]
+    print(f"✅ Reply sent successfully (ID: {reply_id})")
+    
+    # Check if User 1 received WebSocket notification for the reply
+    print(f"🔍 Checking if {user1['name']} received WebSocket notification for reply...")
+    ws_reply_received = tester.check_websocket_messages(user1["name"], "chat:new_message", timeout=15)
+    
+    if not ws_reply_received:
+        print("❌ CRITICAL: WebSocket reply notification NOT received by User 1")
+        return False
+    
+    print(f"✅ WebSocket reply notification received by {user1['name']}")
+    
+    # FINAL SUMMARY
+    print("\n" + "=" * 80)
+    print("🎉 REAL-TIME MESSAGING TEST COMPLETED SUCCESSFULLY!")
+    print("=" * 80)
+    
+    print("\nTEST RESULTS SUMMARY:")
+    print("✅ Two-User Setup: Both users authenticated successfully")
+    print("✅ Friendship Verification: Users are friends and can create direct chats")
+    print("✅ Direct Chat Creation: Direct chat created/accessed successfully")
+    print("✅ WebSocket Connections: Both users connected to WebSocket successfully")
+    print("✅ Message Sending: POST /api/chats/{chat_id}/messages working correctly")
+    print("✅ WebSocket Broadcasting: Backend emits WebSocket events correctly")
+    print("✅ Payload Verification: WebSocket message format is correct")
+    print("✅ MongoDB Persistence: Messages saved to database correctly")
+    print("✅ Bidirectional Messaging: Both users can send and receive in real-time")
+    
+    print(f"\nDEBUG INFORMATION:")
+    print(f"• Direct Chat ID: {direct_chat_id}")
+    print(f"• Test Message ID: {message_id}")
+    print(f"• Reply Message ID: {reply_id}")
+    print(f"• WebSocket Events Tested: chat:new_message")
+    print(f"• Backend Broadcasting: ws_broadcast_to_user() working correctly")
+    print(f"• Message Payload Structure: Matches frontend expectations")
+    
+    print(f"\nCONCLUSION:")
+    print(f"🟢 Real-time messaging IS working correctly between authenticated users")
+    print(f"🟢 WebSocket broadcasting system is functioning properly")
+    print(f"🟢 Backend message flow: User A → POST message → Backend saves → Backend broadcasts → User B receives")
+    
+    return True
+
 if __name__ == "__main__":
     # Check command line arguments for specific test types
     if len(sys.argv) > 1:
@@ -1136,15 +1459,18 @@ if __name__ == "__main__":
             success = run_end_to_end_chat_test()
         elif sys.argv[1] == "full":
             success = run_comprehensive_test()
+        elif sys.argv[1] == "websocket" or sys.argv[1] == "ws":
+            success = run_websocket_broadcasting_test()
         else:
-            print("Usage: python backend_test.py [chat|e2e|end-to-end|full]")
+            print("Usage: python backend_test.py [chat|e2e|end-to-end|full|websocket|ws]")
             print("  chat: Run comprehensive chat functionality tests")
             print("  e2e/end-to-end: Run end-to-end chat system tests")
             print("  full: Run full backend API tests")
-            print("  (no args): Run end-to-end chat tests by default")
+            print("  websocket/ws: Run WebSocket broadcasting system test")
+            print("  (no args): Run WebSocket broadcasting test by default")
             sys.exit(1)
     else:
-        # Default to end-to-end chat test as requested
-        success = run_end_to_end_chat_test()
+        # Default to WebSocket broadcasting test as requested in review
+        success = run_websocket_broadcasting_test()
     
     sys.exit(0 if success else 1)
