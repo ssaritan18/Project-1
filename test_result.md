@@ -250,11 +250,11 @@
 ##   run_ui: false
 ## test_plan:
 ##   current_focus:
-##     - "Community Feed Posts CRUD Operations"
-##     - "Community Feed Reactions System"
-##     - "Community Feed Comments System"
+##     - "Phase 1 Profile UI Authentication System"
+##     - "Phase 1 Profile Management APIs"
+##     - "Phase 1 Achievement System Backend Analysis"
 ##   stuck_tasks:
-##     - "Community Feed Posts CRUD Operations"
+##     - "Phase 1 Achievement System Backend Analysis"
 ##   test_all: false
 ##   test_priority: "high_first"
 ## agent_communication:
