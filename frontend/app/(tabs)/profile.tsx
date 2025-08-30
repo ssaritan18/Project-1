@@ -268,7 +268,7 @@ export default function ProfileScreen() {
               streak={currentStreak}
               bestStreak={bestStreak}
               onPress={() => Alert.alert("Streak Info", "Keep going! Every day counts towards building your habits.")}
-              showAnimation={true}
+              showAnimation={false}
             />
 
             {/* Recent Achievements */}
