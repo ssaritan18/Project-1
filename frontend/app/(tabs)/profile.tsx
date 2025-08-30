@@ -169,6 +169,7 @@ const styles = StyleSheet.create({
   swatch: { width: 20, height: 20, borderRadius: 6 },
   btn: { paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
   btnTextDark: { color: '#0c0c0c', fontWeight: '800' },
+  btnTextLight: { color: '#fff', fontWeight: '800' },
   signOutBtn: { marginTop: 24, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
   signOutText: { color: '#0c0c0c', fontWeight: '700' },
   syncRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
