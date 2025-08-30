@@ -942,44 +942,102 @@ async def list_messages(chat_id: str, limit: int = 50, user=Depends(get_current_
 
 @api_router.post("/chats/{chat_id}/messages")
 async def send_message(chat_id: str, payload: MessageCreate, user=Depends(get_current_user)):
-    chat = await db.chats.find_one({"_id": chat_id, "members": user["_id"]})
-    if not chat:
-        raise HTTPException(status_code=404, detail="Chat not found")
-    msg = {
-        "_id": str(uuid.uuid4()),
-        "chat_id": chat_id,
-        "author_id": user["_id"],
-        "author_name": user.get("name"),
-        "text": payload.text,
-        "type": payload.type,
-        "reactions": {"like": 0, "heart": 0, "clap": 0, "star": 0},
-        "created_at": now_iso(),
-    }
-    await db.messages.insert_one(msg)
+    """Send a message to a chat - WhatsApp-style backend processing"""
+    logger.info(f"📤 Processing message from user {user['_id']} to chat {chat_id}")
     
-    # Broadcast message to all chat members via WebSocket
-    message_payload = {
-        "type": "chat:new_message",
-        "chat_id": chat_id,
-        "message": {
-            "id": msg["_id"],
+    try:
+        # 1. Validate chat exists and user is a member
+        chat = await db.chats.find_one({"_id": chat_id})
+        if not chat:
+            logger.error(f"❌ Chat not found: {chat_id}")
+            raise HTTPException(status_code=404, detail="Chat not found")
+        
+        user_id = user["_id"]
+        if user_id not in chat.get("members", []):
+            logger.error(f"❌ User {user_id} not a member of chat {chat_id}")
+            raise HTTPException(status_code=403, detail="Not a member of this chat")
+        
+        # 2. Generate unique backend message ID
+        message_id = str(uuid.uuid4())
+        current_timestamp = now_iso()
+        
+        logger.info(f"✅ Creating message with ID: {message_id}")
+        
+        # 3. Create normalized message document (WhatsApp-style)
+        message_doc = {
+            "_id": message_id,
             "chat_id": chat_id,
-            "author_id": msg["author_id"],
-            "author_name": msg["author_name"],
-            "text": msg["text"],
-            "message_type": msg["type"],
-            "reactions": msg["reactions"],
-            "created_at": msg["created_at"]
+            "author_id": user_id,
+            "author_name": user.get("name", "Unknown User"),
+            "text": payload.text.strip() if payload.text else "",
+            "type": payload.type or "text",
+            "status": "sent",  # WhatsApp-style status
+            "reactions": {"like": 0, "heart": 0, "clap": 0, "star": 0},
+            "created_at": current_timestamp,
+            "updated_at": current_timestamp,
+            "server_timestamp": current_timestamp
         }
-    }
-    
-    # Send to all chat members
-    for member_id in chat.get("members", []):
-        if member_id != user["_id"]:  # Don't send to the sender
-            await ws_broadcast_to_user(member_id, message_payload)
-            logger.info(f"📨 Sent new message notification to user {member_id} for chat {chat_id}")
-    
-    return msg
+        
+        # 4. Validate required fields
+        if not message_doc["text"] and message_doc["type"] == "text":
+            logger.error("❌ Empty text message not allowed")
+            raise HTTPException(status_code=400, detail="Message text cannot be empty")
+        
+        if not message_doc["author_id"]:
+            logger.error("❌ Missing author ID")
+            raise HTTPException(status_code=400, detail="Invalid author")
+        
+        # 5. Insert message to database
+        result = await db.messages.insert_one(message_doc)
+        if not result.inserted_id:
+            logger.error("❌ Failed to insert message to database")
+            raise HTTPException(status_code=500, detail="Failed to save message")
+        
+        logger.info(f"✅ Message saved to database: {message_id}")
+        
+        # 6. Create normalized response payload (same shape for all clients)
+        normalized_message = {
+            "id": message_id,
+            "_id": message_id,  # Backup field for compatibility
+            "chat_id": chat_id,
+            "author_id": user_id,
+            "author_name": message_doc["author_name"],
+            "text": message_doc["text"],
+            "type": message_doc["type"],
+            "status": message_doc["status"],
+            "reactions": message_doc["reactions"],
+            "created_at": current_timestamp,
+            "server_timestamp": current_timestamp
+        }
+        
+        # 7. Broadcast to other chat members via WebSocket (WhatsApp-style)
+        websocket_payload = {
+            "type": "chat:new_message",
+            "chat_id": chat_id,
+            "message": normalized_message
+        }
+        
+        # Send to all chat members except sender
+        broadcast_count = 0
+        for member_id in chat.get("members", []):
+            if member_id != user_id:  # Don't send to the sender
+                try:
+                    await ws_broadcast_to_user(member_id, websocket_payload)
+                    broadcast_count += 1
+                    logger.info(f"📨 Sent new message notification to user {member_id} for chat {chat_id}")
+                except Exception as e:
+                    logger.error(f"❌ Failed to broadcast to user {member_id}: {e}")
+        
+        logger.info(f"✅ Message broadcast to {broadcast_count} members")
+        
+        # 8. Return normalized message to sender (same shape as WebSocket)
+        return normalized_message
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Unexpected error processing message: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error while processing message")
 
 @api_router.post("/chats/{chat_id}/messages/{message_id}/react")
 async def react_chat_message(chat_id: str, message_id: str, payload: MessageReaction, user=Depends(get_current_user)):
