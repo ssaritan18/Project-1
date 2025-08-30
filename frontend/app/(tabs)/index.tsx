@@ -29,7 +29,13 @@ export default function HomeScreen() {
       <Text style={styles.header}>🎯 ADHD Social Club</Text>
       <Text style={styles.testText}>App is working! Phase 1 & 2 components loading...</Text>
       
-      <TouchableOpacity style={styles.testButton} onPress={() => Alert.alert("Test", "Button works!")}>
+      <TouchableOpacity 
+        style={styles.testButton} 
+        onPress={() => {
+          console.log("🔘 Test Button pressed!");
+          Alert.alert("✅ Success!", "Test button is working perfectly! 🎉\n\nPhase 1 & Phase 2 ADHD-friendly components are ready!");
+        }}
+      >
         <Text style={styles.testButtonText}>Test Button</Text>
       </TouchableOpacity>
     </View>
