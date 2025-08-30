@@ -250,9 +250,11 @@
 ##   run_ui: false
 ## test_plan:
 ##   current_focus:
-##     - "Phase 1 Profile UI Authentication System"
-##     - "Phase 1 Profile Management APIs"
-##     - "Phase 1 Achievement System Backend Analysis"
+##     - "Phase 2 ADHD-Friendly Dashboard Backend Support"
+##     - "Focus Session Tracking APIs"
+##     - "Time-based Task Management APIs"
+##     - "ADHD-specific Features APIs"
+##     - "Dashboard Analytics APIs"
 ##   stuck_tasks:
 ##     - "Phase 1 Achievement System Backend Analysis"
 ##   test_all: false
