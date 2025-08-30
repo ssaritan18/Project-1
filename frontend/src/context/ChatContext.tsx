@@ -265,12 +265,23 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         
         if (data.type === "chat:new_message") {
           console.log("📨 PROCESSING chat:new_message EVENT:", {
-            messageId: data.message?.id,
+            messageId: data.message?.id || data.message?._id,
             chatId: data.chat_id,
             authorId: data.message?.author_id,
             text: data.message?.text,
             fullPayload: data
           });
+          
+          // Validate message before conversion
+          if (!data.message) {
+            console.error("❌ WebSocket message missing message payload:", data);
+            return;
+          }
+          
+          if (!data.message._id && !data.message.id) {
+            console.error("❌ WebSocket message missing ID field:", data.message);
+            return;
+          }
           
           const message = convertBackendMessage(data.message);
           console.log("💬 Converting and adding new message:", {
@@ -281,12 +292,24 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             convertedMessage: message
           });
           
+          // Additional ID validation after conversion
+          if (!message.id) {
+            console.error("❌ Converted message still missing ID:", message);
+            message.id = Math.random().toString(36).slice(2); // Emergency fallback ID
+            console.warn("⚠️ Assigned emergency ID:", message.id);
+          }
+          
           setBackendMessages(prev => {
             const currentMessages = prev[message.chatId] || [];
             console.log("📝 Current messages for chat before update:", message.chatId, currentMessages.length);
             
-            // Check for duplicates
-            const isDuplicate = currentMessages.some(msg => msg.id === message.id);
+            // Check for duplicates using multiple ID fields
+            const isDuplicate = currentMessages.some(msg => 
+              msg.id === message.id || 
+              (msg.id && message.id && msg.id === message.id) ||
+              (msg._id && message._id && msg._id === message._id)
+            );
+            
             if (isDuplicate) {
               console.log("⚠️ Duplicate message detected, skipping:", message.id);
               return prev;
@@ -294,7 +317,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             
             const updatedMessages = [...currentMessages, message];
             console.log("📝 Updated messages for chat", message.chatId, ":", updatedMessages.length, "total messages");
-            console.log("📝 All messages in chat:", updatedMessages.map(m => ({id: m.id, text: m.text, author: m.author})));
+            console.log("📝 All messages in chat:", updatedMessages.map(m => ({
+              id: m.id, 
+              text: m.text?.slice(0, 30) + "...", 
+              author: m.author
+            })));
             
             return {
               ...prev,
