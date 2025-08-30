@@ -1439,7 +1439,33 @@ async def list_messages(chat_id: str, limit: int = 50, user=Depends(get_current_
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")
     msgs = await db.messages.find({"chat_id": chat_id}).sort("created_at", -1).limit(limit).to_list(limit)
-    return {"messages": list(reversed(msgs))}
+    
+    # Normalize messages to ensure consistent structure (WhatsApp-style)
+    normalized_msgs = []
+    for msg in msgs:
+        normalized_msg = {
+            "id": msg["_id"],  # Add id field for frontend compatibility
+            "_id": msg["_id"],
+            "chat_id": msg["chat_id"],
+            "author_id": msg["author_id"],
+            "author_name": msg.get("author_name", "Unknown User"),
+            "type": msg.get("type", "text"),
+            "status": msg.get("status", "sent"),
+            "reactions": msg.get("reactions", {"like": 0, "heart": 0, "clap": 0, "star": 0}),
+            "created_at": msg.get("created_at"),
+            "server_timestamp": msg.get("server_timestamp", msg.get("created_at"))
+        }
+        
+        # Add type-specific fields
+        if msg.get("type") == "voice":
+            normalized_msg["voice_url"] = msg.get("voice_url")
+            normalized_msg["duration_ms"] = msg.get("duration_ms")
+        else:
+            normalized_msg["text"] = msg.get("text", "")
+        
+        normalized_msgs.append(normalized_msg)
+    
+    return {"messages": list(reversed(normalized_msgs))}
 
 @api_router.post("/chats/{chat_id}/messages")
 async def send_message(chat_id: str, payload: MessageCreate, user=Depends(get_current_user)):
