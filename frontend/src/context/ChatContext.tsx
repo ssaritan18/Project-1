@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { PERSIST_ENABLED, KEYS } from "../config";
 import { loadJSON, saveJSON } from "../utils/persist";
 import { chatAPI } from "../lib/api";
