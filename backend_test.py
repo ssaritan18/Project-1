@@ -588,6 +588,46 @@ class APITester:
             self.log(f"❌ Comment addition failed: {response.status_code} - {response.text}", "ERROR")
             return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
 
+    # Voice Message Testing Methods
+    def test_send_voice_message(self, token: str, chat_id: str, audio_data: str, duration_ms: int, filename: str = None, user_name: str = "") -> Dict:
+        """Test sending voice message to chat"""
+        url = f"{self.base_url}/chats/{chat_id}/voice"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {
+            "chat_id": chat_id,
+            "audio_data": audio_data,
+            "duration_ms": duration_ms
+        }
+        if filename:
+            payload["filename"] = filename
+        
+        self.log(f"Testing voice message send to chat {chat_id} by {user_name} (duration: {duration_ms}ms)")
+        response = self.session.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "_id" in data and "type" in data and data["type"] == "voice" and "voice_url" in data:
+                self.log(f"✅ Voice message send successful: {data['_id']} - URL: {data['voice_url']}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Voice message response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Voice message send failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def generate_test_audio_base64(self) -> str:
+        """Generate a small test audio file in base64 format (WAV)"""
+        # This is a minimal WAV file header + 1 second of silence at 8kHz, 8-bit mono
+        # WAV header (44 bytes) + data
+        wav_header = b'RIFF$\x00\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00@\x1f\x00\x00@\x1f\x00\x00\x01\x00\x08\x00data\x00\x00\x00\x00'
+        # Add some audio data (silence)
+        audio_data = b'\x80' * 8000  # 1 second of silence at 8kHz
+        wav_file = wav_header + audio_data
+        
+        import base64
+        return base64.b64encode(wav_file).decode('utf-8')
+
     # Profile Management Testing Methods
     def test_get_profile_settings(self, token: str, user_name: str = "") -> Dict:
         """Test getting user profile and settings"""
