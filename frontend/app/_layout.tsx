@@ -10,6 +10,7 @@ import { TasksProvider } from "../src/context/TasksContext";
 import { FriendsProvider } from "../src/context/FriendsContext";
 import { ChatProvider } from "../src/context/ChatContext";
 import { ErrorBoundary } from "../src/components/ErrorBoundary";
+import { CommunityProvider } from "../src/context/CommunityContext";
 
 const theme = {
   ...MD3LightTheme,
