@@ -1724,16 +1724,19 @@ if __name__ == "__main__":
             success = run_comprehensive_test()
         elif sys.argv[1] == "websocket" or sys.argv[1] == "ws":
             success = run_websocket_broadcasting_test()
+        elif sys.argv[1] == "message" or sys.argv[1] == "msg":
+            success = run_message_sending_focus_test()
         else:
-            print("Usage: python backend_test.py [chat|e2e|end-to-end|full|websocket|ws]")
+            print("Usage: python backend_test.py [chat|e2e|end-to-end|full|websocket|ws|message|msg]")
             print("  chat: Run comprehensive chat functionality tests")
             print("  e2e/end-to-end: Run end-to-end chat system tests")
             print("  full: Run full backend API tests")
             print("  websocket/ws: Run WebSocket broadcasting system test")
-            print("  (no args): Run WebSocket broadcasting test by default")
+            print("  message/msg: Run focused message sending functionality test")
+            print("  (no args): Run focused message sending test by default")
             sys.exit(1)
     else:
-        # Default to WebSocket broadcasting test as requested in review
-        success = run_websocket_broadcasting_test()
+        # Default to focused message sending test as requested in review
+        success = run_message_sending_focus_test()
     
     sys.exit(0 if success else 1)
