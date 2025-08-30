@@ -346,6 +346,24 @@ class LoginRequest(BaseModel):
 
 class PostCreate(BaseModel):
     text: str
+    image_url: Optional[str] = None
+    attachments: Optional[List[str]] = None  # URLs for images, videos, etc.
+    tags: Optional[List[str]] = None
+    visibility: str = "friends"  # "public", "friends", "private"
+
+class PostUpdate(BaseModel):
+    text: Optional[str] = None
+    image_url: Optional[str] = None
+    attachments: Optional[List[str]] = None
+    tags: Optional[List[str]] = None
+    visibility: Optional[str] = None
+
+class PostReaction(BaseModel):
+    type: str  # "like", "heart", "clap", "star"
+
+class CommentCreate(BaseModel):
+    text: str
+    post_id: str
 
 class MessageCreate(BaseModel):
     text: str
