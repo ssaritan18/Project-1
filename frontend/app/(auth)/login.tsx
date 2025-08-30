@@ -154,23 +154,34 @@ export default function Login() {
             <Text style={styles.rememberText}>Email adresimi hatırla</Text>
           </View>
 
-          {/* Submit Button */}
-          <Pressable 
-            style={[styles.submitBtn, { opacity: validEmail && !isLoading ? 1 : 0.5 }]} 
-            onPress={() => {
-              console.log("🚨 BUTTON CLICKED - DIRECT HANDLER", { validEmail, isLoading });
-              submit();
-            }}
-            disabled={!validEmail || isLoading}
-          >
-            {isLoading ? (
-              <Text style={styles.submitText}>Giriş yapılıyor...</Text>
-            ) : (
-              <Text style={styles.submitText}>
-                {password ? 'Giriş Yap' : 'Hızlı Giriş'}
-              </Text>
-            )}
-          </Pressable>
+          {/* Submit Button - Web Compatible */}
+          <View style={[styles.submitBtn, { opacity: validEmail && !isLoading ? 1 : 0.5 }]}>
+            <button
+              type="button"
+              onClick={() => {
+                console.log("🚨 BUTTON CLICKED - HTML HANDLER", { validEmail, isLoading });
+                submit();
+              }}
+              disabled={!validEmail || isLoading}
+              style={{
+                width: '100%',
+                height: '100%',
+                backgroundColor: 'transparent',
+                border: 'none',
+                color: '#000',
+                fontSize: 16,
+                fontWeight: '700',
+                cursor: validEmail && !isLoading ? 'pointer' : 'not-allowed',
+                outline: 'none',
+              }}
+            >
+              {isLoading ? (
+                "Giriş yapılıyor..."
+              ) : (
+                password ? 'Giriş Yap' : 'Hızlı Giriş'
+              )}
+            </button>
+          </View>
 
           {/* Alternative Actions */}
           <View style={styles.alternativeActions}>
