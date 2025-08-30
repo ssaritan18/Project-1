@@ -1,39 +1,29 @@
 <analysis>
-This trajectory chronicles an extensive debugging and feature development journey for an Expo mobile application, primarily focusing on the ADHDers Social Club chat system. Initially, the AI engineer addressed  tunnel connectivity and UI rendering issues for the friends list. Subsequently, the main task shifted to developing and integrating a real-time chat system. The process involved multiple iterations of backend API and WebSocket development, frontend UI enhancements (including safe area support), and persistent debugging of caching, rendering, authentication, and WebSocket stability. Key issues included  misconfigurations,  not rendering, hardcoded URLs in a forked environment, and React state management problems leading to messages not displaying. The AI systematically troubleshot and fixed these, culminating in a stable backend and frontend for direct 1-to-1 chats, with a final focus on resolving fundamental architectural issues preventing the chat system from fully functioning.
+The AI engineer's work on the ADHDers Social Club app commenced with resolving critical environment and frontend connectivity issues, specifically  tunnel conflicts and  dependency problems, which prevented the app from loading or functioning. A major effort was dedicated to overhauling the real-time chat system, addressing  crashes due to undefined message IDs and implementing a robust WhatsApp-style messaging architecture with unique UUIDs, normalized message structures, and server-side rate limiting alongside client-side throttling. The development then shifted to building out infrastructure for Community Feed (CRUD, reactions, comments), Profile Management (update, picture upload, settings), and Voice Recording. Most recently, the AI fixed a web-incompatible  for comments and ensured chat reactions properly increment, resolving critical UI bugs and solidifying the MVP before an autonomous feature implementation phase.
 </analysis>
 
 <product_requirements>
-The ADHDers Social Club is an MVP mobile app designed for individuals with ADHD, offering task management and a supportive community. It emphasizes local-first functionality with online sync. Key features include onboarding (offline/online login), a main dashboard for daily tasks, a community screen with user interactions, a profile screen with streaks and data tools, and a robust Friends System for searching, sending/accepting requests, and real-time notifications via WebSockets. The app aims for a modern, minimal, motivational UI with a pastel palette.
+The ADHDers Social Club is an MVP mobile application designed for individuals with ADHD, focusing on task management and a supportive community. It emphasizes local-first functionality with online sync. Core features include user authentication (login/signup), a main dashboard for daily tasks, a community screen for posts, a profile screen with streaks and data tools, and a robust Friends System (search, requests, real-time notifications via WebSockets). The app aims for a modern, minimal, motivational UI with a pastel palette.
 
 **Implemented Features/Updates:**
-*   **Chat System:** Initially a local-only MVP, it was extensively developed to support real-time 1-to-1 messaging.
-    *   **UI:** Scrollable message lists with bubbles, bottom input field, send button, SafeAreaView support, auto-scroll to latest message.
-    *   **Backend:** REST API endpoints ( for sending/retrieving), WebSocket for real-time message broadcasting and reactions.
-    *   **Logic:** Messages persist in MongoDB. Real-time updates via WebSockets, replacing initial polling requirement.
-    *   **Direct Chat:** When two users become friends, a unique 1-to-1 chat is automatically created. A Message button appears next to each friend in the Friends tab, leading directly to their chat. Invitation codes are now only for group chats.
-*   **Login Flow:** Email/user reminder feature (Remember Me) added to login screen.
-*   **UI/UX Improvements:**
-    *   Comprehensive Safe Area support implemented across all main screens (Dashboard, Friends, Chat List/Detail, Profile, Community).
-    *   Friends list debug panel improved for scrollability and detailed info.
-    *   Chat header UI fixed for proper display and navigation.
-    *   Community tab layout improved with safe area support and title/subtitle.
-*   **Authentication Robustness:** Email verification temporarily bypassed/manual verification for development purposes. Login token/sync issues resolved.
+*   **Chat System:** Fully real-time 1-to-1 messaging with scrollable lists, input, Safe Area support, and auto-scrolling. Uses REST for CRUD and WebSockets for real-time. Messages now have unique IDs, normalized structures, and status management. Backend has rate limiting (30 msg/min), and frontend has throttling (1s delay). Chat reactions (emojis) are functional and real-time.
+*   **Login Flow:** Remember Me and functional login button on Expo Web. Authentication token/sync issues resolved,  context fixed.
+*   **UI/UX Improvements:** Comprehensive Safe Area support, improved friends list, corrected chat/community layouts.
+*   **Authentication:** Missing  endpoint added.
+*   **Community Feed:** Backend fully supports Posts (CRUD), Reactions (4 types), Comments, and 3-level privacy filtering (private, friends, public). Frontend has interactive feed UI, post creation modal, and web-compatible comment modal.
+*   **Profile Management:** Backend supports profile updates, picture upload (base64), and settings management. Frontend has Edit Profile and Settings screens, including image picker.
+*   **Voice Recording:** Backend supports voice message upload, storage, and real-time broadcasting, though frontend integration is paused.
 </product_requirements>
 
 <key_technical_concepts>
--   **React Native (Expo):** Cross-platform mobile development with Expo Router.
+-   **React Native (Expo):** Cross-platform mobile development using Expo Router for file-based routing.
 -   **FastAPI:** Python backend for REST APIs and WebSockets.
--   **MongoDB:** NoSQL database.
--   **WebSockets:** Real-time communication for chat.
--   **:** Public URLs for local development/mobile testing.
--   **React Context:** State management for Auth, Friends, Chat.
--   ** / :** UI components for lists and scrolling.
--   **backend                          STOPPING  
-code-server                      RUNNING   pid 33, uptime 0:00:08
-expo                             STOPPED   Aug 29 11:18 PM
-mongodb                          RUNNING   pid 39, uptime 0:00:08
-supervisor> :** Manages services (Expo, FastAPI).
--   **:** HTTP client for API calls.
+-   **MongoDB:** NoSQL database for persistence.
+-   **WebSockets:** Real-time communication for chat and reactions.
+-   **React Context API:** State management (, , ).
+-   **:** Used for public URLs to resolve tunnel conflicts.
+-   **:** For profile picture uploads.
+-   **Rate Limiting/Throttling:** Backend  and frontend debouncing for performance and spam prevention.
 </key_technical_concepts>
 
 <code_architecture>
@@ -43,78 +33,79 @@ The application uses an Expo React Native frontend, a FastAPI Python backend, an
 
 
 **Key Files and Changes:**
-
 *   ****:
-    *   **Importance**: FastAPI API and WebSocket endpoints. Manages users, friends, chats, and messages.
-    *   **Changes**: Added chat/message/reaction endpoints. Modified  to automatically create a 1-to-1 chat. Implemented  and  endpoints. Enhanced WebSocket handler for real-time messaging, including JSON ping/pong support and improved connection management. Backend hardcoded URL removed.
+    *   **Importance**: Core FastAPI API and WebSocket endpoints.
+    *   **Changes**: Implemented WhatsApp-style message processing with unique UUIDs, normalized message structures (uid=0(root) gid=0(root) groups=0(root), , , , ), and input validation. Added message reaction endpoint () and logic. Integrated user-based rate limiting (30 requests/min). Expanded Posts CRUD (Create, Read, Update, Delete), Reactions, Comments, and privacy filtering. Added Profile update, picture upload, and settings APIs. Voice recording backend endpoints were also added.
 *   ****:
     *   **Importance**: Frontend environment variables.
-    *   **Changes**:  was adjusted for  tunnel resolution (e.g., ).  updated to point to the correct backend host.
+    *   **Changes**:  corrected from  to a valid subdomain to resolve  conflicts.  added as a dependency.
 *   ****:
-    *   **Importance**: Main Expo Router layout, sets up global providers (Auth, Chat, Tasks, RuntimeConfig) and theme.
-    *   **Changes**: Corrected the order of  and  to resolve  context issues. Ensured  received necessary props. Paths for  and  were verified/corrected.
+    *   **Importance**: Main Expo Router layout, global providers.
+    *   **Changes**:  wrapped with .  added to the global layout.
 *   ****:
     *   **Importance**: User login screen.
-    *   **Changes**: Added Remember Me functionality to persist email/username. Improved error handling for login attempts.
+    *   **Changes**: Replaced  with HTML  for web compatibility.
 *   ****:
-    *   **Importance**: Friends list and request management UI.
-    *   **Changes**: Converted friends list to use  to allow scrolling of the debug panel. Added Message buttons next to each friend, which navigate directly to a 1-to-1 chat. Debug logging for friends list was refined to prevent infinite re-renders.
+    *   **Importance**: Individual chat screen.
+    *   **Changes**:   made resilient with . Implemented  logic.
 *   ****:
-    *   **Importance**: Displays a list of chats and allows creating/joining new chats.
-    *   **Changes**: Implemented  for proper layout. Updated to display invite codes only for group chats. Improved error handling and loading states.
+    *   **Importance**: Community feed screen.
+    *   **Changes**: Rewritten to integrate ,  for displaying posts,  for post creation, and  for commenting.
 *   ****:
-    *   **Importance**: Individual chat screen for messaging.
-    *   **Changes**: Implemented  for header and input. Added  and  for sending messages via Enter key. Integrated real-time messaging with WebSocket. Added extensive debug logs for message sending and reception. Message bubbles and auto-scrolling to latest message.
+    *   **Importance**: User profile screen.
+    *   **Changes**: Enhanced UI, added navigation buttons to  and  screens.
+*   ** (New File)**:
+    *   **Importance**: Screen for editing user profile information.
+    *   **Changes**: Created to include input fields for user details and integrate  component.
+*   ** (New File)**:
+    *   **Importance**: Screen for managing user settings.
+    *   **Changes**: Created to include toggles and options for notifications, privacy, etc.
+*   ** (New File)**:
+    *   **Importance**: Catches and displays UI errors gracefully.
+    *   **Changes**: New component created, implements  for error logging and fallback UI.
+*   ** (New File)**:
+    *   **Importance**: Component for handling profile picture selection and upload.
+    *   **Changes**: New component created, integrates  for camera/gallery access, handles base64 upload.
+*   ** (New File)**:
+    *   **Importance**: Web-compatible modal for user comments.
+    *   **Changes**: Created to replace , providing a robust UI for entering comments with character count and loading states.
 *   ****:
-    *   **Importance**: Main dashboard screen.
-    *   **Changes**: Added  support.
+    *   **Importance**: Displays individual posts in the community feed.
+    *   **Changes**: Added a comment button (💬) with real-time count updates and integrated  functionality.
 *   ****:
-    *   **Importance**: User profile settings.
-    *   **Changes**: Added  support. Contains the Sync Mode switch for enabling online features.
+    *   **Importance**: Manages user authentication state.
+    *   **Changes**: Added  alias for consistency.
 *   ****:
-    *   **Importance**: Community feed display.
-    *   **Changes**: Added  support to header and main content for proper layout on all devices.
-*   ****:
-    *   **Importance**: Manages user authentication state and token.
-    *   **Changes**: Removed  dependency to avoid circular imports. Improved error handling for API calls.
-*   ****:
-    *   **Importance**: Manages chat-related state and real-time interactions.
-    *   **Changes**: Rewritten to integrate with backend APIs and WebSockets. Implemented auto-reconnection and heartbeat for WebSocket stability. Manages  and . Crucially, fixed a bug where the  property was not correctly passed, preventing sync mode activation. Added extensive debug logging.
-*   ****:
-    *   **Importance**: Provides runtime configuration, including API URLs and other settings.
-    *   **Changes**: Modified to correctly export the  (sync/local) state, which was critical for  to function in sync mode.
-*   ****:
-    *   **Importance**: Centralized API helper for backend calls.
-    *   **Changes**: Added new API helper functions for chat, messages, direct chats, and group chats. Increased API timeout for robustness.
-*   ****:
-    *   **Importance**: Manages the Expo frontend service.
-    *   **Changes**: Adjusted  for [23:18:34] Starting project at /app to use  and resolve ngrok conflicts.
-
+    *   **Importance**: Manages chat state, WebSockets.
+    *   **Changes**: Hardened , ,  with null/undefined checks, fallback ID generation. Updated WebSocket message handling for new normalized message structure, including message  and reaction updates. Implemented client-side message throttling.
+*   ** (New File)**:
+    *   **Importance**: Manages community feed state and interactions.
+    *   **Changes**: New context created for fetching, creating, reacting to, and commenting on posts.
 </code_architecture>
 
 <pending_tasks>
--   Fully wire Posts to the backend (REST endpoints, then WebSockets).
--   Harden backend APIs (rate limiting, input validation, error shapes, pagination).
--   Implement more advanced chat features like typing indicators and message reactions (though basic reactions were added).
--   Complete real email delivery for Forgot PIN/Email Verification.
--   Implement voice recording feature in chat.
--   Implement profile picture upload feature and more profile customization.
--   Transform the Community tab into a feed with actual friends and suggested users.
+-   Frontend integration of Voice Recording System (backend infrastructure is ready).
+-   Redesign Home/Progression Bar to be segmented with You Are Here indicators.
+-   Implement Gamification elements (Daily Streaks, Achievement Badges, Focus Points, Weekly Challenges, Celebration Animations).
+-   Show users' profile pictures alongside their messages in chat.
+-   Add a quick, easy ADHD-style test/survey on the first sign-up page as an initial popup.
+-   Further UI/Design Enhancements across the app, including app logo and visual consistency.
 </pending_tasks>
 
 <current_work>
-The immediate focus is on resolving critical, fundamental architectural issues that prevent the chat system from fully functioning. Despite extensive debugging, including fixing  tunnel issues, UI rendering problems, Safe Area inconsistencies, and initial WebSocket integration, the real-time messaging was still not working as expected.
+Immediately before this summary request, the AI engineer completed a phase of High Priority Polishing based on user feedback. The core issues addressed were:
 
-The AI engineer identified that the  was not correctly transitioning to sync mode due to a missing  property in its context, leading to all chat operations staying local. Additionally, hardcoded URLs specific to a previous preview environment were causing connectivity issues between the frontend and backend in the current forked environment.
+1.  **Chat Reactions Bug Fix**: The problem was identified as a missing message reaction endpoint in the backend and an inconsistent response format from the WebSocket handler. The AI implemented the  endpoint in  and updated the WebSocket message handler in  to correctly process reaction updates in real-time.
+2.  **Community Comments System**: The user reported an uncaught error when clicking comments. The AI diagnosed this as  being incompatible with Expo Web. A new web-compatible  component was created in . The  was updated to use this modal for comments, and the  was enhanced with an  function.  was updated to include a comment button and pass the  handler.
+3.  **Profile Picture Upload**: This feature was mostly complete but caused a server error for the user. The AI identified that  was a missing dependency. It was installed via 
+added 656 packages in 26s
 
-Currently, the AI engineer is undertaking a system engineer mode approach to:
-1.  Completely fix the provider hierarchy, ensuring all contexts (Auth, RuntimeConfig, Chat) are correctly wrapped and receive necessary props.
-2.  Debug and correct all API routing issues, specifically the hardcoded URLs preventing proper frontend-backend communication.
-3.  Resolve the  rendering issues that prevent its debug logs from appearing, indicating it's not initializing correctly.
+60 packages are looking for funding
+  run `npm fund` for details. The  component, previously created in , was fully integrated into  to handle image selection (gallery/camera) and base64 upload to the backend.
 
-The AI has just completed fixing hardcoded URLs in both the frontend's  and the backend's  to ensure communication points to  for the backend. Services have been restarted, and a basic API connectivity test was successful. The next step is to make 's debug logs reliably active by further refining the runtime configuration.
+All these high-priority items were successfully fixed and implemented, ensuring the core MVP (Chat, Community, Profile, Auth, Friends) is functional and stable, ready for further polishing. The user confirmed the successful resolution of the server error and was about to save the current state to GitHub.
 </current_work>
 
 <optional_next_step>
-The AI engineer will create a comprehensive end-to-end test to verify the complete chat flow after the architectural fixes.
+After the GitHub save, the AI will autonomously implement Profile UI Improvements as the first step of Phase 1.
 </optional_next_step>
