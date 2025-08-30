@@ -1,70 +1,166 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from "react-native";
+import React, { useState, useCallback } from "react";
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  RefreshControl, 
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Alert
+} from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-const SAMPLE = [
-  { id: "1", name: "Ava", progress: 0.7 },
-  { id: "2", name: "Mia", progress: 0.45 },
-  { id: "3", name: "Zoe", progress: 0.9 },
-  { id: "4", name: "Noah", progress: 0.3 },
-];
+import { useCommunity } from "../../src/context/CommunityContext";
+import { PostCard } from "../../src/components/PostCard";
+import { CreatePostModal } from "../../src/components/CreatePostModal";
 
 export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
-  const [items, setItems] = React.useState(SAMPLE);
-  const [comment, setComment] = React.useState("");
+  const { posts, loading, error, refreshPosts, createPost, reactToPost, deletePost } = useCommunity();
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const sendComment = (name: string) => {
-    if (!comment.trim()) return;
-    setComment("");
-  };
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refreshPosts();
+    } catch (error) {
+      console.error('Failed to refresh posts:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refreshPosts]);
+
+  const handleCreatePost = useCallback(async (text: string, imageUrl?: string, tags?: string[], visibility?: string) => {
+    try {
+      await createPost(text, imageUrl, tags, visibility);
+    } catch (error) {
+      console.error('Failed to create post:', error);
+      Alert.alert('Error', 'Failed to create post. Please try again.');
+    }
+  }, [createPost]);
+
+  const handleReaction = useCallback(async (postId: string, reactionType: string) => {
+    try {
+      await reactToPost(postId, reactionType);
+    } catch (error) {
+      console.error('Failed to react to post:', error);
+      Alert.alert('Error', 'Failed to react to post. Please try again.');
+    }
+  }, [reactToPost]);
+
+  const handleDeletePost = useCallback(async (postId: string) => {
+    Alert.alert(
+      'Delete Post',
+      'Are you sure you want to delete this post? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deletePost(postId);
+            } catch (error) {
+              console.error('Failed to delete post:', error);
+              Alert.alert('Error', 'Failed to delete post. Please try again.');
+            }
+          }
+        }
+      ]
+    );
+  }, [deletePost]);
+
+  const renderPost = ({ item }: { item: any }) => (
+    <PostCard
+      post={item}
+      onReact={handleReaction}
+      onDelete={handleDeletePost}
+      isOwner={item.author_name === 'You' || item.author_id === 'current_user'}
+    />
+  );
+
+  const renderEmptyComponent = () => (
+    <View style={styles.emptyContainer}>
+      <Ionicons name="people-outline" size={64} color="#666" />
+      <Text style={styles.emptyTitle}>No Posts Yet</Text>
+      <Text style={styles.emptySubtitle}>
+        Be the first to share something with the community!
+      </Text>
+      <TouchableOpacity 
+        style={styles.createFirstPostButton}
+        onPress={() => setShowCreateModal(true)}
+      >
+        <Text style={styles.createFirstPostButtonText}>Create Your First Post</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderHeader = () => (
+    <View style={styles.headerContainer}>
+      <View style={styles.headerTitleContainer}>
+        <Text style={styles.header}>Community Feed</Text>
+        <Text style={styles.subtitle}>Share and connect with fellow ADHDers</Text>
+      </View>
+      <TouchableOpacity 
+        style={styles.createButton}
+        onPress={() => setShowCreateModal(true)}
+      >
+        <Ionicons name="add" size={24} color="#000" />
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.header}>Community</Text>
-          <Text style={styles.subtitle}>Connect with fellow ADHDers</Text>
-        </View>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+      style={styles.container}
+    >
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        {renderHeader()}
         
-        <FlashList
-          data={items}
-          keyExtractor={(item) => item.id}
-          estimatedItemSize={120}
-          contentContainerStyle={{ padding: 16, paddingBottom: Math.max(insets.bottom, 120) }}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <Image source={require("../../assets/images/icon.png")} style={styles.avatar} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.name}>{item.name}</Text>
-                <View style={styles.progressTrack}>
-                  <View style={[styles.progressFill, { width: `${(item.progress * 100).toFixed(0)}%` }]} />
-                </View>
-                <View style={{ flexDirection: 'row', gap: 6, marginTop: 8 }}>
-                  <TouchableOpacity style={styles.iconBtn}><Ionicons name="thumbs-up" size={20} color="#B8F1D9" /></TouchableOpacity>
-                  <TouchableOpacity style={styles.iconBtn}><Ionicons name="flame" size={20} color="#FFCFE1" /></TouchableOpacity>
-                  <TouchableOpacity style={styles.iconBtn}><Ionicons name="star" size={20} color="#FFE3A3" /></TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          )}
-        />
+        {error && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>⚠️ {error}</Text>
+            <TouchableOpacity onPress={handleRefresh} style={styles.retryButton}>
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-        <View style={styles.footer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Send a short encouragement..."
-            placeholderTextColor="#777"
-            value={comment}
-            onChangeText={setComment}
+        {loading && posts.length === 0 ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#4A90E2" />
+            <Text style={styles.loadingText}>Loading community posts...</Text>
+          </View>
+        ) : (
+          <FlashList
+            data={posts}
+            keyExtractor={(item) => item._id}
+            estimatedItemSize={200}
+            contentContainerStyle={{ paddingBottom: Math.max(insets.bottom + 16, 32) }}
+            renderItem={renderPost}
+            ListEmptyComponent={renderEmptyComponent}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                tintColor="#4A90E2"
+                colors={["#4A90E2"]}
+              />
+            }
+            showsVerticalScrollIndicator={false}
           />
-          <TouchableOpacity style={styles.sendBtn} onPress={() => sendComment("friend")}>
-            <Ionicons name="send" size={20} color="#000" />
-          </TouchableOpacity>
-        </View>
+        )}
+
+        <CreatePostModal
+          visible={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onCreatePost={handleCreatePost}
+        />
       </View>
     </KeyboardAvoidingView>
   );
