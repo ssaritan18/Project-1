@@ -224,7 +224,7 @@ export default function ProfileScreen() {
                   key={achievement.id}
                   achievement={achievement}
                   size="medium"
-                  showUnlockAnimation={achievement.unlocked && index < 6}
+                  showUnlockAnimation={false}
                   onPress={() => Alert.alert(achievement.name, achievement.description)}
                 />
               ))}
