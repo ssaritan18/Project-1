@@ -1163,6 +1163,362 @@ def run_comprehensive_profile_management_test():
     
     return True
 
+def run_phase2_adhd_dashboard_backend_test():
+    """
+    🚀 PHASE 2 ADHD-FRIENDLY DASHBOARD BACKEND TESTING
+    
+    OBJECTIVE: Test backend support for ADHD-friendly Dashboard features
+    
+    FOCUS AREAS:
+    1. Focus Session Tracking - Test APIs for Pomodoro, Deep Work, ADHD Sprint sessions
+    2. Time-based Task Management - Verify task scheduling by time of day
+    3. ADHD-specific Features - Check executive function support metrics
+    4. Dashboard Analytics - Test statistics endpoints for productivity insights
+    
+    TEST USERS: ssaritan@example.com / Passw0rd! and ssaritan2@example.com / Passw0rd!
+    """
+    tester = APITester()
+    
+    print("=" * 80)
+    print("🚀 PHASE 2 ADHD-FRIENDLY DASHBOARD BACKEND TESTING")
+    print("=" * 80)
+    
+    # Test users as specified in the request
+    user1 = {"name": "ssaritan", "email": "ssaritan@example.com", "password": "Passw0rd!"}
+    user2 = {"name": "ssaritan2", "email": "ssaritan2@example.com", "password": "Passw0rd!"}
+    
+    tokens = {}
+    user_profiles = {}
+    existing_apis = []
+    missing_apis = []
+    
+    # PHASE 1: Authentication Setup
+    print("\n" + "=" * 60)
+    print("PHASE 1: AUTHENTICATION SETUP")
+    print("=" * 60)
+    
+    for user in [user1, user2]:
+        # Login existing users
+        login_result = tester.test_auth_login(user["email"], user["password"])
+        if not login_result["success"]:
+            print(f"❌ CRITICAL: Login failed for {user['email']}: {login_result.get('error', 'Unknown error')}")
+            return False
+        tokens[user["email"]] = login_result["token"]
+        
+        # Get user profile
+        me_result = tester.test_get_me(tokens[user["email"]], user["name"])
+        if not me_result["success"]:
+            print(f"❌ CRITICAL: /me endpoint failed for {user['email']}")
+            return False
+        user_profiles[user["email"]] = me_result["data"]
+        print(f"✅ User {user['name']} authenticated successfully")
+    
+    # PHASE 2: Focus Session Tracking APIs
+    print("\n" + "=" * 60)
+    print("PHASE 2: FOCUS SESSION TRACKING APIs")
+    print("=" * 60)
+    
+    user1_email = user1["email"]
+    user2_email = user2["email"]
+    
+    # Test focus session endpoints
+    focus_session_endpoints = [
+        "/api/focus/sessions",           # List user's focus sessions
+        "/api/focus/sessions/start",     # Start a new focus session
+        "/api/focus/sessions/end",       # End current focus session
+        "/api/focus/sessions/pause",     # Pause current session
+        "/api/focus/sessions/resume",    # Resume paused session
+        "/api/focus/sessions/stats",     # Get focus session statistics
+        "/api/focus/types",              # Get available focus types (Pomodoro, Deep Work, ADHD Sprint)
+        "/api/focus/preferences",        # Get user's focus preferences
+        "/api/focus/breaks",             # Get break tracking data
+        "/api/focus/daily-count"         # Get daily focus session count
+    ]
+    
+    print("🔍 Testing Focus Session Tracking APIs")
+    for endpoint in focus_session_endpoints:
+        url = f"{tester.base_url}{endpoint}"
+        headers = {"Authorization": f"Bearer {tokens[user1_email]}"}
+        response = tester.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            existing_apis.append(f"GET {endpoint}")
+            print(f"✅ Found: GET {endpoint}")
+        elif response.status_code == 404:
+            missing_apis.append(f"GET {endpoint} - Focus session tracking")
+            print(f"❌ Missing: GET {endpoint}")
+    
+    # Test POST endpoints for focus sessions
+    focus_post_endpoints = [
+        "/api/focus/sessions",           # Create new focus session
+        "/api/focus/preferences"         # Update focus preferences
+    ]
+    
+    for endpoint in focus_post_endpoints:
+        url = f"{tester.base_url}{endpoint}"
+        headers = {"Authorization": f"Bearer {tokens[user1_email]}"}
+        test_payload = {
+            "type": "pomodoro" if "sessions" in endpoint else {"duration": 25, "break_duration": 5},
+            "duration_minutes": 25 if "sessions" in endpoint else None
+        }
+        response = tester.session.post(url, json=test_payload, headers=headers)
+        
+        if response.status_code in [200, 201]:
+            existing_apis.append(f"POST {endpoint}")
+            print(f"✅ Found: POST {endpoint}")
+        elif response.status_code == 404:
+            missing_apis.append(f"POST {endpoint} - Focus session management")
+            print(f"❌ Missing: POST {endpoint}")
+    
+    # PHASE 3: Time-based Task Management APIs
+    print("\n" + "=" * 60)
+    print("PHASE 3: TIME-BASED TASK MANAGEMENT APIs")
+    print("=" * 60)
+    
+    # Test task management endpoints
+    task_endpoints = [
+        "/api/tasks",                    # List user's tasks
+        "/api/tasks/by-time",           # Get tasks by time of day
+        "/api/tasks/schedule",          # Get scheduled tasks
+        "/api/tasks/categories",        # Get task categories with colors
+        "/api/tasks/progress",          # Get task progress by time segment
+        "/api/tasks/completion-stats",  # Get completion statistics by time period
+        "/api/tasks/time-segments"      # Get tasks by Morning/Afternoon/Evening/Night
+    ]
+    
+    print("🔍 Testing Time-based Task Management APIs")
+    for endpoint in task_endpoints:
+        url = f"{tester.base_url}{endpoint}"
+        headers = {"Authorization": f"Bearer {tokens[user1_email]}"}
+        response = tester.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            existing_apis.append(f"GET {endpoint}")
+            print(f"✅ Found: GET {endpoint}")
+            
+            # If we found tasks endpoint, check the data structure
+            if endpoint == "/api/tasks":
+                try:
+                    data = response.json()
+                    if "tasks" in data:
+                        print(f"   📊 Tasks data structure available")
+                    else:
+                        print(f"   ⚠️ Tasks endpoint exists but may need structure updates")
+                except:
+                    pass
+        elif response.status_code == 404:
+            missing_apis.append(f"GET {endpoint} - Time-based task management")
+            print(f"❌ Missing: GET {endpoint}")
+    
+    # Test existing /me endpoint for task data
+    print("🔍 Testing Existing Task Data in /me Endpoint")
+    me_result = tester.test_get_me(tokens[user1_email], user1["name"])
+    if me_result["success"]:
+        me_data = me_result["data"]
+        if "today" in me_data:
+            today_data = me_data["today"]
+            if "total_goal" in today_data and "total_progress" in today_data:
+                existing_apis.append("GET /api/me - Basic task progress tracking")
+                print("✅ Found: Basic task progress in /me endpoint")
+                print(f"   📊 Today's progress: {today_data.get('total_progress', 0)}/{today_data.get('total_goal', 0)}")
+            else:
+                print("⚠️ /me endpoint exists but lacks comprehensive task data")
+        else:
+            print("⚠️ /me endpoint lacks task tracking data")
+    
+    # PHASE 4: ADHD-specific Features APIs
+    print("\n" + "=" * 60)
+    print("PHASE 4: ADHD-SPECIFIC FEATURES APIs")
+    print("=" * 60)
+    
+    # Test ADHD-specific endpoints
+    adhd_endpoints = [
+        "/api/adhd/executive-function",     # Executive function support metrics
+        "/api/adhd/motivational-messages",  # Motivational message customization
+        "/api/adhd/break-reminders",        # Break reminder settings
+        "/api/adhd/focus-timer-preferences", # Focus timer preferences
+        "/api/adhd/coping-strategies",      # ADHD coping strategies
+        "/api/adhd/energy-levels",          # Energy level tracking
+        "/api/adhd/distraction-log",        # Distraction tracking
+        "/api/adhd/hyperfocus-sessions"     # Hyperfocus session tracking
+    ]
+    
+    print("🔍 Testing ADHD-specific Feature APIs")
+    for endpoint in adhd_endpoints:
+        url = f"{tester.base_url}{endpoint}"
+        headers = {"Authorization": f"Bearer {tokens[user1_email]}"}
+        response = tester.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            existing_apis.append(f"GET {endpoint}")
+            print(f"✅ Found: GET {endpoint}")
+        elif response.status_code == 404:
+            missing_apis.append(f"GET {endpoint} - ADHD-specific features")
+            print(f"❌ Missing: GET {endpoint}")
+    
+    # PHASE 5: Dashboard Analytics APIs
+    print("\n" + "=" * 60)
+    print("PHASE 5: DASHBOARD ANALYTICS APIs")
+    print("=" * 60)
+    
+    # Test analytics endpoints
+    analytics_endpoints = [
+        "/api/analytics/focus-sessions",        # Daily/weekly/monthly focus session data
+        "/api/analytics/task-completion",       # Task completion patterns by time of day
+        "/api/analytics/productivity-metrics",  # Productivity metrics for ADHD insights
+        "/api/analytics/progress-trends",       # Progress trends over time
+        "/api/analytics/daily-summary",         # Daily productivity summary
+        "/api/analytics/weekly-report",         # Weekly productivity report
+        "/api/analytics/monthly-insights",      # Monthly ADHD insights
+        "/api/analytics/peak-performance"       # Peak performance time analysis
+    ]
+    
+    print("🔍 Testing Dashboard Analytics APIs")
+    for endpoint in analytics_endpoints:
+        url = f"{tester.base_url}{endpoint}"
+        headers = {"Authorization": f"Bearer {tokens[user1_email]}"}
+        response = tester.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            existing_apis.append(f"GET {endpoint}")
+            print(f"✅ Found: GET {endpoint}")
+            
+            # Check data structure if found
+            try:
+                data = response.json()
+                print(f"   📊 Analytics data available: {list(data.keys())[:3]}...")
+            except:
+                pass
+        elif response.status_code == 404:
+            missing_apis.append(f"GET {endpoint} - Dashboard analytics")
+            print(f"❌ Missing: GET {endpoint}")
+    
+    # Test existing user stats endpoint (if it exists)
+    print("🔍 Testing Existing User Statistics")
+    stats_url = f"{tester.base_url}/user/stats"
+    headers = {"Authorization": f"Bearer {tokens[user1_email]}"}
+    stats_response = tester.session.get(stats_url, headers=headers)
+    
+    if stats_response.status_code == 200:
+        existing_apis.append("GET /api/user/stats")
+        print("✅ Found: GET /api/user/stats")
+        try:
+            stats_data = stats_response.json()
+            print(f"   📊 Stats available: {list(stats_data.keys())}")
+        except:
+            pass
+    else:
+        missing_apis.append("GET /api/user/stats - User statistics")
+        print("❌ Missing: GET /api/user/stats")
+    
+    # PHASE 6: Test Current Task Functionality
+    print("\n" + "=" * 60)
+    print("PHASE 6: CURRENT TASK FUNCTIONALITY TESTING")
+    print("=" * 60)
+    
+    print("🔍 Testing Current Task Management Capabilities")
+    
+    # Check if we can access task data through existing endpoints
+    # Based on the backend code, tasks are referenced in /me endpoint
+    me_data = user_profiles[user1_email]
+    if "today" in me_data:
+        today_stats = me_data["today"]
+        print(f"✅ Current task tracking found in /me endpoint:")
+        print(f"   📊 Total Goal: {today_stats.get('total_goal', 0)}")
+        print(f"   📊 Total Progress: {today_stats.get('total_progress', 0)}")
+        print(f"   📊 Daily Ratio: {today_stats.get('ratio', 0):.2%}")
+        
+        if today_stats.get('total_goal', 0) > 0:
+            print("✅ Task system appears to be functional")
+        else:
+            print("⚠️ No tasks found - may need task creation functionality")
+    
+    # PHASE 7: Summary and Recommendations
+    print("\n" + "=" * 60)
+    print("PHASE 7: SUMMARY AND RECOMMENDATIONS")
+    print("=" * 60)
+    
+    print(f"\n📊 BACKEND READINESS ANALYSIS:")
+    print(f"✅ Existing APIs: {len(existing_apis)}")
+    print(f"❌ Missing APIs: {len(missing_apis)}")
+    
+    if existing_apis:
+        print(f"\n✅ WORKING BACKEND APIS:")
+        for api in existing_apis[:10]:  # Show first 10
+            print(f"   • {api}")
+        if len(existing_apis) > 10:
+            print(f"   ... and {len(existing_apis) - 10} more")
+    
+    if missing_apis:
+        print(f"\n❌ MISSING BACKEND APIS FOR PHASE 2:")
+        for api in missing_apis[:15]:  # Show first 15
+            print(f"   • {api}")
+        if len(missing_apis) > 15:
+            print(f"   ... and {len(missing_apis) - 15} more")
+    
+    # Calculate readiness percentage
+    total_required = len(existing_apis) + len(missing_apis)
+    readiness_percentage = (len(existing_apis) / total_required * 100) if total_required > 0 else 0
+    
+    print(f"\n🎯 PHASE 2 BACKEND READINESS: {readiness_percentage:.1f}%")
+    
+    if readiness_percentage >= 80:
+        print("🟢 EXCELLENT: Backend is well-prepared for Phase 2 features")
+    elif readiness_percentage >= 60:
+        print("🟡 GOOD: Backend has solid foundation, some APIs needed")
+    elif readiness_percentage >= 40:
+        print("🟠 MODERATE: Significant backend development required")
+    else:
+        print("🔴 CRITICAL: Major backend infrastructure needed for Phase 2")
+    
+    print(f"\n🚀 PRIORITY RECOMMENDATIONS:")
+    
+    # Focus Session Tracking
+    focus_missing = [api for api in missing_apis if "focus" in api.lower()]
+    if focus_missing:
+        print(f"1. 🎯 FOCUS SESSION TRACKING: Implement {len(focus_missing)} APIs")
+        print(f"   • Pomodoro timer backend")
+        print(f"   • Deep Work session tracking")
+        print(f"   • ADHD Sprint session support")
+        print(f"   • Break time tracking")
+    
+    # Task Management
+    task_missing = [api for api in missing_apis if "task" in api.lower()]
+    if task_missing:
+        print(f"2. 📋 TIME-BASED TASK MANAGEMENT: Enhance {len(task_missing)} APIs")
+        print(f"   • Task scheduling by time of day")
+        print(f"   • Category filtering by color/time")
+        print(f"   • Progress tracking per time segment")
+    
+    # ADHD Features
+    adhd_missing = [api for api in missing_apis if "adhd" in api.lower()]
+    if adhd_missing:
+        print(f"3. 🧠 ADHD-SPECIFIC FEATURES: Create {len(adhd_missing)} APIs")
+        print(f"   • Executive function support metrics")
+        print(f"   • Motivational message customization")
+        print(f"   • Break reminder settings")
+    
+    # Analytics
+    analytics_missing = [api for api in missing_apis if "analytics" in api.lower()]
+    if analytics_missing:
+        print(f"4. 📊 DASHBOARD ANALYTICS: Build {len(analytics_missing)} APIs")
+        print(f"   • Daily/weekly/monthly focus data")
+        print(f"   • Task completion patterns")
+        print(f"   • Productivity metrics for ADHD insights")
+    
+    return {
+        "success": True,
+        "existing_apis": existing_apis,
+        "missing_apis": missing_apis,
+        "readiness_percentage": readiness_percentage,
+        "recommendations": {
+            "focus_sessions": len(focus_missing),
+            "task_management": len(task_missing),
+            "adhd_features": len(adhd_missing),
+            "analytics": len(analytics_missing)
+        }
+    }
+
 def run_phase1_profile_ui_backend_test():
     """
     🚀 PHASE 1 PROFILE UI IMPROVEMENTS - BACKEND TESTING
