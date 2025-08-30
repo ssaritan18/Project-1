@@ -5130,7 +5130,7 @@ if __name__ == "__main__":
             print("  (no args): Run voice test by default (as per review request)")
             sys.exit(1)
     else:
-        # Default to profile test as requested in review
-        success = run_comprehensive_profile_management_test()
+        # Default to voice test as requested in review
+        success = run_comprehensive_voice_recording_test()
     
     sys.exit(0 if success else 1)
