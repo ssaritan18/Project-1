@@ -22,6 +22,9 @@ export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
   const { posts, loading, error, refreshPosts, createPost, reactToPost, deletePost, addComment } = useCommunity();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCommentModal, setShowCommentModal] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [commentLoading, setCommentLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = useCallback(async () => {
