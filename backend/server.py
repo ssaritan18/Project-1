@@ -151,15 +151,35 @@ async def send_password_reset_email(user_email: str, token: str) -> bool:
     
     return await send_email(user_email, "Reset Your Password - ADHDers Social Club", content)
 
-# Create rate limiter
-limiter = Limiter(key_func=get_remote_address)
+# Simple rate limiting store
+user_request_times: Dict[str, List[float]] = {}
+REQUEST_LIMIT_PER_MINUTE = 30  # Allow 30 requests per minute per user
+RATE_LIMIT_WINDOW = 60  # 60 seconds
+
+def check_rate_limit(user_id: str) -> bool:
+    """Check if user has exceeded rate limit"""
+    current_time = time.time()
+    
+    # Initialize user's request times if not exists
+    if user_id not in user_request_times:
+        user_request_times[user_id] = []
+    
+    # Clean old requests outside the window
+    user_request_times[user_id] = [
+        req_time for req_time in user_request_times[user_id] 
+        if current_time - req_time < RATE_LIMIT_WINDOW
+    ]
+    
+    # Check if user exceeds limit
+    if len(user_request_times[user_id]) >= REQUEST_LIMIT_PER_MINUTE:
+        return False
+    
+    # Add current request
+    user_request_times[user_id].append(current_time)
+    return True
 
 # Create the main app without a prefix
 app = FastAPI(title="ADHDers API", version="0.3.1")
-
-# Add rate limiting to app
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
