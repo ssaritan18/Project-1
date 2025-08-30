@@ -264,72 +264,98 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         console.log("🔥 CHAT WEBSOCKET MESSAGE RECEIVED:", data);
         
         if (data.type === "chat:new_message") {
-          console.log("📨 PROCESSING chat:new_message EVENT:", {
+          console.log("📨 PROCESSING WhatsApp-style chat:new_message EVENT:", {
             messageId: data.message?.id || data.message?._id,
             chatId: data.chat_id,
             authorId: data.message?.author_id,
             text: data.message?.text,
+            status: data.message?.status,
             fullPayload: data
           });
           
-          // Validate message before conversion
+          // Validate WebSocket message (WhatsApp-style validation)
           if (!data.message) {
             console.error("❌ WebSocket message missing message payload:", data);
             return;
           }
           
-          if (!data.message._id && !data.message.id) {
-            console.error("❌ WebSocket message missing ID field:", data.message);
+          if (!data.message.id && !data.message._id) {
+            console.error("❌ WebSocket message missing ID fields:", data.message);
             return;
           }
           
-          const message = convertBackendMessage(data.message);
-          console.log("💬 Converting and adding new message:", {
-            chatId: message.chatId,
-            text: message.text,
-            author: message.author,
-            messageId: message.id,
-            convertedMessage: message
+          // Use backend normalized message directly (no conversion needed)
+          const normalizedMessage = {
+            ...data.message,
+            id: data.message.id || data.message._id,
+            _id: data.message._id || data.message.id
+          };
+          
+          console.log("💬 WhatsApp-style message received:", {
+            id: normalizedMessage.id,
+            chatId: normalizedMessage.chat_id,
+            text: normalizedMessage.text,
+            author: normalizedMessage.author_name,
+            status: normalizedMessage.status
           });
           
-          // Additional ID validation after conversion
-          if (!message.id) {
-            console.error("❌ Converted message still missing ID:", message);
-            message.id = Math.random().toString(36).slice(2); // Emergency fallback ID
-            console.warn("⚠️ Assigned emergency ID:", message.id);
+          // Additional ID validation after normalization
+          if (!normalizedMessage.id) {
+            console.error("❌ Normalized message still missing ID:", normalizedMessage);
+            normalizedMessage.id = Math.random().toString(36).slice(2); // Emergency fallback ID
+            console.warn("⚠️ Assigned emergency ID to WebSocket message:", normalizedMessage.id);
           }
           
           setBackendMessages(prev => {
-            const currentMessages = prev[message.chatId] || [];
-            console.log("📝 Current messages for chat before update:", message.chatId, currentMessages.length);
+            const chatId = normalizedMessage.chat_id;
+            const currentMessages = prev[chatId] || [];
+            console.log("📝 Current messages for chat before WebSocket update:", chatId, currentMessages.length);
             
-            // Check for duplicates using multiple ID fields
+            // Check for duplicates using multiple ID fields (WhatsApp-style)
             const isDuplicate = currentMessages.some(msg => 
-              msg.id === message.id || 
-              (msg.id && message.id && msg.id === message.id) ||
-              (msg._id && message._id && msg._id === message._id)
+              (msg.id && normalizedMessage.id && msg.id === normalizedMessage.id) ||
+              (msg._id && normalizedMessage._id && msg._id === normalizedMessage._id) ||
+              (msg.id && normalizedMessage._id && msg.id === normalizedMessage._id) ||
+              (msg._id && normalizedMessage.id && msg._id === normalizedMessage.id)
             );
             
             if (isDuplicate) {
-              console.log("⚠️ Duplicate message detected, skipping:", message.id);
+              console.log("⚠️ Duplicate WebSocket message detected, skipping:", normalizedMessage.id);
               return prev;
             }
             
-            const updatedMessages = [...currentMessages, message];
-            console.log("📝 Updated messages for chat", message.chatId, ":", updatedMessages.length, "total messages");
+            // Convert to frontend Message format
+            const frontendMessage: Message = {
+              id: normalizedMessage.id,
+              _id: normalizedMessage._id,
+              chatId: normalizedMessage.chat_id,
+              author: normalizedMessage.author_id === token ? "me" : (normalizedMessage.author_name || "Unknown"),
+              author_id: normalizedMessage.author_id || "unknown",
+              author_name: normalizedMessage.author_name || "Unknown User",
+              type: normalizedMessage.type || "text",
+              text: normalizedMessage.text || "",
+              ts: new Date(normalizedMessage.created_at || Date.now()).getTime(),
+              created_at: normalizedMessage.created_at || new Date().toISOString(),
+              status: normalizedMessage.status || "sent",
+              reactions: normalizedMessage.reactions || { like: 0, heart: 0, clap: 0, star: 0 }
+            };
+            
+            const updatedMessages = [...currentMessages, frontendMessage];
+            console.log("📝 WhatsApp-style WebSocket message added to chat", chatId, ":", updatedMessages.length, "total messages");
             console.log("📝 All messages in chat:", updatedMessages.map(m => ({
               id: m.id, 
               text: m.text?.slice(0, 30) + "...", 
-              author: m.author
+              author: m.author,
+              status: m.status
             })));
             
             return {
               ...prev,
-              [message.chatId]: updatedMessages
+              [chatId]: updatedMessages
             };
           });
           
-          console.log("✅ Message processed and added to chat:", message.chatId);
+          console.log("✅ WhatsApp-style WebSocket message processed and added to chat:", normalizedMessage.chat_id);
         } else {
           console.log("🔍 Non-chat WebSocket message received:", {
             type: data.type,
