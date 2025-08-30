@@ -142,32 +142,107 @@ export default function HomeScreen() {
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
       <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-        {/* Header */}
+        
+        {/* ADHD-Friendly Header with Focus Stats */}
         <View style={styles.headerContainer}>
-          <Text style={styles.header}>Today's Tasks</Text>
-          <TouchableOpacity 
-            style={[styles.addBtn, { backgroundColor: palette?.primary || '#A3C9FF' }]}
-            onPress={() => setModalVisible(true)}
-          >
-            <Ionicons name="add" size={20} color="#000" />
-          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <Text style={styles.header}>🎯 Your ADHD Journey</Text>
+            <Text style={styles.headerSubtitle}>
+              {focusSessionsToday} focus sessions today • {Math.round(dayTotal.ratio * 100)}% complete
+            </Text>
+          </View>
+          
+          <View style={styles.headerActions}>
+            <TouchableOpacity 
+              style={[styles.focusBtn, { backgroundColor: '#4A90E2' }]}
+              onPress={() => setShowFocusMode(!showFocusMode)}
+            >
+              <Text style={styles.focusBtnText}>{showFocusMode ? '📋' : '🧠'}</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.addBtn, { backgroundColor: palette?.primary || '#A3C9FF' }]}
+              onPress={() => setModalVisible(true)}
+            >
+              <Ionicons name="add" size={20} color="#000" />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* Progress Section */}
-        <View style={[styles.progressCard, { backgroundColor: palette?.secondary || '#FFCFE1' }]}>
-          <Text style={styles.progressTitle}>Daily Progress</Text>
-          <ProgressBar 
-            progress={dayTotal.progress} 
-            total={dayTotal.total} 
-            color={palette?.primary || '#A3C9FF'} 
+        {/* Phase 2: Segmented Progress Bar - "You Are Here" Journey */}
+        <SegmentedProgressBar
+          segments={timeSegments}
+          currentTimeHour={currentTime.getHours()}
+          onSegmentPress={handleSegmentPress}
+          showAnimation={true}
+        />
+
+        {/* Focus Mode Timer (Conditional) */}
+        {showFocusMode && (
+          <FocusModeTimer
+            onSessionComplete={handleFocusSessionComplete}
+            onBreakStart={() => Alert.alert("Break time!", "Take a moment to recharge 🔋")}
+            onFocusStart={() => Alert.alert("Focus mode!", "Let's get things done! 🎯")}
+            showAnimation={true}
           />
-          <Text style={styles.progressText}>
-            {dayTotal.progress} / {dayTotal.total} completed ({Math.round(dayTotal.ratio * 100)}%)
-          </Text>
-        </View>
+        )}
 
-        {/* Tasks List */}
-        <DraggableFlatList
+        {/* Enhanced Progress Section */}
+        {!showFocusMode && (
+          <View style={[styles.progressCard, { backgroundColor: palette?.secondary || '#FFCFE1' }]}>
+            <View style={styles.progressHeader}>
+              <Text style={styles.progressTitle}>📊 Today's Progress</Text>
+              <TouchableOpacity onPress={() => Alert.alert("Progress Info", "Track your daily task completion across different time periods for better ADHD management.")}>
+                <Ionicons name="information-circle" size={20} color="#666" />
+              </TouchableOpacity>
+            </View>
+            
+            <ProgressBar 
+              progress={dayTotal.progress} 
+              total={dayTotal.total} 
+              color={palette?.primary || '#A3C9FF'} 
+            />
+            <Text style={styles.progressText}>
+              {dayTotal.progress} / {dayTotal.total} completed ({Math.round(dayTotal.ratio * 100)}%)
+            </Text>
+            
+            {/* ADHD-friendly motivational message */}
+            <View style={styles.motivationContainer}>
+              {dayTotal.ratio === 0 && (
+                <Text style={styles.motivationText}>
+                  🌱 Ready to start? Break down big tasks into smaller, manageable steps!
+                </Text>
+              )}
+              {dayTotal.ratio > 0 && dayTotal.ratio < 0.5 && (
+                <Text style={styles.motivationText}>
+                  🚀 Great start! You're building momentum. Every step counts!
+                </Text>
+              )}
+              {dayTotal.ratio >= 0.5 && dayTotal.ratio < 1 && (
+                <Text style={styles.motivationText}>
+                  💪 You're more than halfway there! Keep up the amazing work!
+                </Text>
+              )}
+              {dayTotal.ratio === 1 && (
+                <Text style={styles.motivationText}>
+                  🎉 INCREDIBLE! You've completed all your tasks. You're absolutely crushing it!
+                </Text>
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* Tasks List with ADHD-friendly organization */}
+        {!showFocusMode && (
+          <View style={styles.tasksSection}>
+            <View style={styles.tasksSectionHeader}>
+              <Text style={styles.tasksSectionTitle}>📝 Today's Tasks</Text>
+              <Text style={styles.tasksSectionSubtitle}>
+                Drag to reorder • Color-coded by time of day
+              </Text>
+            </View>
+            
+            <DraggableFlatList
           data={tasks}
           keyExtractor={(item) => item.id}
           renderItem={renderTask}
