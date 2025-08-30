@@ -260,6 +260,8 @@ export default function HomeScreen() {
           )}
           showsVerticalScrollIndicator={false}
         />
+          </View>
+        )}
 
         {/* Add Task Modal */}
         <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
