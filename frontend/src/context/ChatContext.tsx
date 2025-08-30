@@ -373,7 +373,17 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             ...prev,
             [data.chat_id]: (prev[data.chat_id] || []).map(msg => 
               msg.id === data.message_id 
-                ? { ...msg, reactions: { ...msg.reactions, [data.reaction_type]: data.new_count } }
+                ? { ...msg, reactions: data.updated_reactions || msg.reactions }
+                : msg
+            )
+          }));
+          
+          // Also update local messages if in local mode or fallback
+          setLocalMessages(prev => ({
+            ...prev,
+            [data.chat_id]: (prev[data.chat_id] || []).map(msg => 
+              msg.id === data.message_id 
+                ? { ...msg, reactions: data.updated_reactions || msg.reactions }
                 : msg
             )
           }));
