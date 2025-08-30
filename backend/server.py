@@ -1116,6 +1116,241 @@ async def add_comment(post_id: str, payload: CommentCreate, user=Depends(get_cur
     logger.info(f"✅ Added comment to post {post_id} by {user.get('name')}")
     return comment_doc
 
+# --- Profile Management APIs ---
+
+@api_router.get("/profile/settings")
+async def get_profile_settings(user=Depends(get_current_user)):
+    """Get user profile and settings"""
+    user_data = await db.users.find_one({"_id": user["_id"]})
+    if not user_data:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Default settings if none exist
+    default_settings = {
+        "notifications": {
+            "push_messages": True,
+            "email_updates": True,
+            "friend_requests": True
+        },
+        "privacy": {
+            "profile_visibility": "friends",
+            "message_requests": "friends_only"
+        },
+        "preferences": {
+            "theme": "auto",
+            "language": "en"
+        }
+    }
+    
+    settings = user_data.get("settings", default_settings)
+    
+    return {
+        "profile": {
+            "_id": user_data["_id"],
+            "name": user_data.get("name"),
+            "email": user_data.get("email"),
+            "bio": user_data.get("bio"),
+            "location": user_data.get("location"),
+            "website": user_data.get("website"),
+            "birth_date": user_data.get("birth_date"),
+            "profile_image": user_data.get("profile_image"),
+            "created_at": user_data.get("created_at"),
+            "updated_at": user_data.get("updated_at")
+        },
+        "settings": settings
+    }
+
+@api_router.put("/profile")
+async def update_profile(payload: ProfileUpdate, user=Depends(get_current_user)):
+    """Update user profile information"""
+    update_data = {"updated_at": now_iso()}
+    
+    if payload.name is not None:
+        update_data["name"] = payload.name.strip()
+    if payload.bio is not None:
+        update_data["bio"] = payload.bio.strip()
+    if payload.location is not None:
+        update_data["location"] = payload.location.strip()
+    if payload.website is not None:
+        update_data["website"] = payload.website.strip()
+    if payload.birth_date is not None:
+        update_data["birth_date"] = payload.birth_date
+    if payload.privacy_settings is not None:
+        update_data["privacy_settings"] = payload.privacy_settings
+    
+    await db.users.update_one(
+        {"_id": user["_id"]}, 
+        {"$set": update_data}
+    )
+    
+    updated_user = await db.users.find_one({"_id": user["_id"]})
+    logger.info(f"✅ Updated profile for user {user['_id']}")
+    return updated_user
+
+@api_router.post("/profile/picture")
+async def upload_profile_picture(payload: ProfilePictureUpload, user=Depends(get_current_user)):
+    """Upload and set user profile picture"""
+    try:
+        # Decode base64 image
+        image_data = base64.b64decode(payload.image_data)
+        
+        # Generate filename
+        file_extension = "jpg"  # Default to jpg
+        if payload.filename:
+            file_extension = payload.filename.split('.')[-1].lower()
+        
+        filename = f"profile_{user['_id'][:8]}_{uuid.uuid4().hex[:8]}.{file_extension}"
+        
+        # Create uploads directory if not exists
+        upload_dir = "/app/backend/uploads/profiles"
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Save file
+        filepath = os.path.join(upload_dir, filename)
+        with open(filepath, "wb") as f:
+            f.write(image_data)
+        
+        # Update user profile with image URL
+        profile_image_url = f"/uploads/profiles/{filename}"
+        await db.users.update_one(
+            {"_id": user["_id"]},
+            {"$set": {
+                "profile_image": profile_image_url,
+                "updated_at": now_iso()
+            }}
+        )
+        
+        logger.info(f"✅ Profile picture uploaded for user {user['_id']}")
+        return {
+            "success": True,
+            "profile_image_url": profile_image_url,
+            "filename": filename
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to upload image: {str(e)}")
+
+@api_router.put("/profile/settings")
+async def update_profile_settings(payload: UserSettings, user=Depends(get_current_user)):
+    """Update user settings"""
+    update_data = {"updated_at": now_iso()}
+    
+    if payload.notifications is not None:
+        update_data["settings.notifications"] = payload.notifications
+    if payload.privacy is not None:
+        update_data["settings.privacy"] = payload.privacy
+    if payload.preferences is not None:
+        update_data["settings.preferences"] = payload.preferences
+    
+    await db.users.update_one(
+        {"_id": user["_id"]},
+        {"$set": update_data}
+    )
+    
+    logger.info(f"✅ Updated settings for user {user['_id']}")
+    return {"success": True}
+
+# --- Voice Message APIs ---
+
+@api_router.post("/chats/{chat_id}/voice")
+async def send_voice_message(chat_id: str, payload: VoiceMessageCreate, user=Depends(get_current_user)):
+    """Send voice message to chat"""
+    try:
+        # Validate chat access
+        chat = await db.chats.find_one({"_id": chat_id})
+        if not chat:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        
+        if user["_id"] not in chat.get("members", []):
+            raise HTTPException(status_code=403, detail="Not a member of this chat")
+        
+        # Check rate limiting for voice messages
+        if not check_rate_limit(user["_id"]):
+            logger.warning(f"🚫 Voice message rate limit exceeded for user {user['_id']}")
+            raise HTTPException(status_code=429, detail="Too many voice messages. Please slow down.")
+        
+        # Decode audio data
+        audio_data = base64.b64decode(payload.audio_data)
+        
+        # Generate filename
+        file_extension = "wav"  # Default to wav
+        if payload.filename:
+            file_extension = payload.filename.split('.')[-1].lower()
+        
+        filename = f"voice_{uuid.uuid4().hex}.{file_extension}"
+        
+        # Create uploads directory
+        upload_dir = "/app/backend/uploads/voices"
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Save audio file
+        filepath = os.path.join(upload_dir, filename)
+        with open(filepath, "wb") as f:
+            f.write(audio_data)
+        
+        # Create voice message document
+        message_id = str(uuid.uuid4())
+        voice_url = f"/uploads/voices/{filename}"
+        
+        message_doc = {
+            "_id": message_id,
+            "chat_id": chat_id,
+            "author_id": user["_id"],
+            "author_name": user.get("name", "Unknown User"),
+            "type": "voice",
+            "voice_url": voice_url,
+            "duration_ms": payload.duration_ms,
+            "status": "sent",
+            "reactions": {"like": 0, "heart": 0, "clap": 0, "star": 0},
+            "created_at": now_iso(),
+            "updated_at": now_iso(),
+            "server_timestamp": now_iso()
+        }
+        
+        # Save to database
+        await db.messages.insert_one(message_doc)
+        
+        # Create normalized response
+        normalized_message = {
+            "id": message_id,
+            "_id": message_id,
+            "chat_id": chat_id,
+            "author_id": user["_id"],
+            "author_name": message_doc["author_name"],
+            "type": "voice",
+            "voice_url": voice_url,
+            "duration_ms": payload.duration_ms,
+            "status": "sent",
+            "reactions": message_doc["reactions"],
+            "created_at": message_doc["created_at"],
+            "server_timestamp": message_doc["server_timestamp"]
+        }
+        
+        # Broadcast to other chat members
+        websocket_payload = {
+            "type": "chat:new_message",
+            "chat_id": chat_id,
+            "message": normalized_message
+        }
+        
+        broadcast_count = 0
+        for member_id in chat.get("members", []):
+            if member_id != user["_id"]:
+                try:
+                    await ws_broadcast_to_user(member_id, websocket_payload)
+                    broadcast_count += 1
+                except Exception as e:
+                    logger.error(f"❌ Failed to broadcast voice message to user {member_id}: {e}")
+        
+        logger.info(f"✅ Voice message sent: {message_id} by {user.get('name')}, broadcast to {broadcast_count} members")
+        return normalized_message
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Failed to send voice message: {e}")
+        raise HTTPException(status_code=400, detail=f"Failed to send voice message: {str(e)}")
+
 # --- Existing Chat System (unchanged) ---
 
 @api_router.post("/chats/group")
