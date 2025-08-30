@@ -1450,6 +1450,269 @@ def run_websocket_broadcasting_test():
     
     return True
 
+def run_message_sending_focus_test():
+    """
+    FOCUSED TEST: Message Sending Button Issue Investigation
+    
+    Based on user report: "Message sending button not working despite frontend loading successfully"
+    
+    This test specifically focuses on:
+    1. Auth endpoints still working (login with ssaritan@example.com and ssaritan2@example.com)
+    2. Message sending between these users in their direct chat
+    3. WebSocket broadcasting functionality for real-time messaging
+    4. WhatsApp-style message processing (UUID generation, normalized structure)
+    """
+    tester = APITester()
+    
+    print("=" * 80)
+    print("FOCUSED TEST: MESSAGE SENDING BUTTON ISSUE INVESTIGATION")
+    print("User Report: Message sending button not working despite frontend loading")
+    print("=" * 80)
+    
+    # Test users as specified in the review request
+    user1 = {"name": "ssaritan", "email": "ssaritan@example.com", "password": "Passw0rd!"}
+    user2 = {"name": "ssaritan2", "email": "ssaritan2@example.com", "password": "Passw0rd!"}
+    
+    tokens = {}
+    user_profiles = {}
+    
+    # TEST 1: Verify auth endpoints still working
+    print("\n" + "=" * 60)
+    print("TEST 1: VERIFY AUTH ENDPOINTS STILL WORKING")
+    print("=" * 60)
+    
+    for user in [user1, user2]:
+        # Test login
+        login_result = tester.test_auth_login(user["email"], user["password"])
+        if not login_result["success"]:
+            print(f"❌ CRITICAL: Login failed for {user['email']}: {login_result.get('error', 'Unknown error')}")
+            return False
+        tokens[user["email"]] = login_result["token"]
+        
+        # Test /me endpoint
+        me_result = tester.test_get_me(tokens[user["email"]], user["name"])
+        if not me_result["success"]:
+            print(f"❌ CRITICAL: /me endpoint failed for {user['email']}")
+            return False
+        user_profiles[user["email"]] = me_result["data"]
+        print(f"✅ Auth working for {user['name']} (ID: {user_profiles[user['email']]['_id'][:8]}...)")
+    
+    print("✅ AUTH ENDPOINTS: All working correctly")
+    
+    # TEST 2: Ensure users can access their direct chat
+    print("\n" + "=" * 60)
+    print("TEST 2: VERIFY DIRECT CHAT ACCESS")
+    print("=" * 60)
+    
+    user1_email = user1["email"]
+    user2_email = user2["email"]
+    user2_id = user_profiles[user2_email]["_id"]
+    
+    # Check if they are friends (required for direct chat)
+    friends_result = tester.test_friends_list(tokens[user1_email], user1["name"])
+    if not friends_result["success"]:
+        print("❌ CRITICAL: Failed to get friends list")
+        return False
+    
+    already_friends = any(friend["_id"] == user2_id for friend in friends_result["data"]["friends"])
+    if not already_friends:
+        print("❌ CRITICAL: Users are not friends - cannot test direct messaging")
+        return False
+    
+    print("✅ Users are friends - can create direct chats")
+    
+    # Open/create direct chat
+    direct_chat_result = tester.test_open_direct_chat(tokens[user1_email], user2_id, user1["name"])
+    if not direct_chat_result["success"]:
+        print("❌ CRITICAL: Direct chat creation/access failed")
+        return False
+    
+    direct_chat_id = direct_chat_result["data"]["_id"]
+    print(f"✅ Direct chat accessible: {direct_chat_id}")
+    
+    # TEST 3: Test message sending with WhatsApp-style processing
+    print("\n" + "=" * 60)
+    print("TEST 3: WHATSAPP-STYLE MESSAGE PROCESSING")
+    print("=" * 60)
+    
+    # Test multiple message sends to verify UUID generation and normalized structure
+    test_messages = [
+        "Test message 1: Basic functionality 📱",
+        "Test message 2: Unicode support 🚀✨",
+        "Test message 3: Special chars !@#$%^&*()",
+        "Test message 4: Long message with multiple words and punctuation marks.",
+        "Test message 5: Final verification message 🎉"
+    ]
+    
+    sent_message_ids = []
+    
+    for i, message_text in enumerate(test_messages, 1):
+        print(f"\n📤 Sending message {i}/5: '{message_text[:30]}...'")
+        
+        # Send message via POST /api/chats/{chat_id}/messages
+        msg_result = tester.test_send_message(tokens[user1_email], direct_chat_id, message_text, user1["name"])
+        if not msg_result["success"]:
+            print(f"❌ CRITICAL: Message {i} send failed: {msg_result.get('error', 'Unknown error')}")
+            return False
+        
+        message_data = msg_result["data"]
+        message_id = message_data["_id"]
+        sent_message_ids.append(message_id)
+        
+        # Verify WhatsApp-style normalized structure
+        required_fields = ["_id", "chat_id", "author_id", "author_name", "text", "type", "status", "reactions", "created_at", "server_timestamp"]
+        missing_fields = [field for field in required_fields if field not in message_data]
+        
+        if missing_fields:
+            print(f"❌ CRITICAL: Message {i} missing required fields: {missing_fields}")
+            return False
+        
+        # Verify UUID format (should be unique)
+        if not message_id or len(message_id) < 32:
+            print(f"❌ CRITICAL: Message {i} has invalid UUID: {message_id}")
+            return False
+        
+        # Verify message content
+        if message_data["text"] != message_text:
+            print(f"❌ CRITICAL: Message {i} text mismatch. Expected: '{message_text}', Got: '{message_data['text']}'")
+            return False
+        
+        # Verify status
+        if message_data["status"] != "sent":
+            print(f"❌ CRITICAL: Message {i} wrong status. Expected: 'sent', Got: '{message_data['status']}'")
+            return False
+        
+        print(f"✅ Message {i} sent successfully (ID: {message_id[:8]}...)")
+    
+    # Verify all message IDs are unique
+    if len(set(sent_message_ids)) != len(sent_message_ids):
+        print("❌ CRITICAL: Duplicate message IDs found - UUID generation not working")
+        return False
+    
+    print("✅ WHATSAPP-STYLE PROCESSING: All messages have unique UUIDs and normalized structure")
+    
+    # TEST 4: Verify WebSocket broadcasting functionality
+    print("\n" + "=" * 60)
+    print("TEST 4: WEBSOCKET BROADCASTING FUNCTIONALITY")
+    print("=" * 60)
+    
+    # Setup WebSocket connections
+    ws1_success = tester.setup_websocket(tokens[user1_email], user1["name"])
+    ws2_success = tester.setup_websocket(tokens[user2_email], user2["name"])
+    
+    if not ws1_success or not ws2_success:
+        print("❌ CRITICAL: WebSocket setup failed")
+        return False
+    
+    print("✅ WebSocket connections established")
+    
+    # Wait for connections to stabilize
+    time.sleep(3)
+    
+    # Clear WebSocket messages
+    tester.ws_messages = {}
+    
+    # Send a test message and verify real-time broadcasting
+    broadcast_test_message = "Real-time broadcast test! This should appear instantly on the other user's screen 🚀"
+    print(f"\n📤 Testing real-time broadcast: '{broadcast_test_message[:40]}...'")
+    
+    msg_result = tester.test_send_message(tokens[user1_email], direct_chat_id, broadcast_test_message, user1["name"])
+    if not msg_result["success"]:
+        print("❌ CRITICAL: Broadcast test message send failed")
+        return False
+    
+    broadcast_msg_id = msg_result["data"]["_id"]
+    
+    # Check if User 2 received WebSocket notification
+    ws_received = tester.check_websocket_messages(user2["name"], "chat:new_message", timeout=10)
+    if not ws_received:
+        print("❌ CRITICAL: WebSocket broadcasting not working - User 2 did not receive notification")
+        
+        # Debug: Show what messages were received
+        if user2["name"] in tester.ws_messages:
+            received = tester.ws_messages[user2["name"]]
+            print(f"🔍 User 2 received {len(received)} WebSocket messages:")
+            for msg in received:
+                print(f"  - Type: {msg.get('type', 'unknown')}")
+        else:
+            print("🔍 User 2 received NO WebSocket messages")
+        
+        return False
+    
+    print("✅ WEBSOCKET BROADCASTING: Real-time message delivery working")
+    
+    # TEST 5: Verify message persistence and retrieval
+    print("\n" + "=" * 60)
+    print("TEST 5: MESSAGE PERSISTENCE AND RETRIEVAL")
+    print("=" * 60)
+    
+    # Get messages from the chat
+    get_msgs_result = tester.test_get_messages(tokens[user2_email], direct_chat_id, user2["name"])
+    if not get_msgs_result["success"]:
+        print("❌ CRITICAL: Message retrieval failed")
+        return False
+    
+    messages = get_msgs_result["data"]["messages"]
+    
+    # Verify all sent messages are persisted
+    persisted_ids = [msg["_id"] for msg in messages]
+    all_sent_ids = sent_message_ids + [broadcast_msg_id]
+    
+    missing_messages = [msg_id for msg_id in all_sent_ids if msg_id not in persisted_ids]
+    if missing_messages:
+        print(f"❌ CRITICAL: {len(missing_messages)} messages not persisted: {missing_messages}")
+        return False
+    
+    print(f"✅ MESSAGE PERSISTENCE: All {len(all_sent_ids)} messages persisted correctly")
+    
+    # TEST 6: Test error handling and validation
+    print("\n" + "=" * 60)
+    print("TEST 6: ERROR HANDLING AND VALIDATION")
+    print("=" * 60)
+    
+    # Test empty message (should fail)
+    empty_result = tester.test_send_message(tokens[user1_email], direct_chat_id, "", user1["name"])
+    if empty_result["success"]:
+        print("❌ CRITICAL: Empty message was accepted (should be rejected)")
+        return False
+    
+    # Test whitespace-only message (should fail)
+    whitespace_result = tester.test_send_message(tokens[user1_email], direct_chat_id, "   ", user1["name"])
+    if whitespace_result["success"]:
+        print("❌ CRITICAL: Whitespace-only message was accepted (should be rejected)")
+        return False
+    
+    print("✅ ERROR HANDLING: Empty and whitespace-only messages properly rejected")
+    
+    # FINAL SUMMARY
+    print("\n" + "=" * 80)
+    print("🎉 MESSAGE SENDING FUNCTIONALITY TEST COMPLETED!")
+    print("=" * 80)
+    
+    print("\nTEST RESULTS SUMMARY:")
+    print("✅ Auth Endpoints: Login and /me working for both test users")
+    print("✅ Direct Chat Access: Users can access their direct chat")
+    print("✅ WhatsApp-Style Processing: UUID generation and normalized structure working")
+    print("✅ Message Sending: All message types sent successfully")
+    print("✅ WebSocket Broadcasting: Real-time message delivery working")
+    print("✅ Message Persistence: All messages saved to MongoDB correctly")
+    print("✅ Error Handling: Invalid messages properly rejected")
+    
+    print(f"\nDETAILED STATISTICS:")
+    print(f"• Test Messages Sent: {len(test_messages)} + 1 broadcast test = {len(all_sent_ids)} total")
+    print(f"• Unique Message IDs: {len(set(all_sent_ids))} (all unique)")
+    print(f"• Messages Persisted: {len([msg for msg in messages if msg['_id'] in all_sent_ids])}")
+    print(f"• WebSocket Events: chat:new_message broadcasting working")
+    print(f"• Direct Chat ID: {direct_chat_id}")
+    
+    print(f"\nCONCLUSION:")
+    print(f"🟢 Backend message sending functionality is working correctly")
+    print(f"🟢 WhatsApp-style message processing is robust and reliable")
+    print(f"🟢 Real-time WebSocket broadcasting is functional")
+    print(f"🟢 The issue is likely in the frontend, not the backend")
+    
+    return True
+
 if __name__ == "__main__":
     # Check command line arguments for specific test types
     if len(sys.argv) > 1:
