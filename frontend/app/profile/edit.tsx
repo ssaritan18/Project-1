@@ -64,6 +64,7 @@ export default function EditProfileScreen() {
             location: profile.location || '',
             website: profile.website || '',
             birth_date: profile.birth_date || '',
+            profile_image: profile.profile_image || '',
           });
         } else {
           throw new Error(`Failed to load profile: ${response.status}`);
