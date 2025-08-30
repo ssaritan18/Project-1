@@ -680,6 +680,16 @@ async def auth_login(req: LoginRequest):
     return Token(access_token=access)
 
 # --- Users ---
+@api_router.get("/auth/me")
+async def get_me_auth(user=Depends(get_current_user)):
+    """Get current user profile (alternative endpoint)"""
+    return {
+        "_id": str(user["_id"]),
+        "name": user.get("name"),
+        "email": user.get("email"),
+        "photo_base64": user.get("photo_base64")
+    }
+
 @api_router.get("/me")
 async def get_me(user=Depends(get_current_user)):
     uid = user["_id"]
