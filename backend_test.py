@@ -587,6 +587,93 @@ class APITester:
         else:
             self.log(f"❌ Comment addition failed: {response.status_code} - {response.text}", "ERROR")
             return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    # Profile Management Testing Methods
+    def test_get_profile_settings(self, token: str, user_name: str = "") -> Dict:
+        """Test getting user profile and settings"""
+        url = f"{self.base_url}/profile/settings"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing profile settings retrieval for {user_name}")
+        response = self.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "profile" in data and "settings" in data:
+                self.log(f"✅ Profile settings retrieval successful for {user_name}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Profile settings response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Profile settings retrieval failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    
+    def test_update_profile(self, token: str, profile_data: Dict, user_name: str = "") -> Dict:
+        """Test updating user profile information"""
+        url = f"{self.base_url}/profile"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing profile update for {user_name}: {list(profile_data.keys())}")
+        response = self.session.put(url, json=profile_data, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "_id" in data and "updated_at" in data:
+                self.log(f"✅ Profile update successful for {user_name}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Profile update response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Profile update failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    
+    def test_upload_profile_picture(self, token: str, image_data: str, filename: str = None, user_name: str = "") -> Dict:
+        """Test uploading profile picture via base64"""
+        url = f"{self.base_url}/profile/picture"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {
+            "image_data": image_data
+        }
+        if filename:
+            payload["filename"] = filename
+        
+        self.log(f"Testing profile picture upload for {user_name}")
+        response = self.session.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "success" in data and "profile_image_url" in data:
+                self.log(f"✅ Profile picture upload successful for {user_name}: {data['profile_image_url']}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Profile picture upload response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Profile picture upload failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+    
+    def test_update_profile_settings(self, token: str, settings_data: Dict, user_name: str = "") -> Dict:
+        """Test updating user settings"""
+        url = f"{self.base_url}/profile/settings"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing profile settings update for {user_name}: {list(settings_data.keys())}")
+        response = self.session.put(url, json=settings_data, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "success" in data and data["success"]:
+                self.log(f"✅ Profile settings update successful for {user_name}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Profile settings update response missing success confirmation", "ERROR")
+                return {"success": False, "error": "Missing success confirmation in response"}
+        else:
+            self.log(f"❌ Profile settings update failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
 def run_comprehensive_profile_management_test():
     """
     🚀 COMPREHENSIVE PROFILE MANAGEMENT SYSTEM TEST - SPRINT 2
