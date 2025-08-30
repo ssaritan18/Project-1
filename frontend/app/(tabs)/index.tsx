@@ -24,12 +24,74 @@ export default function HomeScreen() {
   const [title, setTitle] = useState("");
   const [goal, setGoal] = useState("5");
   const [color, setColor] = useState(COLOR_PRESETS[0]);
+  
+  // Phase 2: ADHD-friendly dashboard state
+  const [showFocusMode, setShowFocusMode] = useState(false);
+  const [currentTime] = useState(new Date());
+  const [focusSessionsToday, setFocusSessionsToday] = useState(2);
 
   const dayTotal = useMemo(() => {
     const total = tasks.reduce((acc, task) => acc + parseInt(task.goal), 0);
     const progress = tasks.reduce((acc, task) => acc + parseInt(task.progress), 0);
     return { total, progress, ratio: total > 0 ? progress / total : 0 };
   }, [tasks]);
+
+  // Create time-based segments for ADHD-friendly progress tracking
+  const createTimeSegments = () => {
+    const morningTasks = tasks.filter(t => t.color === COLOR_PRESETS[0]); // Blue tasks for morning
+    const afternoonTasks = tasks.filter(t => t.color === COLOR_PRESETS[1]); // Pink tasks for afternoon  
+    const eveningTasks = tasks.filter(t => t.color === COLOR_PRESETS[2]); // Green tasks for evening
+    const nightTasks = tasks.filter(t => t.color === COLOR_PRESETS[3]); // Yellow tasks for night
+
+    return [
+      {
+        id: 'morning',
+        label: 'Morning',
+        emoji: '🌅',
+        timeRange: '6:00 - 12:00',
+        color: '#FFD700',
+        progress: morningTasks.reduce((sum, t) => sum + t.progress, 0),
+        maxProgress: morningTasks.reduce((sum, t) => sum + t.goal, 0) || 1,
+        isActive: currentTime.getHours() >= 6 && currentTime.getHours() < 12,
+        isCompleted: morningTasks.length > 0 && morningTasks.every(t => t.progress >= t.goal),
+      },
+      {
+        id: 'afternoon',
+        label: 'Afternoon', 
+        emoji: '☀️',
+        timeRange: '12:00 - 17:00',
+        color: '#FF6B35',
+        progress: afternoonTasks.reduce((sum, t) => sum + t.progress, 0),
+        maxProgress: afternoonTasks.reduce((sum, t) => sum + t.goal, 0) || 1,
+        isActive: currentTime.getHours() >= 12 && currentTime.getHours() < 17,
+        isCompleted: afternoonTasks.length > 0 && afternoonTasks.every(t => t.progress >= t.goal),
+      },
+      {
+        id: 'evening',
+        label: 'Evening',
+        emoji: '🌆', 
+        timeRange: '17:00 - 21:00',
+        color: '#6C5CE7',
+        progress: eveningTasks.reduce((sum, t) => sum + t.progress, 0),
+        maxProgress: eveningTasks.reduce((sum, t) => sum + t.goal, 0) || 1,
+        isActive: currentTime.getHours() >= 17 && currentTime.getHours() < 21,
+        isCompleted: eveningTasks.length > 0 && eveningTasks.every(t => t.progress >= t.goal),
+      },
+      {
+        id: 'night',
+        label: 'Night',
+        emoji: '🌙',
+        timeRange: '21:00 - 6:00', 
+        color: '#4A90E2',
+        progress: nightTasks.reduce((sum, t) => sum + t.progress, 0),
+        maxProgress: nightTasks.reduce((sum, t) => sum + t.goal, 0) || 1,
+        isActive: currentTime.getHours() >= 21 || currentTime.getHours() < 6,
+        isCompleted: nightTasks.length > 0 && nightTasks.every(t => t.progress >= t.goal),
+      }
+    ];
+  };
+
+  const timeSegments = createTimeSegments();
 
   const addNewTask = () => {
     if (title.trim() && goal.trim()) {
@@ -38,10 +100,34 @@ export default function HomeScreen() {
       setGoal("5");
       setColor(COLOR_PRESETS[0]);
       setModalVisible(false);
+      
+      // ADHD-friendly feedback
+      Alert.alert("✅ Task Added!", "Great! You're building your daily structure.", [
+        { text: "Add Another", onPress: () => setModalVisible(true) },
+        { text: "Perfect!", style: "default" }
+      ]);
     }
   };
 
-  const renderTask = ({ item, drag }) => (
+  const handleSegmentPress = (segment: any) => {
+    Alert.alert(
+      `${segment.emoji} ${segment.label}`,
+      `${segment.timeRange}\nProgress: ${segment.progress}/${segment.maxProgress}`,
+      [
+        { text: "Add Task", onPress: () => setModalVisible(true) },
+        { text: "Focus Mode", onPress: () => setShowFocusMode(true) },
+        { text: "OK", style: "cancel" }
+      ]
+    );
+  };
+
+  const handleFocusSessionComplete = (session: any) => {
+    setFocusSessionsToday(prev => prev + 1);
+    // Could trigger task progress here
+    Alert.alert("🎉 Session Complete!", `Great ${session.type} session! Keep up the momentum.`);
+  };
+
+  const renderTask = ({ item, drag }: any) => (
     <ScaleDecorator>
       <TaskCard
         task={item}
