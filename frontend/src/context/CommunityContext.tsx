@@ -38,6 +38,7 @@ type CommunityContextType = {
   createPost: (text: string, imageUrl?: string, tags?: string[], visibility?: string) => Promise<void>;
   reactToPost: (postId: string, reactionType: string) => Promise<void>;
   deletePost: (postId: string) => Promise<void>;
+  addComment: (postId: string, text: string) => Promise<void>;
 };
 
 const CommunityContext = createContext<CommunityContextType | null>(null);
