@@ -106,6 +106,16 @@ export default function ProfileScreen() {
       </View>
 
       <View style={{ marginTop: 24, gap: 12 }}>
+        <Text style={styles.sectionTitle}>Profile Management</Text>
+        <TouchableOpacity style={[styles.btn, { backgroundColor: '#4A90E2' }]} onPress={navigateToEdit}>
+          <Text style={styles.btnTextLight}>✏️ Edit Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.btn, { backgroundColor: '#6C5CE7' }]} onPress={navigateToSettings}>
+          <Text style={styles.btnTextLight}>⚙️ Settings</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={{ marginTop: 24, gap: 12 }}>
         <Text style={styles.sectionTitle}>Data Tools</Text>
         <TouchableOpacity style={[styles.btn, { backgroundColor: '#A3C9FF' }]} onPress={onBackup}><Text style={styles.btnTextDark}>Backup to JSON</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.btn, { backgroundColor: '#B8F1D9' }]} onPress={onRestore}><Text style={styles.btnTextDark}>Restore from JSON</Text></TouchableOpacity>
