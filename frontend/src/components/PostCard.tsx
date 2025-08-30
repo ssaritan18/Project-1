@@ -224,8 +224,15 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
   },
-  commentsInfo: {
+  commentsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginLeft: 'auto',
+    padding: 4,
+  },
+  commentsEmoji: {
+    fontSize: 16,
+    marginRight: 4,
   },
   commentsCount: {
     color: '#888',
