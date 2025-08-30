@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, TextInput, Alert, Switch } from "react-native";
+import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Platform, TextInput, Alert, Switch } from "react-native";
 import { useAuth } from "../../src/context/AuthContext";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -151,7 +151,7 @@ export default function Login() {
           </View>
 
           {/* Submit Button */}
-          <TouchableOpacity 
+          <Pressable 
             style={[styles.submitBtn, { opacity: validEmail && !isLoading ? 1 : 0.5 }]} 
             onPress={submit}
             disabled={!validEmail || isLoading}
@@ -163,38 +163,38 @@ export default function Login() {
                 {password ? 'Giriş Yap' : 'Hızlı Giriş'}
               </Text>
             )}
-          </TouchableOpacity>
+          </Pressable>
 
           {/* Alternative Actions */}
           <View style={styles.alternativeActions}>
-            <TouchableOpacity 
+            <Pressable 
               style={[styles.altBtn, { backgroundColor: '#FFE3A3' }]} 
               onPress={submitMockGoogle}
               disabled={!validEmail || isLoading}
             >
               <Ionicons name="logo-google" size={16} color="#000" />
               <Text style={styles.altBtnText}>Google ile Giriş</Text>
-            </TouchableOpacity>
+            </Pressable>
 
-            <TouchableOpacity 
+            <Pressable 
               style={[styles.altBtn, { backgroundColor: '#FFCFE1' }]} 
               onPress={reset}
               disabled={isLoading}
             >
               <Ionicons name="refresh" size={16} color="#000" />
               <Text style={styles.altBtnText}>Verileri Sıfırla</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
 
           {/* Navigation */}
           <View style={styles.navigation}>
-            <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
+            <Pressable onPress={() => router.push("/(auth)/signup")}>
               <Text style={styles.linkText}>Hesabınız yok mu? Kaydolun</Text>
-            </TouchableOpacity>
+            </Pressable>
             
-            <TouchableOpacity onPress={() => router.push("/(auth)/forgot-pin")}>
+            <Pressable onPress={() => router.push("/(auth)/forgot-pin")}>
               <Text style={styles.linkText}>Şifremi Unuttum</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </View>
       </View>
