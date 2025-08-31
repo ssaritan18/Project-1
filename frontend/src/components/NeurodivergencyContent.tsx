@@ -334,135 +334,238 @@ export const NeurodivergencyContent: React.FC<NeurodivergencyContentProps> = ({
 };
 
 const styles = StyleSheet.create({
-  // Preview styles
-  previewContainer: {
-    backgroundColor: '#111',
+  // Compact preview mode styles
+  compactContainer: {
+    backgroundColor: '#1a1a1a',
     borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
     borderWidth: 1,
     borderColor: '#333',
+    margin: 16,
+    overflow: 'hidden',
   },
-  previewHeader: {
+  compactHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    padding: 16,
   },
-  previewTitle: {
-    color: '#fff',
+  compactHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  compactIcon: {
+    fontSize: 32,
+    marginRight: 12,
+  },
+  compactTitle: {
     fontSize: 18,
     fontWeight: '700',
+    color: '#fff',
+    marginBottom: 2,
   },
-  previewDescription: {
-    color: '#bdbdbd',
+  compactSubtitle: {
     fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 12,
+    color: '#aaa',
   },
-  previewBadge: {
-    backgroundColor: 'rgba(163, 201, 255, 0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    alignSelf: 'flex-start',
+  compactPreview: {
+    borderTopWidth: 1,
+    borderTopColor: '#333',
+    padding: 16,
   },
-  previewBadgeText: {
-    color: '#A3C9FF',
+  compactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  compactItemIcon: {
+    fontSize: 18,
+    marginRight: 10,
+  },
+  compactItemTitle: {
+    fontSize: 14,
+    color: '#ccc',
+    flex: 1,
+  },
+  moreContent: {
     fontSize: 12,
-    fontWeight: '600',
+    color: '#888',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 8,
   },
-
-  // Full content styles
-  fullContainer: {
+  
+  // Full content mode styles
+  container: {
     flex: 1,
     backgroundColor: '#0c0c0c',
   },
-  fullHeader: {
+  header: {
     padding: 20,
-    backgroundColor: '#111',
-    borderRadius: 12,
-    marginBottom: 16,
+    backgroundColor: '#1a1a1a',
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
   },
-  fullTitle: {
-    color: '#fff',
+  title: {
     fontSize: 24,
     fontWeight: '700',
+    color: '#fff',
+    textAlign: 'center',
     marginBottom: 8,
   },
-  fullSubtitle: {
-    color: '#bdbdbd',
+  subtitle: {
     fontSize: 16,
-    lineHeight: 22,
+    color: '#aaa',
+    textAlign: 'center',
+    marginBottom: 8,
   },
-  sectionCard: {
-    backgroundColor: '#111',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#222',
+  placeholder: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
-  sectionHeader: {
+  categoryFilter: {
+    maxHeight: 60,
+    backgroundColor: '#1a1a1a',
+  },
+  categoryFilterContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 8,
+  },
+  categoryButton: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#333',
+    marginRight: 8,
   },
-  sectionEmoji: {
-    fontSize: 24,
-    marginRight: 12,
-    marginTop: 2,
+  categoryButtonActive: {
+    backgroundColor: '#4A90E2',
   },
-  sectionInfo: {
+  categoryIcon: {
+    fontSize: 16,
+    marginRight: 6,
+  },
+  categoryText: {
+    fontSize: 14,
+    color: '#aaa',
+    fontWeight: '600',
+  },
+  categoryTextActive: {
+    color: '#fff',
+  },
+  contentList: {
+    flex: 1,
+    padding: 16,
+  },
+  contentItem: {
+    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333',
+    marginBottom: 16,
+    overflow: 'hidden',
+  },
+  contentHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  contentHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
     flex: 1,
   },
-  sectionTitle: {
+  contentIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  contentInfo: {
+    flex: 1,
+  },
+  contentTitle: {
+    fontSize: 16,
+    fontWeight: '700',
     color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
     marginBottom: 4,
   },
-  sectionDescription: {
-    color: '#bdbdbd',
-    fontSize: 14,
-    lineHeight: 18,
+  contentMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  placeholderContent: {
-    backgroundColor: '#1a1a1a',
-    borderRadius: 8,
-    padding: 12,
-    borderLeftWidth: 3,
-    borderLeftColor: '#A3C9FF',
+  typeTag: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
   },
-  placeholderText: {
-    color: '#888',
-    fontSize: 14,
-    fontStyle: 'italic',
-    marginBottom: 8,
-  },
-  comingSoonBtn: {
-    backgroundColor: 'rgba(163, 201, 255, 0.1)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
-  },
-  comingSoonText: {
-    color: '#A3C9FF',
-    fontSize: 12,
+  typeTagText: {
+    fontSize: 10,
     fontWeight: '600',
   },
-  footerNote: {
+  contentPreview: {
+    fontSize: 14,
+    color: '#aaa',
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    lineHeight: 20,
+  },
+  expandedContent: {
+    borderTopWidth: 1,
+    borderTopColor: '#333',
+    padding: 16,
+  },
+  contentText: {
+    fontSize: 14,
+    color: '#ccc',
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  actionButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  integrationPlaceholder: {
     backgroundColor: '#1a1a1a',
     borderRadius: 12,
-    padding: 16,
-    marginTop: 8,
-    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: '#6C5CE7',
+    borderStyle: 'dashed',
+    padding: 20,
+    alignItems: 'center',
+    marginTop: 16,
   },
-  footerText: {
-    color: '#bdbdbd',
-    fontSize: 13,
-    lineHeight: 18,
+  placeholderTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#6C5CE7',
+    marginBottom: 8,
+  },
+  placeholderText: {
+    fontSize: 14,
+    color: '#aaa',
     textAlign: 'center',
+    marginBottom: 12,
+  },
+  featureList: {
+    alignItems: 'flex-start',
+  },
+  featureItem: {
+    fontSize: 12,
+    color: '#888',
+    marginBottom: 4,
+    textAlign: 'left',
   },
 });
