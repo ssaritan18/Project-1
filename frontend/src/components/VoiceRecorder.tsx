@@ -58,43 +58,13 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
   };
 
-  const startWaveformAnimation = () => {
-    const animations = waveforms.map((wave, index) => 
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(wave, {
-            toValue: 1,
-            duration: 300 + index * 100,
-            useNativeDriver: false,
-          }),
-          Animated.timing(wave, {
-            toValue: 0,
-            duration: 300 + index * 100,
-            useNativeDriver: false,
-          }),
-        ])
-      )
-    );
-
-    Animated.stagger(50, animations).start();
-  };
-
-  const stopWaveformAnimation = () => {
-    waveforms.forEach(wave => {
-      wave.stopAnimation();
-      wave.setValue(0);
-    });
-  };
-
   const startRecording = async () => {
     try {
-      // Request permission if not granted
       if (!isPermissionGranted) {
         const granted = await requestMicrophonePermission();
         if (!granted) return;
       }
 
-      // Configure audio mode
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
@@ -103,7 +73,6 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         playThroughEarpieceAndroid: false,
       });
 
-      // Start recording
       const recordingOptions = {
         android: {
           extension: '.m4a',
@@ -139,26 +108,10 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       setRecordingDuration(0);
       onRecordingStart?.();
 
-      // Haptic feedback
       if (Platform.OS === 'ios') {
         Vibration.vibrate(50);
       }
 
-      // Start animations
-      Animated.spring(scale, {
-        toValue: 1.2,
-        useNativeDriver: true,
-      }).start();
-
-      Animated.timing(waveformOpacity, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-
-      startWaveformAnimation();
-
-      // Start duration counter
       durationInterval.current = setInterval(() => {
         setRecordingDuration(prev => prev + 1);
       }, 1000);
