@@ -186,6 +186,127 @@ app = FastAPI(title="ADHDers API", version="0.3.1")
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# --- User Profile Management ---
+
+@api_router.put("/users/{user_id}/profile")
+async def update_user_profile(
+    user_id: str,
+    name: str = Form(...),
+    bio: str = Form(""),
+    interests: str = Form(""),
+    location: str = Form(""),
+    age: int = Form(None),
+    profile_picture: UploadFile = File(None)
+):
+    """Update user profile with optional profile picture upload"""
+    try:
+        # Find user in database
+        user = await db.users.find_one({"_id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Update profile data
+        update_data = {
+            "name": name,
+            "bio": bio,
+            "interests": interests.split(",") if interests else [],
+            "location": location,
+            "updated_at": datetime.now()
+        }
+        
+        if age is not None:
+            update_data["age"] = age
+
+        # Handle profile picture upload
+        if profile_picture and profile_picture.filename:
+            # Create uploads directory if it doesn't exist
+            upload_dir = Path("/app/backend/uploads/profiles")
+            upload_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Generate unique filename
+            file_extension = Path(profile_picture.filename).suffix.lower()
+            if file_extension not in ['.jpg', '.jpeg', '.png', '.webp']:
+                raise HTTPException(status_code=400, detail="Invalid file type. Only JPG, PNG, and WebP are allowed.")
+            
+            unique_filename = f"{user_id}_{int(time.time())}{file_extension}"
+            file_path = upload_dir / unique_filename
+            
+            # Validate file size (max 5MB)
+            if profile_picture.size > 5 * 1024 * 1024:
+                raise HTTPException(status_code=400, detail="File too large. Maximum size is 5MB.")
+            
+            # Save file
+            with open(file_path, "wb") as buffer:
+                content = await profile_picture.read()
+                buffer.write(content)
+            
+            # Save profile picture URL
+            update_data["profile_picture"] = f"/api/uploads/profiles/{unique_filename}"
+
+        # Update user in database
+        result = await db.users.update_one(
+            {"_id": user_id},
+            {"$set": update_data}
+        )
+
+        if result.modified_count == 0:
+            raise HTTPException(status_code=400, detail="Profile update failed")
+
+        # Get updated user
+        updated_user = await db.users.find_one({"_id": user_id})
+        
+        return {
+            "success": True,
+            "message": "Profile updated successfully",
+            "user": {
+                "user_id": updated_user["_id"],
+                "name": updated_user["name"],
+                "email": updated_user["email"],
+                "bio": updated_user.get("bio", ""),
+                "interests": updated_user.get("interests", []),
+                "location": updated_user.get("location", ""),
+                "age": updated_user.get("age"),
+                "profile_picture": updated_user.get("profile_picture"),
+                "updated_at": updated_user["updated_at"].isoformat()
+            }
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Profile update error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error during profile update")
+
+@api_router.get("/users/{user_id}/profile")
+async def get_user_profile(user_id: str):
+    """Get user profile information"""
+    try:
+        user = await db.users.find_one({"_id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return {
+            "success": True,
+            "user": {
+                "user_id": user["_id"],
+                "name": user["name"],
+                "email": user["email"],
+                "bio": user.get("bio", ""),
+                "interests": user.get("interests", []),
+                "location": user.get("location", ""),
+                "age": user.get("age"),
+                "profile_picture": user.get("profile_picture"),
+                "created_at": user["created_at"].isoformat(),
+                "updated_at": user.get("updated_at", user["created_at"]).isoformat()
+            }
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Get profile error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error during profile retrieval")
+
 # --- File Serving ---
 
 @api_router.get("/uploads/voices/{filename}")
