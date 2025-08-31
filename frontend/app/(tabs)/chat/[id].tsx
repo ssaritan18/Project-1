@@ -375,7 +375,6 @@ const styles = StyleSheet.create({
   composer: { 
     flexDirection: 'row', 
     alignItems: 'flex-end', 
-    , 
     paddingHorizontal: 16, 
     paddingTop: 12,
     backgroundColor: '#111',
