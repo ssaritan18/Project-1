@@ -22,7 +22,7 @@ export function VoicePlayer({
   voiceUrl,
   duration = 0,
   isOwnMessage = false,
-  onPlaybackStatusUpdate,
+  onPlaybackStatusUpdate: onPlaybackStatusUpdateProp,
   style
 }: VoicePlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
