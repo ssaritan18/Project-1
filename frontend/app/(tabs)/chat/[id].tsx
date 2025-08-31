@@ -139,19 +139,49 @@ export default function ChatDetail() {
             
             return (
               <View style={{ marginBottom: 10 }}>
-                <View style={[styles.bubble, normalizedMessage.author === 'me' ? styles.mine : styles.theirs]}>
-                  <Text style={styles.authorText}>{normalizedMessage.author_name || normalizedMessage.author}</Text>
-                  {normalizedMessage.type === 'text' ? (
-                    <Text style={styles.bubbleText}>{normalizedMessage.text}</Text>
-                  ) : (
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                      <Ionicons name="mic" size={16} color="#000" />
-                      <Text style={{ color: '#000', fontWeight: '700' }}>Voice message ({item.durationSec || 3}s)</Text>
-                    </View>
+                <View style={[
+                  styles.messageContainer, 
+                  normalizedMessage.author === 'me' ? styles.myMessageContainer : styles.theirMessageContainer
+                ]}>
+                  {/* Profile Avatar - show for other users' messages */}
+                  {normalizedMessage.author !== 'me' && (
+                    <ProfileAvatar
+                      userId={normalizedMessage.author_id}
+                      userName={normalizedMessage.author_name || normalizedMessage.author}
+                      size="small"
+                      onPress={() => Alert.alert(
+                        "Profile", 
+                        `View ${normalizedMessage.author_name || normalizedMessage.author}'s profile`
+                      )}
+                    />
                   )}
-                  <Text style={styles.timeText}>
-                    {new Date(normalizedMessage.ts).toLocaleTimeString()}
-                  </Text>
+                  
+                  <View style={[styles.bubble, normalizedMessage.author === 'me' ? styles.mine : styles.theirs]}>
+                    {/* Author name - only show for other users */}
+                    {normalizedMessage.author !== 'me' && (
+                      <Text style={styles.authorText}>{normalizedMessage.author_name || normalizedMessage.author}</Text>
+                    )}
+                    
+                    {normalizedMessage.type === 'text' ? (
+                      <Text style={styles.bubbleText}>{normalizedMessage.text}</Text>
+                    ) : (
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <Ionicons name="mic" size={16} color={normalizedMessage.author === 'me' ? "#000" : "#fff"} />
+                        <Text style={{ 
+                          color: normalizedMessage.author === 'me' ? "#000" : "#fff", 
+                          fontWeight: '700' 
+                        }}>
+                          Voice message ({item.durationSec || 3}s)
+                        </Text>
+                      </View>
+                    )}
+                    <Text style={styles.timeText}>
+                      {new Date(normalizedMessage.ts).toLocaleTimeString()}
+                    </Text>
+                  </View>
+                  
+                  {/* Spacer for my messages to align them to the right */}
+                  {normalizedMessage.author === 'me' && <View style={styles.avatarSpacer} />}
                 </View>
                 <ReactBar msgId={normalizedMessage.id} counts={normalizedMessage.reactions} />
               </View>
@@ -236,6 +266,22 @@ const styles = StyleSheet.create({
   headerSpacer: { 
     width: 40 
   },
+  // Enhanced message container styles with profile pictures
+  messageContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    marginBottom: 4,
+  },
+  myMessageContainer: {
+    justifyContent: 'flex-end',
+  },
+  theirMessageContainer: {
+    justifyContent: 'flex-start',
+  },
+  avatarSpacer: {
+    width: 32, // Same as small avatar size
+    marginLeft: 8,
+  },
   bubble: { 
     maxWidth: '75%', 
     padding: 12, 
@@ -312,7 +358,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     gap: 12, 
     paddingHorizontal: 8, 
-    marginTop: 4 
+    marginTop: 4,
+    marginLeft: 50, // Offset for avatar space
   },
   reactBtn: { 
     flexDirection: 'row', 
