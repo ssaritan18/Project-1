@@ -582,7 +582,7 @@ const styles = StyleSheet.create({
   statNumber: {
     color: '#fff',
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: '900',
     marginBottom: 4,
   },
   statLabel: {
