@@ -200,7 +200,6 @@ export default function ChatDetail() {
                         <Text style={{ 
                           color: normalizedMessage.author === 'me' ? "#000" : "#fff", 
                           fontWeight: '700', 
-                          marginLeft: 8
                         }}>
                           Voice message ({normalizedMessage.durationSec || 3}s)
                         </Text>
@@ -307,7 +306,6 @@ const styles = StyleSheet.create({
     color: '#fff', 
     fontSize: 18, 
     fontWeight: '700',
-                          marginLeft: 8
     textAlign: 'center' 
   },
   modeIndicator: { 
@@ -333,7 +331,6 @@ const styles = StyleSheet.create({
   },
   avatarSpacer: {
     width: 32, // Same as small avatar size
-    marginLeft: 8,
   },
   bubble: { 
     maxWidth: '75%', 
