@@ -150,7 +150,7 @@ export function VoicePlayer({
     }
   };
 
-  const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
+  const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
     if (status.isLoaded) {
       setCurrentPosition(status.positionMillis || 0);
       setTotalDuration(status.durationMillis || totalDuration);
