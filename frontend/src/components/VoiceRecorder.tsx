@@ -6,12 +6,9 @@ import {
   StyleSheet,
   Alert,
   Platform,
-  PanGestureHandler,
-  State,
   Animated,
   Dimensions,
   Vibration,
-  BackHandler,
 } from 'react-native';
 import { Audio } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
