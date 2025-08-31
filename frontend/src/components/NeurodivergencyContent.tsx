@@ -577,3 +577,5 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
 });
+
+export default NeurodivergencyContent;
