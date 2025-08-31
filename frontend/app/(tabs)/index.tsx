@@ -81,14 +81,60 @@ export default function HomeScreen() {
     }
   };
   
-  // Handle starting different focus modes
-  const handleStartFocusMode = (mode, duration) => {
-    Alert.alert(
-      "🎯 Focus Mode Starting!", 
-      `Starting ${mode} mode for ${duration} minutes.\n\nThis is a demo - in the full app, this would:\n• Start the focus timer\n• Enable distraction blocking\n• Track your session\n• Reward you with points!`,
-      [{ text: 'Got it! 🚀', style: 'default' }]
-    );
+  // Handle adding new tasks with rewarding feedback
+  const handleAddTask = () => {
+    const taskPrompt = Platform.OS === 'web' 
+      ? prompt("✨ Add New Task\n\nWhat would you like to accomplish today? Keep it specific and achievable for that ADHD dopamine hit! 🎯")
+      : null;
+    
+    if (Platform.OS === 'web' && taskPrompt) {
+      if (taskPrompt.trim()) {
+        // Create the task with default goal of 1
+        addTask(taskPrompt.trim(), 1, COLOR_PRESETS[Math.floor(Math.random() * COLOR_PRESETS.length)]);
+        
+        // Show rewarding feedback
+        if (Platform.OS === 'web') {
+          window.alert(`🎉 Task Created!\n\n"${taskPrompt.trim()}" has been added to your quest!\n\n✅ +10 points for planning ahead\n📊 Progress bars updated\n🎯 Ready to tackle it?`);
+        }
+      }
+    } else if (Platform.OS !== 'web') {
+      Alert.prompt(
+        "✨ Add New Task",
+        "What would you like to accomplish today? Keep it specific and achievable for that ADHD dopamine hit! 🎯",
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Create Task 🚀', 
+            onPress: (taskText) => {
+              if (taskText && taskText.trim()) {
+                // Create the task
+                addTask(taskText.trim(), 1, COLOR_PRESETS[Math.floor(Math.random() * COLOR_PRESETS.length)]);
+                
+                // Show rewarding feedback
+                Alert.alert(
+                  "🎉 Task Created!",
+                  `"${taskText.trim()}" has been added to your quest!\n\n✅ +10 points for planning ahead\n📊 Progress bars updated\n🎯 Ready to tackle it?`,
+                  [
+                    { text: 'Let\'s do this! 💪', style: 'default' }
+                  ]
+                );
+              }
+            }
+          }
+        ],
+        'plain-text',
+        '',
+        'default'
+      );
+    }
   };
+
+  // Calculate overall progress for progression bar
+  const overallProgress = useMemo(() => {
+    if (tasks.length === 0) return 0;
+    const totalProgress = tasks.reduce((sum, task) => sum + (task.progress / task.goal), 0);
+    return Math.round((totalProgress / tasks.length) * 100);
+  }, [tasks]);
   
   // If full dashboard is enabled, show ADHD-friendly components with Phase 3 features
   if (showFullDashboard) {
