@@ -27,6 +27,7 @@ import { useFocusSession } from "../../src/hooks/useFocusSession";
 import { usePoints } from "../../src/hooks/usePoints";
 import { useAchievements } from "../../src/hooks/useAchievements";
 import { useStreak } from "../../src/hooks/useStreak";
+import { NeurodivergencyContent } from "../../src/components/NeurodivergencyContent";
 
 const COLOR_PRESETS = ["#A3C9FF", "#FFCFE1", "#B8F1D9", "#FFE3A3", "#FFB3BA"];
 
