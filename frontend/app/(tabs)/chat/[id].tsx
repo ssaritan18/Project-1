@@ -6,6 +6,7 @@ import { useChat } from "../../../src/context/ChatContext";
 import { useRuntimeConfig } from "../../../src/context/RuntimeConfigContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ProfileAvatar } from "../../../src/components/ProfileAvatar";
 
 export default function ChatDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
