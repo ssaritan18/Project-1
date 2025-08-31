@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert, FlatList, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert, ScrollView } from "react-native";
 import { useFriends } from "../../src/context/FriendsContext";
 import { useChat } from "../../src/context/ChatContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -11,24 +11,25 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
 export default function FriendsScreen() {
-  const { friends, requests, posts, presence, wsConnectionStatus, sendRequest, acceptRequest, rejectRequest, addPost, reactPost, refresh, lastNotification, clearNotification } = useFriends();
+  const { friends, requests, presence, wsConnectionStatus, sendRequest, acceptRequest, rejectRequest, refresh } = useFriends();
   const { syncEnabled, wsEnabled } = useRuntimeConfig();
-  const { token } = useAuth();
+  const { token, palette } = useAuth();
   const { openDirectChat } = useChat();
   const insets = useSafeAreaInsets();
   const [friendQuery, setFriendQuery] = React.useState("");
-  const [postText, setPostText] = React.useState("");
-  const [showDebug, setShowDebug] = React.useState(false);
 
   React.useEffect(() => { refresh(); }, [refresh]);
 
-  // Sliding request card
+  // Sliding request card animation
   const showCard = requests.length > 0;
   const slide = useSharedValue(0);
   React.useEffect(() => {
     slide.value = withTiming(showCard ? 1 : 0, { duration: 250, easing: Easing.out(Easing.ease) });
   }, [showCard]);
-  const cardStyle = useAnimatedStyle(() => ({ transform: [{ translateY: (1 - slide.value) * -60 }], opacity: slide.value }));
+  const cardStyle = useAnimatedStyle(() => ({ 
+    transform: [{ translateY: (1 - slide.value) * -60 }], 
+    opacity: slide.value 
+  }));
 
   const addFriend = async () => {
     const q = friendQuery.trim();
@@ -47,7 +48,7 @@ export default function FriendsScreen() {
         await sendRequest(q);
       }
     } catch (e) {
-      // ignore
+      Alert.alert("Error", "Could not send friend request. Please try again.");
     } finally {
       setFriendQuery("");
     }
@@ -61,192 +62,190 @@ export default function FriendsScreen() {
       router.push(`/(tabs)/chat/${chatId}`);
     } catch (error: any) {
       console.error("❌ Failed to open direct chat:", error);
-      Alert.alert("Chat Error", error.message || "Mesaj başlatılamadı. Tekrar deneyin.");
+      Alert.alert("Chat Error", error.message || "Could not start chat. Please try again.");
     }
   };
 
+  const getConnectionStatusColor = () => {
+    if (wsConnectionStatus.includes('✅')) return '#00C851';
+    if (wsConnectionStatus.includes('🔄')) return '#FFB347';
+    return '#FF6B6B';
+  };
+
+  const getConnectionStatusText = () => {
+    if (wsConnectionStatus.includes('✅')) return 'Connected';
+    if (wsConnectionStatus.includes('🔄')) return 'Connecting...';
+    return 'Disconnected';
+  };
+
+  const onlineFriends = friends.filter(friend => presence[friend.id] || presence[friend._id]);
+  const offlineFriends = friends.filter(friend => !presence[friend.id] && !presence[friend._id]);
   const firstReq = requests[0];
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: 0 }]}>
-        {/* Fixed Header */}
-        <View style={{ paddingBottom: 12 }}>
-          <Text style={styles.header}>Friends {syncEnabled ? "(Online)" : "(Local)"}</Text>
-          {syncEnabled && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
-              <Text style={[styles.statusText, { color: wsConnectionStatus.includes('✅') ? '#3DDC84' : '#FF6B6B' }]}>
-                WebSocket: {wsConnectionStatus}
-              </Text>
-              <TouchableOpacity 
-                style={{ backgroundColor: '#333', padding: 4, borderRadius: 6 }}
-                onPress={() => {
-                  console.log("🔍 DEBUG CLICKED");
-                  setShowDebug(!showDebug);
-                }}
-              >
-                <Text style={{ color: '#fff', fontSize: 10 }}>?</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={{ backgroundColor: '#A3C9FF', padding: 6, borderRadius: 6, marginLeft: 8 }}
-                onPress={() => {
-                  console.log("📱 Manual refresh button pressed");
-                  refresh();
-                }}
-              >
-                <Text style={{ color: '#0c0c0c', fontSize: 10, fontWeight: 'bold' }}>🔄</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>👥 Friends</Text>
+          <Text style={styles.headerSubtitle}>
+            {syncEnabled ? 'Online Mode' : 'Local Mode'} • {friends.length} friends
+          </Text>
         </View>
 
-        {/* Scrollable Content */}
+        {/* WebSocket Status */}
+        {syncEnabled && (
+          <View style={[styles.statusCard, { borderLeftColor: getConnectionStatusColor() }]}>
+            <View style={styles.statusRow}>
+              <View style={[styles.statusDot, { backgroundColor: getConnectionStatusColor() }]} />
+              <Text style={styles.statusText}>WebSocket: {getConnectionStatusText()}</Text>
+              <TouchableOpacity 
+                style={[styles.refreshBtn, { backgroundColor: palette.primary }]}
+                onPress={refresh}
+              >
+                <Ionicons name="refresh" size={16} color="#0c0c0c" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
         <ScrollView 
           style={{ flex: 1 }}
           contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 24) }}
-          showsVerticalScrollIndicator={true}
+          showsVerticalScrollIndicator={false}
         >
-
-        <Animated.View style={[styles.topCard, cardStyle]}> 
-          {firstReq ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Text style={styles.topCardText}>{firstReq.from}</Text>
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                <TouchableOpacity style={styles.acceptBtn} onPress={() => acceptRequest(firstReq.id)}>
-                  <Text style={{ color: '#000', fontWeight: '700' }}>Accept</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.rejectBtn} onPress={() => rejectRequest(firstReq.id)}>
-                  <Text style={{ color: '#000', fontWeight: '700' }}>Reject</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : null}
-        </Animated.View>
-
-        <View style={styles.row}>
-          <TextInput style={styles.input} placeholder="Add by name or email" placeholderTextColor="#777" value={friendQuery} onChangeText={setFriendQuery} />
-          <TouchableOpacity style={styles.actionBtn} onPress={addFriend}>
-            <Ionicons name="person-add" size={20} color="#000" />
-          </TouchableOpacity>
-        </View>
-
-        <View style={{ marginTop: 16 }}>
-          <Text style={styles.section}>My Friends ({friends.length})</Text>
-          
-          {/* ENHANCED MANUAL FRIENDS RENDERING WITH DEBUG */}
-          <View style={{ minHeight: 200, backgroundColor: '#111', borderRadius: 12, padding: 8 }}>
-            {/* Debug information */}
-            <View style={{ backgroundColor: '#222', padding: 6, marginBottom: 8, borderRadius: 4 }}>
-              <Text style={{ color: '#A3C9FF', fontSize: 10 }}>
-                🔍 DEBUG: Array.isArray={String(Array.isArray(friends))}, Length={friends.length}
-              </Text>
-              <Text style={{ color: '#A3C9FF', fontSize: 10 }}>
-                Type: {typeof friends}, Content: {JSON.stringify(friends).slice(0, 100)}...
-              </Text>
-            </View>
-
-            {friends.length === 0 ? (
-              <View>
-                <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>
-                  No friends data (Array length: {friends.length})
-                </Text>
-                <Text style={{ color: '#666', textAlign: 'center', fontSize: 10, marginTop: 8 }}>
-                  Array check: {Array.isArray(friends) ? 'IS ARRAY' : 'NOT ARRAY'}
-                </Text>
-              </View>
-            ) : (
-              <View>
-                <Text style={{ color: '#4CAF50', fontSize: 12, marginBottom: 8, textAlign: 'center' }}>
-                  ✅ Found {friends.length} friends - Rendering now:
-                </Text>
-                {friends.map((friend, index) => {
-                  // Only log occasionally to prevent infinite loop
-                  if (index < 3) {
-                    console.log(`🔍 FRIEND ${index}:`, friend.name || friend.email);
-                  }
-                  
-                  return (
-                    <View 
-                      key={friend.id || friend._id || `friend-${index}`} 
-                      style={[styles.itemRow, { borderColor: '#4CAF50', borderWidth: 1 }]}
-                    >
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
-                        <View style={presence[friend.id] || presence[friend._id] ? styles.dotOnline : styles.dotOffline} />
-                        <View style={{ flex: 1 }}>
-                          <Text style={[styles.itemText, { fontSize: 14, fontWeight: 'bold' }]}>
-                            {friend.name || 'No Name'}
-                          </Text>
-                          {friend.email && (
-                            <Text style={[styles.itemText, { fontSize: 11, opacity: 0.7 }]}>
-                              {friend.email}
-                            </Text>
-                          )}
-                        </View>
-                        
-                        {/* Message Button */}
-                        <TouchableOpacity 
-                          style={styles.messageBtn}
-                          onPress={() => handleMessageFriend(friend)}
-                        >
-                          <Ionicons name="chatbubble" size={16} color="#000" />
-                          <Text style={styles.messageBtnText}>Message</Text>
-                        </TouchableOpacity>
-                        
-                        <Text style={{ color: '#4CAF50', fontSize: 10 }}>#{index + 1}</Text>
-                      </View>
-                    </View>
-                  );
-                })}
+          {/* Friend Request Card */}
+          <Animated.View style={[styles.requestCard, cardStyle]}> 
+            {firstReq && (
+              <View style={styles.requestContent}>
+                <View style={styles.requestInfo}>
+                  <Text style={styles.requestTitle}>Friend Request</Text>
+                  <Text style={styles.requestFrom}>{firstReq.from}</Text>
+                </View>
+                <View style={styles.requestActions}>
+                  <TouchableOpacity 
+                    style={[styles.acceptBtn, { backgroundColor: palette.accent }]} 
+                    onPress={() => acceptRequest(firstReq.id)}
+                  >
+                    <Ionicons name="checkmark" size={16} color="#0c0c0c" />
+                    <Text style={styles.actionBtnText}>Accept</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.rejectBtn} 
+                    onPress={() => rejectRequest(firstReq.id)}
+                  >
+                    <Ionicons name="close" size={16} color="#FF6B6B" />
+                    <Text style={[styles.actionBtnText, { color: '#FF6B6B' }]}>Reject</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
+          </Animated.View>
 
-            {/* Always show raw data for debugging */}
-            <View style={{ marginTop: 12, backgroundColor: '#333', padding: 4, borderRadius: 4 }}>
-              <Text style={{ color: '#fff', fontSize: 9 }}>Raw Friends Data:</Text>
-              <Text style={{ color: '#fff', fontSize: 8, fontFamily: 'monospace' }}>
-                {JSON.stringify(friends, null, 1).slice(0, 300)}
-              </Text>
+          {/* Add Friend Section */}
+          <View style={styles.addFriendSection}>
+            <Text style={styles.sectionTitle}>✨ Add New Friend</Text>
+            <View style={styles.addFriendRow}>
+              <TextInput 
+                style={styles.friendInput} 
+                placeholder="Enter name or email address" 
+                placeholderTextColor="#777" 
+                value={friendQuery} 
+                onChangeText={setFriendQuery}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+              <TouchableOpacity 
+                style={[styles.addBtn, { backgroundColor: palette.primary, opacity: friendQuery.trim() ? 1 : 0.5 }]} 
+                onPress={addFriend}
+                disabled={!friendQuery.trim()}
+              >
+                <Ionicons name="person-add" size={20} color="#0c0c0c" />
+              </TouchableOpacity>
             </View>
           </View>
-        </View>
 
-        <View style={{ marginTop: 16 }}>
-          <Text style={styles.section}>Share an Update</Text>
-          <View style={styles.row}>
-            <TextInput style={styles.input} placeholder="What would you like to share?" placeholderTextColor="#777" value={postText} onChangeText={setPostText} />
-            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#A3C9FF' }]} onPress={() => { if (postText.trim()) { addPost(postText.trim()); setPostText(""); } }}>
-              <Ionicons name="send" size={20} color="#000" />
-            </TouchableOpacity>
-          </View>
-        </View>
+          {/* Online Friends */}
+          {onlineFriends.length > 0 && (
+            <View style={styles.friendsSection}>
+              <Text style={styles.sectionTitle}>🟢 Online Friends ({onlineFriends.length})</Text>
+              {onlineFriends.map((friend, index) => (
+                <View key={friend.id || friend._id || `online-${index}`} style={styles.friendCard}>
+                  <View style={styles.friendInfo}>
+                    <View style={styles.friendAvatar}>
+                      <Text style={styles.friendAvatarText}>
+                        {(friend.name || friend.email || 'U').charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                    <View style={styles.friendDetails}>
+                      <Text style={styles.friendName}>{friend.name || 'Unknown'}</Text>
+                      {friend.email && (
+                        <Text style={styles.friendEmail}>{friend.email}</Text>
+                      )}
+                      <View style={styles.onlineIndicator}>
+                        <View style={styles.onlineDot} />
+                        <Text style={styles.onlineText}>Online</Text>
+                      </View>
+                    </View>
+                  </View>
+                  <TouchableOpacity 
+                    style={[styles.messageBtn, { backgroundColor: palette.secondary }]}
+                    onPress={() => handleMessageFriend(friend)}
+                  >
+                    <Ionicons name="chatbubble" size={16} color="#0c0c0c" />
+                    <Text style={styles.messageBtnText}>Message</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
 
-        {lastNotification ? (
-          <View style={styles.toast}><Text style={styles.toastText}>{lastNotification}</Text></View>
-        ) : null}
+          {/* Offline Friends */}
+          {offlineFriends.length > 0 && (
+            <View style={styles.friendsSection}>
+              <Text style={styles.sectionTitle}>⚫ Offline Friends ({offlineFriends.length})</Text>
+              {offlineFriends.map((friend, index) => (
+                <View key={friend.id || friend._id || `offline-${index}`} style={styles.friendCard}>
+                  <View style={styles.friendInfo}>
+                    <View style={[styles.friendAvatar, { opacity: 0.6 }]}>
+                      <Text style={styles.friendAvatarText}>
+                        {(friend.name || friend.email || 'U').charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                    <View style={styles.friendDetails}>
+                      <Text style={[styles.friendName, { opacity: 0.8 }]}>{friend.name || 'Unknown'}</Text>
+                      {friend.email && (
+                        <Text style={[styles.friendEmail, { opacity: 0.6 }]}>{friend.email}</Text>
+                      )}
+                      <View style={styles.offlineIndicator}>
+                        <View style={styles.offlineDot} />
+                        <Text style={styles.offlineText}>Offline</Text>
+                      </View>
+                    </View>
+                  </View>
+                  <TouchableOpacity 
+                    style={[styles.messageBtn, { backgroundColor: '#333', opacity: 0.7 }]}
+                    onPress={() => handleMessageFriend(friend)}
+                  >
+                    <Ionicons name="chatbubble-outline" size={16} color="#bdbdbd" />
+                    <Text style={[styles.messageBtnText, { color: '#bdbdbd' }]}>Message</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
 
-        {showDebug && (
-          <View style={{ 
-            backgroundColor: '#1a1a1a', 
-            padding: 12, 
-            margin: 16, 
-            borderRadius: 8,
-            maxHeight: 200,
-          }}>
-            <Text style={{ color: '#A3C9FF', fontSize: 12, fontWeight: 'bold', marginBottom: 4 }}>🔍 Debug Info:</Text>
-            <ScrollView style={{ maxHeight: 150 }} showsVerticalScrollIndicator={true}>
-              <Text style={{ color: '#fff', fontSize: 11 }}>Sync: {syncEnabled ? 'true' : 'false'}</Text>
-              <Text style={{ color: '#fff', fontSize: 11 }}>WebSocket: {wsEnabled ? 'true' : 'false'}</Text>
-              <Text style={{ color: '#fff', fontSize: 11 }}>Token: {token ? 'Yes' : 'No'}</Text>
-              <Text style={{ color: '#fff', fontSize: 11 }}>Status: {wsConnectionStatus}</Text>
-              <Text style={{ color: '#fff', fontSize: 11 }}>Friends Count: {friends.length}</Text>
-              <Text style={{ color: '#fff', fontSize: 11 }}>Token Preview: {token ? token.slice(0, 20) + '...' : 'null'}</Text>
-              <Text style={{ color: '#fff', fontSize: 11, lineHeight: 14 }}>Friends Data: {JSON.stringify(friends, null, 2)}</Text>
-              <Text style={{ color: '#A3C9FF', fontSize: 11, marginTop: 8 }}>Array.isArray: {Array.isArray(friends) ? 'true' : 'false'}</Text>
-              <Text style={{ color: '#A3C9FF', fontSize: 11 }}>Length: {friends.length}</Text>
-              <Text style={{ color: '#A3C9FF', fontSize: 11, marginBottom: 10 }}>Type: {typeof friends}</Text>
-            </ScrollView>
-          </View>
-        )}
+          {/* Empty State */}
+          {friends.length === 0 && (
+            <View style={styles.emptyState}>
+              <Ionicons name="people-outline" size={64} color="#444" />
+              <Text style={styles.emptyTitle}>No Friends Yet</Text>
+              <Text style={styles.emptySubtitle}>
+                Add friends by their name or email address to start connecting!
+              </Text>
+            </View>
+          )}
         </ScrollView>
       </View>
     </KeyboardAvoidingView>
@@ -254,26 +253,250 @@ export default function FriendsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0c0c0c', padding: 16 },
-  header: { color: '#fff', fontSize: 22, fontWeight: '700' },
-  statusText: { color: '#fff', fontSize: 12, fontWeight: '500', marginTop: 4 },
-  section: { color: '#fff', fontSize: 16, fontWeight: '700', marginBottom: 6 },
-  row: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  input: { flex: 1, backgroundColor: '#111', color: '#fff', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: '#1a1a1a' },
-  actionBtn: { backgroundColor: '#B8F1D9', padding: 10, borderRadius: 12 },
-  itemRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#111', borderRadius: 12, padding: 12, marginBottom: 8 },
-  itemText: { color: '#fff' },
-  acceptBtn: { backgroundColor: '#B8F1D9', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10 },
-  rejectBtn: { backgroundColor: '#FFB3BA', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10 },
-  postCard: { backgroundColor: '#111', borderRadius: 12, padding: 12, marginBottom: 10 },
-  postAuthor: { color: '#fff', fontWeight: '800' },
-  postText: { color: '#e5e5e5', marginTop: 6 },
-  topCard: { backgroundColor: '#111', borderRadius: 12, padding: 10, borderColor: '#222', borderWidth: 1, marginTop: 8 },
-  topCardText: { color: '#fff', fontWeight: '800' },
-  dotOnline: { width: 10, height: 10, borderRadius: 6, backgroundColor: '#3DDC84' },
-  dotOffline: { width: 10, height: 10, borderRadius: 6, backgroundColor: '#444' },
-  toast: { position: 'absolute', bottom: 100, left: 24, right: 24, backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 12, padding: 12, alignItems: 'center' },
-  toastText: { color: '#000', fontWeight: '800' },
-  messageBtn: { backgroundColor: '#A3C9FF', paddingVertical: 6, paddingHorizontal: 8, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 4 },
-  messageBtnText: { color: '#000', fontSize: 10, fontWeight: '600' },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#0c0c0c' 
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+  },
+  headerTitle: { 
+    color: '#fff', 
+    fontSize: 22, 
+    fontWeight: '700' 
+  },
+  headerSubtitle: { 
+    color: '#bdbdbd', 
+    fontSize: 14, 
+    marginTop: 2 
+  },
+  statusCard: {
+    backgroundColor: '#111',
+    marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 12,
+    padding: 12,
+    borderLeftWidth: 4,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    flex: 1,
+  },
+  refreshBtn: {
+    padding: 8,
+    borderRadius: 8,
+  },
+  requestCard: {
+    backgroundColor: '#111',
+    marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  requestContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  requestInfo: {
+    flex: 1,
+  },
+  requestTitle: {
+    color: '#A3C9FF',
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  requestFrom: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  requestActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  acceptBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 4,
+  },
+  rejectBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+    gap: 4,
+  },
+  actionBtnText: {
+    color: '#0c0c0c',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  addFriendSection: {
+    paddingHorizontal: 16,
+    marginVertical: 8,
+  },
+  sectionTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  addFriendRow: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  friendInput: {
+    flex: 1,
+    backgroundColor: '#111',
+    color: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: '#333',
+    fontSize: 16,
+  },
+  addBtn: {
+    padding: 12,
+    borderRadius: 12,
+  },
+  friendsSection: {
+    paddingHorizontal: 16,
+    marginVertical: 8,
+  },
+  friendCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#111',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#222',
+  },
+  friendInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  friendAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#4A90E2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  friendAvatarText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  friendDetails: {
+    flex: 1,
+  },
+  friendName: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  friendEmail: {
+    color: '#bdbdbd',
+    fontSize: 13,
+    marginBottom: 4,
+  },
+  onlineIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  onlineDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#00C851',
+  },
+  onlineText: {
+    color: '#00C851',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  offlineIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  offlineDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#666',
+  },
+  offlineText: {
+    color: '#666',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  messageBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 4,
+  },
+  messageBtnText: {
+    color: '#0c0c0c',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 80,
+    paddingHorizontal: 40,
+  },
+  emptyTitle: {
+    color: '#777',
+    fontSize: 20,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    color: '#555',
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
 });
