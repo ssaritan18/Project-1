@@ -2067,6 +2067,220 @@ async def get_profile_completion(current_user: dict = Depends(get_current_user))
         "max_points": sum(item["points"] for item in completion_items)
     }
 
+# Phase 3: Weekly Challenges System
+@api_router.get("/challenges/weekly")
+async def get_weekly_challenges(current_user: dict = Depends(get_current_user)):
+    """Get current week's ADHD-friendly challenges"""
+    challenges = [
+        {
+            "id": "focus_marathon",
+            "name": "Focus Marathon",
+            "icon": "🏃‍♂️",
+            "description": "Complete 5 focus sessions this week",
+            "category": "focus",
+            "difficulty": "medium",
+            "progress": random.randint(1, 4),
+            "max_progress": 5,
+            "reward": {
+                "points": 500,
+                "badge": "Marathon Runner",
+                "description": "You've mastered sustained focus!"
+            },
+            "deadline": (datetime.now() + timedelta(days=7)).isoformat(),
+            "tips": [
+                "Start with 15-minute sessions",
+                "Take breaks between sessions",
+                "Use your hyperfocus when it comes naturally"
+            ]
+        },
+        {
+            "id": "task_tornado",
+            "name": "Task Tornado",
+            "icon": "🌪️",
+            "description": "Complete 15 tasks in 3 days",
+            "category": "tasks",
+            "difficulty": "hard",
+            "progress": random.randint(3, 12),
+            "max_progress": 15,
+            "reward": {
+                "points": 750,
+                "badge": "Tornado",
+                "description": "You swept through those tasks!"
+            },
+            "deadline": (datetime.now() + timedelta(days=3)).isoformat(),
+            "tips": [
+                "Break big tasks into smaller ones",
+                "Use body doubling if possible",
+                "Ride your motivation waves"
+            ]
+        },
+        {
+            "id": "community_connector",
+            "name": "Community Connector",
+            "icon": "🤝",
+            "description": "Help 3 community members this week",
+            "category": "community",
+            "difficulty": "easy",
+            "progress": random.randint(0, 2),
+            "max_progress": 3,
+            "reward": {
+                "points": 300,
+                "badge": "Helper",
+                "description": "Your support means everything!"
+            },
+            "deadline": (datetime.now() + timedelta(days=7)).isoformat(),
+            "tips": [
+                "Share your own ADHD experiences",
+                "Offer encouragement on posts",
+                "Answer questions from your expertise"
+            ]
+        }
+    ]
+    
+    return {
+        "challenges": challenges,
+        "week_start": datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).isoformat(),
+        "completed_this_week": random.randint(0, 2),
+        "total_points_available": sum(c["reward"]["points"] for c in challenges)
+    }
+
+@api_router.post("/challenges/{challenge_id}/complete")
+async def complete_challenge(challenge_id: str, current_user: dict = Depends(get_current_user)):
+    """Mark a challenge as completed (mock implementation)"""
+    # Mock challenge completion
+    rewards = {
+        "focus_marathon": {"points": 500, "badge": "Marathon Runner"},
+        "task_tornado": {"points": 750, "badge": "Tornado"},
+        "community_connector": {"points": 300, "badge": "Helper"}
+    }
+    
+    reward = rewards.get(challenge_id, {"points": 100, "badge": "Achiever"})
+    
+    return {
+        "success": True,
+        "challenge_id": challenge_id,
+        "completion_time": datetime.now(timezone.utc).isoformat(),
+        "reward": reward,
+        "celebration": {
+            "title": "Challenge Completed! 🎉",
+            "message": "You've earned {} points and the {} badge!".format(
+                reward["points"], reward["badge"]
+            ),
+            "confetti": True,
+            "sound": "celebration"
+        }
+    }
+
+# Phase 3: Focus Session Tracking (New)
+@api_router.post("/focus/session/start")
+async def start_focus_session(
+    session_type: str = "pomodoro",  # pomodoro, deep_work, adhd_sprint
+    duration_minutes: int = 25,
+    current_user: dict = Depends(get_current_user)
+):
+    """Start a new focus session"""
+    session_id = str(uuid.uuid4())
+    
+    session_data = {
+        "session_id": session_id,
+        "user_id": current_user["_id"],
+        "type": session_type,
+        "duration_minutes": duration_minutes,
+        "start_time": datetime.now(timezone.utc).isoformat(),
+        "status": "active",
+        "points_potential": calculate_focus_points(session_type, duration_minutes)
+    }
+    
+    return {
+        "session": session_data,
+        "motivation": get_focus_motivation(session_type),
+        "tips": get_focus_tips(session_type)
+    }
+
+@api_router.post("/focus/session/{session_id}/complete")
+async def complete_focus_session(
+    session_id: str,
+    tasks_completed: int = 0,
+    interruptions: int = 0,
+    focus_rating: int = 8,  # 1-10 self-rating
+    current_user: dict = Depends(get_current_user)
+):
+    """Complete a focus session and award points"""
+    base_points = 150
+    task_bonus = tasks_completed * 25
+    focus_bonus = focus_rating * 10
+    interruption_penalty = interruptions * 5
+    
+    total_points = max(50, base_points + task_bonus + focus_bonus - interruption_penalty)
+    
+    return {
+        "session_id": session_id,
+        "completion_time": datetime.now(timezone.utc).isoformat(),
+        "points_earned": total_points,
+        "breakdown": {
+            "base_points": base_points,
+            "task_bonus": task_bonus,
+            "focus_bonus": focus_bonus,
+            "interruption_penalty": -interruption_penalty
+        },
+        "celebration": {
+            "title": "Focus Session Complete! 🎯",
+            "message": f"Amazing focus! You earned {total_points} points!",
+            "achievement_unlocked": focus_rating >= 9
+        },
+        "next_suggestion": get_next_focus_suggestion(focus_rating, interruptions)
+    }
+
+def calculate_focus_points(session_type: str, duration: int) -> int:
+    """Calculate potential points for focus session"""
+    base_rates = {
+        "pomodoro": 6,      # 6 points per minute
+        "deep_work": 8,     # 8 points per minute
+        "adhd_sprint": 10   # 10 points per minute (short bursts)
+    }
+    return base_rates.get(session_type, 6) * duration
+
+def get_focus_motivation(session_type: str) -> str:
+    """Get motivational message for focus session"""
+    messages = {
+        "pomodoro": "25 minutes of pure focus! Your ADHD brain can do this! 🍅",
+        "deep_work": "Deep work mode activated! Let your hyperfocus flow! 🧠",
+        "adhd_sprint": "Quick burst of energy! Perfect for ADHD brains! ⚡"
+    }
+    return messages.get(session_type, "Focus time! You've got this! 🎯")
+
+def get_focus_tips(session_type: str) -> list:
+    """Get ADHD-specific tips for focus session"""
+    tips = {
+        "pomodoro": [
+            "Put your phone in another room",
+            "Use white noise or focus music", 
+            "Have water and snacks ready"
+        ],
+        "deep_work": [
+            "Choose your highest energy time",
+            "Clear your physical space",
+            "Let hyperfocus guide you"
+        ],
+        "adhd_sprint": [
+            "Pick one specific task",
+            "Set a timer for urgency",
+            "Reward yourself after"
+        ]
+    }
+    return tips.get(session_type, ["Stay focused!", "You can do this!"])
+
+def get_next_focus_suggestion(rating: int, interruptions: int) -> str:
+    """Suggest next focus session based on performance"""
+    if rating >= 8 and interruptions <= 1:
+        return "Great session! Try extending to 30 minutes next time? 🚀"
+    elif interruptions > 3:
+        return "Lots of interruptions? Try a shorter 15-minute sprint next time 💪"
+    elif rating <= 5:
+        return "Tough session? Take a break and try again when you feel ready 🌱"
+    else:
+        return "Solid work! Keep building that focus muscle! 🎯"
+
 # Include the router in the main app
 app.include_router(api_router)
 
