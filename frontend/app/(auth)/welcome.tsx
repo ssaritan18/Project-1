@@ -1,8 +1,23 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
+import { useAuth } from "../../src/context/AuthContext";
 
 export default function WelcomeAuth() {
+  const { signIn } = useAuth();
+
+  const handleOfflineContinue = async () => {
+    console.log("🔄 Offline continue clicked - signing in offline user");
+    try {
+      // Sign in with a default offline user
+      await signIn({ name: "ADHD User", email: "offline@adhders.app" });
+      console.log("✅ Offline sign in successful, redirecting to tabs");
+      router.replace("/(tabs)/");
+    } catch (error) {
+      console.error("❌ Error signing in offline:", error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>ADHDers Social Club</Text>
@@ -20,7 +35,7 @@ export default function WelcomeAuth() {
         <Text style={styles.btnTextDark}>Log In</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.btnGhost]} onPress={() => router.push('/(auth)/login')}>
+      <TouchableOpacity style={[styles.btnGhost]} onPress={handleOfflineContinue}>
         <Text style={styles.btnGhostText}>Continue (offline)</Text>
       </TouchableOpacity>
     </View>
