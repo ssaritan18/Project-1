@@ -1888,23 +1888,47 @@ async def get_all_achievements():
 
 @api_router.get("/user/achievements")
 async def get_user_achievements(current_user: dict = Depends(get_current_user)):
-    """Get user's unlocked achievements with mock data"""
-    # Mock user achievement data
-    unlocked = ["first_day", "task_starter"] if random.random() > 0.3 else ["first_day"]
+    """Get user's unlocked achievements with enhanced Phase 3 features"""
+    # Mock user achievement data with more realistic progress
+    unlocked = ["first_day", "task_starter", "focus_first"] if random.random() > 0.3 else ["first_day"]
     
     user_achievements = []
     all_achievements = await get_all_achievements()
     
     for achievement in all_achievements["achievements"]:
+        # Simulate realistic progress for different achievements
+        progress = 0
+        max_progress = 1
+        
+        if achievement["id"] == "task_starter":
+            progress = random.randint(6, 10)
+            max_progress = 10
+        elif achievement["id"] == "week_warrior":
+            progress = random.randint(3, 6)
+            max_progress = 7
+        elif achievement["id"] == "task_machine":
+            progress = random.randint(20, 80)
+            max_progress = 100
+        elif achievement["id"] == "pomodoro_pro":
+            progress = random.randint(2, 8)
+            max_progress = 10
+        elif achievement["id"] == "challenge_champion":
+            progress = random.randint(0, 1)
+            max_progress = 1
+        elif achievement["id"] == "friend_collector":
+            progress = random.randint(2, 7)
+            max_progress = 10
+        
         user_achievement = {
             **achievement,
             "unlocked": achievement["id"] in unlocked,
-            "unlockedAt": "2024-08-30T10:00:00Z" if achievement["id"] in unlocked else None,
-            "progress": 10 if achievement["id"] == "task_starter" else (1 if achievement["id"] == "first_day" else 0),
-            "maxProgress": 10 if achievement["id"] == "task_starter" else 1
+            "unlockedAt": datetime.now(timezone.utc).isoformat() if achievement["id"] in unlocked else None,
+            "progress": progress if not achievement["id"] in unlocked else max_progress,
+            "maxProgress": max_progress,
+            "isNew": achievement["id"] in unlocked and random.random() > 0.7  # Some achievements are "new"
         }
         user_achievements.append(user_achievement)
-    
+
     return {"achievements": user_achievements}
 
 @api_router.get("/user/points")
