@@ -26,6 +26,13 @@ interface NeurodivergencyContentProps {
   style?: any;
 }
 
+const NeurodivergencyContent: React.FC<NeurodivergencyContentProps> = ({
+  onPress,
+  showFullContent = false,
+  onContentPress,
+  style
+}) => {
+
 // Placeholder content - future expansion point
 const placeholderContent: ContentItem[] = [
   {
