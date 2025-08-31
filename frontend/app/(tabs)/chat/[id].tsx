@@ -307,7 +307,6 @@ const styles = StyleSheet.create({
     color: '#fff', 
     fontSize: 18, 
     fontWeight: '700',
-                          marginLeft: 8
     textAlign: 'center' 
   },
   modeIndicator: { 
