@@ -47,7 +47,13 @@ export default function ProfileScreen() {
   useFocusEffect(React.useCallback(() => { refresh(); }, [refresh]));
   
   const navigateToEdit = () => {
-    router.push('/profile/edit');
+    setIsEditModalVisible(true);
+  };
+
+  const handleProfileUpdated = (updatedUser: any) => {
+    setCurrentUserProfile(updatedUser);
+    // Optionally update the auth context as well
+    // setPalette(updatedUser.palette || palette);
   };
 
   const navigateToSettings = () => {
