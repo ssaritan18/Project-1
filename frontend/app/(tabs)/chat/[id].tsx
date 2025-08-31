@@ -166,7 +166,6 @@ export default function ChatDetail() {
                   styles.messageContainer, 
                   normalizedMessage.author === 'me' ? styles.myMessageContainer : styles.theirMessageContainer
                 ]}>
-                  {/* Profile Avatar - show for other users' messages */}
                   {normalizedMessage.author !== 'me' && (
                     <ProfileAvatar
                       userId={normalizedMessage.author_id}
@@ -178,13 +177,10 @@ export default function ChatDetail() {
                       )}
                     />
                   )}
-                  
                   <View style={[styles.bubble, normalizedMessage.author === 'me' ? styles.mine : styles.theirs]}>
-                    {/* Author name - only show for other users */}
                     {normalizedMessage.author !== 'me' && (
                       <Text style={styles.authorText}>{normalizedMessage.author_name || normalizedMessage.author}</Text>
                     )}
-                    
                     {normalizedMessage.type === 'text' ? (
                       <Text style={styles.bubbleText}>{normalizedMessage.text}</Text>
                     ) : normalizedMessage.type === 'voice' ? (
@@ -210,8 +206,6 @@ export default function ChatDetail() {
                       {new Date(normalizedMessage.ts).toLocaleTimeString()}
                     </Text>
                   </View>
-                  
-                  {/* Spacer for my messages to align them to the right */}
                   {normalizedMessage.author === 'me' && <View style={styles.avatarSpacer} />}
                 </View>
                 <ReactBar msgId={normalizedMessage.id} counts={normalizedMessage.reactions} />
