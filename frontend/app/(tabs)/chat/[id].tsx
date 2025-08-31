@@ -342,9 +342,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#1a1a1a',
   },
-  voiceRecorder: {
-    // No additional styles needed, using default
-  },
   input: { 
     flex: 1, 
     backgroundColor: '#1a1a1a', 
