@@ -141,12 +141,6 @@ export default function ChatDetail() {
           keyExtractor={(m) => {
             // Safe key extraction to prevent crash
             const safeKey = m.id ?? m._id ?? Math.random().toString(36).slice(2);
-            console.log("🔑 KeyExtractor - Message:", {
-              originalId: m.id,
-              backupId: m._id,
-              finalKey: safeKey,
-              message: m.text?.slice(0, 30) + "..."
-            });
             return safeKey.toString();
           }}
           estimatedItemSize={80}
