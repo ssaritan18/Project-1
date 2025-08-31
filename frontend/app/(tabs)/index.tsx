@@ -309,6 +309,13 @@ export default function HomeScreen() {
       >
         <Text style={styles.testButtonText}>🚀 Show ADHD Dashboard</Text>
       </TouchableOpacity>
+      
+      <TouchableOpacity 
+        style={[styles.testButton, { backgroundColor: '#FFD700', marginTop: 10 }]} 
+        onPress={handleAddTask}
+      >
+        <Text style={[styles.testButtonText, { color: '#000' }]}>✨ Add New Task</Text>
+      </TouchableOpacity>
     </View>
   );
 }
