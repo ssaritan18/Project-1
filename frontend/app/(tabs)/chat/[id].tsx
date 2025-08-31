@@ -161,7 +161,9 @@ export default function ChatDetail() {
               author_name: item.author_name ?? item.author ?? "Unknown User",
               type: item.type ?? "text",
               ts: item.ts ?? Date.now(),
-              reactions: item.reactions ?? { like: 0, heart: 0, clap: 0, star: 0 }
+              reactions: item.reactions ?? { like: 0, heart: 0, clap: 0, star: 0 },
+              voice_url: item.voice_url ?? null,
+              durationSec: item.durationSec ?? item.duration_sec ?? 0
             };
             
             console.log("🎨 Rendering message:", {
