@@ -137,7 +137,7 @@ export function VoicePlayer({
       const { sound: newSound } = await Audio.Sound.createAsync(
         { uri: voiceUrl },
         { shouldPlay: true },
-        onPlaybackStatusUpdate
+        handlePlaybackStatusUpdate
       );
 
       setSound(newSound);
