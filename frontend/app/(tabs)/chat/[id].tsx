@@ -212,7 +212,6 @@ export default function ChatDetail() {
 
         {/* Message Composer */}
         <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-          />
           <TextInput
             style={styles.input}
             placeholder="Type a message..."
@@ -224,7 +223,6 @@ export default function ChatDetail() {
             onSubmitEditing={onSend}
             blurOnSubmit={false}
             returnKeyType="send"
-          />
           <TouchableOpacity onPress={onSend} style={[styles.sendBtn, { opacity: text.trim() ? 1 : 0.5 }]} disabled={!text.trim()}>
             <Ionicons name="send" size={18} color="#000" />
           </TouchableOpacity>
