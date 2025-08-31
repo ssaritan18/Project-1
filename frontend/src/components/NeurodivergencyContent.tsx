@@ -1,106 +1,27 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
-  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-type ContentItem = {
-  id: string;
-  title: string;
-  type: 'tip' | 'article' | 'awareness' | 'strategy';
-  icon: string;
-  preview: string;
-  content: string;
-  category: 'adhd' | 'autism' | 'general' | 'workplace' | 'relationships';
-};
 
 interface NeurodivergencyContentProps {
   onPress?: () => void;
   showFullContent?: boolean;
-  onContentPress?: (item: ContentItem) => void;
   style?: any;
 }
 
 const NeurodivergencyContent: React.FC<NeurodivergencyContentProps> = ({
   onPress,
   showFullContent = false,
-  onContentPress,
   style
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [expandedItem, setExpandedItem] = useState<string | null>(null);
-
-  // Placeholder content - future expansion point
-  const placeholderContent: ContentItem[] = [
-    {
-      id: 'adhd_hyperfocus',
-      title: 'Understanding ADHD Hyperfocus',
-      type: 'tip',
-      icon: '🎯',
-      preview: 'Learn how to harness your hyperfocus superpowers...',
-      content: 'Hyperfocus is like having a superpower that sometimes feels like a curse. When your ADHD brain locks onto something interesting, you can achieve incredible things. The key is learning to direct this power intentionally.\n\nTips for managing hyperfocus:\n• Set boundaries before you start (timers, breaks)\n• Have snacks and water ready\n• Let others know you\'ll be unavailable\n• Choose important tasks when possible\n\nRemember: Hyperfocus isn\'t a weakness - it\'s one of your greatest strengths!',
-      category: 'adhd'
-    },
-    {
-      id: 'rejection_sensitivity',
-      title: 'Dealing with Rejection Sensitive Dysphoria',
-      type: 'strategy',
-      icon: '💜',
-      preview: 'RSD can feel overwhelming, but there are ways to cope...',
-      content: 'You\'re not being "too sensitive" - your brain literally processes rejection differently.\n\nCoping strategies:\n• Recognize RSD when it happens\n• Practice self-compassion\n• Remember: One person\'s opinion ≠ universal truth\n\nYou\'re worthy of love and respect, always. 💜',
-      category: 'adhd'
-    },
-    {
-      id: 'neurodivergent_strengths',
-      title: 'Celebrating Neurodivergent Strengths',
-      type: 'awareness',
-      icon: '✨',
-      preview: 'Your brain works differently - and that\'s amazing...',
-      content: 'Neurodivergent brains bring unique perspectives and abilities:\n\n• Creative problem-solving\n• Pattern recognition\n• Intense passion and dedication\n• Innovative thinking\n• Empathy and emotional depth\n\nThe world needs your unique way of thinking!',
-      category: 'general'
-    }
-  ];
-
-  const contentSections = [
-    {
-      id: 'understanding',
-      title: '🧠 Understanding ADHD',
-      emoji: '🧠',
-      description: 'Learn about ADHD symptoms, types, and how it affects daily life',
-      placeholder: 'Educational content about ADHD will be added here...'
-    },
-    {
-      id: 'strategies',
-      title: '⚡ Coping Strategies',
-      emoji: '⚡',
-      description: 'Practical tips and techniques for managing ADHD symptoms',
-      placeholder: 'Coping strategies and management techniques will be featured here...'
-    },
-    {
-      id: 'community',
-      title: '🤝 Community Support',
-      emoji: '🤝',
-      description: 'Connect with others who understand your journey',
-      placeholder: 'Community resources and support groups information will be available here...'
-    },
-    {
-      id: 'resources',
-      title: '📚 Resources & Tools',
-      emoji: '📚',
-      description: 'Helpful apps, books, and professional resources',
-      placeholder: 'Curated resources and tools for ADHD management will be listed here...'
-    }
-  ];
-
   if (!showFullContent) {
     // Compact preview version
     return (
-      <TouchableOpacity style={styles.previewContainer} onPress={onPress}>
+      <TouchableOpacity style={[styles.previewContainer, style]} onPress={onPress}>
         <View style={styles.previewHeader}>
           <Text style={styles.previewTitle}>🧠 Neurodivergency Hub</Text>
           <Ionicons name="chevron-forward" size={20} color="#A3C9FF" />
@@ -115,46 +36,12 @@ const NeurodivergencyContent: React.FC<NeurodivergencyContentProps> = ({
     );
   }
 
-  // Full content version
+  // Full content version (placeholder)
   return (
-    <ScrollView style={styles.fullContainer} showsVerticalScrollIndicator={false}>
-      <View style={styles.fullHeader}>
-        <Text style={styles.title}>🧠 Neurodivergency Hub</Text>
-        <Text style={styles.subtitle}>
-          Educational content, coping strategies, and community resources
-        </Text>
-        <Text style={styles.placeholder}>
-          More comprehensive content coming soon...
-        </Text>
-      </View>
-
-      {/* Content Sections */}
-      {contentSections.map((section) => (
-        <View key={section.id} style={styles.sectionContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-          </View>
-          <Text style={styles.sectionDescription}>{section.description}</Text>
-          <View style={styles.placeholderBox}>
-            <Text style={styles.placeholderText}>{section.placeholder}</Text>
-          </View>
-        </View>
-      ))}
-
-      {/* Future Integration Placeholder */}
-      <View style={styles.integrationPlaceholder}>
-        <Text style={styles.placeholderTitle}>🚀 Coming Soon</Text>
-        <Text style={styles.placeholderText}>
-          This section will expand with:
-        </Text>
-        <View style={styles.featureList}>
-          <Text style={styles.featureItem}>📚 Curated articles and research</Text>
-          <Text style={styles.featureItem}>🎥 Educational videos and webinars</Text>
-          <Text style={styles.featureItem}>🧭 Personalized recommendations</Text>
-          <Text style={styles.featureItem}>👥 Community-contributed content</Text>
-        </View>
-      </View>
-    </ScrollView>
+    <View style={[styles.fullContainer, style]}>
+      <Text style={styles.title}>🧠 Neurodivergency Hub</Text>
+      <Text style={styles.subtitle}>Content coming soon...</Text>
+    </View>
   );
 };
 
@@ -202,12 +89,7 @@ const styles = StyleSheet.create({
   fullContainer: {
     flex: 1,
     backgroundColor: '#0c0c0c',
-  },
-  fullHeader: {
     padding: 20,
-    backgroundColor: '#1a1a1a',
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
   },
   title: {
     fontSize: 24,
@@ -220,73 +102,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#aaa',
     textAlign: 'center',
-    marginBottom: 8,
-  },
-  placeholder: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-  sectionContainer: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  sectionDescription: {
-    fontSize: 14,
-    color: '#aaa',
-    marginBottom: 12,
-    lineHeight: 20,
-  },
-  placeholderBox: {
-    backgroundColor: '#2a2a2a',
-    borderRadius: 8,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#444',
-    borderStyle: 'dashed',
-  },
-  placeholderText: {
-    fontSize: 12,
-    color: '#888',
-    fontStyle: 'italic',
-    textAlign: 'center',
-  },
-  integrationPlaceholder: {
-    backgroundColor: '#1a1a1a',
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#6C5CE7',
-    borderStyle: 'dashed',
-    padding: 20,
-    alignItems: 'center',
-    margin: 16,
-  },
-  placeholderTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#6C5CE7',
-    marginBottom: 8,
-  },
-  featureList: {
-    alignItems: 'flex-start',
-  },
-  featureItem: {
-    fontSize: 12,
-    color: '#888',
-    marginBottom: 4,
-    textAlign: 'left',
   },
 });
 
