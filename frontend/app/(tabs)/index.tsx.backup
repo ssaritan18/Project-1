@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Modal, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Modal, Alert, ScrollView } from "react-native";
 import DraggableFlatList, { ScaleDecorator } from "react-native-draggable-flatlist";
 import { useTasks } from "../../src/context/TasksContext";
 import { useAuth } from "../../src/context/AuthContext";
@@ -14,6 +14,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SegmentedProgressBar } from "../../src/components/SegmentedProgressBar";
 import { FocusModeTimer } from "../../src/components/FocusModeTimer";
 
+// Phase 3: Enhanced Gamification components
+import { WeeklyChallenges } from "../../src/components/WeeklyChallenges";
+import { FocusSessionTracker } from "../../src/components/FocusSessionTracker";
+import { EnhancedCelebration } from "../../src/components/EnhancedCelebration";
+import { AchievementBadge } from "../../src/components/AchievementBadge";
+import { StreakVisualization } from "../../src/components/StreakVisualization";
+
+// Phase 3: Enhanced hooks
+import { useChallenges } from "../../src/hooks/useChallenges";
+import { useFocusSession } from "../../src/hooks/useFocusSession";
+import { usePoints } from "../../src/hooks/usePoints";
+import { useAchievements } from "../../src/hooks/useAchievements";
+import { useStreak } from "../../src/hooks/useStreak";
+
 const COLOR_PRESETS = ["#A3C9FF", "#FFCFE1", "#B8F1D9", "#FFE3A3", "#FFB3BA"];
 
 export default function HomeScreen() {
@@ -24,56 +38,217 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [showFullDashboard, setShowFullDashboard] = useState(false);
   
-  // If full dashboard is enabled, show ADHD-friendly components
+  // Phase 3: Enhanced Gamification hooks
+  const { challenges, completeChallenge } = useChallenges();
+  const { startSession, completeSession, currentSession } = useFocusSession();
+  const { pointsData, getLevelInfo } = usePoints();
+  const { achievements } = useAchievements();
+  const { streak } = useStreak();
+  
+  // Celebration state
+  const [celebrationData, setCelebrationData] = useState(null);
+  const [showCelebration, setShowCelebration] = useState(false);
+  
+  // Handle challenge completion with celebration
+  const handleChallengeComplete = async (challengeId) => {
+    const result = await completeChallenge(challengeId);
+    if (result?.celebration) {
+      setCelebrationData({
+        type: 'challenge',
+        title: result.celebration.title,
+        message: result.celebration.message,
+        points: result.reward?.points,
+        badge: result.reward?.badge
+      });
+      setShowCelebration(true);
+    }
+  };
+  
+  // Handle focus session completion with celebration
+  const handleFocusComplete = async (sessionId, data) => {
+    const result = await completeSession(sessionId, data.tasks_completed, data.interruptions, data.focus_rating);
+    if (result?.celebration) {
+      setCelebrationData({
+        type: 'focus',
+        title: result.celebration.title,
+        message: result.celebration.message,
+        points: result.points_earned,
+        level: result.celebration.achievement_unlocked ? (pointsData?.level || 1) + 1 : undefined
+      });
+      setShowCelebration(true);
+    }
+  };
+  
+  // Handle starting different focus modes
+  const handleStartFocusMode = (mode, duration) => {
+    Alert.alert(
+      "🎯 Focus Mode Starting!", 
+      `Starting ${mode} mode for ${duration} minutes.\n\nThis is a demo - in the full app, this would:\n• Start the focus timer\n• Enable distraction blocking\n• Track your session\n• Reward you with points!`,
+      [{ text: 'Got it! 🚀', style: 'default' }]
+    );
+  };
+  
+  // If full dashboard is enabled, show ADHD-friendly components with Phase 3 features
   if (showFullDashboard) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-        <Text style={styles.header}>🎯 Your ADHD Journey</Text>
-        <Text style={styles.testText}>Full ADHD-friendly dashboard with Phase 1 & 2 features!</Text>
-        
-        <TouchableOpacity 
-          style={[styles.testButton, { backgroundColor: '#FF6B35' }]} 
-          onPress={() => {
-            setShowFullDashboard(false);
-            Alert.alert("🔙 Switched!", "Back to simple test mode");
-          }}
-        >
-          <Text style={styles.testButtonText}>← Back to Test Mode</Text>
-        </TouchableOpacity>
-        
-        {/* Phase 2: Mini Progress Indicator */}
-        <View style={styles.miniProgressContainer}>
-          <Text style={styles.miniProgressTitle}>📊 Today's Progress</Text>
-          <View style={styles.miniProgressBar}>
-            <View style={[styles.miniProgressFill, { width: '65%' }]} />
-          </View>
-          <Text style={styles.miniProgressText}>6/10 tasks completed (60%)</Text>
-        </View>
-        
-        {/* Quick Actions */}
-        <View style={styles.quickActions}>
-          <TouchableOpacity 
-            style={[styles.actionBtn, { backgroundColor: '#4A90E2' }]}
-            onPress={() => Alert.alert("🧠 Focus Mode", "Focus timer would start here!")}
-          >
-            <Text style={styles.actionBtnText}>🧠 Focus Mode</Text>
-          </TouchableOpacity>
+      <ScrollView style={[styles.container, { paddingTop: insets.top }]} showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View style={styles.dashboardHeader}>
+          <Text style={styles.header}>🎯 Your ADHD Journey</Text>
+          <Text style={styles.subtitle}>Phase 3: Full Gamification System Active!</Text>
           
           <TouchableOpacity 
-            style={[styles.actionBtn, { backgroundColor: '#00C851' }]}
-            onPress={() => Alert.alert("📝 Add Task", "Task creation modal would open here!")}
+            style={[styles.testButton, { backgroundColor: '#FF6B35', marginHorizontal: 16 }]} 
+            onPress={() => {
+              setShowFullDashboard(false);
+              Alert.alert("🔙 Switched!", "Back to simple test mode");
+            }}
           >
-            <Text style={styles.actionBtnText}>📝 Add Task</Text>
+            <Text style={styles.testButtonText}>← Back to Test Mode</Text>
           </TouchableOpacity>
         </View>
         
-        {/* Motivation Message */}
-        <View style={styles.motivationCard}>
-          <Text style={styles.motivationText}>
-            💪 You're making great progress today! Keep up the amazing work.
-          </Text>
+        {/* Points & Level Display */}
+        {pointsData && (
+          <View style={styles.pointsContainer}>
+            <View style={styles.pointsHeader}>
+              <Text style={styles.pointsTitle}>💎 {pointsData.total_points} Points</Text>
+              <Text style={styles.levelText}>Level {pointsData.level} {getLevelInfo()?.current?.icon}</Text>
+            </View>
+            <View style={styles.levelProgressBar}>
+              <View style={[styles.levelProgressFill, { width: `${(pointsData.total_points % 200) / 2}%` }]} />
+            </View>
+            <Text style={styles.pointsSubtext}>{pointsData.points_to_next_level} points to next level</Text>
+          </View>
+        )}
+        
+        {/* Streak Visualization */}
+        {streak && (
+          <View style={styles.section}>
+            <StreakVisualization 
+              streak={streak.current_streak} 
+              bestStreak={streak.best_streak}
+              showAnimation={false}
+              onPress={() => Alert.alert("🔥 Streak Info", `Current: ${streak.current_streak} days\nBest: ${streak.best_streak} days\n\n${streak.motivation?.encouragement || 'Keep going!'}`)}
+            />
+          </View>
+        )}
+        
+        {/* Recent Achievements */}
+        {achievements && achievements.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>🏆 Recent Achievements</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.achievementsList}>
+              {achievements.slice(0, 5).map((achievement) => (
+                <AchievementBadge
+                  key={achievement.id}
+                  achievement={achievement}
+                  size="medium"
+                  showUnlockAnimation={false}
+                  onPress={() => Alert.alert(`${achievement.icon} ${achievement.name}`, achievement.description)}
+                />
+              ))}
+            </ScrollView>
+          </View>
+        )}
+        
+        {/* Weekly Challenges */}
+        <View style={styles.section}>
+          <WeeklyChallenges 
+            challenges={challenges}
+            onChallengeComplete={handleChallengeComplete}
+            showAnimation={false}
+          />
         </View>
-      </View>
+        
+        {/* Focus Mode - Enhanced ADHD-friendly Focus System */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🧠 ADHD Focus Mode</Text>
+          <Text style={styles.sectionDescription}>
+            Choose your focus style based on your current energy and attention span
+          </Text>
+          
+          <View style={styles.focusModeOptions}>
+            <TouchableOpacity 
+              style={[styles.focusCard, { borderColor: '#FF6B35' }]}
+              onPress={() => Alert.alert(
+                "🍅 Pomodoro Mode", 
+                "25 minutes focused work + 5 minute break\n\nPerfect for ADHD brains! Short bursts prevent burnout and the timer creates urgency that helps with procrastination.\n\n• Built-in breaks prevent hyperfocus exhaustion\n• Visual countdown reduces time anxiety\n• Rewards after each session\n• Body doubling available",
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Start Pomodoro 🍅', onPress: () => handleStartFocusMode('pomodoro', 25) }
+                ]
+              )}
+            >
+              <Text style={styles.focusIcon}>🍅</Text>
+              <Text style={styles.focusTitle}>Pomodoro</Text>
+              <Text style={styles.focusSubtitle}>25 min focus</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.focusCard, { borderColor: '#6C5CE7' }]}
+              onPress={() => Alert.alert(
+                "🧠 Deep Work Mode", 
+                "90 minutes of deep, uninterrupted focus\n\nFor when you're feeling that ADHD hyperfocus energy! Longer sessions for complex tasks that need sustained attention.\n\n• Distraction blocking enabled\n• Phone in 'Do Not Disturb'\n• Background noise options\n• Emergency break button available",
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Enter Deep Work 🧠', onPress: () => handleStartFocusMode('deep_work', 90) }
+                ]
+              )}
+            >
+              <Text style={styles.focusIcon}>🧠</Text>
+              <Text style={styles.focusTitle}>Deep Work</Text>
+              <Text style={styles.focusSubtitle}>90 min deep</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.focusCard, { borderColor: '#00C851' }]}
+              onPress={() => Alert.alert(
+                "⚡ ADHD Sprint", 
+                "15 minutes of quick, energetic focus\n\nWhen you need to just GET STUFF DONE! Perfect for low-energy days or when you're feeling overwhelmed.\n\n• Extra short to match ADHD attention\n• High-energy background music\n• Quick wins and instant rewards\n• Perfect for task switching",
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Sprint Now ⚡', onPress: () => handleStartFocusMode('adhd_sprint', 15) }
+                ]
+              )}
+            >
+              <Text style={styles.focusIcon}>⚡</Text>
+              <Text style={styles.focusTitle}>ADHD Sprint</Text>
+              <Text style={styles.focusSubtitle}>15 min burst</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        
+        {/* Quick Stats */}
+        <View style={styles.quickStatsContainer}>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>{achievements?.filter(a => a.unlocked).length || 0}</Text>
+            <Text style={styles.statLabel}>🏆 Achievements</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>{challenges?.filter(c => c.progress >= c.max_progress).length || 0}</Text>
+            <Text style={styles.statLabel}>💪 Challenges</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>{pointsData?.breakdown?.focus_sessions || 0}</Text>
+            <Text style={styles.statLabel}>🎯 Focus Points</Text>
+          </View>
+        </View>
+        
+        {/* Enhanced Celebration Modal */}
+        {celebrationData && (
+          <EnhancedCelebration
+            visible={showCelebration}
+            data={celebrationData}
+            onClose={() => {
+              setShowCelebration(false);
+              setCelebrationData(null);
+            }}
+          />
+        )}
+        
+        <View style={{ height: insets.bottom + 20 }} />
+      </ScrollView>
     );
   }
   
@@ -112,7 +287,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0c0c0c' 
   },
   header: { color: "#fff", fontSize: 28, fontWeight: "900", textAlign: "center", marginVertical: 20 },
-  testText: { color: "#fff", fontSize: 16, textAlign: "center", marginVertical: 10, paddingHorizontal: 20 },
+  testText: { color: "#fff", fontSize: 18, textAlign: "center", marginVertical: 10, paddingHorizontal: 20 },
   testButton: { 
     backgroundColor: "#A3C9FF", 
     padding: 16, 
@@ -120,7 +295,7 @@ const styles = StyleSheet.create({
     margin: 20, 
     alignItems: "center" 
   },
-  testButtonText: { color: "#000", fontSize: 16, fontWeight: "600" },
+  testButtonText: { color: "#000", fontSize: 18, fontWeight: "600" },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -138,7 +313,7 @@ const styles = StyleSheet.create({
   },
   testText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     textAlign: 'center',
     marginTop: 20,
     paddingHorizontal: 20,
@@ -153,8 +328,8 @@ const styles = StyleSheet.create({
   },
   testButtonText: {
     color: '#000',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
   },
   addBtn: { 
     padding: 10, 
@@ -173,7 +348,7 @@ const styles = StyleSheet.create({
   },
   progressTitle: { 
     color: '#000', 
-    fontSize: 16, 
+    fontSize: 18, 
     fontWeight: '700', 
     marginBottom: 8 
   },
@@ -192,7 +367,7 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#777',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
     textAlign: 'center',
     marginTop: 16,
   },
@@ -222,7 +397,7 @@ const styles = StyleSheet.create({
     fontWeight: '700' 
   },
   saveText: { 
-    fontSize: 16, 
+    fontSize: 18, 
     fontWeight: '600' 
   },
   modalContent: { 
@@ -231,7 +406,7 @@ const styles = StyleSheet.create({
   label: { 
     color: '#fff', 
     fontSize: 14, 
-    fontWeight: '600', 
+    fontWeight: '700', 
     marginBottom: 8, 
     marginTop: 16 
   },
@@ -281,7 +456,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   focusBtnText: {
-    fontSize: 16,
+    fontSize: 18,
   },
   progressHeader: {
     flexDirection: 'row',
@@ -311,8 +486,8 @@ const styles = StyleSheet.create({
   },
   tasksSectionTitle: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
   },
   tasksSectionSubtitle: {
     color: '#999',
@@ -330,8 +505,8 @@ const styles = StyleSheet.create({
   },
   miniProgressTitle: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
     marginBottom: 8,
   },
   miniProgressBar: {
@@ -365,7 +540,7 @@ const styles = StyleSheet.create({
   actionBtnText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   motivationCard: {
     margin: 16,
@@ -380,5 +555,136 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  // Phase 3: New styles for enhanced dashboard
+  dashboardHeader: {
+    padding: 16,
+    backgroundColor: '#1a1a1a',
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+  },
+  subtitle: {
+    color: '#999',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  pointsContainer: {
+    margin: 16,
+    padding: 16,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  pointsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  pointsTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  levelText: {
+    color: '#A3C9FF',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  levelProgressBar: {
+    height: 8,
+    backgroundColor: '#333',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  levelProgressFill: {
+    height: '100%',
+    backgroundColor: '#A3C9FF',
+    borderRadius: 4,
+  },
+  pointsSubtext: {
+    color: '#999',
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  section: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  achievementsList: {
+    paddingVertical: 8,
+  },
+  quickStatsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    gap: 12,
+    marginBottom: 16,
+  },
+  statCard: {
+    flex: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333',
+    alignItems: 'center',
+  },
+  statNumber: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: '900',
+    marginBottom: 4,
+  },
+  statLabel: {
+    color: '#999',
+    fontSize: 11,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  sectionDescription: {
+    color: '#999',
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  focusModeOptions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  focusCard: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
+    borderWidth: 2,
+    alignItems: 'center',
+    minHeight: 100,
+  },
+  focusIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  focusTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  focusSubtitle: {
+    color: '#999',
+    fontSize: 12,
+    textAlign: 'center',
   },
 });
