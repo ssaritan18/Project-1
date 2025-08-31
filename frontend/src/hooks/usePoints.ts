@@ -1,0 +1,234 @@
+import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+
+export type PointsBreakdown = {
+  achievements: number;
+  tasks: number;
+  focus_sessions: number;
+  community: number;
+  streaks: number;
+  challenges: number;
+};
+
+export type PointsMultipliers = {
+  current_streak_bonus: number;
+  weekly_challenge_bonus: number;
+  achievement_tier_bonus: number;
+};
+
+export type PointsData = {
+  total_points: number;
+  level: number;
+  points_to_next_level: number;
+  breakdown: PointsBreakdown;
+  multipliers: PointsMultipliers;
+};
+
+export function usePoints() {
+  const [pointsData, setPointsData] = useState<PointsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { user, mode } = useAuth();
+
+  // Fetch points data from backend
+  const fetchPoints = async () => {
+    if (mode === 'sync' && user?.token) {
+      try {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/user/points`, {
+          headers: {
+            'Authorization': `Bearer ${user.token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setPointsData(data);
+        } else {
+          throw new Error(`Failed to fetch points: ${response.status}`);
+        }
+      } catch (err) {
+        console.error('Error fetching points:', err);
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        // Fall back to mock data
+        setPointsData(getMockPoints());
+      }
+    } else {
+      // Local mode - use mock data
+      setPointsData(getMockPoints());
+    }
+    setLoading(false);
+  };
+
+  // Mock points for local mode
+  const getMockPoints = (): PointsData => ({
+    total_points: 1250,
+    level: 7,
+    points_to_next_level: 150,
+    breakdown: {
+      achievements: 450,
+      tasks: 300,
+      focus_sessions: 250,
+      community: 100,
+      streaks: 100,
+      challenges: 50
+    },
+    multipliers: {
+      current_streak_bonus: 1.2,
+      weekly_challenge_bonus: 1.0,
+      achievement_tier_bonus: 1.1
+    }
+  });
+
+  useEffect(() => {
+    fetchPoints();
+  }, [user, mode]);
+
+  // Get level progress percentage
+  const getLevelProgress = () => {
+    if (!pointsData) return 0;
+    
+    const levelPoints = 200; // Points needed per level
+    const currentLevelPoints = pointsData.total_points % levelPoints;
+    return (currentLevelPoints / levelPoints) * 100;
+  };
+
+  // Get level info
+  const getLevelInfo = () => {
+    if (!pointsData) return null;
+    
+    const levelTitles = [
+      'Starter',
+      'Explorer', 
+      'Achiever',
+      'Focused',
+      'Dedicated',
+      'Champion',
+      'Expert',
+      'Master',
+      'Legend',
+      'ADHD Hero'
+    ];
+    
+    const levelIndex = Math.min(pointsData.level - 1, levelTitles.length - 1);
+    const nextLevelIndex = Math.min(pointsData.level, levelTitles.length - 1);
+    
+    return {
+      current: {
+        level: pointsData.level,
+        title: levelTitles[levelIndex] || 'Champion',
+        icon: getLevelIcon(pointsData.level)
+      },
+      next: {
+        level: pointsData.level + 1,
+        title: levelTitles[nextLevelIndex] || 'Ultimate Hero',
+        icon: getLevelIcon(pointsData.level + 1)
+      }
+    };
+  };
+
+  // Get level icon
+  const getLevelIcon = (level: number): string => {
+    if (level <= 2) return '🌱';
+    if (level <= 4) return '🚀';
+    if (level <= 6) return '⭐';
+    if (level <= 8) return '🏆';
+    return '👑';
+  };
+
+  // Get points by category with colors
+  const getCategorizedPoints = () => {
+    if (!pointsData) return [];
+    
+    return [
+      {
+        category: 'Achievements',
+        points: pointsData.breakdown.achievements,
+        color: '#FFD700',
+        icon: '🏆'
+      },
+      {
+        category: 'Tasks',
+        points: pointsData.breakdown.tasks,
+        color: '#4A90E2',
+        icon: '✅'
+      },
+      {
+        category: 'Focus Sessions',
+        points: pointsData.breakdown.focus_sessions,
+        color: '#6C5CE7',
+        icon: '🎯'
+      },
+      {
+        category: 'Community',
+        points: pointsData.breakdown.community,
+        color: '#00C851',
+        icon: '🤝'
+      },
+      {
+        category: 'Streaks',
+        points: pointsData.breakdown.streaks,
+        color: '#FF6B35',
+        icon: '🔥'
+      },
+      {
+        category: 'Challenges',
+        points: pointsData.breakdown.challenges,
+        color: '#FF3547',
+        icon: '💪'
+      }
+    ].filter(item => item.points > 0).sort((a, b) => b.points - a.points);
+  };
+
+  // Get active multipliers
+  const getActiveMultipliers = () => {
+    if (!pointsData) return [];
+    
+    const multipliers = [];
+    
+    if (pointsData.multipliers.current_streak_bonus > 1.0) {
+      multipliers.push({
+        name: 'Streak Bonus',
+        multiplier: pointsData.multipliers.current_streak_bonus,
+        icon: '🔥',
+        description: 'Keep your streak going!'
+      });
+    }
+    
+    if (pointsData.multipliers.weekly_challenge_bonus > 1.0) {
+      multipliers.push({
+        name: 'Challenge Bonus',
+        multiplier: pointsData.multipliers.weekly_challenge_bonus,
+        icon: '💪',
+        description: 'Complete weekly challenges!'
+      });
+    }
+    
+    if (pointsData.multipliers.achievement_tier_bonus > 1.0) {
+      multipliers.push({
+        name: 'Achievement Tier',
+        multiplier: pointsData.multipliers.achievement_tier_bonus,
+        icon: '🎖️',
+        description: 'Unlock higher tier achievements!'
+      });
+    }
+    
+    return multipliers;
+  };
+
+  // Refresh points
+  const refreshPoints = () => {
+    fetchPoints();
+  };
+
+  return {
+    pointsData,
+    loading,
+    error,
+    getLevelProgress,
+    getLevelInfo,
+    getCategorizedPoints,
+    getActiveMultipliers,
+    refreshPoints,
+  };
+}
