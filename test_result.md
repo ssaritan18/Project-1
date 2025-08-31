@@ -137,7 +137,7 @@
     implemented: true
     working: false
     file: "/app/frontend/src/components/VoiceRecorder.tsx"
-    stuck_count: 3
+    stuck_count: 4
     priority: "high"
     needs_retesting: false
     status_history:
@@ -174,7 +174,7 @@
     implemented: true
     working: false
     file: "/app/frontend/app/(tabs)/chat/[id].tsx"
-    stuck_count: 3
+    stuck_count: 4
     priority: "high"
     needs_retesting: false
     status_history:
