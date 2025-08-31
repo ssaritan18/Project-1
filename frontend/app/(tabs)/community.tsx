@@ -27,6 +27,10 @@ export default function CommunityScreen() {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [commentLoading, setCommentLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  
+  // Animation ref for single-tap refresh
+  const refreshAnimRef = useRef(new Animated.Value(0)).current;
+  const [isRefreshAnimating, setIsRefreshAnimating] = useState(false);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -38,6 +42,32 @@ export default function CommunityScreen() {
       setRefreshing(false);
     }
   }, [refreshPosts]);
+
+  // Single-tap refresh with smooth animation
+  const handleSingleTapRefresh = useCallback(async () => {
+    if (isRefreshAnimating) return;
+    
+    setIsRefreshAnimating(true);
+    
+    // Start animation
+    Animated.sequence([
+      Animated.timing(refreshAnimRef, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(refreshAnimRef, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      })
+    ]).start(() => {
+      setIsRefreshAnimating(false);
+    });
+    
+    // Refresh data
+    await handleRefresh();
+  }, [handleRefresh, isRefreshAnimating]);
 
   const handleCreatePost = useCallback(async (text: string, imageUrl?: string, tags?: string[], visibility?: string) => {
     try {
