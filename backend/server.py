@@ -1933,21 +1933,33 @@ async def get_user_achievements(current_user: dict = Depends(get_current_user)):
 
 @api_router.get("/user/points")
 async def get_user_points(current_user: dict = Depends(get_current_user)):
-    """Get user's total points"""
-    # Mock calculation based on achievements
-    base_points = 150
-    bonus_points = random.randint(0, 200)
-    total_points = base_points + bonus_points
+    """Get user's total points with enhanced Phase 3 breakdown"""
+    # Enhanced points calculation with more categories
+    base_points = 350
+    task_points = random.randint(100, 500)
+    focus_points = random.randint(200, 800)  # New Phase 3
+    community_points = random.randint(50, 200)
+    streak_points = random.randint(100, 400)
+    challenge_points = random.randint(0, 600)  # New Phase 3
+    
+    total_points = base_points + task_points + focus_points + community_points + streak_points + challenge_points
     
     return {
         "total_points": total_points,
-        "level": (total_points // 100) + 1,
-        "points_to_next_level": 100 - (total_points % 100),
+        "level": (total_points // 200) + 1,  # Adjusted level calculation
+        "points_to_next_level": 200 - (total_points % 200),
         "breakdown": {
             "achievements": base_points,
-            "tasks": bonus_points,
-            "community": random.randint(0, 50),
-            "streaks": random.randint(0, 100)
+            "tasks": task_points,
+            "focus_sessions": focus_points,  # New Phase 3
+            "community": community_points,
+            "streaks": streak_points,
+            "challenges": challenge_points  # New Phase 3
+        },
+        "multipliers": {
+            "current_streak_bonus": 1.2 if random.random() > 0.5 else 1.0,
+            "weekly_challenge_bonus": 1.5 if random.random() > 0.7 else 1.0,
+            "achievement_tier_bonus": 1.3 if random.random() > 0.6 else 1.0
         }
     }
 
