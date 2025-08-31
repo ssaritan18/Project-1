@@ -232,47 +232,26 @@ export default function ChatDetail() {
 
         {/* Message Composer */}
         <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-          {!isRecordingVoice ? (
-            <>
-              <VoiceRecorder
-                onVoiceRecorded={handleVoiceComplete}
-                onCancel={handleVoiceCancel}
-                onRecordingStart={() => setIsRecordingVoice(true)}
-                onRecordingEnd={() => setIsRecordingVoice(false)}
-                style={styles.voiceRecorder}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Type a message..."
-                placeholderTextColor="#777"
-                value={text}
-                onChangeText={setText}
-                multiline
-                maxLength={500}
-                onSubmitEditing={onSend}
-                blurOnSubmit={false}
-                returnKeyType="send"
-              />
-              <TouchableOpacity 
-                onPress={onSend} 
-                style={[styles.sendBtn, { opacity: text.trim() ? 1 : 0.5 }]} 
-                disabled={!text.trim()}
-              >
-                <Ionicons name="send" size={18} color="#000" />
-              </TouchableOpacity>
-            </>
-          ) : (
-            <View style={styles.recordingMode}>
-              <VoiceRecorder
-                onVoiceRecorded={handleVoiceComplete}
-                onCancel={handleVoiceCancel}
-                onRecordingStart={() => setIsRecordingVoice(true)}
-                onRecordingEnd={() => setIsRecordingVoice(false)}
-                style={styles.voiceRecorderActive}
-              />
-            </View>
-          )}
-        </View>      </View>
+          <TouchableOpacity onPress={onVoice} style={styles.micBtn}>
+            <Ionicons name="mic" size={18} color="#000" />
+          </TouchableOpacity>
+          <TextInput
+            style={styles.input}
+            placeholder="Type a message..."
+            placeholderTextColor="#777"
+            value={text}
+            onChangeText={setText}
+            multiline
+            maxLength={500}
+            onSubmitEditing={onSend}
+            blurOnSubmit={false}
+            returnKeyType="send"
+          />
+          <TouchableOpacity onPress={onSend} style={[styles.sendBtn, { opacity: text.trim() ? 1 : 0.5 }]} disabled={!text.trim()}>
+            <Ionicons name="send" size={18} color="#000" />
+          </TouchableOpacity>
+        </View>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -442,105 +421,9 @@ const styles = StyleSheet.create({
     marginTop: 16 
   },
   emptySubtext: { 
-  voiceRecorder: {
-    backgroundColor: "#FFE3A3",
-    padding: 12,
-    borderRadius: 20,
-  },
-  voiceRecorderActive: {
-    backgroundColor: "#FF7CA3",
-    padding: 12,
-    borderRadius: 20,
-    flex: 1,
-  },
-  recordingMode: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
     color: '#555', 
-  voiceRecorder: {
-    backgroundColor: "#FFE3A3",
-    padding: 12,
-    borderRadius: 20,
-  },
-  voiceRecorderActive: {
-    backgroundColor: "#FF7CA3",
-    padding: 12,
-    borderRadius: 20,
-    flex: 1,
-  },
-  recordingMode: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
     fontSize: 14, 
-  voiceRecorder: {
-    backgroundColor: "#FFE3A3",
-    padding: 12,
-    borderRadius: 20,
-  },
-  voiceRecorderActive: {
-    backgroundColor: "#FF7CA3",
-    padding: 12,
-    borderRadius: 20,
-    flex: 1,
-  },
-  recordingMode: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
     textAlign: 'center',
-  voiceRecorder: {
-    backgroundColor: "#FFE3A3",
-    padding: 12,
-    borderRadius: 20,
-  },
-  voiceRecorderActive: {
-    backgroundColor: "#FF7CA3",
-    padding: 12,
-    borderRadius: 20,
-    flex: 1,
-  },
-  recordingMode: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
     marginTop: 4
-  },
-  voiceRecorder: {
-    backgroundColor: "#FFE3A3",
-    padding: 12,
-    borderRadius: 20,
-  },
-  voiceRecorderActive: {
-    backgroundColor: "#FF7CA3",
-    padding: 12,
-    borderRadius: 20,
-    flex: 1,
-  },
-  recordingMode: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  voiceRecorder: {
-    backgroundColor: "#FFE3A3",
-    padding: 12,
-    borderRadius: 20,
-  },
-  voiceRecorderActive: {
-    backgroundColor: "#FF7CA3",
-    padding: 12,
-    borderRadius: 20,
-    flex: 1,
-  },
-  recordingMode: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
   },
 });
