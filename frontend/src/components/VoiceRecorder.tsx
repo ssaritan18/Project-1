@@ -126,57 +126,31 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     try {
       if (!recording.current) return;
 
-      // Clear animations and intervals
       if (durationInterval.current) {
         clearInterval(durationInterval.current);
         durationInterval.current = null;
       }
 
-      stopWaveformAnimation();
-      
-      Animated.parallel([
-        Animated.spring(scale, {
-          toValue: 1,
-          useNativeDriver: true,
-        }),
-        Animated.timing(waveformOpacity, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateX, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
-
       setIsRecording(false);
-      setCancelDistance(0);
-      setShowCancelHint(false);
       onRecordingEnd?.();
 
       await recording.current.stopAndUnloadAsync();
 
       if (shouldSend && recordingDuration > 0) {
-        // Get recording URI
         const uri = recording.current.getURI();
         if (!uri) {
           throw new Error('No recording URI available');
         }
 
-        // Convert to base64
         const response = await fetch(uri);
         const blob = await response.blob();
         const base64 = await blobToBase64(blob);
         
-        // Send the recorded audio
         onVoiceRecorded(base64, recordingDuration);
       } else {
         onCancel?.();
       }
 
-      // Clean up
       recording.current = null;
       setRecordingDuration(0);
 
@@ -199,29 +173,8 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         durationInterval.current = null;
       }
 
-      stopWaveformAnimation();
-      
-      Animated.parallel([
-        Animated.spring(scale, {
-          toValue: 1,
-          useNativeDriver: true,
-        }),
-        Animated.timing(waveformOpacity, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateX, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
-
       setIsRecording(false);
       setRecordingDuration(0);
-      setCancelDistance(0);
-      setShowCancelHint(false);
       onCancel?.();
     } catch (error) {
       console.error('❌ Failed to cancel recording:', error);
