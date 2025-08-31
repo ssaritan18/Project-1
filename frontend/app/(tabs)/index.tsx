@@ -87,6 +87,38 @@ export default function HomeScreen() {
       [{ text: 'Got it! 🚀', style: 'default' }]
     );
   };
+
+  // Handle adding new tasks with rewarding feedback
+  const handleAddTask = () => {
+    Alert.prompt(
+      "✨ Add New Task",
+      "What would you like to accomplish today? Keep it specific and achievable for that ADHD dopamine hit! 🎯",
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Create Task 🚀', 
+          onPress: (taskText) => {
+            if (taskText && taskText.trim()) {
+              // Create the task
+              addTask(taskText.trim());
+              
+              // Show rewarding feedback
+              Alert.alert(
+                "🎉 Task Created!",
+                `"${taskText.trim()}" has been added to your quest!\n\n✅ +10 points for planning ahead\n📊 Progress bars updated\n🎯 Ready to tackle it?`,
+                [
+                  { text: 'Let\'s do this! 💪', style: 'default' }
+                ]
+              );
+            }
+          }
+        }
+      ],
+      'plain-text',
+      '',
+      'default'
+    );
+  };
   
   // If full dashboard is enabled, show ADHD-friendly components with Phase 3 features
   if (showFullDashboard) {
