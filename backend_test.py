@@ -714,6 +714,185 @@ class APITester:
             self.log(f"❌ Profile settings update failed: {response.status_code} - {response.text}", "ERROR")
             return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
 
+    # Phase 3 Gamification Testing Methods
+    def test_get_achievements(self, token: str, user_name: str = "") -> Dict:
+        """Test getting all available achievements"""
+        url = f"{self.base_url}/achievements"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing achievements retrieval for {user_name}")
+        response = self.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "achievements" in data:
+                self.log(f"✅ Achievements retrieval successful - found {len(data['achievements'])} achievements")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Achievements response missing 'achievements' field", "ERROR")
+                return {"success": False, "error": "Missing 'achievements' field in response"}
+        else:
+            self.log(f"❌ Achievements retrieval failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def test_get_user_achievements(self, token: str, user_name: str = "") -> Dict:
+        """Test getting user's unlocked achievements"""
+        url = f"{self.base_url}/user/achievements"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing user achievements retrieval for {user_name}")
+        response = self.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "achievements" in data:
+                self.log(f"✅ User achievements retrieval successful - found {len(data['achievements'])} achievements")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ User achievements response missing 'achievements' field", "ERROR")
+                return {"success": False, "error": "Missing 'achievements' field in response"}
+        else:
+            self.log(f"❌ User achievements retrieval failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def test_get_user_points(self, token: str, user_name: str = "") -> Dict:
+        """Test getting user's points with Phase 3 breakdown"""
+        url = f"{self.base_url}/user/points"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing user points retrieval for {user_name}")
+        response = self.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            required_fields = ["total_points", "level", "points_to_next_level", "breakdown", "multipliers"]
+            for field in required_fields:
+                if field not in data:
+                    self.log(f"❌ User points response missing '{field}' field", "ERROR")
+                    return {"success": False, "error": f"Missing '{field}' field in response"}
+            
+            self.log(f"✅ User points retrieval successful - {data['total_points']} points, level {data['level']}")
+            return {"success": True, "data": data}
+        else:
+            self.log(f"❌ User points retrieval failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def test_get_user_streak(self, token: str, user_name: str = "") -> Dict:
+        """Test getting user's streak with ADHD-friendly features"""
+        url = f"{self.base_url}/user/streak"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing user streak retrieval for {user_name}")
+        response = self.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            required_fields = ["current_streak", "best_streak", "recovery", "motivation"]
+            for field in required_fields:
+                if field not in data:
+                    self.log(f"❌ User streak response missing '{field}' field", "ERROR")
+                    return {"success": False, "error": f"Missing '{field}' field in response"}
+            
+            self.log(f"✅ User streak retrieval successful - current: {data['current_streak']}, best: {data['best_streak']}")
+            return {"success": True, "data": data}
+        else:
+            self.log(f"❌ User streak retrieval failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def test_get_weekly_challenges(self, token: str, user_name: str = "") -> Dict:
+        """Test getting current week's ADHD-friendly challenges"""
+        url = f"{self.base_url}/challenges/weekly"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing weekly challenges retrieval for {user_name}")
+        response = self.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "challenges" in data:
+                self.log(f"✅ Weekly challenges retrieval successful - found {len(data['challenges'])} challenges")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Weekly challenges response missing 'challenges' field", "ERROR")
+                return {"success": False, "error": "Missing 'challenges' field in response"}
+        else:
+            self.log(f"❌ Weekly challenges retrieval failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def test_complete_challenge(self, token: str, challenge_id: str, user_name: str = "") -> Dict:
+        """Test completing a weekly challenge"""
+        url = f"{self.base_url}/challenges/{challenge_id}/complete"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing challenge completion for {challenge_id} by {user_name}")
+        response = self.session.post(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            required_fields = ["success", "challenge_id", "reward", "celebration"]
+            for field in required_fields:
+                if field not in data:
+                    self.log(f"❌ Challenge completion response missing '{field}' field", "ERROR")
+                    return {"success": False, "error": f"Missing '{field}' field in response"}
+            
+            self.log(f"✅ Challenge completion successful - earned {data['reward']['points']} points")
+            return {"success": True, "data": data}
+        else:
+            self.log(f"❌ Challenge completion failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def test_start_focus_session(self, token: str, session_type: str = "pomodoro", duration_minutes: int = 25, user_name: str = "") -> Dict:
+        """Test starting a focus session"""
+        url = f"{self.base_url}/focus/session/start"
+        headers = {"Authorization": f"Bearer {token}"}
+        params = {
+            "session_type": session_type,
+            "duration_minutes": duration_minutes
+        }
+        
+        self.log(f"Testing focus session start ({session_type}, {duration_minutes}min) for {user_name}")
+        response = self.session.post(url, params=params, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "session" in data and "motivation" in data and "tips" in data:
+                session_id = data["session"]["session_id"]
+                self.log(f"✅ Focus session start successful - session ID: {session_id}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Focus session start response missing required fields", "ERROR")
+                return {"success": False, "error": "Missing required fields in response"}
+        else:
+            self.log(f"❌ Focus session start failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def test_complete_focus_session(self, token: str, session_id: str, tasks_completed: int = 2, interruptions: int = 1, focus_rating: int = 8, user_name: str = "") -> Dict:
+        """Test completing a focus session"""
+        url = f"{self.base_url}/focus/session/{session_id}/complete"
+        headers = {"Authorization": f"Bearer {token}"}
+        params = {
+            "tasks_completed": tasks_completed,
+            "interruptions": interruptions,
+            "focus_rating": focus_rating
+        }
+        
+        self.log(f"Testing focus session completion for {session_id} by {user_name}")
+        response = self.session.post(url, params=params, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            required_fields = ["session_id", "points_earned", "breakdown", "celebration"]
+            for field in required_fields:
+                if field not in data:
+                    self.log(f"❌ Focus session completion response missing '{field}' field", "ERROR")
+                    return {"success": False, "error": f"Missing '{field}' field in response"}
+            
+            self.log(f"✅ Focus session completion successful - earned {data['points_earned']} points")
+            return {"success": True, "data": data}
+        else:
+            self.log(f"❌ Focus session completion failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
 def run_comprehensive_profile_management_test():
     """
     🚀 COMPREHENSIVE PROFILE MANAGEMENT SYSTEM TEST - SPRINT 2
