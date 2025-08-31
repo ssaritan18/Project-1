@@ -526,7 +526,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1,
   },
-  },
   voiceRecorder: {
     backgroundColor: "#FFE3A3",
     padding: 12,
