@@ -186,6 +186,64 @@ app = FastAPI(title="ADHDers API", version="0.3.1")
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# --- File Serving ---
+
+@api_router.get("/uploads/voices/{filename}")
+async def get_voice_file(filename: str):
+    """Serve voice message files"""
+    try:
+        file_path = f"/app/backend/uploads/voices/{filename}"
+        
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="Voice file not found")
+        
+        # Determine media type based on file extension
+        if filename.endswith('.m4a'):
+            media_type = "audio/mp4"
+        elif filename.endswith('.ogg'):
+            media_type = "audio/ogg"
+        elif filename.endswith('.webm'):
+            media_type = "audio/webm"
+        else:
+            media_type = "audio/mpeg"
+        
+        return FileResponse(
+            path=file_path,
+            media_type=media_type,
+            filename=filename
+        )
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to serve voice file {filename}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to serve voice file")
+
+@api_router.get("/uploads/profiles/{filename}")
+async def get_profile_picture(filename: str):
+    """Serve profile picture files"""
+    try:
+        file_path = f"/app/backend/uploads/profiles/{filename}"
+        
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="Profile picture not found")
+        
+        # Determine media type based on file extension
+        if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+            media_type = f"image/{filename.split('.')[-1].lower()}"
+            if media_type == "image/jpg":
+                media_type = "image/jpeg"
+        else:
+            media_type = "image/jpeg"
+        
+        return FileResponse(
+            path=file_path,
+            media_type=media_type,
+            filename=filename
+        )
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to serve profile picture {filename}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to serve profile picture")
+
 # --- WebSocket connection store ---
 CONNECTIONS: Dict[str, Set[WebSocket]] = {}
 ONLINE: Set[str] = set()
