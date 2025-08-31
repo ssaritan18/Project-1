@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Modal, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Modal, Alert, ScrollView } from "react-native";
 import DraggableFlatList, { ScaleDecorator } from "react-native-draggable-flatlist";
 import { useTasks } from "../../src/context/TasksContext";
 import { useAuth } from "../../src/context/AuthContext";
@@ -13,6 +13,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 // ADHD-friendly Phase 2 components
 import { SegmentedProgressBar } from "../../src/components/SegmentedProgressBar";
 import { FocusModeTimer } from "../../src/components/FocusModeTimer";
+
+// Phase 3: Enhanced Gamification components
+import { WeeklyChallenges } from "../../src/components/WeeklyChallenges";
+import { FocusSessionTracker } from "../../src/components/FocusSessionTracker";
+import { EnhancedCelebration } from "../../src/components/EnhancedCelebration";
+import { AchievementBadge } from "../../src/components/AchievementBadge";
+import { StreakVisualization } from "../../src/components/StreakVisualization";
+
+// Phase 3: Enhanced hooks
+import { useChallenges } from "../../src/hooks/useChallenges";
+import { useFocusSession } from "../../src/hooks/useFocusSession";
+import { usePoints } from "../../src/hooks/usePoints";
+import { useAchievements } from "../../src/hooks/useAchievements";
+import { useStreak } from "../../src/hooks/useStreak";
 
 const COLOR_PRESETS = ["#A3C9FF", "#FFCFE1", "#B8F1D9", "#FFE3A3", "#FFB3BA"];
 
