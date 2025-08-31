@@ -212,11 +212,6 @@ export default function ChatDetail() {
 
         {/* Message Composer */}
         <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-            onRecordingComplete={handleVoiceComplete}
-            onCancel={handleVoiceCancel}
-            size="medium"
-            color="#A3C9FF"
-            style={styles.voiceRecorder}
           />
           <TextInput
             style={styles.input}
