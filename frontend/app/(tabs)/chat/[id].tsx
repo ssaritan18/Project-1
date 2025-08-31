@@ -199,7 +199,7 @@ export default function ChatDetail() {
                         <Ionicons name="mic" size={16} color={normalizedMessage.author === 'me' ? "#000" : "#fff"} />
                         <Text style={{ 
                           color: normalizedMessage.author === 'me' ? "#000" : "#fff", 
-                          fontWeight: '700' 
+                          fontWeight: '700', 
                           marginLeft: 8
                         }}>
                           Voice message ({normalizedMessage.durationSec || 3}s)
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   header: { 
     color: '#fff', 
     fontSize: 18, 
-    fontWeight: '700',
+    fontWeight: '700',,
                           marginLeft: 8
     textAlign: 'center' 
   },
