@@ -159,9 +159,9 @@ export function VoicePlayer(props: VoicePlayerProps) {
       if (status.didJustFinish) {
         setIsPlaying(false);
         setCurrentPosition(0);
-        onPlaybackStatusUpdateProp?.(false, 0, totalDuration / 1000);
+        onPlaybackStatusUpdate?.(false, 0, totalDuration / 1000);
       } else {
-        onPlaybackStatusUpdateProp?.(
+        onPlaybackStatusUpdate?.(
           isPlaying,
           (status.positionMillis || 0) / 1000,
           (status.durationMillis || totalDuration) / 1000
