@@ -519,5 +519,3 @@ const styles = StyleSheet.create({
 });
 
 export default VoiceRecorder;
-
-export default VoiceRecorder;
