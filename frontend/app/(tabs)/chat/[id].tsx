@@ -7,8 +7,6 @@ import { useRuntimeConfig } from "../../../src/context/RuntimeConfigContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProfileAvatar } from "../../../src/components/ProfileAvatar";
-import { VoiceRecorder } from "../../../src/components/VoiceRecorder";
-import { VoicePlayer } from "../../../src/components/VoicePlayer";
 
 export default function ChatDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -185,7 +183,6 @@ export default function ChatDetail() {
                     {normalizedMessage.type === 'text' ? (
                       <Text style={styles.bubbleText}>{normalizedMessage.text}</Text>
                     ) : (
-                      <VoicePlayer
                         voiceUrl={normalizedMessage.voice_url || `voice_mock_${normalizedMessage.id}`}
                         duration={normalizedMessage.durationSec || 3}
                         isOwnMessage={normalizedMessage.author === 'me'}
@@ -215,7 +212,6 @@ export default function ChatDetail() {
 
         {/* Message Composer */}
         <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-          <VoiceRecorder
             onRecordingComplete={handleVoiceComplete}
             onCancel={handleVoiceCancel}
             size="medium"
