@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,26 +6,46 @@ import {
   StyleSheet,
   Alert,
   Platform,
+  PanGestureHandler,
+  State,
+  Animated,
+  Dimensions,
+  Vibration,
+  BackHandler,
 } from 'react-native';
 import { Audio } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+
+const { width: screenWidth } = Dimensions.get('window');
+const CANCEL_THRESHOLD = -100; // Pixels to swipe left to cancel
 
 interface VoiceRecorderProps {
   onVoiceRecorded: (audioBase64: string, duration: number) => void;
   onCancel?: () => void;
+  onRecordingStart?: () => void;
+  onRecordingEnd?: () => void;
   style?: any;
 }
 
 const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   onVoiceRecorded,
   onCancel,
+  onRecordingStart,
+  onRecordingEnd,
   style
 }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [isPermissionGranted, setIsPermissionGranted] = useState(false);
+  const [cancelDistance, setCancelDistance] = useState(0);
+  const [showCancelHint, setShowCancelHint] = useState(false);
+  
   const recording = useRef<Audio.Recording | null>(null);
   const durationInterval = useRef<NodeJS.Timeout | null>(null);
+  const translateX = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(1)).current;
+  const waveformOpacity = useRef(new Animated.Value(0)).current;
 
   const requestMicrophonePermission = async () => {
     try {
