@@ -587,7 +587,8 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     color: '#999',
-    fontSize: 12,
+    fontSize: 11,
     textAlign: 'center',
+    fontWeight: '600',
   },
 });
