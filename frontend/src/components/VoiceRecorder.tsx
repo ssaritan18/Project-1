@@ -47,6 +47,61 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const scale = useRef(new Animated.Value(1)).current;
   const waveformOpacity = useRef(new Animated.Value(0)).current;
 
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Platform,
+  Animated,
+  Dimensions,
+  Vibration,
+} from 'react-native';
+import { Audio } from 'expo-av';
+import { Ionicons } from '@expo/vector-icons';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+
+const { width: screenWidth } = Dimensions.get('window');
+const CANCEL_THRESHOLD = -100; // Pixels to swipe left to cancel
+
+interface VoiceRecorderProps {
+  onVoiceRecorded: (audioBase64: string, duration: number) => void;
+  onCancel?: () => void;
+  onRecordingStart?: () => void;
+  onRecordingEnd?: () => void;
+  style?: any;
+}
+
+const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
+  onVoiceRecorded,
+  onCancel,
+  onRecordingStart,
+  onRecordingEnd,
+  style
+}) => {
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [isPermissionGranted, setIsPermissionGranted] = useState(false);
+  const [cancelDistance, setCancelDistance] = useState(0);
+  const [showCancelHint, setShowCancelHint] = useState(false);
+  
+  const recording = useRef<Audio.Recording | null>(null);
+  const durationInterval = useRef<NodeJS.Timeout | null>(null);
+  const translateX = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(1)).current;
+  const waveformOpacity = useRef(new Animated.Value(0)).current;
+
+  // Waveform animation values
+  const waveforms = useRef([
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+  ]).current;
+
   const requestMicrophonePermission = async () => {
     try {
       const { status } = await Audio.requestPermissionsAsync();
@@ -66,6 +121,34 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       console.error('❌ Permission request failed:', error);
       return false;
     }
+  };
+
+  const startWaveformAnimation = () => {
+    const animations = waveforms.map((wave, index) => 
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(wave, {
+            toValue: 1,
+            duration: 300 + index * 100,
+            useNativeDriver: false,
+          }),
+          Animated.timing(wave, {
+            toValue: 0,
+            duration: 300 + index * 100,
+            useNativeDriver: false,
+          }),
+        ])
+      )
+    );
+
+    Animated.stagger(50, animations).start();
+  };
+
+  const stopWaveformAnimation = () => {
+    waveforms.forEach(wave => {
+      wave.stopAnimation();
+      wave.setValue(0);
+    });
   };
 
   const startRecording = async () => {
@@ -119,6 +202,26 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       recording.current = newRecording;
       setIsRecording(true);
       setRecordingDuration(0);
+      onRecordingStart?.();
+
+      // Haptic feedback
+      if (Platform.OS === 'ios') {
+        Vibration.vibrate(50);
+      }
+
+      // Start animations
+      Animated.spring(scale, {
+        toValue: 1.2,
+        useNativeDriver: true,
+      }).start();
+
+      Animated.timing(waveformOpacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+
+      startWaveformAnimation();
 
       // Start duration counter
       durationInterval.current = setInterval(() => {
@@ -131,35 +234,63 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
   };
 
-  const stopRecording = async () => {
+  const stopRecording = async (shouldSend: boolean = true) => {
     try {
       if (!recording.current) return;
 
-      // Clear duration interval
+      // Clear animations and intervals
       if (durationInterval.current) {
         clearInterval(durationInterval.current);
         durationInterval.current = null;
       }
 
+      stopWaveformAnimation();
+      
+      Animated.parallel([
+        Animated.spring(scale, {
+          toValue: 1,
+          useNativeDriver: true,
+        }),
+        Animated.timing(waveformOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateX, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
       setIsRecording(false);
+      setCancelDistance(0);
+      setShowCancelHint(false);
+      onRecordingEnd?.();
+
       await recording.current.stopAndUnloadAsync();
 
-      // Get recording URI
-      const uri = recording.current.getURI();
-      if (!uri) {
-        throw new Error('No recording URI available');
+      if (shouldSend && recordingDuration > 0) {
+        // Get recording URI
+        const uri = recording.current.getURI();
+        if (!uri) {
+          throw new Error('No recording URI available');
+        }
+
+        // Convert to base64
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const base64 = await blobToBase64(blob);
+        
+        // Send the recorded audio
+        onVoiceRecorded(base64, recordingDuration);
+      } else {
+        onCancel?.();
       }
 
-      // Convert to base64
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      const base64 = await blobToBase64(blob);
-      
       // Clean up
       recording.current = null;
-
-      // Send the recorded audio
-      onVoiceRecorded(base64, recordingDuration);
+      setRecordingDuration(0);
 
     } catch (error) {
       console.error('❌ Failed to stop recording:', error);
@@ -180,8 +311,29 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         durationInterval.current = null;
       }
 
+      stopWaveformAnimation();
+      
+      Animated.parallel([
+        Animated.spring(scale, {
+          toValue: 1,
+          useNativeDriver: true,
+        }),
+        Animated.timing(waveformOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateX, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
       setIsRecording(false);
       setRecordingDuration(0);
+      setCancelDistance(0);
+      setShowCancelHint(false);
       onCancel?.();
     } catch (error) {
       console.error('❌ Failed to cancel recording:', error);
@@ -208,54 +360,120 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  return (
-    <View style={[styles.container, style]}>
-      {!isRecording ? (
-        <TouchableOpacity 
-          style={styles.recordButton} 
-          onPress={startRecording}
-          activeOpacity={0.8}
-        >
+  // Gesture handler for swipe to cancel
+  const panGesture = Gesture.Pan()
+    .onUpdate((event) => {
+      if (!isRecording) return;
+      
+      const translation = Math.min(0, event.translationX);
+      translateX.setValue(translation);
+      setCancelDistance(translation);
+      
+      const shouldShowHint = translation < CANCEL_THRESHOLD / 2;
+      if (shouldShowHint !== showCancelHint) {
+        setShowCancelHint(shouldShowHint);
+        if (shouldShowHint && Platform.OS === 'ios') {
+          Vibration.vibrate(25);
+        }
+      }
+    })
+    .onEnd((event) => {
+      if (!isRecording) return;
+      
+      if (event.translationX < CANCEL_THRESHOLD) {
+        // Cancelled
+        cancelRecording();
+      } else {
+        // Reset position
+        Animated.spring(translateX, {
+          toValue: 0,
+          useNativeDriver: true,
+        }).start();
+        setCancelDistance(0);
+        setShowCancelHint(false);
+      }
+    });
+
+  const WaveformBars = () => (
+    <Animated.View style={[styles.waveformContainer, { opacity: waveformOpacity }]}>
+      {waveforms.map((wave, index) => (
+        <Animated.View
+          key={index}
+          style={[
+            styles.waveformBar,
+            {
+              height: wave.interpolate({
+                inputRange: [0, 1],
+                outputRange: [4, 20],
+              }),
+            },
+          ]}
+        />
+      ))}
+    </Animated.View>
+  );
+
+  if (!isRecording) {
+    return (
+      <TouchableOpacity 
+        style={[styles.recordButton, style]}
+        onLongPress={startRecording}
+        activeOpacity={0.8}
+        delayLongPress={150}
+      >
+        <Animated.View style={{ transform: [{ scale }] }}>
           <Ionicons name="mic" size={24} color="#fff" />
-        </TouchableOpacity>
-      ) : (
-        <View style={styles.recordingContainer}>
-          <View style={styles.recordingInfo}>
+        </Animated.View>
+      </TouchableOpacity>
+    );
+  }
+
+  return (
+    <GestureHandlerRootView style={[styles.recordingContainer, style]}>
+      <GestureDetector gesture={panGesture}>
+        <Animated.View 
+          style={[
+            styles.recordingUI,
+            { 
+              transform: [{ translateX }],
+              backgroundColor: showCancelHint ? '#ff4757' : '#2a2a2a',
+            }
+          ]}
+        >
+          <View style={styles.recordingContent}>
             <View style={styles.recordingIndicator}>
-              <View style={styles.recordingDot} />
-              <Text style={styles.recordingText}>Kaydediliyor...</Text>
+              <Animated.View style={[styles.recordingDot, { transform: [{ scale }] }]} />
+              <Text style={styles.recordingText}>
+                {showCancelHint ? 'Release to cancel' : 'Recording...'}
+              </Text>
             </View>
+            
+            <WaveformBars />
+            
             <Text style={styles.durationText}>{formatDuration(recordingDuration)}</Text>
           </View>
           
-          <View style={styles.recordingControls}>
-            <TouchableOpacity 
-              style={styles.cancelButton} 
-              onPress={cancelRecording}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="close" size={20} color="#ff4757" />
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.stopButton} 
-              onPress={stopRecording}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="stop" size={20} color="#fff" />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity 
+            style={styles.stopButton} 
+            onPress={() => stopRecording(true)}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="stop" size={20} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
+      </GestureDetector>
+      
+      {showCancelHint && (
+        <View style={styles.cancelHint}>
+          <Ionicons name="arrow-back" size={16} color="#ff4757" />
+          <Text style={styles.cancelHintText}>Slide to cancel</Text>
         </View>
       )}
-    </View>
+    </GestureHandlerRootView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   recordButton: {
     backgroundColor: '#4A90E2',
     borderRadius: 25,
@@ -265,16 +483,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   recordingContainer: {
-    flex: 1,
+    position: 'relative',
+    width: '100%',
+  },
+  recordingUI: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#2a2a2a',
     borderRadius: 25,
     paddingHorizontal: 16,
     paddingVertical: 8,
+    minWidth: 200,
   },
-  recordingInfo: {
+  recordingContent: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -296,24 +517,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
+  waveformContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 12,
+    height: 24,
+  },
+  waveformBar: {
+    width: 3,
+    backgroundColor: '#4A90E2',
+    borderRadius: 2,
+    marginHorizontal: 1,
+  },
   durationText: {
     color: '#aaa',
     fontSize: 14,
     fontWeight: '600',
-  },
-  recordingControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 12,
-  },
-  cancelButton: {
-    backgroundColor: '#333',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 8,
+    minWidth: 40,
   },
   stopButton: {
     backgroundColor: '#4A90E2',
@@ -322,7 +542,26 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 12,
+  },
+  cancelHint: {
+    position: 'absolute',
+    top: -30,
+    left: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 71, 87, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  cancelHintText: {
+    color: '#ff4757',
+    fontSize: 12,
+    marginLeft: 4,
   },
 });
+
+export default VoiceRecorder;
 
 export default VoiceRecorder;
