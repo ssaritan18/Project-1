@@ -371,6 +371,33 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 20
   },
+  refreshArea: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 60,
+    zIndex: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent'
+  },
+  refreshIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(74, 144, 226, 0.1)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(74, 144, 226, 0.3)'
+  },
+  refreshText: {
+    color: '#4A90E2',
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 8
+  },
   createFirstPostButtonText: {
     color: 'white',
     fontSize: 16,
