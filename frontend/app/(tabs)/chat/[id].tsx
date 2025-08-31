@@ -183,10 +183,15 @@ export default function ChatDetail() {
                     {normalizedMessage.type === 'text' ? (
                       <Text style={styles.bubbleText}>{normalizedMessage.text}</Text>
                     ) : (
-                        voiceUrl={normalizedMessage.voice_url || `voice_mock_${normalizedMessage.id}`}
-                        duration={normalizedMessage.durationSec || 3}
-                        isOwnMessage={normalizedMessage.author === 'me'}
-                      />
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <Ionicons name="mic" size={16} color={normalizedMessage.author === 'me' ? "#000" : "#fff"} />
+                        <Text style={{ 
+                          color: normalizedMessage.author === 'me' ? "#000" : "#fff", 
+                          fontWeight: '700' 
+                        }}>
+                          Voice message ({normalizedMessage.durationSec || 3}s)
+                        </Text>
+                      </View>
                     )}
                     <Text style={styles.timeText}>
                       {new Date(normalizedMessage.ts).toLocaleTimeString()}
