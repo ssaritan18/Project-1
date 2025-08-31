@@ -576,6 +576,89 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         setLocalMessages(prev => ({ ...prev, [chatId]: [...(prev[chatId] || []), msg] }));
       }
     },
+
+    sendVoice: async (chatId: string, audioUri: string, duration: number) => {
+      if (mode === "sync" && isAuthenticated) {
+        try {
+          console.log("🎙️ Sending voice message:", { chatId, duration });
+          
+          // Read the audio file and convert to base64
+          const response = await fetch(audioUri);
+          const audioBlob = await response.blob();
+          
+          // Convert blob to base64
+          const reader = new FileReader();
+          const base64Promise = new Promise<string>((resolve, reject) => {
+            reader.onload = () => {
+              const result = reader.result as string;
+              // Remove data URL prefix (data:audio/m4a;base64,)
+              const base64Data = result.split(',')[1];
+              resolve(base64Data);
+            };
+            reader.onerror = reject;
+          });
+          reader.readAsDataURL(audioBlob);
+          
+          const audioBase64 = await base64Promise;
+          
+          // Send to backend
+          const voiceMessageData = {
+            audio_data: audioBase64,
+            duration_sec: duration,
+            file_extension: 'm4a'
+          };
+          
+          const response2 = await fetch(`${chatAPI.baseURL}/chats/${chatId}/voice`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(voiceMessageData),
+          });
+          
+          if (!response2.ok) {
+            throw new Error(`Failed to send voice message: ${response2.status}`);
+          }
+          
+          const result = await response2.json();
+          console.log("✅ Voice message sent:", result);
+          
+          // Add message to local state immediately for optimistic UI
+          const tempMsg: Message = {
+            id: result.message_id || uid(),
+            chatId,
+            author: "me",
+            type: "voice",
+            durationSec: duration,
+            ts: Date.now(),
+            reactions: { like: 0, heart: 0, clap: 0, star: 0 }
+          };
+          
+          setBackendMessages(prev => ({ 
+            ...prev, 
+            [chatId]: [...(prev[chatId] || []), tempMsg] 
+          }));
+          
+        } catch (error) {
+          console.error("❌ Failed to send voice message:", error);
+          throw error;
+        }
+      } else {
+        // Local mode - just add mock voice message
+        const msg: Message = { 
+          id: uid(), 
+          chatId, 
+          author: "me", 
+          type: "voice", 
+          durationSec: duration, 
+          ts: Date.now(), 
+          reactions: { like: 0, heart: 0, clap: 0, star: 0 } 
+        };
+        
+        setLocalMessages(prev => ({ ...prev, [chatId]: [...(prev[chatId] || []), msg] }));
+      }
+    },
     
     markRead: (chatId: string) => {
       if (mode === "sync") {
