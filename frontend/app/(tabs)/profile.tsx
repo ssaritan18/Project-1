@@ -35,7 +35,7 @@ export default function ProfileScreen() {
   const { achievements, getCompletionStats, getAchievementsByCategory } = useAchievements();
   
   // UI State
-  const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'stats' | 'completion'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'stats' | 'completion' | 'neurodivergency'>('overview');
   
   const total = tasks.reduce((a, t) => a + t.goal, 0);
   const done = tasks.reduce((a, t) => a + t.progress, 0);
