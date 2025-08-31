@@ -6,6 +6,7 @@ import { useRuntimeConfig } from "../../../src/context/RuntimeConfigContext";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ProfileAvatar } from "../../../src/components/ProfileAvatar";
 
 export default function ChatList() {
   const { chats, createGroup, joinByCode, refresh, isLoading, error } = useChat();
