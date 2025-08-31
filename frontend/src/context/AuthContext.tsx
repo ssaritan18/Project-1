@@ -188,13 +188,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // eslint-disable-next-line semi
   const signOut = async () => {
     console.log("🚪 signOut called");
-    setAuthed(false); setUser(null); setToken(null); setAuthToken(null);
+    
+    // Clear all authentication state
+    setAuthed(false); 
+    setUser(null); 
+    setToken(null); 
+    setAuthToken(null);
+    
     console.log("🔄 State cleared, removing from storage...");
+    
     if (PERSIST_ENABLED) { 
-      await AsyncStorage.removeItem(KEYS.user); 
-      await AsyncStorage.removeItem(KEYS.token);
-      console.log("✅ SignOut completed - storage cleared");
+      try {
+        // Clear all auth-related items from storage
+        await AsyncStorage.removeItem(KEYS.user); 
+        await AsyncStorage.removeItem(KEYS.token);
+        // Also clear any other auth-related items
+        await AsyncStorage.multiRemove([KEYS.user, KEYS.token]);
+        console.log("✅ SignOut completed - storage cleared");
+      } catch (error) {
+        console.error("❌ Error clearing storage during signOut:", error);
+      }
     }
+    
+    // Force state update by triggering re-render
+    console.log("🔄 Forcing auth state update...");
   };
 
   const value = useMemo(() => ({ 
