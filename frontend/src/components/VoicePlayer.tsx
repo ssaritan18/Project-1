@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Alert,
   Platform,
+  Animated,
 } from 'react-native';
 import { Audio } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,20 +16,31 @@ interface VoicePlayerProps {
   duration?: number;
   style?: any;
   author?: string;
+  isFromMe?: boolean;
 }
 
 const VoicePlayer: React.FC<VoicePlayerProps> = ({
   voiceUrl,
   duration = 0,
   style,
-  author
+  author,
+  isFromMe = false
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPosition, setCurrentPosition] = useState(0);
   const [totalDuration, setTotalDuration] = useState(duration);
+  const [isDownloaded, setIsDownloaded] = useState(false);
+  
   const sound = useRef<Audio.Sound | null>(null);
   const positionUpdateInterval = useRef<NodeJS.Timeout | null>(null);
+  const playButtonScale = useRef(new Animated.Value(1)).current;
+  const progressWidth = useRef(new Animated.Value(0)).current;
+
+  // Waveform visualization (fake bars for visual appeal)
+  const waveformBars = useRef(
+    Array.from({ length: 15 }, () => new Animated.Value(Math.random() * 0.5 + 0.3))
+  ).current;
 
   useEffect(() => {
     return () => {
@@ -42,12 +54,46 @@ const VoicePlayer: React.FC<VoicePlayerProps> = ({
     };
   }, []);
 
+  const animateWaveform = (isPlaying: boolean) => {
+    if (isPlaying) {
+      const animations = waveformBars.map((bar) =>
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(bar, {
+              toValue: Math.random() * 0.7 + 0.3,
+              duration: 300 + Math.random() * 200,
+              useNativeDriver: false,
+            }),
+            Animated.timing(bar, {
+              toValue: Math.random() * 0.5 + 0.2,
+              duration: 300 + Math.random() * 200,
+              useNativeDriver: false,
+            }),
+          ])
+        )
+      );
+      
+      Animated.stagger(50, animations).start();
+    } else {
+      waveformBars.forEach((bar) => {
+        bar.stopAnimation();
+        Animated.timing(bar, {
+          toValue: 0.3,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      });
+    }
+  };
+
   const loadAudio = async () => {
     try {
       if (sound.current) {
         await sound.current.unloadAsync();
         sound.current = null;
       }
+
+      setIsLoading(true);
 
       // Configure audio mode for playback
       await Audio.setAudioModeAsync({
@@ -61,22 +107,36 @@ const VoicePlayer: React.FC<VoicePlayerProps> = ({
       // Create and load sound
       const { sound: newSound } = await Audio.Sound.createAsync(
         { uri: voiceUrl },
-        { shouldPlay: false }
+        { 
+          shouldPlay: false,
+          progressUpdateIntervalMillis: 100,
+        }
       );
 
       sound.current = newSound;
+      setIsDownloaded(true);
 
       // Set up status update
       sound.current.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded) {
           setCurrentPosition(status.positionMillis || 0);
+          
           if (!totalDuration && status.durationMillis) {
             setTotalDuration(Math.floor(status.durationMillis / 1000));
+          }
+          
+          // Update progress animation
+          if (status.durationMillis && status.durationMillis > 0) {
+            const progress = (status.positionMillis || 0) / status.durationMillis;
+            progressWidth.setValue(progress);
           }
           
           if (status.didJustFinish) {
             setIsPlaying(false);
             setCurrentPosition(0);
+            progressWidth.setValue(0);
+            animateWaveform(false);
+            
             if (positionUpdateInterval.current) {
               clearInterval(positionUpdateInterval.current);
               positionUpdateInterval.current = null;
@@ -85,10 +145,12 @@ const VoicePlayer: React.FC<VoicePlayerProps> = ({
         }
       });
 
+      setIsLoading(false);
       return true;
     } catch (error) {
       console.error('❌ Failed to load audio:', error);
       Alert.alert('Hata', 'Ses dosyası yüklenemedi.');
+      setIsLoading(false);
       return false;
     }
   };
@@ -97,21 +159,32 @@ const VoicePlayer: React.FC<VoicePlayerProps> = ({
     try {
       if (isLoading) return;
 
-      setIsLoading(true);
-
       // Load audio if not loaded
-      if (!sound.current) {
+      if (!sound.current || !isDownloaded) {
         const loaded = await loadAudio();
-        if (!loaded) {
-          setIsLoading(false);
-          return;
-        }
+        if (!loaded) return;
       }
+
+      // Animate play button
+      Animated.sequence([
+        Animated.timing(playButtonScale, {
+          toValue: 0.8,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(playButtonScale, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
 
       if (isPlaying) {
         // Pause audio
         await sound.current!.pauseAsync();
         setIsPlaying(false);
+        animateWaveform(false);
+        
         if (positionUpdateInterval.current) {
           clearInterval(positionUpdateInterval.current);
           positionUpdateInterval.current = null;
@@ -120,30 +193,20 @@ const VoicePlayer: React.FC<VoicePlayerProps> = ({
         // Play audio
         await sound.current!.playAsync();
         setIsPlaying(true);
-        
-        // Start position updates
-        positionUpdateInterval.current = setInterval(async () => {
-          if (sound.current) {
-            const status = await sound.current.getStatusAsync();
-            if (status.isLoaded) {
-              setCurrentPosition(status.positionMillis || 0);
-            }
-          }
-        }, 100);
+        animateWaveform(true);
       }
 
-      setIsLoading(false);
     } catch (error) {
       console.error('❌ Failed to play/pause audio:', error);
       Alert.alert('Hata', 'Ses çalarken hata oluştu.');
-      setIsLoading(false);
       setIsPlaying(false);
+      animateWaveform(false);
     }
   };
 
   const seekTo = async (position: number) => {
     try {
-      if (sound.current) {
+      if (sound.current && isDownloaded) {
         await sound.current.setPositionAsync(position * 1000);
         setCurrentPosition(position * 1000);
       }
@@ -164,49 +227,116 @@ const VoicePlayer: React.FC<VoicePlayerProps> = ({
     return Math.min(currentPosition / (totalDuration * 1000), 1);
   };
 
+  const WaveformBars = () => (
+    <View style={styles.waveformContainer}>
+      {waveformBars.map((bar, index) => (
+        <Animated.View
+          key={index}
+          style={[
+            styles.waveformBar,
+            {
+              height: bar.interpolate({
+                inputRange: [0, 1],
+                outputRange: [2, 16],
+              }),
+              backgroundColor: isFromMe ? '#4A90E2' : '#666',
+            },
+          ]}
+        />
+      ))}
+    </View>
+  );
+
   return (
-    <View style={[styles.container, style]}>
+    <View style={[
+      styles.container, 
+      style,
+      { backgroundColor: isFromMe ? '#4A90E2' : '#2a2a2a' }
+    ]}>
       <TouchableOpacity 
-        style={styles.playButton} 
+        style={[
+          styles.playButton,
+          { backgroundColor: isFromMe ? 'rgba(255,255,255,0.2)' : '#333' }
+        ]} 
         onPress={playPauseAudio}
         disabled={isLoading}
         activeOpacity={0.8}
       >
-        {isLoading ? (
-          <Ionicons name="hourglass" size={20} color="#4A90E2" />
-        ) : isPlaying ? (
-          <Ionicons name="pause" size={20} color="#4A90E2" />
-        ) : (
-          <Ionicons name="play" size={20} color="#4A90E2" />
-        )}
+        <Animated.View style={{ transform: [{ scale: playButtonScale }] }}>
+          {isLoading ? (
+            <Ionicons 
+              name="hourglass" 
+              size={16} 
+              color={isFromMe ? '#fff' : '#4A90E2'} 
+            />
+          ) : isPlaying ? (
+            <Ionicons 
+              name="pause" 
+              size={16} 
+              color={isFromMe ? '#fff' : '#4A90E2'} 
+            />
+          ) : (
+            <Ionicons 
+              name="play" 
+              size={16} 
+              color={isFromMe ? '#fff' : '#4A90E2'} 
+            />
+          )}
+        </Animated.View>
       </TouchableOpacity>
 
-      <View style={styles.audioInfo}>
-        <View style={styles.waveformContainer}>
+      <View style={styles.audioContent}>
+        <WaveformBars />
+        
+        <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
-            <View 
+            <Animated.View 
               style={[
                 styles.progressFill, 
-                { width: `${getProgress() * 100}%` }
+                { 
+                  width: progressWidth.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['0%', '100%'],
+                  }),
+                  backgroundColor: isFromMe ? '#fff' : '#4A90E2',
+                }
               ]} 
             />
           </View>
         </View>
         
-        <View style={styles.timeInfo}>
-          <Text style={styles.timeText}>
+        <View style={styles.timeContainer}>
+          <Text style={[
+            styles.timeText,
+            { color: isFromMe ? 'rgba(255,255,255,0.8)' : '#888' }
+          ]}>
             {formatTime(currentPosition)}
           </Text>
           {totalDuration > 0 && (
-            <Text style={styles.timeText}>
+            <Text style={[
+              styles.timeText,
+              { color: isFromMe ? 'rgba(255,255,255,0.6)' : '#666' }
+            ]}>
               {formatTime(totalDuration * 1000)}
             </Text>
           )}
         </View>
       </View>
 
-      <View style={styles.audioIcon}>
-        <Ionicons name="mic" size={16} color="#666" />
+      <View style={styles.audioMeta}>
+        <Ionicons 
+          name="mic" 
+          size={12} 
+          color={isFromMe ? 'rgba(255,255,255,0.6)' : '#666'} 
+        />
+        {!isDownloaded && (
+          <Ionicons 
+            name="download-outline" 
+            size={12} 
+            color={isFromMe ? 'rgba(255,255,255,0.6)' : '#666'} 
+            style={{ marginLeft: 4 }}
+          />
+        )}
       </View>
     </View>
   );
@@ -216,53 +346,64 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2a2a2a',
-    borderRadius: 20,
+    borderRadius: 18,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    minWidth: 200,
-    maxWidth: 280,
+    paddingVertical: 10,
+    minWidth: 180,
+    maxWidth: 260,
   },
   playButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#333',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 10,
   },
-  audioInfo: {
+  audioContent: {
     flex: 1,
     justifyContent: 'center',
   },
   waveformContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 20,
+    marginBottom: 4,
+    justifyContent: 'space-between',
+  },
+  waveformBar: {
+    width: 2,
+    borderRadius: 1,
+    marginHorizontal: 0.5,
+  },
+  progressContainer: {
     marginBottom: 4,
   },
   progressBar: {
-    height: 3,
-    backgroundColor: '#444',
-    borderRadius: 2,
+    height: 2,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 1,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#4A90E2',
-    borderRadius: 2,
+    borderRadius: 1,
   },
-  timeInfo: {
+  timeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   timeText: {
-    fontSize: 11,
-    color: '#888',
+    fontSize: 10,
     fontWeight: '500',
   },
-  audioIcon: {
+  audioMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginLeft: 8,
-    opacity: 0.6,
   },
 });
+
+export default VoicePlayer;
 
 export default VoicePlayer;
