@@ -36,4 +36,5 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#0c0c0c" },
   text: { color: "#fff", marginTop: 8, fontWeight: "700" },
+  subtext: { color: "#888", marginTop: 4, fontSize: 12, fontStyle: "italic" },
 });
