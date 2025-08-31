@@ -88,7 +88,6 @@ export default function ChatDetail() {
     setIsRecordingVoice(false);
   };
 
-
   const handleReaction = async (msgId: string, reactionType: string) => {
     if (!id) return;
     try {
