@@ -162,6 +162,14 @@ export default function HomeScreen() {
             showAnimation={false}
           />
         </View>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
         
         {/* Focus Mode - Enhanced ADHD-friendly Focus System */}
         <View style={styles.section}>
