@@ -190,15 +190,18 @@
 ##         -comment: "✅ BACKEND MESSAGE SENDING COMPREHENSIVE VERIFICATION COMPLETED: Executed comprehensive backend testing as requested in review to verify message sending functionality after user reports. ALL 6 CORE AREAS TESTED SUCCESSFULLY: 1) Authentication - Both test users (ssaritan@example.com, ssaritan2@example.com) login working perfectly with JWT tokens, 2) User Profiles - /me endpoint working correctly for both users, 3) Direct Chat Access - Users can access their direct chat (chat_4106a9a1_77bc913f) without issues, 4) WhatsApp-Style Message Processing - All 5 test messages sent successfully with unique UUIDs, normalized structure (11 required fields), and 'sent' status, 5) Message Persistence - All messages saved to MongoDB and retrievable by both users, 6) Error Handling - Empty and whitespace messages properly rejected. DETAILED VERIFICATION: Tested message sending via POST /api/chats/{chat_id}/messages with various content types (basic text, Unicode/emoji, special characters, long messages). All messages generated unique UUIDs, maintained consistent normalized structure, and persisted correctly. CONCLUSION: Backend message sending functionality is robust and working correctly. The user-reported issue with the message sending button is NOT caused by backend problems - the issue is in the frontend implementation, not the backend API."
 ##   - task: "Profile and Sync Mode Toggle"
 ##     implemented: true
-##     working: "NA"
+##     working: false
 ##     file: "/app/frontend/app/(tabs)/profile.tsx"
-##     stuck_count: 0
+##     stuck_count: 1
 ##     priority: "high"
 ##     needs_retesting: true
 ##     status_history:
 ##         -working: "NA"
 ##         -agent: "testing"
 ##         -comment: "Cannot test Profile tab or Sync Mode toggle because login flow is broken. Profile screen implementation exists with sync toggle functionality, but inaccessible due to authentication barrier."
+##         -working: false
+##         -agent: "testing"
+##         -comment: "❌ CRITICAL: Sign Out Functionality Cannot Be Tested - Authentication Flow Broken. ISSUE: App loads welcome screen correctly, but clicking 'Continue (offline)' does not navigate to main tabs. Console shows 'Index auth state check: {isAuthed: false, hasUser: false, hasToken: false}' and '❌ User not authenticated, redirecting to welcome'. The authentication state is not being set properly in offline mode, preventing access to Profile tab where sign out button is located. IMPACT: Cannot test sign out functionality as requested because Profile screen is inaccessible. REQUIRED FIX: Fix offline authentication flow to properly set auth state and navigate to main app tabs."
 ##   - task: "Friends Tab and Direct Messaging"
 ##     implemented: true
 ##     working: "NA"
