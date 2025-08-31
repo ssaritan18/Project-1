@@ -195,7 +195,7 @@ export default function ChatDetail() {
                         author={normalizedMessage.author_name || normalizedMessage.author}
                       />
                     ) : (
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center',  }}>
                         <Ionicons name="mic" size={16} color={normalizedMessage.author === 'me' ? "#000" : "#fff"} />
                         <Text style={{ 
                           color: normalizedMessage.author === 'me' ? "#000" : "#fff", 
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   composer: { 
     flexDirection: 'row', 
     alignItems: 'flex-end', 
-    gap: 8, 
+    , 
     paddingHorizontal: 16, 
     paddingTop: 12,
     backgroundColor: '#111',
