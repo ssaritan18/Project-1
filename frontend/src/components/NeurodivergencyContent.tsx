@@ -1,11 +1,61 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+
+type ContentItem = {
+  id: string;
+  title: string;
+  type: 'tip' | 'article' | 'awareness' | 'strategy';
+  icon: string;
+  preview: string;
+  content: string;
+  category: 'adhd' | 'autism' | 'general' | 'workplace' | 'relationships';
+};
 
 interface NeurodivergencyContentProps {
   onPress?: () => void;
   showFullContent?: boolean;
+  onContentPress?: (item: ContentItem) => void;
+  style?: any;
 }
+
+// Placeholder content - future expansion point
+const placeholderContent: ContentItem[] = [
+  {
+    id: 'adhd_hyperfocus',
+    title: 'Understanding ADHD Hyperfocus',
+    type: 'tip',
+    icon: '🎯',
+    preview: 'Learn how to harness your hyperfocus superpowers...',
+    content: 'Hyperfocus is like having a superpower that sometimes feels like a curse. When your ADHD brain locks onto something interesting, you can achieve incredible things. The key is learning to direct this power intentionally.\n\nTips for managing hyperfocus:\n• Set boundaries before you start (timers, breaks)\n• Have snacks and water ready\n• Let others know you\'ll be unavailable\n• Choose important tasks when possible\n\nRemember: Hyperfocus isn\'t a weakness - it\'s one of your greatest strengths!',
+    category: 'adhd'
+  },
+  {
+    id: 'rejection_sensitivity',
+    title: 'Dealing with Rejection Sensitive Dysphoria',
+    type: 'strategy',
+    icon: '💜',
+    preview: 'RSD can feel overwhelming, but there are ways to cope...',
+    content: 'You\'re not being "too sensitive" - your brain literally processes rejection differently.\n\nCoping strategies:\n• Recognize RSD when it happens\n• Practice self-compassion\n• Remember: One person\'s opinion ≠ universal truth\n\nYou\'re worthy of love and respect, always. 💜',
+    category: 'adhd'
+  },
+  {
+    id: 'neurodivergent_strengths',
+    title: 'Celebrating Neurodivergent Strengths',
+    type: 'awareness',
+    icon: '🌟',
+    preview: 'Your different brain is a gift to the world...',
+    content: 'Neurodivergent minds bring incredible gifts:\n\n✨ Creative problem-solving\n🔍 Attention to detail\n⚡ High energy and enthusiasm\n🎨 Unique perspectives\n💡 Innovation\n🤝 Deep empathy\n\nThe world needs your unique way of thinking.',
+    category: 'general'
+  }
+];
 
 export const NeurodivergencyContent: React.FC<NeurodivergencyContentProps> = ({ 
   onPress, 
