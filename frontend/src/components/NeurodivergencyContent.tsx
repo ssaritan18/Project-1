@@ -252,7 +252,8 @@ export const NeurodivergencyContent: React.FC<NeurodivergencyContentProps> = ({
     </View>
   );
 };
-  const contentSections = [
+
+const contentSections = [
     {
       id: 'understanding',
       title: '🧠 Understanding ADHD',
