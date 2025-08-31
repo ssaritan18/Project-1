@@ -628,6 +628,99 @@ class APITester:
         import base64
         return base64.b64encode(wav_file).decode('utf-8')
 
+    def generate_test_audio_formats(self, format_type: str = "wav") -> str:
+        """Generate test audio files in different formats"""
+        import base64
+        
+        if format_type == "m4a":
+            # Minimal M4A/MP4 audio file structure
+            m4a_data = b'\x00\x00\x00\x20ftypM4A \x00\x00\x00\x00M4A mp42isom\x00\x00\x00\x08free'
+            return base64.b64encode(m4a_data).decode('utf-8')
+        
+        elif format_type == "ogg":
+            # Minimal OGG Vorbis header
+            ogg_data = b'OggS\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00'
+            return base64.b64encode(ogg_data).decode('utf-8')
+        
+        elif format_type == "webm":
+            # Minimal WebM header
+            webm_data = b'\x1a\x45\xdf\xa3\x9f\x42\x86\x81\x01\x42\xf7\x81\x01\x42\xf2\x81\x04\x42\xf3\x81\x08\x42\x82\x84webm'
+            return base64.b64encode(webm_data).decode('utf-8')
+        
+        else:
+            # Default to WAV
+            return self.generate_test_audio_base64()
+
+    def test_get_voice_file(self, filename: str, user_name: str = "") -> Dict:
+        """Test serving voice message files"""
+        url = f"{self.base_url}/uploads/voices/{filename}"
+        
+        self.log(f"Testing voice file retrieval: {filename} by {user_name}")
+        response = self.session.get(url)
+        
+        if response.status_code == 200:
+            content_type = response.headers.get('content-type', '')
+            if content_type.startswith('audio/'):
+                self.log(f"✅ Voice file retrieval successful: {filename} - Content-Type: {content_type}")
+                return {"success": True, "content_type": content_type, "size": len(response.content)}
+            else:
+                self.log(f"❌ Voice file has incorrect content type: {content_type}", "ERROR")
+                return {"success": False, "error": f"Incorrect content type: {content_type}"}
+        else:
+            self.log(f"❌ Voice file retrieval failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def test_get_profile_picture_file(self, filename: str, user_name: str = "") -> Dict:
+        """Test serving profile picture files"""
+        url = f"{self.base_url}/uploads/profiles/{filename}"
+        
+        self.log(f"Testing profile picture file retrieval: {filename} by {user_name}")
+        response = self.session.get(url)
+        
+        if response.status_code == 200:
+            content_type = response.headers.get('content-type', '')
+            if content_type.startswith('image/'):
+                self.log(f"✅ Profile picture file retrieval successful: {filename} - Content-Type: {content_type}")
+                return {"success": True, "content_type": content_type, "size": len(response.content)}
+            else:
+                self.log(f"❌ Profile picture has incorrect content type: {content_type}", "ERROR")
+                return {"success": False, "error": f"Incorrect content type: {content_type}"}
+        else:
+            self.log(f"❌ Profile picture retrieval failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def test_voice_message_error_scenarios(self, token: str, chat_id: str, user_name: str = "") -> Dict:
+        """Test various error scenarios for voice messages"""
+        self.log(f"Testing voice message error scenarios for {user_name}")
+        
+        errors_tested = []
+        
+        # Test 1: Invalid base64 data
+        invalid_result = self.test_send_voice_message(token, chat_id, "invalid_base64_data", 1000, "test.wav", user_name)
+        if not invalid_result["success"]:
+            errors_tested.append("invalid_base64")
+            self.log("✅ Invalid base64 data properly rejected")
+        else:
+            self.log("❌ Invalid base64 data was accepted", "ERROR")
+        
+        # Test 2: Missing chat permissions (invalid chat_id)
+        invalid_chat_result = self.test_send_voice_message(token, "invalid_chat_id", self.generate_test_audio_base64(), 1000, "test.wav", user_name)
+        if not invalid_chat_result["success"]:
+            errors_tested.append("invalid_chat")
+            self.log("✅ Invalid chat ID properly rejected")
+        else:
+            self.log("❌ Invalid chat ID was accepted", "ERROR")
+        
+        # Test 3: Empty audio data
+        empty_result = self.test_send_voice_message(token, chat_id, "", 1000, "test.wav", user_name)
+        if not empty_result["success"]:
+            errors_tested.append("empty_audio")
+            self.log("✅ Empty audio data properly rejected")
+        else:
+            self.log("❌ Empty audio data was accepted", "ERROR")
+        
+        return {"success": True, "errors_tested": errors_tested}
+
     # Profile Management Testing Methods
     def test_get_profile_settings(self, token: str, user_name: str = "") -> Dict:
         """Test getting user profile and settings"""
