@@ -321,7 +321,6 @@ export default function HomeScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <Text style={styles.header}>🎯 ADHD Social Club</Text>
-      <Text style={styles.testText}>App is working! Phase 1 & 2 components loading...</Text>
       
       {/* Progress Bar Section */}
       <View style={styles.progressSection}>
