@@ -323,11 +323,8 @@ const placeholderContent: ContentItem[] = [
   }
 ];
 
-export const NeurodivergencyContent: React.FC<NeurodivergencyContentProps> = ({ 
-  onPress, 
-  showFullContent = false,
-  onContentPress,
-  style
+// Note: Placeholder for future expansion
+if (!showFullContent) {
 }) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
