@@ -88,9 +88,6 @@ export default function ChatDetail() {
     setIsRecordingVoice(false);
   };
 
-  const handleVoiceCancel = () => {
-    console.log("🚫 Voice recording cancelled");
-  };
 
   const handleReaction = async (msgId: string, reactionType: string) => {
     if (!id) return;
