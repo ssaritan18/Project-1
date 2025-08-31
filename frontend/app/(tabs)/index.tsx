@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0c0c0c' 
   },
   header: { color: "#fff", fontSize: 28, fontWeight: "900", textAlign: "center", marginVertical: 20 },
-  testText: { color: "#fff", fontSize: 16, textAlign: "center", marginVertical: 10, paddingHorizontal: 20 },
+  testText: { color: "#fff", fontSize: 18, textAlign: "center", marginVertical: 10, paddingHorizontal: 20 },
   testButton: { 
     backgroundColor: "#A3C9FF", 
     padding: 16, 
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     margin: 20, 
     alignItems: "center" 
   },
-  testButtonText: { color: "#000", fontSize: 16, fontWeight: "600" },
+  testButtonText: { color: "#000", fontSize: 18, fontWeight: "600" },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
   },
   testText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     textAlign: 'center',
     marginTop: 20,
     paddingHorizontal: 20,
@@ -269,8 +269,8 @@ const styles = StyleSheet.create({
   },
   testButtonText: {
     color: '#000',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
   },
   addBtn: { 
     padding: 10, 
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   },
   progressTitle: { 
     color: '#000', 
-    fontSize: 16, 
+    fontSize: 18, 
     fontWeight: '700', 
     marginBottom: 8 
   },
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#777',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
     textAlign: 'center',
     marginTop: 16,
   },
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     fontWeight: '700' 
   },
   saveText: { 
-    fontSize: 16, 
+    fontSize: 18, 
     fontWeight: '600' 
   },
   modalContent: { 
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
   label: { 
     color: '#fff', 
     fontSize: 14, 
-    fontWeight: '600', 
+    fontWeight: '700', 
     marginBottom: 8, 
     marginTop: 16 
   },
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   focusBtnText: {
-    fontSize: 16,
+    fontSize: 18,
   },
   progressHeader: {
     flexDirection: 'row',
@@ -427,8 +427,8 @@ const styles = StyleSheet.create({
   },
   tasksSectionTitle: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
   },
   tasksSectionSubtitle: {
     color: '#999',
@@ -446,8 +446,8 @@ const styles = StyleSheet.create({
   },
   miniProgressTitle: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
     marginBottom: 8,
   },
   miniProgressBar: {
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
   actionBtnText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   motivationCard: {
     margin: 16,
@@ -531,8 +531,8 @@ const styles = StyleSheet.create({
   },
   levelText: {
     color: '#A3C9FF',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
   },
   levelProgressBar: {
     height: 8,
@@ -557,8 +557,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
     marginBottom: 12,
   },
   achievementsList: {
