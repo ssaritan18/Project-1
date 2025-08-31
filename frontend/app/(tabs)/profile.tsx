@@ -18,6 +18,7 @@ import { ProfileStatistics } from "../../src/components/ProfileStatistics";
 import { ProfileCompletionGuide } from "../../src/components/ProfileCompletionGuide";
 import NeurodivergencyContent from "../../src/components/NeurodivergencyContent";
 import { useAchievements } from "../../src/hooks/useAchievements";
+import ProfileEditModal from "../../src/components/ProfileEditModal";
 
 const PRESETS = [
   { primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" },
