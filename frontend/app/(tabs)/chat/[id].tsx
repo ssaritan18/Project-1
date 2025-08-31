@@ -197,6 +197,13 @@ export default function ChatDetail() {
                     
                     {normalizedMessage.type === 'text' ? (
                       <Text style={styles.bubbleText}>{normalizedMessage.text}</Text>
+                    ) : normalizedMessage.type === 'voice' ? (
+                      <VoicePlayer
+                        voiceUrl={normalizedMessage.voice_url || 'placeholder'}
+                        duration={normalizedMessage.durationSec || 0}
+                        isFromMe={normalizedMessage.author === 'me'}
+                        author={normalizedMessage.author_name || normalizedMessage.author}
+                      />
                     ) : (
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         <Ionicons name="mic" size={16} color={normalizedMessage.author === 'me' ? "#000" : "#fff"} />
