@@ -1714,17 +1714,19 @@ async def react_chat_message(chat_id: str, message_id: str, payload: MessageReac
     
     return updated_msg
 
-# Achievement System APIs for ADHD-friendly gamification
+# Phase 3: Enhanced Achievement System APIs for ADHD-friendly gamification
 @api_router.get("/achievements")
 async def get_all_achievements():
-    """Get all available achievements"""
+    """Get all available achievements with enhanced Phase 3 features"""
     achievements = [
+        # Streak Achievements (Enhanced)
         {
             "id": "first_day",
             "name": "First Step",
             "icon": "🌱",
             "description": "Complete your first day of tasks",
             "category": "streak",
+            "tier": "bronze",
             "reward": {"points": 50, "badge": "Starter", "description": "Every journey begins with a single step!"}
         },
         {
@@ -1733,31 +1735,153 @@ async def get_all_achievements():
             "icon": "⚔️",
             "description": "Maintain a 7-day streak",
             "category": "streak",
+            "tier": "silver",
             "reward": {"points": 200, "badge": "Consistent", "description": "One week of consistency - you're building a habit!"}
         },
+        {
+            "id": "month_master",
+            "name": "Month Master",
+            "icon": "👑",
+            "description": "Maintain a 30-day streak",
+            "category": "streak",
+            "tier": "gold",
+            "reward": {"points": 1000, "badge": "Master", "description": "30 days of pure dedication! You're a habit master!"}
+        },
+        {
+            "id": "comeback_champion",
+            "name": "Comeback Champion",
+            "icon": "🦅",
+            "description": "Recover from a broken streak within 3 days",
+            "category": "streak",
+            "tier": "special",
+            "reward": {"points": 300, "badge": "Resilient", "description": "ADHD brains bounce back! You're unstoppable!"}
+        },
+        
+        # Task Achievements (Enhanced)
         {
             "id": "task_starter",
             "name": "Task Starter", 
             "icon": "✅",
             "description": "Complete your first 10 tasks",
             "category": "tasks",
+            "tier": "bronze",
             "reward": {"points": 100, "badge": "Achiever", "description": "You're getting things done!"}
         },
+        {
+            "id": "task_machine",
+            "name": "Task Machine",
+            "icon": "🚀",
+            "description": "Complete 100 tasks",
+            "category": "tasks",
+            "tier": "silver",
+            "reward": {"points": 500, "badge": "Productivity Beast", "description": "100 tasks completed! You're on fire!"}
+        },
+        {
+            "id": "hyperfocus_hero",
+            "name": "Hyperfocus Hero",
+            "icon": "⚡",
+            "description": "Complete 5 tasks in one focus session",
+            "category": "tasks",
+            "tier": "gold",
+            "reward": {"points": 400, "badge": "Hyperfocus Master", "description": "You've mastered the art of hyperfocus!"}
+        },
+        
+        # Focus Achievements (New Phase 3)
+        {
+            "id": "focus_first",
+            "name": "Focus First",
+            "icon": "🎯",
+            "description": "Complete your first 25-minute focus session",
+            "category": "focus",
+            "tier": "bronze",
+            "reward": {"points": 150, "badge": "Focused", "description": "Welcome to the focus zone!"}
+        },
+        {
+            "id": "pomodoro_pro",
+            "name": "Pomodoro Pro",
+            "icon": "🍅",
+            "description": "Complete 10 Pomodoro sessions",
+            "category": "focus",
+            "tier": "silver",
+            "reward": {"points": 750, "badge": "Time Master", "description": "You've mastered the Pomodoro technique!"}
+        },
+        {
+            "id": "deep_work_warrior",
+            "name": "Deep Work Warrior",
+            "icon": "🧠",
+            "description": "Complete a 2-hour deep work session",
+            "category": "focus",
+            "tier": "gold",
+            "reward": {"points": 1200, "badge": "Deep Focus", "description": "2 hours of pure focus! That's legendary!"}
+        },
+        
+        # Community Achievements (Enhanced)
         {
             "id": "community_voice",
             "name": "Community Voice",
             "icon": "📢", 
             "description": "Share your first community post",
             "category": "community",
+            "tier": "bronze",
             "reward": {"points": 100, "badge": "Contributor", "description": "Thank you for sharing with the community!"}
         },
+        {
+            "id": "helper_hands",
+            "name": "Helper Hands",
+            "icon": "🤝",
+            "description": "Comment helpfully on 10 community posts",
+            "category": "community",
+            "tier": "silver",
+            "reward": {"points": 300, "badge": "Supportive", "description": "You're making the community stronger!"}
+        },
+        {
+            "id": "adhd_advocate",
+            "name": "ADHD Advocate",
+            "icon": "💜",
+            "description": "Share an ADHD tip that gets 10+ reactions",
+            "category": "community",
+            "tier": "gold",
+            "reward": {"points": 800, "badge": "Advocate", "description": "Your wisdom is helping others thrive!"}
+        },
+        
+        # Profile Achievements (Enhanced)
         {
             "id": "profile_complete",
             "name": "Profile Master",
             "icon": "👤",
             "description": "Complete your entire profile", 
             "category": "profile",
+            "tier": "bronze",
             "reward": {"points": 150, "badge": "Complete", "description": "Your profile is looking great!"}
+        },
+        {
+            "id": "friend_collector",
+            "name": "Friend Collector",
+            "icon": "👥",
+            "description": "Connect with 10 ADHD friends",
+            "category": "profile",
+            "tier": "silver",
+            "reward": {"points": 400, "badge": "Social", "description": "Building your ADHD support network!"}
+        },
+        
+        # Challenge Achievements (New Phase 3)
+        {
+            "id": "challenge_champion",
+            "name": "Challenge Champion",
+            "icon": "🏆",
+            "description": "Complete your first weekly challenge",
+            "category": "challenges",
+            "tier": "bronze",
+            "reward": {"points": 250, "badge": "Challenger", "description": "You love a good challenge!"}
+        },
+        {
+            "id": "challenge_streak",
+            "name": "Challenge Streak",
+            "icon": "🔥",
+            "description": "Complete 4 weekly challenges in a row",
+            "category": "challenges",
+            "tier": "gold",
+            "reward": {"points": 1500, "badge": "Unstoppable", "description": "Month of challenges completed! You're unstoppable!"}
         }
     ]
     return {"achievements": achievements}
