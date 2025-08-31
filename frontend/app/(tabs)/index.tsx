@@ -16,140 +16,1220 @@ import { FocusModeTimer } from "../../src/components/FocusModeTimer";
 
 // Phase 3: Enhanced Gamification components
 import { WeeklyChallenges } from "../../src/components/WeeklyChallenges";
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
 import { FocusSessionTracker } from "../../src/components/FocusSessionTracker";
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
 import { EnhancedCelebration } from "../../src/components/EnhancedCelebration";
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
 import { AchievementBadge } from "../../src/components/AchievementBadge";
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
 import { StreakVisualization } from "../../src/components/StreakVisualization";
 
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
 // Phase 3: Enhanced hooks
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
 import { useChallenges } from "../../src/hooks/useChallenges";
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
 import { useFocusSession } from "../../src/hooks/useFocusSession";
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
 import { usePoints } from "../../src/hooks/usePoints";
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
 import { useAchievements } from "../../src/hooks/useAchievements";
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
 import { useStreak } from "../../src/hooks/useStreak";
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
 import { NeurodivergencyContent } from "../../src/components/NeurodivergencyContent";
 
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
 const COLOR_PRESETS = ["#A3C9FF", "#FFCFE1", "#B8F1D9", "#FFE3A3", "#FFB3BA"];
 
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
 export default function HomeScreen() {
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   console.log("🏠 HomeScreen rendering...");
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   const { tasks, increment, addTask, remove, reorder } = useTasks();
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   const { palette } = useAuth();
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   const insets = useSafeAreaInsets();
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   const [showFullDashboard, setShowFullDashboard] = useState(false);
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   // Phase 3: Enhanced Gamification hooks
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   const { challenges, completeChallenge } = useChallenges();
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   const { startSession, completeSession, currentSession } = useFocusSession();
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   const { pointsData, getLevelInfo } = usePoints();
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   const { achievements } = useAchievements();
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   const { streak } = useStreak();
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   // Celebration state
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   const [celebrationData, setCelebrationData] = useState(null);
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   const [showCelebration, setShowCelebration] = useState(false);
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   // Handle challenge completion with celebration
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   const handleChallengeComplete = async (challengeId) => {
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
     const result = await completeChallenge(challengeId);
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
     if (result?.celebration) {
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
       setCelebrationData({
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
         type: 'challenge',
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
         title: result.celebration.title,
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
         message: result.celebration.message,
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
         points: result.reward?.points,
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
         badge: result.reward?.badge
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
       });
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
       setShowCelebration(true);
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
     }
-  };
-  
-  // Handle focus session completion with celebration
-  const handleFocusComplete = async (sessionId, data) => {
-    const result = await completeSession(sessionId, data.tasks_completed, data.interruptions, data.focus_rating);
-    if (result?.celebration) {
-      setCelebrationData({
-        type: 'focus',
-        title: result.celebration.title,
-        message: result.celebration.message,
-        points: result.points_earned,
-        level: result.celebration.achievement_unlocked ? (pointsData?.level || 1) + 1 : undefined
-      });
-      setShowCelebration(true);
-    }
-  };
-  
-  // Handle starting different focus modes
-  const handleStartFocusMode = (mode, duration) => {
-    Alert.alert(
-      "🎯 Focus Mode Starting!", 
-      `Starting ${mode} mode for ${duration} minutes.\n\nThis is a demo - in the full app, this would:\n• Start the focus timer\n• Enable distraction blocking\n• Track your session\n• Reward you with points!`,
-      [{ text: 'Got it! 🚀', style: 'default' }]
-    );
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   };
 
-  // Handle adding new tasks with rewarding feedback
-  const handleAddTask = () => {
-    Alert.prompt(
-      "✨ Add New Task",
-      "What would you like to accomplish today? Keep it specific and achievable for that ADHD dopamine hit! 🎯",
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Create Task 🚀', 
-          onPress: (taskText) => {
-            if (taskText && taskText.trim()) {
-              // Create the task
-              addTask(taskText.trim());
-              
-              // Show rewarding feedback
-              Alert.alert(
-                "🎉 Task Created!",
-                `"${taskText.trim()}" has been added to your quest!\n\n✅ +10 points for planning ahead\n📊 Progress bars updated\n🎯 Ready to tackle it?`,
-                [
-                  { text: 'Let\'s do this! 💪', style: 'default' }
-                ]
-              );
-            }
-          }
-        }
-      ],
-      'plain-text',
-      '',
-      'default'
-    );
-  };
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+  // Handle focus session completion with celebration
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+  const handleFocusComplete = async (sessionId, data) => {
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+    const result = await completeSession(sessionId, data.tasks_completed, data.interruptions, data.focus_rating);
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+    if (result?.celebration) {
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+      setCelebrationData({
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+        type: 'focus',
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+        title: result.celebration.title,
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+        message: result.celebration.message,
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+        points: result.points_earned,
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+        level: result.celebration.achievement_unlocked ? (pointsData?.level || 1) + 1 : undefined
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+      });
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+      setShowCelebration(true);
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+    }
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+  };
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+  
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+  // Handle starting different focus modes
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+  const handleStartFocusMode = (mode, duration) => {
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+    Alert.alert(
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+      "🎯 Focus Mode Starting!", 
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+      `Starting ${mode} mode for ${duration} minutes.\n\nThis is a demo - in the full app, this would:\n• Start the focus timer\n• Enable distraction blocking\n• Track your session\n• Reward you with points!`,
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+      [{ text: 'Got it! 🚀', style: 'default' }]
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+    );
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+  };
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+  // Handle adding new tasks with rewarding feedback
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+  const handleAddTask = () => {
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+    Alert.prompt(
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+      "✨ Add New Task",
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+      "What would you like to accomplish today? Keep it specific and achievable for that ADHD dopamine hit! 🎯",
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+      [
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+        { text: 'Cancel', style: 'cancel' },
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+        { 
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+          text: 'Create Task 🚀', 
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+          onPress: (taskText) => {
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+            if (taskText && taskText.trim()) {
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+              // Create the task
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+              addTask(taskText.trim());
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+              
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+              // Show rewarding feedback
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+              Alert.alert(
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+                "🎉 Task Created!",
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+                `"${taskText.trim()}" has been added to your quest!\n\n✅ +10 points for planning ahead\n📊 Progress bars updated\n🎯 Ready to tackle it?`,
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+                [
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+                  { text: 'Let\'s do this! 💪', style: 'default' }
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+                ]
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+              );
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+            }
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+          }
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+        }
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+      ],
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+      'plain-text',
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+      '',
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+      'default'
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+    );
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+  };
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+  
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   // If full dashboard is enabled, show ADHD-friendly components with Phase 3 features
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
   if (showFullDashboard) {
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
     return (
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
       <ScrollView style={[styles.container, { paddingTop: insets.top }]} showsVerticalScrollIndicator={false}>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
         {/* Header */}
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
         <View style={styles.dashboardHeader}>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
           <Text style={styles.header}>🎯 Your ADHD Journey</Text>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
           <Text style={styles.subtitle}>Phase 3: Full Gamification System Active!</Text>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
           
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
           <TouchableOpacity 
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
             style={[styles.testButton, { backgroundColor: '#FF6B35', marginHorizontal: 16 }]} 
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
             onPress={() => {
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
               setShowFullDashboard(false);
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
               Alert.alert("🔙 Switched!", "Back to simple test mode");
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
             }}
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
           >
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
             <Text style={styles.testButtonText}>← Back to Test Mode</Text>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
           </TouchableOpacity>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+        </View>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
         </View>
         
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
         {/* Points & Level Display */}
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
         {pointsData && (
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
           <View style={styles.pointsContainer}>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
             <View style={styles.pointsHeader}>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
               <Text style={styles.pointsTitle}>💎 {pointsData.total_points} Points</Text>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
               <Text style={styles.levelText}>Level {pointsData.level} {getLevelInfo()?.current?.icon}</Text>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
             </View>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
             <View style={styles.levelProgressBar}>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
               <View style={[styles.levelProgressFill, { width: `${(pointsData.total_points % 200) / 2}%` }]} />
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
             </View>
             <Text style={styles.pointsSubtext}>{pointsData.points_to_next_level} points to next level</Text>
           </View>
@@ -188,10 +1268,50 @@ export default function HomeScreen() {
         {/* Weekly Challenges */}
         <View style={styles.section}>
           <WeeklyChallenges 
-            challenges={challenges}
-            onChallengeComplete={handleChallengeComplete}
-            showAnimation={false}
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
           />
+        </View>
+            challenges={challenges}
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+            onChallengeComplete={handleChallengeComplete}
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+            showAnimation={false}
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
+          />
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
+        </View>
         </View>
         
         {/* Focus Mode - Enhanced ADHD-friendly Focus System */}
