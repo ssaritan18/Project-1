@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { 
   View, 
   Text, 
@@ -8,7 +8,8 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  Alert
+  Alert,
+  Animated
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { Ionicons } from "@expo/vector-icons";
