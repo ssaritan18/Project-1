@@ -47,7 +47,25 @@ export default function ProfileScreen() {
   useFocusEffect(React.useCallback(() => { refresh(); }, [refresh]));
   
   const navigateToEdit = () => {
+
+  const handleProfileUpdated = (updatedUser: any) => {
+    setCurrentUserProfile(updatedUser);
+    // Optionally update the auth context as well
+    // setPalette(updatedUser.palette || palette);
+  };
     setIsEditModalVisible(true);
+
+  const handleProfileUpdated = (updatedUser: any) => {
+    setCurrentUserProfile(updatedUser);
+    // Optionally update the auth context as well
+    // setPalette(updatedUser.palette || palette);
+  };
+  };
+
+  const handleProfileUpdated = (updatedUser: any) => {
+    setCurrentUserProfile(updatedUser);
+    // Optionally update the auth context as well
+    // setPalette(updatedUser.palette || palette);
   };
 
   const navigateToSettings = () => {
