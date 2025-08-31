@@ -11,7 +11,7 @@ import base64
 from typing import Dict, Optional, List
 
 # Base URL from frontend .env
-BASE_URL = "https://focus-buddy-app.preview.emergentagent.com/api"
+BASE_URL = "https://focus-buddy-47.preview.emergentagent.com/api"
 
 class ComprehensiveAPITester:
     def __init__(self):
