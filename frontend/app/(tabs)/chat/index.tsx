@@ -229,111 +229,125 @@ const styles = StyleSheet.create({
     backgroundColor: '#0c0c0c' 
   },
   header: {
-    backgroundColor: '#111',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: '#1a1a1a',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#333',
-  },
-  headerRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    justifyContent: 'space-between'
-  },
-  headerTitle: { 
-    color: '#fff', 
-    fontSize: 22, 
-    fontWeight: '700' 
-  },
-  refreshBtn: { 
-    padding: 8,
-    borderRadius: 8,
-  },
-  statusText: { 
-    color: '#bdbdbd', 
-    fontSize: 12, 
-    marginTop: 4
-  },
-  errorBanner: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 107, 107, 0.1)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginTop: 8,
-    gap: 8,
   },
-  errorText: { 
-    color: '#FF6B6B', 
-    fontSize: 12, 
-    fontWeight: '500',
-    flex: 1,
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#fff',
   },
-  actionsContainer: {
-    backgroundColor: '#111',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+  refreshButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(74, 144, 226, 0.1)',
+  },
+  actionsSection: {
+    padding: 16,
+    backgroundColor: '#1a1a1a',
     borderBottomWidth: 1,
     borderBottomColor: '#333',
   },
   sectionTitle: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: '700',
+    color: '#fff',
     marginBottom: 12,
   },
-  actionRow: { 
-    flexDirection: 'row', 
-    gap: 8, 
-    alignItems: 'center', 
-    marginBottom: 8
-  },
-  input: { 
-    flex: 1, 
-    backgroundColor: '#1a1a1a', 
-    color: '#fff', 
-    borderRadius: 12, 
-    paddingHorizontal: 16, 
-    paddingVertical: 12, 
-    borderWidth: 1, 
-    borderColor: '#333',
-    fontSize: 15
-  },
-  createBtn: { 
-    padding: 12, 
+  actionCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 12,
-  },
-  joinBtn: { 
-    padding: 12, 
-    borderRadius: 12,
-  },
-  chatCard: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: '#111', 
-    borderRadius: 12, 
-    padding: 16, 
-    marginVertical: 6,
+    padding: 16,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#222',
+    borderColor: '#333',
   },
-  chatAvatarContainer: {
-    marginRight: 12,
+  actionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 12,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  input: {
+    flex: 1,
+    backgroundColor: '#333',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#fff',
+    borderWidth: 1,
+    borderColor: '#444',
+  },
+  actionButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    minWidth: 80,
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  chatListSection: {
+    flex: 1,
+    padding: 16,
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 53, 71, 0.1)',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 53, 71, 0.3)',
+  },
+  errorText: {
+    color: '#FF3547',
+    fontSize: 14,
+    marginLeft: 8,
+    flex: 1,
+  },
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333',
+    padding: 16,
+    marginBottom: 12,
+  },
+  chatAvatar: {
+    marginRight: 12,
   },
   groupIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(74, 144, 226, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+    borderColor: 'rgba(74, 144, 226, 0.3)',
   },
   chatInfo: {
     flex: 1,
-    marginRight: 12
+    marginRight: 12,
   },
   chatHeader: {
     flexDirection: 'row',
@@ -341,83 +355,62 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 4,
   },
-  chatTitle: { 
-    color: '#fff', 
-    fontSize: 16, 
-    fontWeight: '700',
+  title: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
     flex: 1,
-    marginRight: 8,
   },
-  unreadBadge: { 
-    minWidth: 20, 
-    height: 20, 
-    borderRadius: 10, 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    paddingHorizontal: 6, 
-  },
-  unreadText: { 
-    color: '#0c0c0c', 
-    fontSize: 11, 
-    fontWeight: '700' 
-  },
-  chatMeta: { 
-    color: '#bdbdbd', 
-    fontSize: 13,
-    marginBottom: 4
-  },
-  inviteCodeContainer: {
-    flexDirection: 'row',
+  badge: {
+    backgroundColor: '#FF6B35',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    minWidth: 20,
     alignItems: 'center',
-    gap: 4,
+    marginLeft: 8,
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  meta: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 2,
   },
   inviteCode: {
-    fontSize: 11,
-    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
-    fontWeight: '600'
-  },
-  chatTypeContainer: {
-    alignItems: 'center',
-    gap: 8,
-  },
-  chatTypeBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  chatTypeText: {
-    fontSize: 10,
+    fontSize: 12,
+    color: '#6C5CE7',
     fontWeight: '600',
+    fontFamily: 'monospace',
   },
-  emptyState: { 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    paddingVertical: 80,
-    paddingHorizontal: 40
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 40,
   },
-  emptyTitle: { 
-    color: '#777', 
-    fontSize: 20, 
+  emptyTitle: {
+    fontSize: 20,
     fontWeight: '700',
-    textAlign: 'center',
+    color: '#fff',
     marginTop: 16,
     marginBottom: 8,
-  },
-  emptySubtitle: { 
-    color: '#555', 
-    fontSize: 14, 
     textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 24,
   },
-  emptyActionBtn: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 12,
+  emptySubtitle: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 12,
   },
-  emptyActionText: {
-    color: '#0c0c0c',
+  emptyTip: {
     fontSize: 14,
-    fontWeight: '600',
+    color: '#6C5CE7',
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 });
