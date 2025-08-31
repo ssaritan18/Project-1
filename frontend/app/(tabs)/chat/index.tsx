@@ -119,27 +119,54 @@ export default function ChatList() {
           estimatedItemSize={80}
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.item} onPress={() => openChat(item.id)}>
+              {/* Profile Avatar for the chat */}
+              <View style={styles.chatAvatar}>
+                {item.type === 'GROUP' ? (
+                  // Group chat - show group icon
+                  <View style={styles.groupIcon}>
+                    <Ionicons name="people" size={24} color="#4A90E2" />
+                  </View>
+                ) : (
+                  // Direct chat - show other user's profile picture
+                  <ProfileAvatar
+                    userId={item.id}
+                    userName={item.title}
+                    size="medium"
+                    onPress={() => Alert.alert("Profile", `View ${item.title}'s profile`)}
+                  />
+                )}
+              </View>
+              
               <View style={styles.chatInfo}>
-                <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+                <View style={styles.chatHeader}>
+                  <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+                  {item.unread ? (
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>{item.unread}</Text>
+                    </View>
+                  ) : null}
+                </View>
+                
                 <Text style={styles.meta} numberOfLines={1}>
-                  Members: {Array.isArray(item.members) ? item.members.join(", ") : "Loading..."}
+                  {item.type === 'GROUP' 
+                    ? `Members: ${Array.isArray(item.members) ? item.members.join(", ") : "Loading..."}`
+                    : "Direct message"
+                  }
                 </Text>
+                
                 {/* Only show invite code for GROUP chats */}
                 {(item.inviteCode || item.invite_code) && (
                   <Text style={styles.inviteCode}>
                     Group Code: {item.inviteCode || item.invite_code}
                   </Text>
                 )}
+                
                 {/* Show chat type for debugging */}
                 <Text style={{ color: '#666', fontSize: 10 }}>
                   Type: {item.type || 'unknown'} | ID: {item.id?.slice(0, 8)}...
                 </Text>
               </View>
-              {item.unread ? (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{item.unread}</Text>
-                </View>
-              ) : null}
+              
               <Ionicons name="chevron-forward" color="#666" size={20} />
             </TouchableOpacity>
           )}
@@ -251,6 +278,27 @@ const styles = StyleSheet.create({
   chatInfo: {
     flex: 1,
     marginRight: 12
+  },
+  chatAvatar: {
+    marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  groupIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(74, 144, 226, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(74, 144, 226, 0.3)',
+  },
+  chatHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
   },
   title: { 
     color: '#fff', 
