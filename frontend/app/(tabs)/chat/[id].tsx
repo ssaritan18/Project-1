@@ -161,10 +161,6 @@ export default function ChatDetail() {
             };
             
             console.log("🎨 Rendering message:", {
-              id: normalizedMessage.id,
-              author: normalizedMessage.author,
-              text: normalizedMessage.text?.slice(0, 50) + "..."
-            });
             
             return (
               <View style={{ marginBottom: 10 }}>
