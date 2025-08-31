@@ -160,8 +160,6 @@ export default function ChatDetail() {
               durationSec: item.durationSec ?? item.duration_sec ?? 0
             };
             
-            console.log("🎨 Rendering message:", {
-            
             return (
               <View style={{ marginBottom: 10 }}>
                 <View style={[
