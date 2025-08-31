@@ -8,6 +8,10 @@ export default function WelcomeAuth() {
       <Text style={styles.title}>ADHDers Social Club</Text>
       <Text style={styles.subtitle}>Choose a path to continue</Text>
 
+      <TouchableOpacity style={[styles.btn, { backgroundColor: '#6C5CE7' }]} onPress={() => router.push('/onboarding')}>
+        <Text style={styles.btnTextDark}>🧠 Take ADHD Assessment</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={[styles.btn, { backgroundColor: '#A3C9FF' }]} onPress={() => router.push('/(auth)/signup')}>
         <Text style={styles.btnTextDark}>Sign Up</Text>
       </TouchableOpacity>
