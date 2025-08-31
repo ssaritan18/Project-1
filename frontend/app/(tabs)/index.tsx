@@ -78,6 +78,15 @@ export default function HomeScreen() {
       setShowCelebration(true);
     }
   };
+
+  // Handle starting different focus modes
+  const handleStartFocusMode = (mode, duration) => {
+    Alert.alert(
+      "🎯 Focus Mode Starting!", 
+      `Starting ${mode} mode for ${duration} minutes.\n\nThis is a demo - in the full app, this would:\n• Start the focus timer\n• Enable distraction blocking\n• Track your session\n• Reward you with points!`,
+      [{ text: 'Got it! 🚀', style: 'default' }]
+    );
+  };
   
   // If full dashboard is enabled, show ADHD-friendly components with Phase 3 features
   if (showFullDashboard) {
