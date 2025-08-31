@@ -18,13 +18,14 @@ type VoicePlayerProps = {
   style?: any;
 };
 
-export function VoicePlayer({
-  voiceUrl,
-  duration = 0,
-  isOwnMessage = false,
-  onPlaybackStatusUpdate: onPlaybackStatusUpdateProp,
-  style
-}: VoicePlayerProps) {
+export function VoicePlayer(props: VoicePlayerProps) {
+  const {
+    voiceUrl,
+    duration = 0,
+    isOwnMessage = false,
+    onPlaybackStatusUpdate,
+    style
+  } = props;
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPosition, setCurrentPosition] = useState(0);
