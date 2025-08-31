@@ -16,7 +16,7 @@ import { AchievementBadge } from "../../src/components/AchievementBadge";
 import { StreakVisualization } from "../../src/components/StreakVisualization";
 import { ProfileStatistics } from "../../src/components/ProfileStatistics";
 import { ProfileCompletionGuide } from "../../src/components/ProfileCompletionGuide";
-import { NeurodivergencyContent } from "../../src/components/NeurodivergencyContent";
+import NeurodivergencyContent from "../../src/components/NeurodivergencyContent";
 import { useAchievements } from "../../src/hooks/useAchievements";
 
 const PRESETS = [
