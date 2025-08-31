@@ -7,10 +7,12 @@ import { useRuntimeConfig } from "../../../src/context/RuntimeConfigContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProfileAvatar } from "../../../src/components/ProfileAvatar";
+import { VoiceRecorder } from "../../../src/components/VoiceRecorder";
+import { VoicePlayer } from "../../../src/components/VoicePlayer";
 
 export default function ChatDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { chats, messagesByChat, sendText, sendVoiceMock, markRead, reactMessage } = useChat();
+  const { chats, messagesByChat, sendText, sendVoice, sendVoiceMock, markRead, reactMessage } = useChat();
   const { mode } = useRuntimeConfig();
   const insets = useSafeAreaInsets();
   const [text, setText] = React.useState("");
@@ -53,6 +55,24 @@ export default function ChatDetail() {
   const onVoice = () => { 
     if (!id) return; 
     sendVoiceMock(id); 
+  };
+
+  // Handle voice recording completion
+  const handleVoiceComplete = async (audioUri: string, duration: number) => {
+    if (!id) return;
+    
+    try {
+      console.log("🎙️ Voice recording completed:", { audioUri, duration });
+      await sendVoice(id, audioUri, duration);
+      Alert.alert("Success! 🎉", "Voice message sent successfully!");
+    } catch (error) {
+      console.error("❌ Failed to send voice message:", error);
+      Alert.alert("Error", "Failed to send voice message. Please try again.");
+    }
+  };
+
+  const handleVoiceCancel = () => {
+    console.log("🚫 Voice recording cancelled");
   };
 
   const handleReaction = async (msgId: string, reactionType: string) => {
@@ -165,15 +185,11 @@ export default function ChatDetail() {
                     {normalizedMessage.type === 'text' ? (
                       <Text style={styles.bubbleText}>{normalizedMessage.text}</Text>
                     ) : (
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <Ionicons name="mic" size={16} color={normalizedMessage.author === 'me' ? "#000" : "#fff"} />
-                        <Text style={{ 
-                          color: normalizedMessage.author === 'me' ? "#000" : "#fff", 
-                          fontWeight: '700' 
-                        }}>
-                          Voice message ({item.durationSec || 3}s)
-                        </Text>
-                      </View>
+                      <VoicePlayer
+                        voiceUrl={normalizedMessage.voice_url || `voice_mock_${normalizedMessage.id}`}
+                        duration={normalizedMessage.durationSec || 3}
+                        isOwnMessage={normalizedMessage.author === 'me'}
+                      />
                     )}
                     <Text style={styles.timeText}>
                       {new Date(normalizedMessage.ts).toLocaleTimeString()}
@@ -199,9 +215,13 @@ export default function ChatDetail() {
 
         {/* Message Composer */}
         <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-          <TouchableOpacity onPress={onVoice} style={styles.micBtn}>
-            <Ionicons name="mic" size={18} color="#000" />
-          </TouchableOpacity>
+          <VoiceRecorder
+            onRecordingComplete={handleVoiceComplete}
+            onCancel={handleVoiceCancel}
+            size="medium"
+            color="#A3C9FF"
+            style={styles.voiceRecorder}
+          />
           <TextInput
             style={styles.input}
             placeholder="Type a message..."
@@ -330,6 +350,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#111',
     borderTopWidth: 1,
     borderTopColor: '#1a1a1a',
+  },
+  voiceRecorder: {
+    // No additional styles needed, using default
   },
   input: { 
     flex: 1, 
