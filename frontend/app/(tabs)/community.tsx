@@ -177,6 +177,36 @@ export default function CommunityScreen() {
       style={styles.container}
     >
       <View style={[styles.container, { paddingTop: insets.top }]}>
+        {/* Single-tap refresh area */}
+        <TouchableOpacity 
+          style={styles.refreshArea}
+          onPress={handleSingleTapRefresh}
+          activeOpacity={0.7}
+          disabled={isRefreshAnimating}
+        >
+          <Animated.View 
+            style={[
+              styles.refreshIndicator,
+              {
+                opacity: refreshAnimRef,
+                transform: [{
+                  scale: refreshAnimRef.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.2]
+                  })
+                }]
+              }
+            ]}
+          >
+            <Ionicons 
+              name="refresh" 
+              size={20} 
+              color="#4A90E2" 
+            />
+            <Text style={styles.refreshText}>Tap to refresh</Text>
+          </Animated.View>
+        </TouchableOpacity>
+        
         {renderHeader()}
         
         {error && (
