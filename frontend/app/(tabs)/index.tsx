@@ -795,6 +795,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#333',
   },
+  progressTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
   progressBarContainer: {
     height: 8,
     backgroundColor: '#333',
@@ -806,6 +812,12 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#00C851',
     borderRadius: 4,
+  },
+  progressText: {
+    color: '#999',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 4,
   },
   tasksPreview: {
     marginTop: 12,
