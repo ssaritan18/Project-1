@@ -37,6 +37,8 @@ export default function ProfileScreen() {
   
   // UI State
   const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'stats' | 'completion' | 'neurodivergency'>('overview');
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [currentUserProfile, setCurrentUserProfile] = useState(user);
   
   const total = tasks.reduce((a, t) => a + t.goal, 0);
   const done = tasks.reduce((a, t) => a + t.progress, 0);
