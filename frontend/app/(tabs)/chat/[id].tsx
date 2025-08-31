@@ -16,6 +16,7 @@ export default function ChatDetail() {
   const { mode } = useRuntimeConfig();
   const insets = useSafeAreaInsets();
   const [text, setText] = React.useState("");
+  const [isRecordingVoice, setIsRecordingVoice] = React.useState(false);
   const chat = chats.find((c) => c.id === id);
   const msgs = messagesByChat[id || ""] || [];
   
