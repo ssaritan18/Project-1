@@ -269,13 +269,6 @@ export default function ProfileScreen() {
             onPress={() => Alert.alert('Neurodivergency Hub', 'Educational content coming soon!')}
           />
         );
-              } else {
-                Alert.alert("Great idea!", `Let's work on: ${item.title}`);
-              }
-            }}
-            showAnimation={false}
-          />
-        );
       default:
         return (
           <View style={styles.tabContent}>
