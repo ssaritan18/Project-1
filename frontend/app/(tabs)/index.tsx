@@ -124,6 +124,7 @@ import { useStreak } from "../../src/hooks/useStreak";
           />
         </View>
 import { NeurodivergencyContent } from "../../src/components/NeurodivergencyContent";
+import { router } from "expo-router";
 
         {/* Neurodivergency Content Preview */}
         <View style={styles.section}>
