@@ -1965,17 +1965,56 @@ async def get_user_points(current_user: dict = Depends(get_current_user)):
 
 @api_router.get("/user/streak") 
 async def get_user_streak(current_user: dict = Depends(get_current_user)):
-    """Get user's streak information"""
-    current_streak = random.randint(1, 12)
-    best_streak = max(current_streak, random.randint(5, 30))
+    """Get user's streak information with enhanced Phase 3 features"""
+    current_streak = random.randint(0, 15)
+    best_streak = max(current_streak, random.randint(5, 45))
     
-    return {
+    # Enhanced streak data with recovery mechanics
+    streak_data = {
         "current_streak": current_streak,
         "best_streak": best_streak,
-        "streak_start_date": "2024-08-20",
-        "last_activity_date": "2024-08-30",
-        "milestones_reached": [7, 14] if current_streak >= 14 else ([7] if current_streak >= 7 else [])
+        "streak_start_date": (datetime.now() - timedelta(days=current_streak)).isoformat(),
+        "last_activity_date": datetime.now().isoformat(),
+        "milestones_reached": [],
+        "next_milestone": None,
+        "recovery": {
+            "can_recover": current_streak == 0 and random.random() > 0.5,  # ADHD-friendly
+            "recovery_window_hours": 72,  # 3 days to recover
+            "streak_before_break": random.randint(3, 12),
+            "grace_days_used": random.randint(0, 2),
+            "max_grace_days": 3  # ADHD-friendly grace days per month
+        },
+        "motivation": {
+            "streak_type": "🔥 On Fire!" if current_streak >= 7 else ("🌱 Growing" if current_streak > 0 else "💤 Resting"),
+            "encouragement": get_streak_encouragement(current_streak),
+            "reward_points": current_streak * 10
+        }
     }
+    
+    # Calculate milestones
+    milestones = [3, 7, 14, 30, 60, 90, 180, 365]
+    for milestone in milestones:
+        if current_streak >= milestone:
+            streak_data["milestones_reached"].append(milestone)
+        elif streak_data["next_milestone"] is None:
+            streak_data["next_milestone"] = milestone
+            
+    return streak_data
+
+def get_streak_encouragement(streak: int) -> str:
+    """Get ADHD-friendly encouragement messages"""
+    if streak == 0:
+        return "Every ADHD brain needs rest. Ready to start fresh? 🌱"
+    elif streak <= 3:
+        return "Building momentum! Your ADHD brain is adapting. 🚀"
+    elif streak <= 7:
+        return "One week! You're creating new neural pathways! 🧠✨"
+    elif streak <= 14:
+        return "Two weeks! Your ADHD brain loves this routine! 💪"
+    elif streak <= 30:
+        return "A month of consistency! You're rewriting your ADHD story! 🏆"
+    else:
+        return "Legendary streak! You're an ADHD champion! 👑🔥"
 
 @api_router.get("/user/stats")
 async def get_user_stats(current_user: dict = Depends(get_current_user)):
