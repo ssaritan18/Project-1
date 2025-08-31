@@ -661,7 +661,7 @@ def run_comprehensive_test():
         
         # Validate session structure
         session = start_data["session"]
-        required_session_fields = ["session_id", "session_type", "duration_minutes", "start_time"]
+        required_session_fields = ["session_id", "type", "duration_minutes", "start_time"]
         for field in required_session_fields:
             if field not in session:
                 print(f"❌ CRITICAL: Focus session missing field '{field}'")
