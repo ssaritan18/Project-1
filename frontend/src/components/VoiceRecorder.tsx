@@ -186,7 +186,6 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       const reader = new FileReader();
       reader.onload = () => {
         const result = reader.result as string;
-        // Remove data URL prefix (data:audio/webm;base64,)
         const base64 = result.split(',')[1];
         resolve(base64);
       };
@@ -201,59 +200,6 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Gesture handler for swipe to cancel
-  const panGesture = Gesture.Pan()
-    .onUpdate((event) => {
-      if (!isRecording) return;
-      
-      const translation = Math.min(0, event.translationX);
-      translateX.setValue(translation);
-      setCancelDistance(translation);
-      
-      const shouldShowHint = translation < CANCEL_THRESHOLD / 2;
-      if (shouldShowHint !== showCancelHint) {
-        setShowCancelHint(shouldShowHint);
-        if (shouldShowHint && Platform.OS === 'ios') {
-          Vibration.vibrate(25);
-        }
-      }
-    })
-    .onEnd((event) => {
-      if (!isRecording) return;
-      
-      if (event.translationX < CANCEL_THRESHOLD) {
-        // Cancelled
-        cancelRecording();
-      } else {
-        // Reset position
-        Animated.spring(translateX, {
-          toValue: 0,
-          useNativeDriver: true,
-        }).start();
-        setCancelDistance(0);
-        setShowCancelHint(false);
-      }
-    });
-
-  const WaveformBars = () => (
-    <Animated.View style={[styles.waveformContainer, { opacity: waveformOpacity }]}>
-      {waveforms.map((wave, index) => (
-        <Animated.View
-          key={index}
-          style={[
-            styles.waveformBar,
-            {
-              height: wave.interpolate({
-                inputRange: [0, 1],
-                outputRange: [4, 20],
-              }),
-            },
-          ]}
-        />
-      ))}
-    </Animated.View>
-  );
-
   if (!isRecording) {
     return (
       <TouchableOpacity 
@@ -262,55 +208,30 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         activeOpacity={0.8}
         delayLongPress={150}
       >
-        <Animated.View style={{ transform: [{ scale }] }}>
-          <Ionicons name="mic" size={24} color="#fff" />
-        </Animated.View>
+        <Ionicons name="mic" size={24} color="#fff" />
       </TouchableOpacity>
     );
   }
 
   return (
-    <GestureHandlerRootView style={[styles.recordingContainer, style]}>
-      <GestureDetector gesture={panGesture}>
-        <Animated.View 
-          style={[
-            styles.recordingUI,
-            { 
-              transform: [{ translateX }],
-              backgroundColor: showCancelHint ? '#ff4757' : '#2a2a2a',
-            }
-          ]}
-        >
-          <View style={styles.recordingContent}>
-            <View style={styles.recordingIndicator}>
-              <Animated.View style={[styles.recordingDot, { transform: [{ scale }] }]} />
-              <Text style={styles.recordingText}>
-                {showCancelHint ? 'Release to cancel' : 'Recording...'}
-              </Text>
-            </View>
-            
-            <WaveformBars />
-            
-            <Text style={styles.durationText}>{formatDuration(recordingDuration)}</Text>
-          </View>
-          
-          <TouchableOpacity 
-            style={styles.stopButton} 
-            onPress={() => stopRecording(true)}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="stop" size={20} color="#fff" />
-          </TouchableOpacity>
-        </Animated.View>
-      </GestureDetector>
-      
-      {showCancelHint && (
-        <View style={styles.cancelHint}>
-          <Ionicons name="arrow-back" size={16} color="#ff4757" />
-          <Text style={styles.cancelHintText}>Slide to cancel</Text>
+    <View style={[styles.recordingContainer, style]}>
+      <View style={styles.recordingContent}>
+        <View style={styles.recordingIndicator}>
+          <View style={styles.recordingDot} />
+          <Text style={styles.recordingText}>Recording...</Text>
         </View>
-      )}
-    </GestureHandlerRootView>
+        
+        <Text style={styles.durationText}>{formatDuration(recordingDuration)}</Text>
+      </View>
+      
+      <TouchableOpacity 
+        style={styles.stopButton} 
+        onPress={() => stopRecording(true)}
+        activeOpacity={0.8}
+      >
+        <Ionicons name="stop" size={20} color="#fff" />
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -324,13 +245,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   recordingContainer: {
-    position: 'relative',
-    width: '100%',
-  },
-  recordingUI: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: '#2a2a2a',
     borderRadius: 25,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -358,18 +276,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
-  waveformContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 12,
-    height: 24,
-  },
-  waveformBar: {
-    width: 3,
-    backgroundColor: '#4A90E2',
-    borderRadius: 2,
-    marginHorizontal: 1,
-  },
   durationText: {
     color: '#aaa',
     fontSize: 14,
@@ -384,22 +290,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 12,
-  },
-  cancelHint: {
-    position: 'absolute',
-    top: -30,
-    left: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 71, 87, 0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  cancelHintText: {
-    color: '#ff4757',
-    fontSize: 12,
-    marginLeft: 4,
   },
 });
 
