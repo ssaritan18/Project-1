@@ -195,7 +195,7 @@ export default function ChatDetail() {
                         author={normalizedMessage.author_name || normalizedMessage.author}
                       />
                     ) : (
-                      <View style={{ flexDirection: 'row', alignItems: 'center',  }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Ionicons name="mic" size={16} color={normalizedMessage.author === 'me' ? "#000" : "#fff"} />
                         <Text style={{ 
                           color: normalizedMessage.author === 'me' ? "#000" : "#fff", 
