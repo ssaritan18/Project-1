@@ -317,11 +317,46 @@ export default function HomeScreen() {
     );
   }
   
-  // Simple test mode
+  // Simple test mode with Task Management
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <Text style={styles.header}>🎯 ADHD Social Club</Text>
       <Text style={styles.testText}>App is working! Phase 1 & 2 components loading...</Text>
+      
+      {/* Progress Bar Section */}
+      <View style={styles.progressSection}>
+        <Text style={styles.progressTitle}>📊 Today's Progress</Text>
+        <View style={styles.progressBarContainer}>
+          <View style={[styles.progressBarFill, { width: `${overallProgress}%` }]} />
+        </View>
+        <Text style={styles.progressText}>{overallProgress}% completed ({tasks.filter(t => t.progress >= t.goal).length}/{tasks.length} tasks done)</Text>
+        
+        {/* Tasks List Preview */}
+        <View style={styles.tasksPreview}>
+          {tasks.slice(0, 3).map((task) => (
+            <View key={task.id} style={styles.taskPreviewItem}>
+              <View style={[styles.taskColorDot, { backgroundColor: task.color }]} />
+              <Text style={styles.taskPreviewText} numberOfLines={1}>
+                {task.title}
+              </Text>
+              <Text style={styles.taskPreviewProgress}>
+                {task.progress}/{task.goal}
+              </Text>
+            </View>
+          ))}
+          {tasks.length > 3 && (
+            <Text style={styles.moreTasksText}>+{tasks.length - 3} more tasks</Text>
+          )}
+        </View>
+      </View>
+      
+      {/* Action Buttons */}
+      <TouchableOpacity 
+        style={[styles.testButton, { backgroundColor: '#FFD700' }]} 
+        onPress={handleAddTask}
+      >
+        <Text style={[styles.testButtonText, { color: '#000' }]}>✨ Add New Task</Text>
+      </TouchableOpacity>
       
       <TouchableOpacity 
         style={styles.testButton} 
@@ -343,7 +378,7 @@ export default function HomeScreen() {
         <Text style={styles.testButtonText}>🚀 Show ADHD Dashboard</Text>
       </TouchableOpacity>
     </View>
-  );
+  );  );
 }
 
 const styles = StyleSheet.create({
