@@ -397,8 +397,22 @@ export default function ProfileScreen() {
             Alert.alert("Sign Out", "Are you sure you want to sign out?", [
               { text: "Cancel", style: "cancel" },
               { text: "Sign Out", style: "destructive", onPress: async () => {
-                await signOut();
-                router.replace("/(auth)/welcome");
+                try {
+                  console.log("🚪 Starting sign out process...");
+                  
+                  // Call signOut and wait for it to complete
+                  await signOut();
+                  console.log("✅ SignOut completed, redirecting...");
+                  
+                  // Small delay to ensure state is updated
+                  setTimeout(() => {
+                    router.replace("/(auth)/welcome");
+                  }, 100);
+                  
+                } catch (error) {
+                  console.error("❌ Error during sign out:", error);
+                  Alert.alert("Error", "Failed to sign out. Please try again.");
+                }
               }}
             ]);
           }}
