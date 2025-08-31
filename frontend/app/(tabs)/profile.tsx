@@ -394,27 +394,38 @@ export default function ProfileScreen() {
         <TouchableOpacity 
           style={[styles.signOutBtn, { backgroundColor: palette.primary, marginTop: 32 }]} 
           onPress={async () => {
-            Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-              { text: "Cancel", style: "cancel" },
-              { text: "Sign Out", style: "destructive", onPress: async () => {
-                try {
-                  console.log("🚪 Starting sign out process...");
-                  
-                  // Call signOut and wait for it to complete
-                  await signOut();
-                  console.log("✅ SignOut completed, redirecting...");
-                  
-                  // Small delay to ensure state is updated
-                  setTimeout(() => {
-                    router.replace("/(auth)/welcome");
-                  }, 100);
-                  
-                } catch (error) {
-                  console.error("❌ Error during sign out:", error);
+            // Use web-compatible confirmation
+            const confirmed = Platform.OS === 'web' 
+              ? window.confirm("Are you sure you want to sign out?")
+              : await new Promise((resolve) => {
+                  Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+                    { text: "Cancel", style: "cancel", onPress: () => resolve(false) },
+                    { text: "Sign Out", style: "destructive", onPress: () => resolve(true) }
+                  ]);
+                });
+            
+            if (confirmed) {
+              try {
+                console.log("🚪 Starting sign out process...");
+                
+                // Call signOut and wait for it to complete
+                await signOut();
+                console.log("✅ SignOut completed, redirecting...");
+                
+                // Small delay to ensure state is updated
+                setTimeout(() => {
+                  router.replace("/(auth)/welcome");
+                }, 100);
+                
+              } catch (error) {
+                console.error("❌ Error during sign out:", error);
+                if (Platform.OS === 'web') {
+                  window.alert("Failed to sign out. Please try again.");
+                } else {
                   Alert.alert("Error", "Failed to sign out. Please try again.");
                 }
-              }}
-            ]);
+              }
+            }
           }}
         >
           <Text style={styles.signOutText}>🚪 Sign Out</Text>
