@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingVi
 import { FlashList } from "@shopify/flash-list";
 import { useChat } from "../../../src/context/ChatContext";
 import { useRuntimeConfig } from "../../../src/context/RuntimeConfigContext";
+import { useAuth } from "../../../src/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,6 +12,7 @@ import { ProfileAvatar } from "../../../src/components/ProfileAvatar";
 export default function ChatList() {
   const { chats, createGroup, joinByCode, refresh, isLoading, error } = useChat();
   const { mode } = useRuntimeConfig();
+  const { palette } = useAuth();
   const insets = useSafeAreaInsets();
   const [title, setTitle] = React.useState("");
   const [code, setCode] = React.useState("");
@@ -50,52 +52,64 @@ export default function ChatList() {
     }
   };
 
+  const groupChats = chats.filter(chat => chat.type === 'GROUP');
+  const directChats = chats.filter(chat => chat.type === 'DIRECT');
+
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
       <View style={[styles.container, { paddingTop: insets.top }]}>
+        
         {/* Header */}
-        <View style={styles.headerContainer}>
+        <View style={styles.header}>
           <View style={styles.headerRow}>
-            <Text style={styles.header}>Chats & Groups</Text>
-            <TouchableOpacity onPress={handleRefresh} style={styles.refreshBtn} disabled={isLoading}>
-              <Ionicons name="refresh" size={20} color={isLoading ? "#666" : "#A3C9FF"} />
+            <Text style={styles.headerTitle}>💬 Chats & Groups</Text>
+            <TouchableOpacity onPress={handleRefresh} style={[styles.refreshBtn, { backgroundColor: palette.primary }]} disabled={isLoading}>
+              <Ionicons name="refresh" size={20} color={isLoading ? "#666" : "#0c0c0c"} />
             </TouchableOpacity>
           </View>
           
           {/* Status indicator */}
-          <Text style={styles.modeIndicator}>
-            Mode: {mode} | Chats: {chats.length} | {isLoading ? "Loading..." : "Ready"}
+          <Text style={styles.statusText}>
+            Mode: {mode} • Total: {chats.length} chats • {isLoading ? "Loading..." : "Ready"}
           </Text>
           
           {error && (
-            <Text style={styles.errorText}>⚠️ {error}</Text>
+            <View style={styles.errorBanner}>
+              <Ionicons name="warning" size={16} color="#FF6B6B" />
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
           )}
         </View>
         
         {/* Create & Join Section */}
         <View style={styles.actionsContainer}>
-          <View style={styles.newRow}>
+          <Text style={styles.sectionTitle}>✨ Quick Actions</Text>
+          
+          <View style={styles.actionRow}>
             <TextInput 
               style={styles.input} 
-              placeholder="New GROUP chat title" 
+              placeholder="Create new group chat..." 
               placeholderTextColor="#777" 
               value={title} 
               onChangeText={setTitle}
               maxLength={50}
             />
             <TouchableOpacity 
-              style={[styles.createBtn, { opacity: title.trim() && !isLoading ? 1 : 0.5 }]} 
+              style={[styles.createBtn, { 
+                backgroundColor: palette.accent, 
+                opacity: title.trim() && !isLoading ? 1 : 0.5 
+              }]} 
               onPress={create} 
               disabled={!title.trim() || isLoading}
             >
-              <Ionicons name="add" size={20} color="#000" />
+              <Ionicons name="add-circle" size={20} color="#0c0c0c" />
             </TouchableOpacity>
           </View>
           
-          <View style={styles.newRow}>
+          <View style={styles.actionRow}>
             <TextInput 
               style={styles.input} 
-              placeholder="Join GROUP chat by invite code" 
+              placeholder="Join group with invite code..." 
               placeholderTextColor="#777" 
               value={code} 
               onChangeText={setCode}
@@ -103,11 +117,14 @@ export default function ChatList() {
               maxLength={10}
             />
             <TouchableOpacity 
-              style={[styles.joinBtn, { opacity: code.trim() && !isLoading ? 1 : 0.5 }]} 
+              style={[styles.joinBtn, { 
+                backgroundColor: palette.secondary, 
+                opacity: code.trim() && !isLoading ? 1 : 0.5 
+              }]} 
               onPress={join} 
               disabled={!code.trim() || isLoading}
             >
-              <Ionicons name="key" size={20} color="#000" />
+              <Ionicons name="key" size={20} color="#0c0c0c" />
             </TouchableOpacity>
           </View>
         </View>
@@ -118,16 +135,14 @@ export default function ChatList() {
           keyExtractor={(i) => i.id}
           estimatedItemSize={80}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.item} onPress={() => openChat(item.id)}>
-              {/* Profile Avatar for the chat */}
-              <View style={styles.chatAvatar}>
+            <TouchableOpacity style={styles.chatCard} onPress={() => openChat(item.id)}>
+              {/* Chat Avatar */}
+              <View style={styles.chatAvatarContainer}>
                 {item.type === 'GROUP' ? (
-                  // Group chat - show group icon
-                  <View style={styles.groupIcon}>
-                    <Ionicons name="people" size={24} color="#4A90E2" />
+                  <View style={[styles.groupIcon, { backgroundColor: `${palette.primary}20`, borderColor: `${palette.primary}40` }]}>
+                    <Ionicons name="people" size={24} color={palette.primary} />
                   </View>
                 ) : (
-                  // Direct chat - show other user's profile picture
                   <ProfileAvatar
                     userId={item.id}
                     userName={item.title}
@@ -137,49 +152,68 @@ export default function ChatList() {
                 )}
               </View>
               
+              {/* Chat Info */}
               <View style={styles.chatInfo}>
                 <View style={styles.chatHeader}>
-                  <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+                  <Text style={styles.chatTitle} numberOfLines={1}>{item.title}</Text>
                   {item.unread ? (
-                    <View style={styles.badge}>
-                      <Text style={styles.badgeText}>{item.unread}</Text>
+                    <View style={[styles.unreadBadge, { backgroundColor: palette.accent }]}>
+                      <Text style={styles.unreadText}>{item.unread}</Text>
                     </View>
                   ) : null}
                 </View>
                 
-                <Text style={styles.meta} numberOfLines={1}>
+                <Text style={styles.chatMeta} numberOfLines={1}>
                   {item.type === 'GROUP' 
-                    ? `Members: ${Array.isArray(item.members) ? item.members.join(", ") : "Loading..."}`
-                    : "Direct message"
+                    ? `👥 ${Array.isArray(item.members) ? item.members.length : 0} members`
+                    : "💬 Direct message"
                   }
                 </Text>
                 
-                {/* Only show invite code for GROUP chats */}
+                {/* Group invite code */}
                 {(item.inviteCode || item.invite_code) && (
-                  <Text style={styles.inviteCode}>
-                    Group Code: {item.inviteCode || item.invite_code}
-                  </Text>
+                  <View style={styles.inviteCodeContainer}>
+                    <Ionicons name="key-outline" size={12} color={palette.primary} />
+                    <Text style={[styles.inviteCode, { color: palette.primary }]}>
+                      {item.inviteCode || item.invite_code}
+                    </Text>
+                  </View>
                 )}
-                
-                {/* Show chat type for debugging */}
-                <Text style={{ color: '#666', fontSize: 10 }}>
-                  Type: {item.type || 'unknown'} | ID: {item.id?.slice(0, 8)}...
-                </Text>
               </View>
               
-              <Ionicons name="chevron-forward" color="#666" size={20} />
+              {/* Chat Type Badge */}
+              <View style={styles.chatTypeContainer}>
+                <View style={[styles.chatTypeBadge, { 
+                  backgroundColor: item.type === 'GROUP' ? `${palette.accent}20` : `${palette.secondary}20` 
+                }]}>
+                  <Text style={[styles.chatTypeText, { 
+                    color: item.type === 'GROUP' ? palette.accent : palette.secondary 
+                  }]}>
+                    {item.type === 'GROUP' ? 'GROUP' : 'DIRECT'}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" color="#666" size={20} />
+              </View>
             </TouchableOpacity>
           )}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: Math.max(insets.bottom, 24) }}
           ListEmptyComponent={() => (
             <View style={styles.emptyState}>
               <Ionicons name="chatbubbles-outline" size={64} color="#444" />
-              <Text style={styles.emptyText}>
+              <Text style={styles.emptyTitle}>
                 {isLoading ? "Loading chats..." : "No chats yet"}
               </Text>
-              <Text style={styles.emptySubtext}>
-                {isLoading ? "Please wait..." : "Create or join a chat to get started!"}
+              <Text style={styles.emptySubtitle}>
+                {isLoading ? "Please wait..." : "Create a group or start a direct message to get started!"}
               </Text>
+              {!isLoading && (
+                <TouchableOpacity 
+                  style={[styles.emptyActionBtn, { backgroundColor: palette.primary }]}
+                  onPress={() => Alert.alert("Get Started", "Use the actions above to create or join a chat!")}
+                >
+                  <Text style={styles.emptyActionText}>Get Started</Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
           showsVerticalScrollIndicator={false}
@@ -194,46 +228,62 @@ const styles = StyleSheet.create({
     flex: 1, 
     backgroundColor: '#0c0c0c' 
   },
-  headerContainer: {
+  header: {
     backgroundColor: '#111',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#1a1a1a',
+    borderBottomColor: '#333',
   },
   headerRow: { 
     flexDirection: 'row', 
     alignItems: 'center', 
     justifyContent: 'space-between'
   },
-  header: { 
+  headerTitle: { 
     color: '#fff', 
     fontSize: 22, 
     fontWeight: '700' 
   },
   refreshBtn: { 
     padding: 8,
-    borderRadius: 20,
+    borderRadius: 8,
   },
-  modeIndicator: { 
-    color: '#A3C9FF', 
+  statusText: { 
+    color: '#bdbdbd', 
     fontSize: 12, 
     marginTop: 4
   },
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginTop: 8,
+    gap: 8,
+  },
   errorText: { 
-    color: '#FFCFE1', 
+    color: '#FF6B6B', 
     fontSize: 12, 
-    marginTop: 4,
-    fontWeight: '500'
+    fontWeight: '500',
+    flex: 1,
   },
   actionsContainer: {
     backgroundColor: '#111',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#1a1a1a',
+    borderBottomColor: '#333',
   },
-  newRow: { 
+  sectionTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  actionRow: { 
     flexDirection: 'row', 
     gap: 8, 
     alignItems: 'center', 
@@ -244,55 +294,46 @@ const styles = StyleSheet.create({
     backgroundColor: '#1a1a1a', 
     color: '#fff', 
     borderRadius: 12, 
-    paddingHorizontal: 14, 
+    paddingHorizontal: 16, 
     paddingVertical: 12, 
     borderWidth: 1, 
     borderColor: '#333',
     fontSize: 15
   },
   createBtn: { 
-    backgroundColor: '#B8F1D9', 
     padding: 12, 
     borderRadius: 12,
-    elevation: 2
   },
   joinBtn: { 
-    backgroundColor: '#FFE3A3', 
     padding: 12, 
     borderRadius: 12,
-    elevation: 2
   },
-  item: { 
+  chatCard: { 
     flexDirection: 'row', 
     alignItems: 'center', 
     backgroundColor: '#111', 
     borderRadius: 12, 
     padding: 16, 
     marginVertical: 6,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: '#222',
   },
-  chatInfo: {
-    flex: 1,
-    marginRight: 12
-  },
-  chatAvatar: {
+  chatAvatarContainer: {
     marginRight: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   groupIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(74, 144, 226, 0.1)',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(74, 144, 226, 0.3)',
+  },
+  chatInfo: {
+    flex: 1,
+    marginRight: 12
   },
   chatHeader: {
     flexDirection: 'row',
@@ -300,37 +341,53 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 4,
   },
-  title: { 
+  chatTitle: { 
     color: '#fff', 
     fontSize: 16, 
     fontWeight: '700',
-    marginBottom: 4
+    flex: 1,
+    marginRight: 8,
   },
-  meta: { 
+  unreadBadge: { 
+    minWidth: 20, 
+    height: 20, 
+    borderRadius: 10, 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    paddingHorizontal: 6, 
+  },
+  unreadText: { 
+    color: '#0c0c0c', 
+    fontSize: 11, 
+    fontWeight: '700' 
+  },
+  chatMeta: { 
     color: '#bdbdbd', 
     fontSize: 13,
-    marginBottom: 2
+    marginBottom: 4
+  },
+  inviteCodeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   inviteCode: {
-    color: '#A3C9FF',
     fontSize: 11,
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
     fontWeight: '600'
   },
-  badge: { 
-    minWidth: 24, 
-    height: 24, 
-    borderRadius: 12, 
-    backgroundColor: '#FFCFE1', 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    paddingHorizontal: 8, 
-    marginRight: 8
+  chatTypeContainer: {
+    alignItems: 'center',
+    gap: 8,
   },
-  badgeText: { 
-    color: '#000', 
-    fontSize: 12, 
-    fontWeight: '800' 
+  chatTypeBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  chatTypeText: {
+    fontSize: 10,
+    fontWeight: '600',
   },
   emptyState: { 
     alignItems: 'center', 
@@ -338,17 +395,29 @@ const styles = StyleSheet.create({
     paddingVertical: 80,
     paddingHorizontal: 40
   },
-  emptyText: { 
+  emptyTitle: { 
     color: '#777', 
-    fontSize: 18, 
-    fontWeight: '600',
+    fontSize: 20, 
+    fontWeight: '700',
     textAlign: 'center',
-    marginTop: 16
+    marginTop: 16,
+    marginBottom: 8,
   },
-  emptySubtext: { 
+  emptySubtitle: { 
     color: '#555', 
     fontSize: 14, 
     textAlign: 'center',
-    marginTop: 4
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  emptyActionBtn: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  emptyActionText: {
+    color: '#0c0c0c',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
