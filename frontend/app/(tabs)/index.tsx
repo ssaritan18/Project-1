@@ -378,7 +378,7 @@ export default function HomeScreen() {
         <Text style={styles.testButtonText}>🚀 Show ADHD Dashboard</Text>
       </TouchableOpacity>
     </View>
-  );  );
+  );
 }
 
 const styles = StyleSheet.create({
