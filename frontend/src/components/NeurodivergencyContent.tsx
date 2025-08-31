@@ -59,8 +59,192 @@ const placeholderContent: ContentItem[] = [
 
 export const NeurodivergencyContent: React.FC<NeurodivergencyContentProps> = ({ 
   onPress, 
-  showFullContent = false 
+  showFullContent = false,
+  onContentPress,
+  style
 }) => {
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  const categories = [
+    { id: 'all', name: 'All', icon: '🌈' },
+    { id: 'adhd', name: 'ADHD', icon: '🎯' },
+    { id: 'general', name: 'General', icon: '🌟' },
+    { id: 'workplace', name: 'Work', icon: '💼' },
+  ];
+
+  const filteredContent = selectedCategory === 'all' 
+    ? placeholderContent
+    : placeholderContent.filter(item => item.category === selectedCategory);
+
+  const toggleExpanded = (itemId: string) => {
+    const newExpanded = new Set(expandedItems);
+    if (newExpanded.has(itemId)) {
+      newExpanded.delete(itemId);
+    } else {
+      newExpanded.add(itemId);
+    }
+    setExpandedItems(newExpanded);
+  };
+
+  const getTypeColor = (type: ContentItem['type']) => {
+    switch (type) {
+      case 'tip': return '#4A90E2';
+      case 'article': return '#6C5CE7';
+      case 'awareness': return '#FF6B35';
+      case 'strategy': return '#00C851';
+      default: return '#888';
+    }
+  };
+
+  const getTypeLabel = (type: ContentItem['type']) => {
+    switch (type) {
+      case 'tip': return 'Quick Tip';
+      case 'article': return 'Deep Dive';
+      case 'awareness': return 'Awareness';
+      case 'strategy': return 'Strategy';
+      default: return 'Content';
+    }
+  };
+
+  if (!showFullContent) {
+    // Compact preview mode
+    return (
+      <View style={[styles.compactContainer, style]}>
+        <TouchableOpacity style={styles.compactHeader} onPress={onPress}>
+          <View style={styles.compactHeaderLeft}>
+            <Text style={styles.compactIcon}>🧠</Text>
+            <View>
+              <Text style={styles.compactTitle}>Neurodivergency Hub</Text>
+              <Text style={styles.compactSubtitle}>Tips, strategies & awareness</Text>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#888" />
+        </TouchableOpacity>
+        
+        <View style={styles.compactPreview}>
+          {placeholderContent.slice(0, 2).map((item) => (
+            <View key={item.id} style={styles.compactItem}>
+              <Text style={styles.compactItemIcon}>{item.icon}</Text>
+              <Text style={styles.compactItemTitle} numberOfLines={1}>
+                {item.title}
+              </Text>
+            </View>
+          ))}
+          <Text style={styles.moreContent}>+{placeholderContent.length - 2} more</Text>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={[styles.container, style]}>
+      <View style={styles.header}>
+        <Text style={styles.title}>🧠 Neurodivergency Hub</Text>
+        <Text style={styles.subtitle}>
+          Educational content, tips, and awareness resources
+        </Text>
+        <Text style={styles.placeholder}>
+          💡 Future integration point for specialized content
+        </Text>
+      </View>
+
+      {/* Category Filter */}
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        style={styles.categoryFilter}
+        contentContainerStyle={styles.categoryFilterContent}
+      >
+        {categories.map((category) => (
+          <TouchableOpacity
+            key={category.id}
+            style={[
+              styles.categoryButton,
+              selectedCategory === category.id && styles.categoryButtonActive
+            ]}
+            onPress={() => setSelectedCategory(category.id)}
+          >
+            <Text style={styles.categoryIcon}>{category.icon}</Text>
+            <Text style={[
+              styles.categoryText,
+              selectedCategory === category.id && styles.categoryTextActive
+            ]}>
+              {category.name}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      {/* Content List */}
+      <ScrollView style={styles.contentList} showsVerticalScrollIndicator={false}>
+        {filteredContent.map((item) => {
+          const isExpanded = expandedItems.has(item.id);
+          const typeColor = getTypeColor(item.type);
+          
+          return (
+            <View key={item.id} style={styles.contentItem}>
+              <TouchableOpacity
+                style={styles.contentHeader}
+                onPress={() => toggleExpanded(item.id)}
+                activeOpacity={0.8}
+              >
+                <View style={styles.contentHeaderLeft}>
+                  <Text style={styles.contentIcon}>{item.icon}</Text>
+                  <View style={styles.contentInfo}>
+                    <Text style={styles.contentTitle}>{item.title}</Text>
+                    <View style={styles.contentMeta}>
+                      <View style={[styles.typeTag, { backgroundColor: `${typeColor}20`, borderColor: typeColor }]}>
+                        <Text style={[styles.typeTagText, { color: typeColor }]}>
+                          {getTypeLabel(item.type)}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+                <Ionicons 
+                  name={isExpanded ? "chevron-up" : "chevron-down"} 
+                  size={20} 
+                  color="#888" 
+                />
+              </TouchableOpacity>
+
+              {!isExpanded && (
+                <Text style={styles.contentPreview}>{item.preview}</Text>
+              )}
+
+              {isExpanded && (
+                <View style={styles.expandedContent}>
+                  <Text style={styles.contentText}>{item.content}</Text>
+                  <TouchableOpacity
+                    style={[styles.actionButton, { backgroundColor: typeColor }]}
+                    onPress={() => onContentPress?.(item)}
+                  >
+                    <Text style={styles.actionButtonText}>Learn More</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          );
+        })}
+
+        {/* Future Integration Placeholder */}
+        <View style={styles.integrationPlaceholder}>
+          <Text style={styles.placeholderTitle}>🚀 Coming Soon</Text>
+          <Text style={styles.placeholderText}>
+            This section will expand with:
+          </Text>
+          <View style={styles.featureList}>
+            <Text style={styles.featureItem}>📚 Curated articles and research</Text>
+            <Text style={styles.featureItem}>🎥 Educational videos and webinars</Text>
+            <Text style={styles.featureItem}>🧭 Personalized recommendations</Text>
+            <Text style={styles.featureItem}>👥 Community-contributed content</Text>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
   const contentSections = [
     {
       id: 'understanding',
