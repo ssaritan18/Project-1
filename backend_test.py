@@ -6040,3 +6040,452 @@ if __name__ == "__main__":
         success = result["success"]
     
     sys.exit(0 if success else 1)
+
+def run_phase3_gamification_system_test():
+    """
+    🚀 PHASE 3 GAMIFICATION SYSTEM BACKEND TESTING
+    
+    OBJECTIVE: Test the new Phase 3 Gamification System backend APIs
+    
+    FOCUS AREAS:
+    1. Enhanced Achievement System - Test GET /api/achievements and GET /api/user/achievements
+    2. Enhanced Points System - Test GET /api/user/points with new breakdown
+    3. Enhanced Streak System - Test GET /api/user/streak with ADHD-friendly features
+    4. Weekly Challenges System - Test GET /api/challenges/weekly and POST /api/challenges/{id}/complete
+    5. Focus Session Tracking - Test POST /api/focus/session/start and POST /api/focus/session/{id}/complete
+    
+    TEST USERS: ssaritan@example.com / Passw0rd! and ssaritan2@example.com / Passw0rd!
+    """
+    tester = APITester()
+    
+    print("=" * 80)
+    print("🚀 PHASE 3 GAMIFICATION SYSTEM BACKEND TESTING")
+    print("=" * 80)
+    
+    # Test users as specified in the request
+    user1 = {"name": "ssaritan", "email": "ssaritan@example.com", "password": "Passw0rd!"}
+    user2 = {"name": "ssaritan2", "email": "ssaritan2@example.com", "password": "Passw0rd!"}
+    
+    tokens = {}
+    test_results = {
+        "achievements": False,
+        "user_achievements": False,
+        "points": False,
+        "streak": False,
+        "weekly_challenges": False,
+        "challenge_completion": False,
+        "focus_session_start": False,
+        "focus_session_complete": False
+    }
+    
+    # PHASE 1: Authentication Setup
+    print("\n" + "=" * 60)
+    print("PHASE 1: AUTHENTICATION SETUP")
+    print("=" * 60)
+    
+    for user in [user1, user2]:
+        # Login existing users
+        login_result = tester.test_auth_login(user["email"], user["password"])
+        if not login_result["success"]:
+            print(f"❌ CRITICAL: Login failed for {user['email']}: {login_result.get('error', 'Unknown error')}")
+            return False
+        tokens[user["email"]] = login_result["token"]
+        print(f"✅ User {user['name']} authenticated successfully")
+    
+    user1_email = user1["email"]
+    user2_email = user2["email"]
+    
+    # PHASE 2: Enhanced Achievement System Testing
+    print("\n" + "=" * 60)
+    print("PHASE 2: ENHANCED ACHIEVEMENT SYSTEM TESTING")
+    print("=" * 60)
+    
+    # Test 2.1: GET /api/achievements - Get all available achievements
+    print("🔍 Test 2.1: GET /api/achievements - Get all available achievements")
+    
+    achievements_result = tester.test_get_achievements(tokens[user1_email], user1["name"])
+    if achievements_result["success"]:
+        achievements_data = achievements_result["data"]
+        achievements = achievements_data["achievements"]
+        
+        # Validate achievement structure and categories
+        expected_categories = ["streak", "tasks", "focus", "community", "profile", "challenges"]
+        expected_tiers = ["bronze", "silver", "gold", "special"]
+        
+        categories_found = set()
+        tiers_found = set()
+        
+        for achievement in achievements:
+            # Validate required fields
+            required_fields = ["id", "name", "icon", "description", "category", "tier", "reward"]
+            for field in required_fields:
+                if field not in achievement:
+                    print(f"❌ Achievement {achievement.get('id', 'unknown')} missing field: {field}")
+                    return False
+            
+            categories_found.add(achievement["category"])
+            tiers_found.add(achievement["tier"])
+            
+            # Validate reward structure
+            reward = achievement["reward"]
+            if not all(key in reward for key in ["points", "badge", "description"]):
+                print(f"❌ Achievement {achievement['id']} has invalid reward structure")
+                return False
+        
+        # Check if all expected categories are present
+        missing_categories = set(expected_categories) - categories_found
+        if missing_categories:
+            print(f"❌ Missing achievement categories: {missing_categories}")
+            return False
+        
+        # Check if all expected tiers are present
+        missing_tiers = set(expected_tiers) - tiers_found
+        if missing_tiers:
+            print(f"❌ Missing achievement tiers: {missing_tiers}")
+            return False
+        
+        print(f"✅ Achievement system validation successful - {len(achievements)} achievements with all categories and tiers")
+        test_results["achievements"] = True
+    else:
+        print(f"❌ CRITICAL: GET /api/achievements failed: {achievements_result.get('error')}")
+        return False
+    
+    # Test 2.2: GET /api/user/achievements - Get user's unlocked achievements
+    print("🔍 Test 2.2: GET /api/user/achievements - Get user's unlocked achievements")
+    
+    user_achievements_result = tester.test_get_user_achievements(tokens[user1_email], user1["name"])
+    if user_achievements_result["success"]:
+        user_achievements_data = user_achievements_result["data"]
+        user_achievements = user_achievements_data["achievements"]
+        
+        # Validate user achievement structure
+        for achievement in user_achievements:
+            required_fields = ["id", "name", "unlocked", "progress", "maxProgress"]
+            for field in required_fields:
+                if field not in achievement:
+                    print(f"❌ User achievement {achievement.get('id', 'unknown')} missing field: {field}")
+                    return False
+            
+            # Validate progress logic
+            if achievement["progress"] > achievement["maxProgress"]:
+                print(f"❌ Achievement {achievement['id']} has invalid progress: {achievement['progress']}/{achievement['maxProgress']}")
+                return False
+        
+        unlocked_count = sum(1 for a in user_achievements if a["unlocked"])
+        print(f"✅ User achievements validation successful - {unlocked_count}/{len(user_achievements)} unlocked")
+        test_results["user_achievements"] = True
+    else:
+        print(f"❌ CRITICAL: GET /api/user/achievements failed: {user_achievements_result.get('error')}")
+        return False
+    
+    # PHASE 3: Enhanced Points System Testing
+    print("\n" + "=" * 60)
+    print("PHASE 3: ENHANCED POINTS SYSTEM TESTING")
+    print("=" * 60)
+    
+    # Test 3.1: GET /api/user/points - Get user's points with Phase 3 breakdown
+    print("🔍 Test 3.1: GET /api/user/points - Get user's points with Phase 3 breakdown")
+    
+    points_result = tester.test_get_user_points(tokens[user1_email], user1["name"])
+    if points_result["success"]:
+        points_data = points_result["data"]
+        
+        # Validate points structure
+        required_fields = ["total_points", "level", "points_to_next_level", "breakdown", "multipliers"]
+        for field in required_fields:
+            if field not in points_data:
+                print(f"❌ Points data missing field: {field}")
+                return False
+        
+        # Validate Phase 3 breakdown categories
+        breakdown = points_data["breakdown"]
+        expected_breakdown_categories = ["achievements", "tasks", "focus_sessions", "community", "streaks", "challenges"]
+        for category in expected_breakdown_categories:
+            if category not in breakdown:
+                print(f"❌ Points breakdown missing category: {category}")
+                return False
+        
+        # Validate Phase 3 multipliers
+        multipliers = points_data["multipliers"]
+        expected_multipliers = ["current_streak_bonus", "weekly_challenge_bonus", "achievement_tier_bonus"]
+        for multiplier in expected_multipliers:
+            if multiplier not in multipliers:
+                print(f"❌ Points multipliers missing: {multiplier}")
+                return False
+        
+        print(f"✅ Points system validation successful - {points_data['total_points']} total points, level {points_data['level']}")
+        print(f"   📊 Focus sessions: {breakdown['focus_sessions']} points, Challenges: {breakdown['challenges']} points")
+        test_results["points"] = True
+    else:
+        print(f"❌ CRITICAL: GET /api/user/points failed: {points_result.get('error')}")
+        return False
+    
+    # PHASE 4: Enhanced Streak System Testing
+    print("\n" + "=" * 60)
+    print("PHASE 4: ENHANCED STREAK SYSTEM TESTING")
+    print("=" * 60)
+    
+    # Test 4.1: GET /api/user/streak - Get user's streak with ADHD-friendly features
+    print("🔍 Test 4.1: GET /api/user/streak - Get user's streak with ADHD-friendly features")
+    
+    streak_result = tester.test_get_user_streak(tokens[user1_email], user1["name"])
+    if streak_result["success"]:
+        streak_data = streak_result["data"]
+        
+        # Validate streak structure
+        required_fields = ["current_streak", "best_streak", "recovery", "motivation"]
+        for field in required_fields:
+            if field not in streak_data:
+                print(f"❌ Streak data missing field: {field}")
+                return False
+        
+        # Validate ADHD-friendly recovery mechanics
+        recovery = streak_data["recovery"]
+        required_recovery_fields = ["can_recover", "recovery_window_hours", "grace_days_used", "max_grace_days"]
+        for field in required_recovery_fields:
+            if field not in recovery:
+                print(f"❌ Streak recovery missing field: {field}")
+                return False
+        
+        # Validate motivation messages
+        motivation = streak_data["motivation"]
+        required_motivation_fields = ["streak_type", "encouragement", "reward_points"]
+        for field in required_motivation_fields:
+            if field not in motivation:
+                print(f"❌ Streak motivation missing field: {field}")
+                return False
+        
+        print(f"✅ Streak system validation successful - current: {streak_data['current_streak']}, best: {streak_data['best_streak']}")
+        print(f"   🔥 Type: {motivation['streak_type']}, Recovery available: {recovery['can_recover']}")
+        test_results["streak"] = True
+    else:
+        print(f"❌ CRITICAL: GET /api/user/streak failed: {streak_result.get('error')}")
+        return False
+    
+    # PHASE 5: Weekly Challenges System Testing
+    print("\n" + "=" * 60)
+    print("PHASE 5: WEEKLY CHALLENGES SYSTEM TESTING")
+    print("=" * 60)
+    
+    # Test 5.1: GET /api/challenges/weekly - Get current week's ADHD-friendly challenges
+    print("🔍 Test 5.1: GET /api/challenges/weekly - Get current week's ADHD-friendly challenges")
+    
+    challenges_result = tester.test_get_weekly_challenges(tokens[user1_email], user1["name"])
+    if challenges_result["success"]:
+        challenges_data = challenges_result["data"]
+        challenges = challenges_data["challenges"]
+        
+        # Validate challenges structure
+        for challenge in challenges:
+            required_fields = ["id", "name", "icon", "description", "category", "difficulty", "progress", "max_progress", "reward", "tips"]
+            for field in required_fields:
+                if field not in challenge:
+                    print(f"❌ Challenge {challenge.get('id', 'unknown')} missing field: {field}")
+                    return False
+            
+            # Validate reward structure
+            reward = challenge["reward"]
+            if not all(key in reward for key in ["points", "badge", "description"]):
+                print(f"❌ Challenge {challenge['id']} has invalid reward structure")
+                return False
+            
+            # Validate ADHD-friendly tips
+            if not isinstance(challenge["tips"], list) or len(challenge["tips"]) == 0:
+                print(f"❌ Challenge {challenge['id']} missing ADHD-friendly tips")
+                return False
+        
+        print(f"✅ Weekly challenges validation successful - {len(challenges)} challenges available")
+        test_results["weekly_challenges"] = True
+        
+        # Test 5.2: POST /api/challenges/{challenge_id}/complete - Complete a challenge
+        print("🔍 Test 5.2: POST /api/challenges/{challenge_id}/complete - Complete a challenge")
+        
+        if challenges:
+            test_challenge = challenges[0]  # Use first challenge for testing
+            challenge_id = test_challenge["id"]
+            
+            completion_result = tester.test_complete_challenge(tokens[user1_email], challenge_id, user1["name"])
+            if completion_result["success"]:
+                completion_data = completion_result["data"]
+                
+                # Validate completion response
+                required_fields = ["success", "challenge_id", "reward", "celebration"]
+                for field in required_fields:
+                    if field not in completion_data:
+                        print(f"❌ Challenge completion missing field: {field}")
+                        return False
+                
+                # Validate celebration data
+                celebration = completion_data["celebration"]
+                required_celebration_fields = ["title", "message", "confetti", "sound"]
+                for field in required_celebration_fields:
+                    if field not in celebration:
+                        print(f"❌ Challenge celebration missing field: {field}")
+                        return False
+                
+                print(f"✅ Challenge completion validation successful - {completion_data['reward']['points']} points earned")
+                test_results["challenge_completion"] = True
+            else:
+                print(f"❌ CRITICAL: POST /api/challenges/{challenge_id}/complete failed: {completion_result.get('error')}")
+                return False
+        else:
+            print("❌ No challenges available to test completion")
+            return False
+    else:
+        print(f"❌ CRITICAL: GET /api/challenges/weekly failed: {challenges_result.get('error')}")
+        return False
+    
+    # PHASE 6: Focus Session Tracking Testing
+    print("\n" + "=" * 60)
+    print("PHASE 6: FOCUS SESSION TRACKING TESTING")
+    print("=" * 60)
+    
+    # Test 6.1: POST /api/focus/session/start - Start focus sessions
+    print("🔍 Test 6.1: POST /api/focus/session/start - Start focus sessions")
+    
+    session_types = ["pomodoro", "deep_work", "adhd_sprint"]
+    session_ids = []
+    
+    for session_type in session_types:
+        duration = 25 if session_type == "pomodoro" else (120 if session_type == "deep_work" else 15)
+        
+        start_result = tester.test_start_focus_session(tokens[user1_email], session_type, duration, user1["name"])
+        if start_result["success"]:
+            start_data = start_result["data"]
+            session = start_data["session"]
+            
+            # Validate session structure
+            required_fields = ["session_id", "user_id", "type", "duration_minutes", "start_time", "status", "points_potential"]
+            for field in required_fields:
+                if field not in session:
+                    print(f"❌ Focus session missing field: {field}")
+                    return False
+            
+            # Validate motivation and tips
+            if "motivation" not in start_data or "tips" not in start_data:
+                print(f"❌ Focus session start missing motivation or tips")
+                return False
+            
+            if not isinstance(start_data["tips"], list) or len(start_data["tips"]) == 0:
+                print(f"❌ Focus session missing ADHD-specific tips")
+                return False
+            
+            session_ids.append(session["session_id"])
+            print(f"✅ {session_type} session started successfully - ID: {session['session_id']}")
+        else:
+            print(f"❌ CRITICAL: POST /api/focus/session/start failed for {session_type}: {start_result.get('error')}")
+            return False
+    
+    test_results["focus_session_start"] = True
+    
+    # Test 6.2: POST /api/focus/session/{session_id}/complete - Complete focus sessions
+    print("🔍 Test 6.2: POST /api/focus/session/{session_id}/complete - Complete focus sessions")
+    
+    for i, session_id in enumerate(session_ids):
+        tasks_completed = [2, 1, 3][i]  # Different values for each session type
+        interruptions = [1, 0, 2][i]
+        focus_rating = [8, 9, 7][i]
+        
+        complete_result = tester.test_complete_focus_session(
+            tokens[user1_email], session_id, tasks_completed, interruptions, focus_rating, user1["name"]
+        )
+        
+        if complete_result["success"]:
+            complete_data = complete_result["data"]
+            
+            # Validate completion structure
+            required_fields = ["session_id", "points_earned", "breakdown", "celebration", "next_suggestion"]
+            for field in required_fields:
+                if field not in complete_data:
+                    print(f"❌ Focus session completion missing field: {field}")
+                    return False
+            
+            # Validate points breakdown
+            breakdown = complete_data["breakdown"]
+            required_breakdown_fields = ["base_points", "task_bonus", "focus_bonus", "interruption_penalty"]
+            for field in required_breakdown_fields:
+                if field not in breakdown:
+                    print(f"❌ Focus session breakdown missing field: {field}")
+                    return False
+            
+            # Validate celebration
+            celebration = complete_data["celebration"]
+            required_celebration_fields = ["title", "message", "achievement_unlocked"]
+            for field in required_celebration_fields:
+                if field not in celebration:
+                    print(f"❌ Focus session celebration missing field: {field}")
+                    return False
+            
+            print(f"✅ Focus session completion successful - {complete_data['points_earned']} points earned")
+        else:
+            print(f"❌ CRITICAL: POST /api/focus/session/{session_id}/complete failed: {complete_result.get('error')}")
+            return False
+    
+    test_results["focus_session_complete"] = True
+    
+    # FINAL SUMMARY
+    print("\n" + "=" * 80)
+    print("🎉 PHASE 3 GAMIFICATION SYSTEM TESTING COMPLETED!")
+    print("=" * 80)
+    
+    # Check if all tests passed
+    all_passed = all(test_results.values())
+    
+    if all_passed:
+        print("\n✅ ALL PHASE 3 GAMIFICATION TESTS PASSED SUCCESSFULLY!")
+        
+        print("\nCOMPREHENSIVE TEST SUMMARY:")
+        print("✅ Enhanced Achievement System: GET /api/achievements working with 6 categories (streak, tasks, focus, community, profile, challenges)")
+        print("✅ User Achievements: GET /api/user/achievements working with progress tracking and unlock status")
+        print("✅ Enhanced Points System: GET /api/user/points working with Phase 3 breakdown (focus_sessions, challenges)")
+        print("✅ Points Multipliers: streak_bonus, weekly_challenge_bonus, achievement_tier_bonus all present")
+        print("✅ Enhanced Streak System: GET /api/user/streak working with ADHD-friendly recovery mechanics")
+        print("✅ Streak Features: Grace days, recovery windows, motivation messages all implemented")
+        print("✅ Weekly Challenges: GET /api/challenges/weekly working with ADHD-friendly challenges")
+        print("✅ Challenge Completion: POST /api/challenges/{id}/complete working with celebrations")
+        print("✅ Focus Session Start: POST /api/focus/session/start working for pomodoro, deep_work, adhd_sprint")
+        print("✅ Focus Session Complete: POST /api/focus/session/{id}/complete working with detailed feedback")
+        
+        print(f"\nTEST DETAILS:")
+        print(f"• Users Tested: {user1['name']} ({user1['email']}), {user2['name']} ({user2['email']})")
+        print(f"• Achievement Categories: streak, tasks, focus, community, profile, challenges")
+        print(f"• Achievement Tiers: bronze, silver, gold, special")
+        print(f"• Points Categories: achievements, tasks, focus_sessions, community, streaks, challenges")
+        print(f"• Focus Session Types: pomodoro (25min), deep_work (120min), adhd_sprint (15min)")
+        print(f"• ADHD Features: Recovery mechanics, grace days, motivation messages, celebration animations")
+        
+        return True
+    else:
+        print("\n❌ SOME PHASE 3 GAMIFICATION TESTS FAILED!")
+        failed_tests = [test for test, passed in test_results.items() if not passed]
+        print(f"Failed tests: {failed_tests}")
+        return False
+
+if __name__ == "__main__":
+    import sys
+    
+    if len(sys.argv) > 1:
+        test_name = sys.argv[1]
+        if test_name == "phase3":
+            success = run_phase3_gamification_system_test()
+        elif test_name == "profile":
+            success = run_comprehensive_profile_management_test()
+        elif test_name == "phase2":
+            success = run_phase2_adhd_dashboard_backend_test()
+        elif test_name == "chat":
+            success = run_comprehensive_chat_test()
+        elif test_name == "e2e":
+            success = run_end_to_end_chat_test()
+        elif test_name == "privacy":
+            success = run_community_feed_privacy_test()
+        elif test_name == "voice":
+            success = run_comprehensive_voice_recording_test()
+        else:
+            print(f"Unknown test: {test_name}")
+            print("Available tests: phase3, profile, phase2, chat, e2e, privacy, voice")
+            sys.exit(1)
+    else:
+        # Default to Phase 3 test as requested
+        success = run_phase3_gamification_system_test()
+    
+    sys.exit(0 if success else 1)
