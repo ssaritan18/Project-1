@@ -87,7 +87,7 @@ export default function Login() {
       await signIn({ name: name || "Google User", email });
       router.replace("/(tabs)");
     } catch (error) {
-      Alert.alert("Giriş Hatası", "Google girişinde sorun oluştu");
+      Alert.alert("Login Error", "Google login failed");
     } finally {
       setIsLoading(false);
     }
