@@ -104,6 +104,28 @@
 
 ## user_problem_statement: "Phase 1: Fix existing bugs and implement missing profile, chat, and theme features for ADHDers Social Club app including: Edit Profile button fix, Profile photo upload, Theme preference fix, Chat media features, Voice recorder bug fix, Homepage cleanup"
 ## backend:
+  - task: "Profile Photo Upload Backend"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Need to implement profile photo upload endpoint with camera/gallery access support and media file handling"
+  - task: "Chat Media Upload Backend"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Need to implement chat media upload endpoints for images and videos with proper storage and retrieval"
   - task: "Voice Message Backend API"
     implemented: true
     working: true
