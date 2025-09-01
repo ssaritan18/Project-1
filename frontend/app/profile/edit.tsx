@@ -78,14 +78,40 @@ export default function EditProfileScreen() {
         setLoading(false);
       }
     } else {
-      // Local mode - use mock data
-      setProfileData({
-        name: user?.name || 'Your Name',
-        bio: 'Tell us about yourself...',
-        location: '',
-        website: '',
-        birth_date: '',
-      });
+      // Local mode - localStorage'dan yükle
+      try {
+        const savedProfile = localStorage.getItem('user_profile');
+        if (savedProfile) {
+          const parsedProfile = JSON.parse(savedProfile);
+          console.log('📂 Loaded profile from localStorage:', parsedProfile);
+          setProfileData({
+            name: parsedProfile.name || user?.name || 'Your Name',
+            bio: parsedProfile.bio || 'Tell us about yourself...',
+            location: parsedProfile.location || '',
+            website: parsedProfile.website || '',
+            birth_date: parsedProfile.birth_date || '',
+          });
+        } else {
+          // Kayıtlı data yok, default değerler
+          setProfileData({
+            name: user?.name || 'Your Name',
+            bio: 'Tell us about yourself...',
+            location: '',
+            website: '',
+            birth_date: '',
+          });
+        }
+      } catch (error) {
+        console.error('localStorage read error:', error);
+        setProfileData({
+          name: user?.name || 'Your Name',
+          bio: 'Tell us about yourself...',
+          location: '',
+          website: '',
+          birth_date: '',
+        });
+      }
+      setLoading(false);
     }
   };
 
