@@ -134,15 +134,48 @@ export function ProfilePictureUpload({ currentImageUrl, onUploadComplete }: Prof
   };
 
   const showUploadOptions = () => {
-    Alert.alert(
-      'Update Profile Picture',
-      'How would you like to update your profile picture?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Take Photo', onPress: takePhoto },
-        { text: 'Choose from Library', onPress: pickImage },
-      ]
-    );
+    if (Platform.OS === 'web') {
+      // For web, use direct file input
+      pickImageWeb();
+    } else {
+      // For mobile, show options
+      Alert.alert(
+        'Update Profile Picture',
+        'How would you like to update your profile picture?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Take Photo', onPress: takePhoto },
+          { text: 'Choose from Library', onPress: pickImage },
+        ]
+      );
+    }
+  };
+
+  const pickImageWeb = () => {
+    // Create file input element for web
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        try {
+          setUploading(true);
+          // Convert file to base64
+          const reader = new FileReader();
+          reader.onload = async (e) => {
+            const base64 = e.target.result.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+            await uploadImage(base64);
+          };
+          reader.readAsDataURL(file);
+        } catch (error) {
+          console.error('Web image selection error:', error);
+          Alert.alert('Error', 'Failed to process image');
+          setUploading(false);
+        }
+      }
+    };
+    input.click();
   };
 
   return (
