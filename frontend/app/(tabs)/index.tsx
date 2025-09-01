@@ -837,5 +837,56 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
   },
+  // Logo Header Styles
+  logoHeader: {
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+  },
+  logoContainer: {
+    marginBottom: 12,
+  },
+  circularLogo: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: '#A3C9FF',
+  },
+  appTitle: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: '900',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  welcomeText: {
+    color: '#999',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  // Gradient Button Styles
+  gradientButton: {
+    padding: 16,
+    borderRadius: 12,
+    margin: 20,
+    alignItems: 'center',
+    borderWidth: 2,
+  },
+  addTaskButton: {
+    backgroundColor: '#FFD700',
+    borderColor: '#FFC107',
+  },
+  dashboardButton: {
+    backgroundColor: '#00C851',
+    borderColor: '#00A040',
+    marginTop: 10,
+  },
+  gradientButtonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000',
+  },
 
 });
