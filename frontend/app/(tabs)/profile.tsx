@@ -47,6 +47,8 @@ export default function ProfileScreen() {
   useFocusEffect(React.useCallback(() => { refresh(); }, [refresh]));
   
   const navigateToEdit = () => {
+    console.log('🎯 navigateToEdit called - attempting to navigate to /profile/edit');
+    try {
     router.push('/profile/edit');
   };
 
