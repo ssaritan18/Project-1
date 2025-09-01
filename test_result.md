@@ -361,6 +361,7 @@
     - "Homepage Test Button Removal"
     - "Theme Preference Fix"
   stuck_tasks:
+    - "Homepage Test Button Removal"
   test_all: false
   test_priority: "high_first"
 ## agent_communication:
