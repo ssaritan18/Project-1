@@ -140,9 +140,10 @@ export default function HomeScreen() {
 
   // Handle starting different focus modes (demo functionality)
   const handleStartFocusMode = (mode, duration) => {
+    const message = 'Starting ' + mode + ' mode for ' + duration + ' minutes.\n\nThis is a demo - in the full app, this would:\n• Start the focus timer\n• Enable distraction blocking\n• Track your session\n• Reward you with points!';
     Alert.alert(
       "🎯 Focus Mode Starting!", 
-      `Starting ${mode} mode for ${duration} minutes.\n\nThis is a demo - in the full app, this would:\n• Start the focus timer\n• Enable distraction blocking\n• Track your session\n• Reward you with points!`,
+      message,
       [{ text: 'Got it! 🚀', style: 'default' }]
     );
   };
