@@ -48,16 +48,20 @@ export default function ProfileScreen() {
   
   const navigateToEdit = () => {
     console.log('🎯 navigateToEdit called - attempting to navigate to /profile/edit');
+    
+    // For web compatibility, use window.location directly
+    if (typeof window !== 'undefined') {
+      console.log('🌐 Web environment detected - using window.location.href');
+      window.location.href = '/profile/edit';
+      return;
+    }
+    
+    // Fallback to router.push for native
     try {
       router.push('/profile/edit');
       console.log('✅ router.push called successfully');
     } catch (error) {
       console.error('❌ router.push failed:', error);
-      // Fallback: use window.location for web
-      if (typeof window !== 'undefined') {
-        console.log('🔄 Fallback: using window.location.href');
-        window.location.href = '/profile/edit';
-      }
     }
   };
 
