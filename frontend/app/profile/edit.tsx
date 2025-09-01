@@ -97,12 +97,14 @@ export default function EditProfileScreen() {
       console.log('🔐 Is authenticated:', isAuthenticated);
       console.log('📝 Profile data to save:', profileData);
       
-      if (mode === 'sync' && isAuthenticated) {
+      if (mode === 'sync' && isAuthenticated && user?.token) {
         console.log('🌐 Sync mode - saving to backend...');
+        console.log('🔐 Using token:', user.token ? 'Token exists' : 'NO TOKEN');
+        
         const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/profile`, {
           method: 'PUT',
           headers: {
-            'Authorization': `Bearer ${user?.token}`,
+            'Authorization': `Bearer ${user.token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(profileData)
