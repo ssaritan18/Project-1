@@ -112,7 +112,7 @@ export default function Login() {
           <Text style={styles.label}>Email</Text>
           <TextInput
             style={[styles.input, { borderColor: validEmail ? '#B8F1D9' : '#333' }]}
-            placeholder="Email adresinizi girin"
+            placeholder="Enter your email address"
             placeholderTextColor="#777"
             value={email}
             onChangeText={setEmail}
