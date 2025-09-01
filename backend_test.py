@@ -1057,7 +1057,9 @@ def run_profile_edit_functionality_test():
         # Try to login first, if it fails, create the user directly in database
         login_result = tester.test_auth_login(user["email"], user["password"])
         if not login_result["success"]:
-            print(f"⚠️ User {user['email']} doesn't exist, creating verified user directly...")
+            print(f"⚠️ User {user['email']} doesn't exist or has wrong password, creating verified user directly...")
+            # Clean up any existing user with same email first
+            tester.cleanup_user_by_email(user["email"])
             # Create user directly in database (bypassing email verification for testing)
             success = tester.create_verified_user_directly(user["name"], user["email"], user["password"])
             if not success:
