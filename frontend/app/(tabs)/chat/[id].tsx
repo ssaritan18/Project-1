@@ -57,15 +57,54 @@ export default function ChatDetail() {
 
 
   const handleMediaUpload = async () => {
-    Alert.alert(
-      'Send Media',
-      'Choose your media source',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Camera', onPress: handleTakePhoto },
-        { text: 'Gallery', onPress: handlePickImage },
-      ]
-    );
+    if (Platform.OS === 'web') {
+      // For web, use file input directly
+      handlePickImageWeb();
+    } else {
+      // For mobile, show options
+      Alert.alert(
+        'Send Media',
+        'Choose your media source',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Camera', onPress: handleTakePhoto },
+          { text: 'Gallery', onPress: handlePickImage },
+        ]
+      );
+    }
+  };
+
+  const handlePickImageWeb = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,video/*';
+    input.onchange = async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        try {
+          setIsUploadingMedia(true);
+          // Convert file to base64 for chat media
+          const reader = new FileReader();
+          reader.onload = async (e) => {
+            const base64 = e.target.result.split(',')[1];
+            const mockAsset = {
+              uri: URL.createObjectURL(file),
+              base64: base64,
+              fileName: file.name,
+              type: file.type,
+              fileSize: file.size
+            };
+            await sendMedia(mockAsset);
+          };
+          reader.readAsDataURL(file);
+        } catch (error) {
+          console.error('Web media selection error:', error);
+          Alert.alert('Error', 'Failed to process media');
+          setIsUploadingMedia(false);
+        }
+      }
+    };
+    input.click();
   };
 
   const handleTakePhoto = async () => {
