@@ -341,13 +341,7 @@ export default function ChatDetail() {
             </>
           ) : (
             <View style={styles.recordingMode}>
-              <VoiceRecorder
-                onVoiceRecorded={handleVoiceComplete}
-                onCancel={handleVoiceCancel}
-                onRecordingStart={() => setIsRecordingVoice(true)}
-                onRecordingEnd={() => setIsRecordingVoice(false)}
-                style={styles.voiceRecorderActive}
-              />
+              <Text style={styles.recordingText}>Voice recording removed</Text>
             </View>
           )}
         </View>
