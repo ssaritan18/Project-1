@@ -154,27 +154,17 @@ export default function ChatDetail() {
   };
 
   const sendMedia = async (asset: any) => {
-    if (!id || !asset.base64) return;
+    if (!id) return;
     
     setIsUploadingMedia(true);
     try {
-      // For now, we'll send the media as a mock text message
-      // In a real implementation, you'd upload to your backend first
-      const mediaType = asset.type?.includes('video') ? 'video' : 'image';
-      const mediaMessage = `📎 [${mediaType.toUpperCase()}] ${asset.fileName || 'media'} (${Math.round(asset.fileSize / 1024)}KB)`;
-      
-      if (mode === "sync") {
-        // TODO: Implement actual media API call to backend
-        await sendText(mediaMessage);
-        Alert.alert('Media Sent', `${mediaType} has been shared in the chat!`);
-      } else {
-        // Local mode
-        await sendText(mediaMessage);
-        Alert.alert('Media Sent (Local)', `${mediaType} added to local chat!`);
-      }
+      // Simple mock message for now
+      const mediaMessage = `📎 [MEDIA] File uploaded`;
+      await sendText(mediaMessage);
+      Alert.alert('Media Sent', 'Media has been shared!');
     } catch (error) {
       console.error("Failed to send media:", error);
-      Alert.alert('Error', 'Failed to send media. Please try again.');
+      Alert.alert('Error', 'Failed to send media.');
     } finally {
       setIsUploadingMedia(false);
     }
