@@ -196,9 +196,9 @@
     implemented: true
     working: false
     file: "/app/frontend/app/profile/settings.tsx"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: false
         -agent: "main"
@@ -209,6 +209,9 @@
         -working: false
         -agent: "testing"
         -comment: "❌ PARTIAL: Theme preferences partially working but language selection still present. Successfully tested: 1) Settings page accessible via Profile → Settings, 2) Preferences section found with Theme options, 3) Theme options (Auto, Dark, Light) are available and functional. ISSUE FOUND: Language selection still present in settings despite requirement to remove it. Code shows language option removed but UI still displays it. Need to verify language removal implementation."
+        -working: false
+        -agent: "testing"
+        -comment: "❌ CRITICAL FAILURE CONFIRMED: Phase 1 verification test completed on mobile viewport (390x844) at https://focus-buddy-47.preview.emergentagent.com. DETAILED FINDINGS: Successfully navigated to Profile → Settings → Preferences section and confirmed language selection options are still present and visible. FOUND LANGUAGE OPTIONS: 'Language', 'English', 'Türkçe', 'Español' - all visible in the Preferences section alongside Theme options. EXPECTED BEHAVIOR: Only Theme options should be present (Auto, Dark, Light). ACTUAL BEHAVIOR: Both Theme AND Language selection options are present. IMPACT: This violates the requirement to remove language selection and support only English. The main agent has attempted fixes but language options remain in the UI. RECOMMENDATION: Main agent must completely remove language selection from /app/frontend/app/profile/settings.tsx file and ensure only Theme options are displayed in Preferences section."
   - task: "Chat Media Upload Frontend"
     implemented: true
     working: true
