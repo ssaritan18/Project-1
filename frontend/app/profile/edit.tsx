@@ -43,8 +43,10 @@ export default function EditProfileScreen() {
   });
 
   useEffect(() => {
+    console.log('🔄 useEffect triggered for loadProfileData');
+    console.log('🔍 Current state:', { mode, isAuthenticated, userExists: !!user, hasToken: !!user?.token });
     loadProfileData();
-  }, []);
+  }, [mode, isAuthenticated, user]);
 
   const loadProfileData = async () => {
     console.log('🔄 loadProfileData called:', { mode, isAuthenticated, hasToken: !!user?.token });
