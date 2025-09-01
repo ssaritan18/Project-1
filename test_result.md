@@ -231,11 +231,12 @@
   run_ui: false
 ## test_plan:
   current_focus:
-    - "Voice Message Backend API"
-    - "File Upload and Storage System"  
-    - "WhatsApp-style VoiceRecorder Component"
-    - "Enhanced VoicePlayer Component"
-    - "Chat Interface Integration"
+    - "Edit Profile Button Navigation Fix"
+    - "Profile Photo Upload Implementation"
+    - "Theme Preference Functionality Fix"
+    - "Chat Media Upload Features"
+    - "Voice Recorder Bug Fix"
+    - "Homepage Test Button Removal"
   stuck_tasks:
   test_all: false
   test_priority: "high_first"
