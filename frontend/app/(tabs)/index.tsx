@@ -341,22 +341,35 @@ export default function HomeScreen() {
         </View>
       </View>
       
+      {/* Logo Header */}
+      <View style={styles.logoHeader}>
+        <View style={styles.logoContainer}>
+          <Image 
+            source={{ uri: "https://customer-assets.emergentagent.com/job_profile-wizard-9/artifacts/e7sw25g5_image.png" }}
+            style={styles.circularLogo}
+            resizeMode="contain"
+          />
+        </View>
+        <Text style={styles.appTitle}>ADHDers Social Club</Text>
+        <Text style={styles.welcomeText}>Welcome back! 🧠💖</Text>
+      </View>
+
       {/* Action Buttons */}
       <TouchableOpacity 
-        style={[styles.testButton, { backgroundColor: '#FFD700' }]} 
+        style={[styles.gradientButton, styles.addTaskButton]} 
         onPress={handleAddTask}
       >
-        <Text style={[styles.testButtonText, { color: '#000' }]}>✨ Add New Task</Text>
+        <Text style={styles.gradientButtonText}>✨ Add New Task</Text>
       </TouchableOpacity>
       
       <TouchableOpacity 
-        style={[styles.testButton, { backgroundColor: '#00C851', marginTop: 10 }]} 
+        style={[styles.gradientButton, styles.dashboardButton]} 
         onPress={() => {
           setShowFullDashboard(true);
           Alert.alert("🚀 Loading!", "Switching to full ADHD dashboard...");
         }}
       >
-        <Text style={styles.testButtonText}>🚀 Show ADHD Dashboard</Text>
+        <Text style={styles.gradientButtonText}>🚀 Show ADHD Dashboard</Text>
       </TouchableOpacity>
     </View>
   );
