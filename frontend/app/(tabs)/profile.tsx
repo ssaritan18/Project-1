@@ -422,9 +422,10 @@ export default function ProfileScreen() {
         {renderTabContent()}
         
         {/* Sign Out Button */}
-        <TouchableOpacity 
-          style={[styles.signOutBtn, { backgroundColor: palette.primary, marginTop: 32 }]} 
-          onPress={async () => {
+        <button 
+          onClick={async () => {
+            console.log("🚨 SIGN OUT BUTTON CLICKED!");
+            
             // Use web-compatible confirmation
             const confirmed = Platform.OS === 'web' 
               ? window.confirm("Are you sure you want to sign out?")
@@ -458,9 +459,19 @@ export default function ProfileScreen() {
               }
             }
           }}
+          style={{
+            backgroundColor: '#FF4444',
+            padding: '12px 24px',
+            borderRadius: '25px',
+            border: 'none',
+            cursor: 'pointer',
+            marginTop: '32px',
+            alignSelf: 'center',
+            minWidth: '150px'
+          }}
         >
-          <Text style={styles.signOutText}>🚪 Sign Out</Text>
-        </TouchableOpacity>
+          <span style={{ color: 'white', fontSize: '16px', fontWeight: '600' }}>🚪 Sign Out</span>
+        </button>
       </ScrollView>
     </View>
   );
