@@ -224,7 +224,7 @@ export default function Login() {
               }}
             >
               <span style={{ marginRight: '8px' }}>🔄</span>
-              <span style={{ color: '#000', fontSize: '14px', fontWeight: '600' }}>Verileri Sıfırla</span>
+              <span style={{ color: '#000', fontSize: '14px', fontWeight: '600' }}>Reset Data</span>
             </button>
           </View>
 
