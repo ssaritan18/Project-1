@@ -50,7 +50,38 @@ export default function Index() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#0c0c0c" },
-  text: { color: "#fff", marginTop: 8, fontWeight: "700" },
-  subtext: { color: "#888", marginTop: 4, fontSize: 12, fontStyle: "italic" },
+  container: { 
+    flex: 1, 
+    alignItems: "center", 
+    justifyContent: "center", 
+    backgroundColor: "#0c0c0c",
+    padding: 24
+  },
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 40
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    marginBottom: 20,
+    opacity: 0.9
+  },
+  text: { 
+    color: "#fff", 
+    marginTop: 8, 
+    fontWeight: "700",
+    fontSize: 20,
+    textAlign: "center"
+  },
+  subtext: { 
+    color: "#888", 
+    marginTop: 4, 
+    fontSize: 14, 
+    fontStyle: "italic",
+    textAlign: "center"
+  },
+  spinner: {
+    marginTop: 20
+  }
 });
