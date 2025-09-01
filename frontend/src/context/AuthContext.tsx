@@ -220,6 +220,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthed, 
     isAuthenticated: isAuthed,  // Add alias for compatibility
     user, 
+    loading,
     palette, 
     token, 
     setPalette, 
@@ -228,7 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login, 
     resetCredentials, 
     signOut 
-  }), [isAuthed, user, palette, token]);
+  }), [isAuthed, user, loading, palette, token]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
