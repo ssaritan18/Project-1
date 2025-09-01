@@ -181,7 +181,11 @@ export default function HomeScreen() {
               streak={streak.current_streak} 
               bestStreak={streak.best_streak}
               showAnimation={false}
-              onPress={() => Alert.alert("🔥 Streak Info", `Current: ${streak.current_streak} days\nBest: ${streak.best_streak} days\n\n${streak.motivation?.encouragement || 'Keep going!'}`)}
+              onPress={() => {
+                const encouragement = streak.motivation?.encouragement || 'Keep going!';
+                const message = 'Current: ' + streak.current_streak + ' days\nBest: ' + streak.best_streak + ' days\n\n' + encouragement;
+                Alert.alert("🔥 Streak Info", message);
+              }}
             />
           </View>
         )}
