@@ -90,36 +90,27 @@ export default function EditProfileScreen() {
 
   // Separate function for localStorage loading
   const loadFromLocalStorage = async () => {
-      // Local mode - localStorage'dan yükle
-      console.log('📂 LOADING FROM localStorage...');
-      try {
-        const savedProfile = localStorage.getItem('user_profile');
-        console.log('📂 localStorage data:', savedProfile);
-        
-        if (savedProfile) {
-          const parsedProfile = JSON.parse(savedProfile);
-          console.log('📂 Parsed profile from localStorage:', parsedProfile);
-          setProfileData({
-            name: parsedProfile.name || user?.name || 'Your Name',
-            bio: parsedProfile.bio || 'Tell us about yourself...',
-            location: parsedProfile.location || '',
-            website: parsedProfile.website || '',
-            birth_date: parsedProfile.birth_date || '',
-          });
-          console.log('✅ Profile data loaded from localStorage!');
-        } else {
-          console.log('❌ No saved profile found in localStorage');
-          // Kayıtlı data yok, default değerler
-          setProfileData({
-            name: user?.name || 'Your Name',
-            bio: 'Tell us about yourself...',
-            location: '',
-            website: '',
-            birth_date: '',
-          });
-        }
-      } catch (error) {
-        console.error('❌ localStorage read error:', error);
+  // Separate function for localStorage loading
+  const loadFromLocalStorage = async () => {
+    console.log('📂 LOADING FROM localStorage...');
+    try {
+      const savedProfile = localStorage.getItem('user_profile');
+      console.log('📂 localStorage data:', savedProfile);
+      
+      if (savedProfile) {
+        const parsedProfile = JSON.parse(savedProfile);
+        console.log('📂 Parsed profile from localStorage:', parsedProfile);
+        setProfileData({
+          name: parsedProfile.name || user?.name || 'Your Name',
+          bio: parsedProfile.bio || 'Tell us about yourself...',
+          location: parsedProfile.location || '',
+          website: parsedProfile.website || '',
+          birth_date: parsedProfile.birth_date || '',
+        });
+        console.log('✅ Profile data loaded from localStorage!');
+      } else {
+        console.log('❌ No saved profile found in localStorage');
+        // Kayıtlı data yok, default değerler
         setProfileData({
           name: user?.name || 'Your Name',
           bio: 'Tell us about yourself...',
@@ -128,8 +119,18 @@ export default function EditProfileScreen() {
           birth_date: '',
         });
       }
-      setLoading(false);
+    } catch (error) {
+      console.error('❌ localStorage read error:', error);
+      setProfileData({
+        name: user?.name || 'Your Name',
+        bio: 'Tell us about yourself...',
+        location: '',
+        website: '',
+        birth_date: '',
+      });
     }
+    setLoading(false);
+  };
   };
 
   const handleSave = async () => {
