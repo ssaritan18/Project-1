@@ -182,13 +182,14 @@ export default function EditProfileScreen() {
 
   const handleSave = async () => {
     console.log('🚀 SAVE BUTTON CLICKED!'); // İlk log
+    console.log('🔄 Starting profile save process...');
+    console.log('📊 Current mode:', mode);
+    console.log('🔐 Is authenticated:', isAuthenticated);
+    console.log('👤 User object:', user);
+    console.log('📝 Profile data to save:', profileData);
+    
     setSaving(true);
     try {
-      console.log('🔄 Starting profile save process...');
-      console.log('📊 Current mode:', mode);
-      console.log('🔐 Is authenticated:', isAuthenticated);
-      console.log('👤 User object:', user);
-      console.log('📝 Profile data to save:', profileData);
       
       // Save to localStorage for offline mode
       console.log('💾 Saving profile data to localStorage...');
