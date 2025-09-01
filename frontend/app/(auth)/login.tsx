@@ -74,7 +74,7 @@ export default function Login() {
       router.replace("/(tabs)");
     } catch (error) {
       console.error("❌ LOGIN ERROR:", error);
-      Alert.alert("Giriş Hatası", `Error: ${error.message || 'Email/şifre kontrol edin ve tekrar deneyin'}`);
+      Alert.alert("Login Error", `Error: ${error.message || 'Please check your email/password and try again'}`);
     } finally {
       setIsLoading(false);
       console.log("🏁 Login process completed");
