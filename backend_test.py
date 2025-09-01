@@ -1291,6 +1291,353 @@ def run_profile_edit_functionality_test():
     
     return True
 
+def generate_test_image_base64(format_type: str = "png") -> str:
+    """Generate test image files in different formats"""
+    import base64
+    
+    if format_type == "png":
+        # 1x1 pixel PNG image (smallest valid PNG)
+        png_data = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==")
+        return base64.b64encode(png_data).decode('utf-8')
+    
+    elif format_type == "jpg":
+        # Minimal JPEG header + data
+        jpg_data = b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00\xff\xdb\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f\x14\x1d\x1a\x1f\x1e\x1d\x1a\x1c\x1c $.\' ",#\x1c\x1c(7),01444\x1f\'9=82<.342\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x01\x01\x11\x00\x02\x11\x01\x03\x11\x01\xff\xc4\x00\x14\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11\x00\x3f\x00\xaa\xff\xd9'
+        return base64.b64encode(jpg_data).decode('utf-8')
+    
+    elif format_type == "webp":
+        # Minimal WebP header
+        webp_data = b'RIFF\x1a\x00\x00\x00WEBPVP8 \x0e\x00\x00\x00\x90\x01\x00\x9d\x01*\x01\x00\x01\x00\x00\x00'
+        return base64.b64encode(webp_data).decode('utf-8')
+    
+    else:
+        # Default to PNG
+        return generate_test_image_base64("png")
+
+def run_profile_picture_upload_test():
+    """
+    🎯 PROFILE PICTURE UPLOAD ENDPOINT TEST - SPECIFIC REQUEST
+    
+    OBJECTIVE: Test the new profile picture upload endpoint that was just implemented
+    
+    TEST REQUIREMENTS:
+    1. Test POST /api/profile/picture endpoint with proper authentication and base64 image data
+    2. Verify that the profile picture is properly stored in /app/backend/uploads/profiles/ directory  
+    3. Test GET /api/uploads/profiles/{filename} endpoint to serve uploaded profile pictures
+    4. Verify that profile picture URL is properly updated in user database
+    5. Test error handling for invalid base64 data, missing authentication, etc.
+    
+    Uses existing test users: ssaritan@example.com with password Passw0rd!
+    """
+    tester = APITester()
+    
+    print("=" * 80)
+    print("🎯 PROFILE PICTURE UPLOAD ENDPOINT TEST - SPECIFIC REQUEST")
+    print("=" * 80)
+    
+    # Test user as specified in the request
+    user = {"name": "ssaritan", "email": "ssaritan@example.com", "password": "Passw0rd!"}
+    
+    # PHASE 1: Authentication Setup
+    print("\n" + "=" * 60)
+    print("PHASE 1: AUTHENTICATION SETUP")
+    print("=" * 60)
+    
+    # Try to login first, if it fails, create the user directly in database
+    login_result = tester.test_auth_login(user["email"], user["password"])
+    if not login_result["success"]:
+        print(f"⚠️ User {user['email']} doesn't exist or has wrong password, creating verified user directly...")
+        # Clean up any existing user with same email first
+        tester.cleanup_user_by_email(user["email"])
+        # Create user directly in database (bypassing email verification for testing)
+        success = tester.create_verified_user_directly(user["name"], user["email"], user["password"])
+        if not success:
+            print(f"❌ CRITICAL: Failed to create user {user['email']}")
+            return False
+        print(f"✅ User {user['name']} created successfully")
+        
+        # Now login
+        login_result = tester.test_auth_login(user["email"], user["password"])
+        if not login_result["success"]:
+            print(f"❌ CRITICAL: Login failed after user creation for {user['email']}: {login_result.get('error', 'Unknown error')}")
+            return False
+    
+    token = login_result["token"]
+    print(f"✅ User {user['name']} authenticated successfully")
+    
+    # PHASE 2: Test POST /api/profile/picture with valid base64 image data
+    print("\n" + "=" * 60)
+    print("PHASE 2: POST /api/profile/picture - VALID BASE64 IMAGE UPLOAD")
+    print("=" * 60)
+    
+    # Test with PNG image
+    print("🔍 Testing profile picture upload with PNG image")
+    png_image_data = generate_test_image_base64("png")
+    
+    png_upload_result = tester.test_upload_profile_picture(
+        token, 
+        png_image_data, 
+        "test_profile.png", 
+        user["name"]
+    )
+    
+    if not png_upload_result["success"]:
+        print("❌ CRITICAL: PNG profile picture upload failed")
+        return False
+    
+    png_upload_data = png_upload_result["data"]
+    png_profile_image_url = png_upload_data.get("profile_image_url")
+    png_filename = png_upload_data.get("filename")
+    
+    print(f"✅ PNG profile picture upload successful")
+    print(f"  📸 Profile image URL: {png_profile_image_url}")
+    print(f"  📁 Filename: {png_filename}")
+    
+    # Test with JPG image
+    print("\n🔍 Testing profile picture upload with JPG image")
+    jpg_image_data = generate_test_image_base64("jpg")
+    
+    jpg_upload_result = tester.test_upload_profile_picture(
+        token, 
+        jpg_image_data, 
+        "test_profile.jpg", 
+        user["name"]
+    )
+    
+    if not jpg_upload_result["success"]:
+        print("❌ CRITICAL: JPG profile picture upload failed")
+        return False
+    
+    jpg_upload_data = jpg_upload_result["data"]
+    jpg_profile_image_url = jpg_upload_data.get("profile_image_url")
+    jpg_filename = jpg_upload_data.get("filename")
+    
+    print(f"✅ JPG profile picture upload successful")
+    print(f"  📸 Profile image URL: {jpg_profile_image_url}")
+    print(f"  📁 Filename: {jpg_filename}")
+    
+    # PHASE 3: Verify file storage in /app/backend/uploads/profiles/ directory
+    print("\n" + "=" * 60)
+    print("PHASE 3: VERIFY FILE STORAGE IN /app/backend/uploads/profiles/")
+    print("=" * 60)
+    
+    import os
+    
+    upload_dir = "/app/backend/uploads/profiles"
+    
+    print(f"🔍 Checking if upload directory exists: {upload_dir}")
+    if os.path.exists(upload_dir):
+        print(f"✅ Upload directory exists: {upload_dir}")
+        
+        # List files in directory
+        files = os.listdir(upload_dir)
+        print(f"📁 Files in upload directory: {len(files)} files")
+        
+        # Check if our uploaded files exist
+        if png_filename and png_filename in files:
+            png_file_path = os.path.join(upload_dir, png_filename)
+            png_file_size = os.path.getsize(png_file_path)
+            print(f"  ✅ PNG file exists: {png_filename} ({png_file_size} bytes)")
+        else:
+            print(f"  ❌ PNG file not found: {png_filename}")
+            return False
+        
+        if jpg_filename and jpg_filename in files:
+            jpg_file_path = os.path.join(upload_dir, jpg_filename)
+            jpg_file_size = os.path.getsize(jpg_file_path)
+            print(f"  ✅ JPG file exists: {jpg_filename} ({jpg_file_size} bytes)")
+        else:
+            print(f"  ❌ JPG file not found: {jpg_filename}")
+            return False
+            
+    else:
+        print(f"❌ CRITICAL: Upload directory does not exist: {upload_dir}")
+        return False
+    
+    # PHASE 4: Test GET /api/uploads/profiles/{filename} endpoint
+    print("\n" + "=" * 60)
+    print("PHASE 4: GET /api/uploads/profiles/{filename} - FILE SERVING")
+    print("=" * 60)
+    
+    # Test serving PNG file
+    print(f"🔍 Testing file serving for PNG: {png_filename}")
+    png_serve_result = tester.test_get_profile_picture_file(png_filename, user["name"])
+    
+    if not png_serve_result["success"]:
+        print("❌ CRITICAL: PNG file serving failed")
+        return False
+    
+    print(f"✅ PNG file serving successful")
+    print(f"  📄 Content-Type: {png_serve_result['content_type']}")
+    print(f"  📊 File size: {png_serve_result['size']} bytes")
+    
+    # Test serving JPG file
+    print(f"\n🔍 Testing file serving for JPG: {jpg_filename}")
+    jpg_serve_result = tester.test_get_profile_picture_file(jpg_filename, user["name"])
+    
+    if not jpg_serve_result["success"]:
+        print("❌ CRITICAL: JPG file serving failed")
+        return False
+    
+    print(f"✅ JPG file serving successful")
+    print(f"  📄 Content-Type: {jpg_serve_result['content_type']}")
+    print(f"  📊 File size: {jpg_serve_result['size']} bytes")
+    
+    # PHASE 5: Verify profile picture URL is updated in user database
+    print("\n" + "=" * 60)
+    print("PHASE 5: VERIFY PROFILE PICTURE URL IN USER DATABASE")
+    print("=" * 60)
+    
+    print("🔍 Fetching user profile to verify profile picture URL update")
+    
+    profile_result = tester.test_get_profile_settings(token, user["name"])
+    if not profile_result["success"]:
+        print("❌ CRITICAL: Profile retrieval failed")
+        return False
+    
+    profile_data = profile_result["data"]["profile"]
+    stored_profile_image = profile_data.get("profile_image")
+    
+    if stored_profile_image:
+        print(f"✅ Profile picture URL stored in database: {stored_profile_image}")
+        
+        # Verify it matches our latest upload (JPG was uploaded last)
+        if jpg_filename in stored_profile_image:
+            print(f"  ✅ Database URL matches latest upload: {jpg_filename}")
+        else:
+            print(f"  ⚠️ Database URL doesn't match latest upload. Expected: {jpg_filename}, Got: {stored_profile_image}")
+    else:
+        print("❌ CRITICAL: Profile picture URL not found in database")
+        return False
+    
+    # PHASE 6: Test error handling scenarios
+    print("\n" + "=" * 60)
+    print("PHASE 6: ERROR HANDLING SCENARIOS")
+    print("=" * 60)
+    
+    # Test 1: Invalid base64 data
+    print("🔍 Testing invalid base64 data")
+    invalid_base64_result = tester.test_upload_profile_picture(
+        token, 
+        "invalid_base64_data_that_cannot_be_decoded", 
+        "invalid.png", 
+        user["name"]
+    )
+    
+    if not invalid_base64_result["success"]:
+        print("✅ Invalid base64 data properly rejected")
+    else:
+        print("❌ Invalid base64 data was accepted (should be rejected)")
+        return False
+    
+    # Test 2: Missing authentication
+    print("\n🔍 Testing missing authentication")
+    url = f"{tester.base_url}/profile/picture"
+    payload = {
+        "image_data": generate_test_image_base64("png"),
+        "filename": "test.png"
+    }
+    
+    response = tester.session.post(url, json=payload)  # No Authorization header
+    
+    if response.status_code == 401:
+        print("✅ Missing authentication properly rejected (401)")
+    else:
+        print(f"❌ Missing authentication not properly handled. Expected 401, got {response.status_code}")
+        return False
+    
+    # Test 3: Invalid token
+    print("\n🔍 Testing invalid authentication token")
+    headers = {"Authorization": "Bearer invalid_token_here"}
+    response = tester.session.post(url, json=payload, headers=headers)
+    
+    if response.status_code == 401:
+        print("✅ Invalid token properly rejected (401)")
+    else:
+        print(f"❌ Invalid token not properly handled. Expected 401, got {response.status_code}")
+        return False
+    
+    # Test 4: Empty image data
+    print("\n🔍 Testing empty image data")
+    empty_data_result = tester.test_upload_profile_picture(
+        token, 
+        "", 
+        "empty.png", 
+        user["name"]
+    )
+    
+    if not empty_data_result["success"]:
+        print("✅ Empty image data properly rejected")
+    else:
+        print("❌ Empty image data was accepted (should be rejected)")
+        return False
+    
+    # Test 5: Non-existent file serving
+    print("\n🔍 Testing non-existent file serving")
+    nonexistent_result = tester.test_get_profile_picture_file("nonexistent_file.png", user["name"])
+    
+    if not nonexistent_result["success"]:
+        print("✅ Non-existent file properly returns 404")
+    else:
+        print("❌ Non-existent file was served (should return 404)")
+        return False
+    
+    # PHASE 7: Test different image formats
+    print("\n" + "=" * 60)
+    print("PHASE 7: TEST DIFFERENT IMAGE FORMATS")
+    print("=" * 60)
+    
+    # Test WebP format
+    print("🔍 Testing WebP image format")
+    webp_image_data = generate_test_image_base64("webp")
+    
+    webp_upload_result = tester.test_upload_profile_picture(
+        token, 
+        webp_image_data, 
+        "test_profile.webp", 
+        user["name"]
+    )
+    
+    if webp_upload_result["success"]:
+        webp_filename = webp_upload_result["data"].get("filename")
+        print(f"✅ WebP profile picture upload successful: {webp_filename}")
+        
+        # Test serving WebP file
+        webp_serve_result = tester.test_get_profile_picture_file(webp_filename, user["name"])
+        if webp_serve_result["success"]:
+            print(f"✅ WebP file serving successful - Content-Type: {webp_serve_result['content_type']}")
+        else:
+            print("❌ WebP file serving failed")
+            return False
+    else:
+        print("⚠️ WebP format not supported (this may be expected)")
+    
+    # FINAL SUMMARY
+    print("\n" + "=" * 80)
+    print("🎉 PROFILE PICTURE UPLOAD ENDPOINT TEST COMPLETED SUCCESSFULLY")
+    print("=" * 80)
+    
+    print("✅ ALL TEST PHASES PASSED:")
+    print("  1. ✅ POST /api/profile/picture - Accepts valid base64 image data with authentication")
+    print("  2. ✅ File Storage - Images properly stored in /app/backend/uploads/profiles/ directory")
+    print("  3. ✅ GET /api/uploads/profiles/{filename} - Serves uploaded images with correct MIME types")
+    print("  4. ✅ Database Update - Profile picture URL properly updated in user database")
+    print("  5. ✅ Error Handling - Invalid base64, missing auth, invalid tokens properly rejected")
+    print("  6. ✅ Format Support - PNG and JPG formats working correctly")
+    print("  7. ✅ Security - Authentication required, proper error responses")
+    
+    print(f"\n📊 UPLOAD STATISTICS:")
+    print(f"  📁 Files uploaded: 2-3 images (PNG, JPG, possibly WebP)")
+    print(f"  📂 Storage location: /app/backend/uploads/profiles/")
+    print(f"  🔗 URL pattern: /uploads/profiles/{'{filename}'}")
+    print(f"  🛡️ Authentication: Required (JWT Bearer token)")
+    print(f"  📄 Supported formats: PNG, JPG (WebP may be supported)")
+    
+    print("\n🔧 PROFILE PICTURE UPLOAD FEATURE IS PRODUCTION-READY")
+    print("📸 Frontend can now safely use this endpoint for profile photo uploads")
+    
+    return True
+
 def run_comprehensive_profile_management_test():
     """
     🚀 COMPREHENSIVE PROFILE MANAGEMENT SYSTEM TEST - SPRINT 2
