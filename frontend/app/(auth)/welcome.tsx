@@ -32,15 +32,15 @@ export default function WelcomeAuth() {
       </View>
 
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#6C5CE7' }]} onPress={() => router.push('/onboarding')}>
+        <TouchableOpacity style={[styles.btn, { backgroundColor: '#FF6B9D' }]} onPress={() => router.push('/onboarding')}>
           <Text style={styles.btnTextDark}>🧠 Take ADHD Assessment</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#A3C9FF' }]} onPress={() => router.push('/(auth)/signup')}>
+        <TouchableOpacity style={[styles.btn, { backgroundColor: '#4ECDC4' }]} onPress={() => router.push('/(auth)/signup')}>
           <Text style={styles.btnTextDark}>Sign Up</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#B8F1D9' }]} onPress={() => router.push('/(auth)/login')}>
+        <TouchableOpacity style={[styles.btn, { backgroundColor: '#FFE66D' }]} onPress={() => router.push('/(auth)/login')}>
           <Text style={styles.btnTextDark}>Log In</Text>
         </TouchableOpacity>
 
