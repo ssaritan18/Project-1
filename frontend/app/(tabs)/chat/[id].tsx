@@ -7,7 +7,7 @@ import { useRuntimeConfig } from "../../../src/context/RuntimeConfigContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProfileAvatar } from "../../../src/components/ProfileAvatar";
-import VoiceRecorder from "../../../src/components/VoiceRecorder";
+
 import VoicePlayer from "../../../src/components/VoicePlayer";
 import * as ImagePicker from 'expo-image-picker';
 
