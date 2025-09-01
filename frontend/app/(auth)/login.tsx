@@ -254,7 +254,7 @@ export default function Login() {
               }}
             >
               <span style={{ color: '#4A90E2', fontSize: '14px', textDecoration: 'underline' }}>
-                Şifremi Unuttum
+                Forgot Password
               </span>
             </button>
           </View>
