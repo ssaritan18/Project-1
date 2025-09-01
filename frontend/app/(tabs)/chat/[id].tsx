@@ -160,7 +160,7 @@ export default function ChatDetail() {
     try {
       // Simple mock message for now
       const mediaMessage = `📎 [MEDIA] File uploaded`;
-      await sendText(mediaMessage);
+      await sendText(id, mediaMessage);
       Alert.alert('Media Sent', 'Media has been shared!');
     } catch (error) {
       console.error("Failed to send media:", error);
