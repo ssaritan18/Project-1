@@ -8,7 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProfileAvatar } from "../../../src/components/ProfileAvatar";
 
-import VoicePlayer from "../../../src/components/VoicePlayer";
+
 import * as ImagePicker from 'expo-image-picker';
 
 export default function ChatDetail() {
