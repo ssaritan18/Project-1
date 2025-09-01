@@ -90,7 +90,13 @@ export default function EditProfileScreen() {
   const handleSave = async () => {
     setSaving(true);
     try {
+      console.log('🔄 Starting profile save process...');
+      console.log('📊 Current mode:', mode);
+      console.log('🔐 Is authenticated:', isAuthenticated);
+      console.log('📝 Profile data to save:', profileData);
+      
       if (mode === 'sync' && isAuthenticated) {
+        console.log('🌐 Sync mode - saving to backend...');
         const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/profile`, {
           method: 'PUT',
           headers: {
@@ -100,22 +106,29 @@ export default function EditProfileScreen() {
           body: JSON.stringify(profileData)
         });
 
+        console.log('📡 Backend response status:', response.status);
+        const responseData = await response.json();
+        console.log('📡 Backend response data:', responseData);
+
         if (response.ok) {
+          console.log('✅ Profile saved successfully to backend!');
           Alert.alert('Success', 'Profile updated successfully!', [
             { text: 'OK', onPress: () => router.back() }
           ]);
         } else {
-          throw new Error(`Failed to update profile: ${response.status}`);
+          throw new Error(`Failed to update profile: ${response.status} - ${JSON.stringify(responseData)}`);
         }
       } else {
-        // Local mode
+        console.log('💾 Local mode - saving locally...');
+        // For now, still show success in local mode but also log what we're saving
+        console.log('📝 Saving profile data locally:', profileData);
         Alert.alert('Success', 'Profile updated (local mode)!', [
           { text: 'OK', onPress: () => router.back() }
         ]);
       }
     } catch (error) {
-      console.error('Failed to save profile:', error);
-      Alert.alert('Error', 'Failed to save profile. Please try again.');
+      console.error('❌ Failed to save profile:', error);
+      Alert.alert('Error', `Failed to save profile: ${error.message}`);
     } finally {
       setSaving(false);
     }
