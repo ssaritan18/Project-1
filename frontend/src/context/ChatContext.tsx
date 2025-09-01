@@ -251,13 +251,19 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     console.log("🔄 ChatContext: Mode/auth change detected", { mode, isAuthenticated, hasToken: !!token });
     
-    if (mode === "sync" && isAuthenticated) {
+    if (mode === "sync" && isAuthenticated && token) {
       console.log("📡 ChatContext: Starting sync mode operations...");
-      refresh();
+      // Call fetchChats directly to avoid dependency loop
+      fetchChats();
     } else {
-      console.log("📱 ChatContext: Staying in local mode", { mode, isAuthenticated });
+      console.log("📱 ChatContext: Staying in local mode", { mode, isAuthenticated, hasToken: !!token });
+      // Clear any existing backend data in local mode
+      setBackendChats([]);
+      setBackendMessages({});
+      setIsLoading(false);
+      setError(null);
     }
-  }, [mode, isAuthenticated, refresh]);
+  }, [mode, isAuthenticated, token]); // Removed refresh dependency
 
   // WebSocket message handling
   useEffect(() => {
