@@ -19,7 +19,8 @@ type ProfilePictureUploadProps = {
 };
 
 export function ProfilePictureUpload({ currentImageUrl, onUploadComplete }: ProfilePictureUploadProps) {
-  const { user, isAuthenticated, mode } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const { mode } = useRuntimeConfig();
   const [uploading, setUploading] = useState(false);
 
   const pickImage = async () => {
