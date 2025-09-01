@@ -9,15 +9,14 @@ export default function Index() {
   useEffect(() => {
     console.log("🔍 Index auth state check:", { isAuthed, hasUser: !!user, hasToken: !!token });
     
-    const t = setTimeout(() => {
-      if (isAuthed && user) {
-        console.log("✅ User authenticated, redirecting to tabs");
-        router.replace("/(tabs)");
-      } else {
-        console.log("❌ User not authenticated, redirecting to welcome");
-        router.replace("/(auth)/welcome");
-      }
-    }, 700);
+    // Immediate navigation - no timeout to prevent race conditions
+    if (isAuthed && user) {
+      console.log("✅ User authenticated, redirecting to tabs");
+      router.replace("/(tabs)");
+    } else {
+      console.log("❌ User not authenticated, redirecting to welcome");
+      router.replace("/(auth)/welcome");
+    }
     
     return () => clearTimeout(t);
   }, [isAuthed, user, token]); // Added user and token as dependencies
