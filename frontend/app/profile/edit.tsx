@@ -41,6 +41,7 @@ export default function EditProfileScreen() {
     location: '',
     website: '',
     birth_date: '',
+    profile_image: null,
   });
 
   // IMMEDIATE LOAD ON MOUNT
