@@ -203,7 +203,7 @@ export default function Login() {
               }}
             >
               <span style={{ marginRight: '8px' }}>🌐</span>
-              <span style={{ color: '#000', fontSize: '14px', fontWeight: '600' }}>Google ile Giriş</span>
+              <span style={{ color: '#000', fontSize: '14px', fontWeight: '600' }}>Login with Google</span>
             </button>
 
             <button
