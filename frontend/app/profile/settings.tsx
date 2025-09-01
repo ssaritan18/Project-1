@@ -274,18 +274,11 @@ export default function SettingsScreen() {
               { key: 'dark', label: 'Dark - Always use dark mode' },
               { key: 'light', label: 'Light - Always use light mode' },
             ]}
-            onSelect={(value) => updateSettings('preferences', { theme: value })}
-          />
-          
-          <SelectSetting
-            title="Language"
-            value={settings.preferences.language}
-            options={[
-              { key: 'en', label: 'English' },
-              { key: 'tr', label: 'Türkçe' },
-              { key: 'es', label: 'Español' },
-            ]}
-            onSelect={(value) => updateSettings('preferences', { language: value })}
+            onSelect={(value) => {
+              updateSettings('preferences', { theme: value });
+              // Apply theme immediately
+              applyTheme(value);
+            }}
           />
         </SettingSection>
 
