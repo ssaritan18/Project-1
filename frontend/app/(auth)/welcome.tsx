@@ -56,11 +56,38 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0c0c0c', alignItems: 'center', justifyContent: 'center', padding: 24 },
   logoContainer: { alignItems: 'center', marginBottom: 40 },
   logo: { width: 120, height: 120, marginBottom: 20 },
-  title: { color: '#fff', fontSize: 24, fontWeight: '800', marginBottom: 8 },
-  subtitle: { color: '#d1d1d1', marginBottom: 24 },
+  title: { color: '#fff', fontSize: 24, fontWeight: '800', marginBottom: 8, textAlign: 'center' },
+  subtitle: { 
+    color: '#d1d1d1', 
+    marginBottom: 24, 
+    fontSize: 16,
+    textAlign: 'center',
+    fontStyle: 'italic'
+  },
   buttonsContainer: { width: '100%', alignItems: 'center' },
-  btn: { paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, minWidth: 240, alignItems: 'center', marginTop: 10 },
-  btnTextDark: { color: '#0c0c0c', fontWeight: '800' },
-  btnGhost: { paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, minWidth: 240, alignItems: 'center', marginTop: 10, borderWidth: 1, borderColor: '#333' },
-  btnGhostText: { color: '#fff', fontWeight: '700' },
+  btn: { 
+    paddingVertical: 14, 
+    paddingHorizontal: 24, 
+    borderRadius: 12, 
+    minWidth: 240, 
+    alignItems: 'center', 
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  btnTextDark: { color: '#0c0c0c', fontWeight: '800', fontSize: 16 },
+  btnGhost: { 
+    paddingVertical: 14, 
+    paddingHorizontal: 24, 
+    borderRadius: 12, 
+    minWidth: 240, 
+    alignItems: 'center', 
+    marginTop: 10, 
+    borderWidth: 1, 
+    borderColor: '#333' 
+  },
+  btnGhostText: { color: '#d1d1d1', fontWeight: '600', fontSize: 16 }
 });
