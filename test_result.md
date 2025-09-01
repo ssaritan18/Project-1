@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-## user_problem_statement: "Implement WhatsApp-style voice recording feature with production-ready React Native + FastAPI code"
+## user_problem_statement: "Phase 1: Fix existing bugs and implement missing profile, chat, and theme features for ADHDers Social Club app including: Edit Profile button fix, Profile photo upload, Theme preference fix, Chat media features, Voice recorder bug fix, Homepage cleanup"
 ## backend:
   - task: "Voice Message Backend API"
     implemented: true
