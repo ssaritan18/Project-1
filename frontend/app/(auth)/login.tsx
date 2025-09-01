@@ -132,7 +132,7 @@ export default function Login() {
             editable={!isLoading}
           />
 
-          <Text style={styles.label}>Şifre (Varsa)</Text>
+          <Text style={styles.label}>Password (Optional)</Text>
           <TextInput
             style={styles.input}
             placeholder="Şifrenizi girin"
