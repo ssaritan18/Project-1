@@ -291,7 +291,7 @@ export default function EditProfileScreen() {
                 console.error('❌ Save error:', error);
                 alert('❌ Save failed: ' + error.message);
               }
-            }}}
+            }}
             style={{
               backgroundColor: '#4A90E2',
               color: 'white',
