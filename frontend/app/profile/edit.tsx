@@ -42,6 +42,34 @@ export default function EditProfileScreen() {
     birth_date: '',
   });
 
+  // IMMEDIATE LOAD ON MOUNT
+  React.useLayoutEffect(() => {
+    console.log('🚨 LAYOUT EFFECT - IMMEDIATE LOAD!');
+    const immediateLoad = async () => {
+      console.log('📂 IMMEDIATE localStorage check...');
+      try {
+        const savedProfile = localStorage.getItem('user_profile');
+        console.log('📂 Immediate localStorage data:', savedProfile);
+        
+        if (savedProfile) {
+          const parsedProfile = JSON.parse(savedProfile);
+          console.log('📂 Immediate parsed profile:', parsedProfile);
+          setProfileData({
+            name: parsedProfile.name || '',
+            bio: parsedProfile.bio || '',
+            location: parsedProfile.location || '',
+            website: parsedProfile.website || '',
+            birth_date: parsedProfile.birth_date || '',
+          });
+          console.log('✅ IMMEDIATE LOAD SUCCESS!');
+        }
+      } catch (error) {
+        console.error('❌ Immediate load error:', error);
+      }
+    };
+    immediateLoad();
+  }, []);
+
   useEffect(() => {
     console.log('🔄 useEffect triggered for loadProfileData');
     console.log('🔍 Current state:', { mode, isAuthenticated, userExists: !!user, hasToken: !!user?.token });
