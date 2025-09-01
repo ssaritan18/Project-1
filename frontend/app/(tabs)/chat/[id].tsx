@@ -314,7 +314,6 @@ export default function ChatDetail() {
         />
 
         {/* Message Composer */}
-        {/* Message Composer */}
         <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
           {!isRecordingVoice ? (
             <>
