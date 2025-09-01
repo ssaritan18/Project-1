@@ -125,7 +125,7 @@ export default function Login() {
           <Text style={styles.label}>Name (Optional)</Text>
           <TextInput
             style={styles.input}
-            placeholder="Adınızı girin"
+            placeholder="Enter your name"
             placeholderTextColor="#777"
             value={name}
             onChangeText={setName}
