@@ -91,9 +91,11 @@ export function ProfilePictureUpload({ currentImageUrl, onUploadComplete }: Prof
         setUploading(false);
       }
     } else {
-      // Local mode - simulate upload
+      // Local mode - create data URL and immediately save
       const mockUrl = `data:image/jpeg;base64,${base64Data}`;
+      console.log('💾 LOCAL MODE: Calling onUploadComplete with:', mockUrl.substring(0, 50) + '...');
       onUploadComplete(mockUrl);
+      console.log('✅ LOCAL MODE: onUploadComplete called successfully!');
       Alert.alert('Success', 'Profile picture updated (local mode)!');
       setUploading(false);
     }
