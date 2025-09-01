@@ -50,6 +50,15 @@ export default function ProfileScreen() {
     console.log('🎯 navigateToEdit called - attempting to navigate to /profile/edit');
     try {
     router.push('/profile/edit');
+      console.log('✅ router.push called successfully');
+    } catch (error) {
+      console.error('❌ router.push failed:', error);
+      // Fallback: use window.location for web
+      if (typeof window !== 'undefined') {
+        console.log('🔄 Fallback: using window.location.href');
+        window.location.href = '/profile/edit';
+      }
+    }
   };
 
   const handleProfileUpdated = (updatedUser: any) => {
