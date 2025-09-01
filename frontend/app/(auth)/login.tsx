@@ -176,7 +176,7 @@ export default function Login() {
               }}
             >
               {isLoading ? (
-                "Giriş yapılıyor..."
+                "Logging in..."
               ) : (
                 password ? 'Giriş Yap' : 'Hızlı Giriş'
               )}
