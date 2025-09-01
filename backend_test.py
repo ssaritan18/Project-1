@@ -7145,12 +7145,14 @@ if __name__ == "__main__":
             success = run_community_feed_privacy_test()
         elif test_name == "voice":
             success = run_comprehensive_voice_recording_test()
+        elif test_name == "profile_edit":
+            success = run_profile_edit_functionality_test()
         else:
             print(f"Unknown test: {test_name}")
-            print("Available tests: phase3, profile, phase2, chat, e2e, privacy, voice")
+            print("Available tests: phase3, profile, phase2, chat, e2e, privacy, voice, profile_edit")
             sys.exit(1)
     else:
-        # Default to Phase 3 test as requested
-        success = run_phase3_gamification_system_test()
+        # Default to profile edit test as requested
+        success = run_profile_edit_functionality_test()
     
     sys.exit(0 if success else 1)
