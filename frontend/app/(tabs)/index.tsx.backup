@@ -27,6 +27,8 @@ import { useFocusSession } from "../../src/hooks/useFocusSession";
 import { usePoints } from "../../src/hooks/usePoints";
 import { useAchievements } from "../../src/hooks/useAchievements";
 import { useStreak } from "../../src/hooks/useStreak";
+import NeurodivergencyContent from "../../src/components/NeurodivergencyContent";
+import { router } from "expo-router";
 
 const COLOR_PRESETS = ["#A3C9FF", "#FFCFE1", "#B8F1D9", "#FFE3A3", "#FFB3BA"];
 
@@ -79,7 +81,62 @@ export default function HomeScreen() {
     }
   };
   
-  // Handle starting different focus modes
+  // Handle adding new tasks with rewarding feedback
+  const handleAddTask = () => {
+    const taskPrompt = Platform.OS === 'web' 
+      ? prompt("✨ Add New Task\n\nWhat would you like to accomplish today? Keep it specific and achievable for that ADHD dopamine hit! 🎯")
+      : null;
+    
+    if (Platform.OS === 'web' && taskPrompt) {
+      if (taskPrompt.trim()) {
+        // Create the task with default goal of 1
+        addTask(taskPrompt.trim(), 1, COLOR_PRESETS[Math.floor(Math.random() * COLOR_PRESETS.length)]);
+        
+        // Show rewarding feedback
+        if (Platform.OS === 'web') {
+          window.alert(`🎉 Task Created!\n\n"${taskPrompt.trim()}" has been added to your quest!\n\n✅ +10 points for planning ahead\n📊 Progress bars updated\n🎯 Ready to tackle it?`);
+        }
+      }
+    } else if (Platform.OS !== 'web') {
+      Alert.prompt(
+        "✨ Add New Task",
+        "What would you like to accomplish today? Keep it specific and achievable for that ADHD dopamine hit! 🎯",
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Create Task 🚀', 
+            onPress: (taskText) => {
+              if (taskText && taskText.trim()) {
+                // Create the task
+                addTask(taskText.trim(), 1, COLOR_PRESETS[Math.floor(Math.random() * COLOR_PRESETS.length)]);
+                
+                // Show rewarding feedback
+                Alert.alert(
+                  "🎉 Task Created!",
+                  `"${taskText.trim()}" has been added to your quest!\n\n✅ +10 points for planning ahead\n📊 Progress bars updated\n🎯 Ready to tackle it?`,
+                  [
+                    { text: 'Let\'s do this! 💪', style: 'default' }
+                  ]
+                );
+              }
+            }
+          }
+        ],
+        'plain-text',
+        '',
+        'default'
+      );
+    }
+  };
+
+  // Calculate overall progress for progression bar
+  const overallProgress = useMemo(() => {
+    if (tasks.length === 0) return 0;
+    const totalProgress = tasks.reduce((sum, task) => sum + (task.progress / task.goal), 0);
+    return Math.round((totalProgress / tasks.length) * 100);
+  }, [tasks]);
+
+  // Handle starting different focus modes (demo functionality)
   const handleStartFocusMode = (mode, duration) => {
     Alert.alert(
       "🎯 Focus Mode Starting!", 
@@ -158,6 +215,14 @@ export default function HomeScreen() {
             challenges={challenges}
             onChallengeComplete={handleChallengeComplete}
             showAnimation={false}
+          />
+        </View>
+
+        {/* Neurodivergency Content Preview */}
+        <View style={styles.section}>
+          <NeurodivergencyContent 
+            showFullContent={false}
+            onPress={() => router.push("/(tabs)/profile")}
           />
         </View>
         
@@ -252,11 +317,45 @@ export default function HomeScreen() {
     );
   }
   
-  // Simple test mode
+  // Simple test mode with Task Management
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <Text style={styles.header}>🎯 ADHD Social Club</Text>
-      <Text style={styles.testText}>App is working! Phase 1 & 2 components loading...</Text>
+      
+      {/* Progress Bar Section */}
+      <View style={styles.progressSection}>
+        <Text style={styles.progressTitle}>📊 Today's Progress</Text>
+        <View style={styles.progressBarContainer}>
+          <View style={[styles.progressBarFill, { width: `${overallProgress}%` }]} />
+        </View>
+        <Text style={styles.progressText}>{overallProgress}% completed ({tasks.filter(t => t.progress >= t.goal).length}/{tasks.length} tasks done)</Text>
+        
+        {/* Tasks List Preview */}
+        <View style={styles.tasksPreview}>
+          {tasks.slice(0, 3).map((task) => (
+            <View key={task.id} style={styles.taskPreviewItem}>
+              <View style={[styles.taskColorDot, { backgroundColor: task.color }]} />
+              <Text style={styles.taskPreviewText} numberOfLines={1}>
+                {task.title}
+              </Text>
+              <Text style={styles.taskPreviewProgress}>
+                {task.progress}/{task.goal}
+              </Text>
+            </View>
+          ))}
+          {tasks.length > 3 && (
+            <Text style={styles.moreTasksText}>+{tasks.length - 3} more tasks</Text>
+          )}
+        </View>
+      </View>
+      
+      {/* Action Buttons */}
+      <TouchableOpacity 
+        style={[styles.testButton, { backgroundColor: '#FFD700' }]} 
+        onPress={handleAddTask}
+      >
+        <Text style={[styles.testButtonText, { color: '#000' }]}>✨ Add New Task</Text>
+      </TouchableOpacity>
       
       <TouchableOpacity 
         style={styles.testButton} 
@@ -686,5 +785,76 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 12,
     textAlign: 'center',
+  // New styles for task management preview
+  progressSection: {
+    margin: 16,
+    padding: 16,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  progressTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  progressBarContainer: {
+    height: 8,
+    backgroundColor: '#333',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginVertical: 8,
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#00C851',
+    borderRadius: 4,
+  },
+  progressText: {
+    color: '#999',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  tasksPreview: {
+    marginTop: 12,
+  },
+  taskPreviewItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 8,
+    marginBottom: 6,
+  },
+  taskColorDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 12,
+  },
+  taskPreviewText: {
+    flex: 1,
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  taskPreviewProgress: {
+    color: '#999',
+    fontSize: 12,
+    fontWeight: '600',
+    minWidth: 40,
+    textAlign: 'right',
+  },
+  moreTasksText: {
+    color: '#999',
+    fontSize: 12,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 8,
+  },
   },
 });
