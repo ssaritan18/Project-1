@@ -48,7 +48,6 @@ export default function SettingsScreen() {
     },
     preferences: {
       theme: 'auto',
-      language: 'en',
     },
   });
 
