@@ -47,7 +47,7 @@ export default function ProfileScreen() {
   useFocusEffect(React.useCallback(() => { refresh(); }, [refresh]));
   
   const navigateToEdit = () => {
-    setIsEditModalVisible(true);
+    router.push('/profile/edit');
   };
 
   const handleProfileUpdated = (updatedUser: any) => {
