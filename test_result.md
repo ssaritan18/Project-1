@@ -173,16 +173,19 @@
         -agent: "main"
         -comment: "✅ FIXED: Updated navigateToEdit function to use router.push as primary navigation method instead of window.location.href. Changed logic to try router.push first for both web and native, with window.location.href as fallback only when router.push fails. This follows proper Expo Router patterns and should provide better compatibility."
   - task: "Profile Photo Upload Frontend"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "/app/frontend/src/components/ProfilePictureUpload.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: false
         -agent: "main"
         -comment: "Need to add functionality for uploading profile photo with camera and gallery access. Once updated, propagate new profile photo across chat messages avatars and all circular user image components throughout the app."
+        -working: true
+        -agent: "main"
+        -comment: "✅ IMPLEMENTED: Fixed ProfilePictureUpload component by importing useRuntimeConfig context and updating authentication checks. Added proper error handling and improved user feedback. Backend endpoint POST /api/profile/picture tested and confirmed working. Component now supports both camera and gallery access with proper permissions handling."
   - task: "Theme Preference Fix"
     implemented: false
     working: false
