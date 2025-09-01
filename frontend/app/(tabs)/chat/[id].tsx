@@ -366,7 +366,7 @@ export default function ChatDetail() {
               />
             </View>
           )}
-        </View>        </View>
+        </View>
     </KeyboardAvoidingView>
   );
 }
