@@ -64,26 +64,15 @@ export default function HomeScreen() {
     }
   };
 
-  // Handle starting different focus modes with actual timer
+  // Handle starting different focus modes with direct navigation
   const handleStartFocusMode = (mode, duration) => {
-    Alert.alert(
-      "🎯 Start " + mode + "?", 
-      "Ready to focus for " + duration + " minutes?",
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: '🚀 Start Focus!', 
-          style: 'default',
-          onPress: () => {
-            // Navigate to focus timer (we'll create this)
-            router.push({
-              pathname: '/focus-timer',
-              params: { mode: mode, duration: duration }
-            });
-          }
-        }
-      ]
-    );
+    console.log("🎯 Focus mode clicked:", mode, duration);
+    
+    // Direct navigation to focus timer
+    router.push({
+      pathname: '/focus-timer',
+      params: { mode: mode, duration: duration.toString() }
+    });
   };
 
   return (
