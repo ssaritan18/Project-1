@@ -181,40 +181,42 @@ export default function EditProfileScreen() {
   };
 
   const handleSave = async () => {
-    console.log('🚀 SAVE BUTTON CLICKED!'); // İlk log
-    console.log('🔄 Starting profile save process...');
-    console.log('📊 Current mode:', mode);
-    console.log('🔐 Is authenticated:', isAuthenticated);
-    console.log('👤 User object:', user);
-    console.log('📝 Profile data to save:', profileData);
-    
-    setSaving(true);
     try {
+      console.log('🚀 SAVE BUTTON CLICKED!');
       
-      // Save to localStorage for offline mode
-      console.log('💾 Saving profile data to localStorage...');
-      console.log('📊 Profile data being saved:', {
+      // Simple immediate save without complex state
+      console.log('💾 DIRECT localStorage save starting...');
+      
+      // Create save data
+      const dataToSave = {
         name: profileData.name,
         bio: profileData.bio,
         location: profileData.location,
         website: profileData.website,
         birth_date: profileData.birth_date,
-        profile_image: profileData.profile_image ? 'IMAGE_DATA_PRESENT' : 'NO_IMAGE'
+        profile_image: profileData.profile_image,
+      };
+      
+      console.log('📊 Data to save:', {
+        name: dataToSave.name,
+        profile_image: dataToSave.profile_image ? 'IMAGE_DATA_READY' : 'NO_IMAGE'
       });
       
-      localStorage.setItem('profile_data', JSON.stringify(profileData));
-      console.log('✅ Profile data saved to localStorage successfully!');
+      // Direct localStorage save
+      localStorage.setItem('profile_data', JSON.stringify(dataToSave));
+      console.log('✅ localStorage.setItem completed!');
       
-      // Verify save by reading back
-      const savedData = localStorage.getItem('profile_data');
-      const parsedSaved = JSON.parse(savedData || '{}');
-      console.log('🔍 Verification - data read back from localStorage:', {
-        name: parsedSaved.name,
-        profile_image: parsedSaved.profile_image ? 'IMAGE_DATA_VERIFIED' : 'NO_IMAGE_IN_STORAGE'
-      });
+      // Immediate verification
+      const verification = localStorage.getItem('profile_data');
+      console.log('🔍 Immediate verification:', verification ? 'DATA_FOUND' : 'NO_DATA');
       
-      Alert.alert('Success', 'Profile updated successfully!', [
-        { text: 'OK', onPress: () => router.back() }
+      // Success message
+      console.log('🎉 About to show success alert...');
+      Alert.alert('Success', 'Profile saved!', [
+        { text: 'OK', onPress: () => {
+          console.log('📱 Alert OK pressed, navigating back...');
+          router.back();
+        }}
       ]);
       
       /* ORIGINAL LOGIC - COMMENTED FOR TESTING
