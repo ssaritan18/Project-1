@@ -314,9 +314,21 @@ export default function ChatDetail() {
         />
 
         {/* Message Composer */}
+        {/* Message Composer */}
         <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
           {!isRecordingVoice ? (
             <>
+              <TouchableOpacity 
+                onPress={handleMediaUpload}
+                style={styles.mediaButton}
+                disabled={isUploadingMedia}
+              >
+                {isUploadingMedia ? (
+                  <Text style={styles.uploadingText}>...</Text>
+                ) : (
+                  <Ionicons name="attach" size={20} color="#4A90E2" />
+                )}
+              </TouchableOpacity>
               <VoiceRecorder
                 onVoiceRecorded={handleVoiceComplete}
                 onCancel={handleVoiceCancel}
@@ -355,8 +367,7 @@ export default function ChatDetail() {
               />
             </View>
           )}
-        </View>
-        </View>
+        </View>        </View>
     </KeyboardAvoidingView>
   );
 }
