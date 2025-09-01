@@ -38,7 +38,7 @@ class APITester:
         async def cleanup():
             try:
                 client = AsyncIOMotorClient(os.environ.get('MONGO_URL', 'mongodb://localhost:27017'))
-                db = client.adhd_app
+                db = client.test_database
                 await db.users.delete_many({"email": email.lower()})
                 client.close()
                 return True
