@@ -90,6 +90,95 @@ export default function ChatDetail() {
     setIsRecordingVoice(false);
   };
 
+  const handleMediaUpload = async () => {
+    Alert.alert(
+      'Send Media',
+      'Choose your media source',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Camera', onPress: handleTakePhoto },
+        { text: 'Gallery', onPress: handlePickImage },
+      ]
+    );
+  };
+
+  const handleTakePhoto = async () => {
+    try {
+      // Request camera permissions
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Needed', 'We need camera permissions to take photos.');
+        return;
+      }
+
+      // Launch camera
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        quality: 0.7, // Good balance between quality and size
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        await sendMedia(result.assets[0]);
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('Error', 'Failed to take photo. Please try again.');
+    }
+  };
+
+  const handlePickImage = async () => {
+    try {
+      // Request media library permissions
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Needed', 'We need gallery permissions to select images.');
+        return;
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All, // Allow images and videos
+        allowsEditing: true,
+        quality: 0.7,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        await sendMedia(result.assets[0]);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to select media. Please try again.');
+    }
+  };
+
+  const sendMedia = async (asset: any) => {
+    if (!id || !asset.base64) return;
+    
+    setIsUploadingMedia(true);
+    try {
+      // For now, we'll send the media as a mock text message
+      // In a real implementation, you'd upload to your backend first
+      const mediaType = asset.type?.includes('video') ? 'video' : 'image';
+      const mediaMessage = `📎 [${mediaType.toUpperCase()}] ${asset.fileName || 'media'} (${Math.round(asset.fileSize / 1024)}KB)`;
+      
+      if (mode === "sync") {
+        // TODO: Implement actual media API call to backend
+        await sendText(mediaMessage);
+        Alert.alert('Media Sent', `${mediaType} has been shared in the chat!`);
+      } else {
+        // Local mode
+        await sendText(mediaMessage);
+        Alert.alert('Media Sent (Local)', `${mediaType} added to local chat!`);
+      }
+    } catch (error) {
+      console.error("Failed to send media:", error);
+      Alert.alert('Error', 'Failed to send media. Please try again.');
+    } finally {
+      setIsUploadingMedia(false);
+    }
+  };
   const handleReaction = async (msgId: string, reactionType: string) => {
     if (!id) return;
     try {
