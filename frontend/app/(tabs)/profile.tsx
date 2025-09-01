@@ -49,7 +49,7 @@ export default function ProfileScreen() {
   const navigateToEdit = () => {
     console.log('🎯 navigateToEdit called - attempting to navigate to /profile/edit');
     try {
-    router.push('/profile/edit');
+      router.push('/profile/edit');
       console.log('✅ router.push called successfully');
     } catch (error) {
       console.error('❌ router.push failed:', error);
@@ -68,7 +68,7 @@ export default function ProfileScreen() {
   };
 
   const navigateToSettings = () => {
-    router.push('/profile/settings');
+      router.push('/profile/settings');
   };
 
   const onBackup = async () => { try { await makeBackup(); } catch { Alert.alert("Backup failed", "Could not create backup file."); } };
