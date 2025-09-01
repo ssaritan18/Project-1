@@ -135,6 +135,7 @@ export default function EditProfileScreen() {
           location: parsedProfile.location || '',
           website: parsedProfile.website || '',
           birth_date: parsedProfile.birth_date || '',
+          profile_image: parsedProfile.profile_image || null,
         });
         console.log('✅ Profile data loaded from localStorage!');
       } else {
