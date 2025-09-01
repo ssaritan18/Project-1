@@ -169,19 +169,27 @@ export default function EditProfileScreen() {
       <View style={[styles.container, { paddingTop: insets.top }]}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="white" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Edit Profile</Text>
-          <View 
-            style={[styles.saveButton, { backgroundColor: '#FF0000' }]}
-            onTouchEnd={() => {
-              console.log('🚀 TOUCH END!');
-              Alert.alert('SUCCESS', 'Touch works!');
-            }}
+          <Pressable 
+            onPress={() => router.back()} 
+            onClick={() => router.back()}
+            style={styles.backButton}
           >
-            <Text style={styles.saveButtonText}>TAP ME</Text>
-          </View>
+            <Ionicons name="arrow-back" size={24} color="white" />
+          </Pressable>
+          <Text style={styles.title}>Edit Profile</Text>
+          <Pressable
+            onPress={() => {
+              console.log('🚀 SAVE BUTTON PRESSED!');
+              Alert.alert('SUCCESS', 'Save button WORKS!');
+            }}
+            onClick={() => {
+              console.log('🚀 SAVE BUTTON CLICKED (WEB)!');
+              Alert.alert('SUCCESS', 'Save button WORKS on WEB!');
+            }}
+            style={[styles.saveButton, { backgroundColor: '#00FF00' }]}
+          >
+            <Text style={styles.saveButtonText}>SAVE</Text>
+          </Pressable>
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
