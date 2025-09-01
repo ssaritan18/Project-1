@@ -147,6 +147,7 @@ export default function EditProfileScreen() {
           location: '',
           website: '',
           birth_date: '',
+          profile_image: null,
         });
       }
     } catch (error) {
