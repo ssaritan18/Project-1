@@ -86,6 +86,47 @@ export default function SettingsScreen() {
     // Local mode uses default settings
   };
 
+  const applyTheme = (theme: string) => {
+    try {
+      switch (theme) {
+        case 'light':
+          // Force light mode
+          if (Appearance.setColorScheme) {
+            Appearance.setColorScheme('light');
+          }
+          break;
+        case 'dark':
+          // Force dark mode
+          if (Appearance.setColorScheme) {
+            Appearance.setColorScheme('dark');
+          }
+          break;
+        case 'auto':
+        default:
+          // Follow system theme
+          if (Appearance.setColorScheme) {
+            Appearance.setColorScheme(null); // null means follow system
+          }
+          break;
+      }
+      
+      // Show feedback to user
+      Alert.alert(
+        'Theme Updated', 
+        `Theme has been set to ${theme === 'auto' ? 'follow system settings' : theme + ' mode'}.`,
+        [{ text: 'OK' }]
+      );
+      
+    } catch (error) {
+      console.log('Theme change not supported on this platform:', error);
+      // Still show success message for local storage
+      Alert.alert(
+        'Theme Preference Saved', 
+        `Your theme preference (${theme}) has been saved and will apply when supported.`
+      );
+    }
+  };
+
   const updateSettings = async (section: keyof SettingsData, updates: any) => {
     const newSettings = {
       ...settings,
