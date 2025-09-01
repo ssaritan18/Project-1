@@ -54,40 +54,7 @@ export default function ChatDetail() {
     }
   };
 
-  const onVoice = () => { 
-    if (!id) return; 
-    setIsRecordingVoice(true);
-  };
 
-  // Handle voice recording completion
-  const handleVoiceComplete = async (audioBase64: string, duration: number) => {
-    if (!id) return;
-    
-    try {
-      console.log("🎙️ Voice recording completed:", { duration });
-      setIsRecordingVoice(false);
-      
-      if (mode === "sync") {
-        // For sync mode, create a data URI from base64
-        const audioUri = `data:audio/m4a;base64,${audioBase64}`;
-        await sendVoice(id, audioUri, duration);
-      } else {
-        // For local mode, use mock
-        sendVoiceMock(id, duration);
-      }
-      
-      Alert.alert("Success! 🎉", "Voice message sent successfully!");
-    } catch (error) {
-      console.error("❌ Failed to send voice message:", error);
-      setIsRecordingVoice(false);
-      Alert.alert("Error", "Failed to send voice message. Please try again.");
-    }
-  };
-
-  // Handle voice recording cancellation
-  const handleVoiceCancel = () => {
-    setIsRecordingVoice(false);
-  };
 
   const handleMediaUpload = async () => {
     Alert.alert(
