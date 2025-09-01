@@ -194,9 +194,9 @@
         -comment: "✅ PASS: Profile photo upload frontend accessible and functional. Successfully tested: 1) Profile picture component present and visible on profile page, 2) Profile picture is clickable to trigger upload functionality, 3) Component properly integrated in profile interface. Upload trigger mechanism is working correctly for camera/gallery access."
   - task: "Theme Preference Fix"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/app/profile/settings.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: true
     status_history:
@@ -206,6 +206,9 @@
         -working: true
         -agent: "main"
         -comment: "✅ IMPLEMENTED: Removed language selection as requested - app now only supports English. Added applyTheme function that uses Appearance.setColorScheme to apply theme changes instantly. Theme switching now provides immediate user feedback with success alerts. Enhanced theme options with clear descriptions (Auto, Dark, Light)."
+        -working: false
+        -agent: "testing"
+        -comment: "❌ PARTIAL: Theme preferences partially working but language selection still present. Successfully tested: 1) Settings page accessible via Profile → Settings, 2) Preferences section found with Theme options, 3) Theme options (Auto, Dark, Light) are available and functional. ISSUE FOUND: Language selection still present in settings despite requirement to remove it. Code shows language option removed but UI still displays it. Need to verify language removal implementation."
   - task: "Chat Media Upload Frontend"
     implemented: true
     working: true
