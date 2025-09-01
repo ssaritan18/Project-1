@@ -18,7 +18,6 @@ export default function Index() {
       router.replace("/(auth)/welcome");
     }
     
-    return () => clearTimeout(t);
   }, [isAuthed, user, token]); // Added user and token as dependencies
 
   return (
