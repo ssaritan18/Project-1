@@ -45,15 +45,24 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       
       if (!granted) {
         Alert.alert(
-          'Mikrofon İzni Gerekli',
-          'Sesli mesaj göndermek için mikrofon iznine ihtiyacımız var.',
-          [{ text: 'Tamam' }]
+          'Microphone Permission Required',
+          'We need microphone access to record voice messages. Please enable microphone permissions in your device settings.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Open Settings', onPress: () => {
+              // On web, show instruction
+              if (Platform.OS === 'web') {
+                Alert.alert('Enable Microphone', 'Please enable microphone access in your browser settings and refresh the page.');
+              }
+            }}
+          ]
         );
       }
       
       return granted;
     } catch (error) {
       console.error('❌ Permission request failed:', error);
+      Alert.alert('Error', 'Failed to request microphone permission. Please try again.');
       return false;
     }
   };
