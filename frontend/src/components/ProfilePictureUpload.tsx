@@ -23,6 +23,9 @@ export function ProfilePictureUpload({ currentImageUrl, onUploadComplete }: Prof
   const { user, isAuthenticated } = useAuth();
   const { mode } = useRuntimeConfig();
   const [uploading, setUploading] = useState(false);
+  
+  // Debug current image URL
+  console.log('📸 ProfilePictureUpload received currentImageUrl:', currentImageUrl ? 'IMAGE_DATA_PRESENT' : 'NO_IMAGE_DATA');
 
   const pickImage = async () => {
     try {
