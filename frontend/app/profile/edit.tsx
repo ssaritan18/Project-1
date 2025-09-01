@@ -283,7 +283,12 @@ export default function EditProfileScreen() {
           {/* Profile Picture */}
           <ProfilePictureUpload
             currentImageUrl={profileData.profile_image}
-            onUploadComplete={(imageUrl) => setProfileData(prev => ({ ...prev, profile_image: imageUrl }))}
+            onUploadComplete={(imageUrl) => {
+              console.log('🖼️ PROFILE EDIT: onUploadComplete received imageUrl:', imageUrl?.substring(0, 50) + '...');
+              console.log('🔄 PROFILE EDIT: Updating profileData with new image...');
+              setProfileData(prev => ({ ...prev, profile_image: imageUrl }));
+              console.log('✅ PROFILE EDIT: profileData updated with new image!');
+            }}
           />
 
           {/* Name */}
