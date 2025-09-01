@@ -95,7 +95,7 @@ export default function Login() {
 
   const reset = async () => {
     await resetCredentials();
-    Alert.alert("Reset Complete", "Tüm veriler sıfırlandı");
+    Alert.alert("Reset Complete", "All data has been reset");
   };
 
   return (
