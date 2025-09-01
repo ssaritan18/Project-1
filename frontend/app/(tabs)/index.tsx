@@ -1,6 +1,168 @@
 import React, { useMemo, useState, useEffect } from "react";
-          {/* Dashboard header with close button */}
-        </View>
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Modal, Alert, ScrollView } from "react-native";
+import DraggableFlatList, { ScaleDecorator } from "react-native-draggable-flatlist";
+import { useTasks } from "../../src/context/TasksContext";
+import { useAuth } from "../../src/context/AuthContext";
+import { TaskCard } from "../../src/components/TaskCard";
+import { ProgressBar } from "../../src/components/ProgressBar";
+import { Ionicons } from "@expo/vector-icons";
+import { Celebration } from "../../src/components/Celebration";
+import { Confetti } from "../../src/components/Confetti";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+// ADHD-friendly Phase 2 components
+import { SegmentedProgressBar } from "../../src/components/SegmentedProgressBar";
+import { FocusModeTimer } from "../../src/components/FocusModeTimer";
+
+// Phase 3: Enhanced Gamification components
+import { WeeklyChallenges } from "../../src/components/WeeklyChallenges";
+import { FocusSessionTracker } from "../../src/components/FocusSessionTracker";
+import { EnhancedCelebration } from "../../src/components/EnhancedCelebration";
+import { AchievementBadge } from "../../src/components/AchievementBadge";
+import { StreakVisualization } from "../../src/components/StreakVisualization";
+
+// Phase 3: Enhanced hooks
+import { useChallenges } from "../../src/hooks/useChallenges";
+import { useFocusSession } from "../../src/hooks/useFocusSession";
+import { usePoints } from "../../src/hooks/usePoints";
+import { useAchievements } from "../../src/hooks/useAchievements";
+import { useStreak } from "../../src/hooks/useStreak";
+import NeurodivergencyContent from "../../src/components/NeurodivergencyContent";
+import { router } from "expo-router";
+
+const COLOR_PRESETS = ["#A3C9FF", "#FFCFE1", "#B8F1D9", "#FFE3A3", "#FFB3BA"];
+
+export default function HomeScreen() {
+  console.log("🏠 HomeScreen rendering...");
+  
+  const { tasks, increment, addTask, remove, reorder } = useTasks();
+  const { palette } = useAuth();
+  const insets = useSafeAreaInsets();
+  const [showFullDashboard, setShowFullDashboard] = useState(false);
+  
+  // Phase 3: Enhanced Gamification hooks
+  const { challenges, completeChallenge } = useChallenges();
+  const { startSession, completeSession, currentSession } = useFocusSession();
+  const { pointsData, getLevelInfo } = usePoints();
+  const { achievements } = useAchievements();
+  const { streak } = useStreak();
+  
+  // Celebration state
+  const [celebrationData, setCelebrationData] = useState(null);
+  const [showCelebration, setShowCelebration] = useState(false);
+  
+  // Handle challenge completion with celebration
+  const handleChallengeComplete = async (challengeId) => {
+    const result = await completeChallenge(challengeId);
+    if (result?.celebration) {
+      setCelebrationData({
+        type: 'challenge',
+        title: result.celebration.title,
+        message: result.celebration.message,
+        points: result.reward?.points,
+        badge: result.reward?.badge
+      });
+      setShowCelebration(true);
+    }
+  };
+  
+  // Handle focus session completion with celebration
+  const handleFocusComplete = async (sessionId, data) => {
+    const result = await completeSession(sessionId, data.tasks_completed, data.interruptions, data.focus_rating);
+    if (result?.celebration) {
+      setCelebrationData({
+        type: 'focus',
+        title: result.celebration.title,
+        message: result.celebration.message,
+        points: result.points_earned,
+        level: result.celebration.achievement_unlocked ? (pointsData?.level || 1) + 1 : undefined
+      });
+      setShowCelebration(true);
+    }
+  };
+  
+  // Handle adding new tasks with rewarding feedback
+  const handleAddTask = () => {
+    const taskPrompt = Platform.OS === 'web' 
+      ? prompt("✨ Add New Task\n\nWhat would you like to accomplish today? Keep it specific and achievable for that ADHD dopamine hit! 🎯")
+      : null;
+    
+    if (Platform.OS === 'web' && taskPrompt) {
+      if (taskPrompt.trim()) {
+        // Create the task with default goal of 1
+        addTask(taskPrompt.trim(), 1, COLOR_PRESETS[Math.floor(Math.random() * COLOR_PRESETS.length)]);
+        
+        // Show rewarding feedback
+        if (Platform.OS === 'web') {
+          window.alert(`🎉 Task Created!\n\n"${taskPrompt.trim()}" has been added to your quest!\n\n✅ +10 points for planning ahead\n📊 Progress bars updated\n🎯 Ready to tackle it?`);
+        }
+      }
+    } else if (Platform.OS !== 'web') {
+      Alert.prompt(
+        "✨ Add New Task",
+        "What would you like to accomplish today? Keep it specific and achievable for that ADHD dopamine hit! 🎯",
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Create Task 🚀', 
+            onPress: (taskText) => {
+              if (taskText && taskText.trim()) {
+                // Create the task
+                addTask(taskText.trim(), 1, COLOR_PRESETS[Math.floor(Math.random() * COLOR_PRESETS.length)]);
+                
+                // Show rewarding feedback
+                Alert.alert(
+                  "🎉 Task Created!",
+                  `"${taskText.trim()}" has been added to your quest!\n\n✅ +10 points for planning ahead\n📊 Progress bars updated\n🎯 Ready to tackle it?`,
+                  [
+                    { text: 'Let\'s do this! 💪', style: 'default' }
+                  ]
+                );
+              }
+            }
+          }
+        ],
+        'plain-text',
+        '',
+        'default'
+      );
+    }
+  };
+
+  // Calculate overall progress for progression bar
+  const overallProgress = useMemo(() => {
+    if (tasks.length === 0) return 0;
+    const totalProgress = tasks.reduce((sum, task) => sum + (task.progress / task.goal), 0);
+    return Math.round((totalProgress / tasks.length) * 100);
+  }, [tasks]);
+
+  // Handle starting different focus modes (demo functionality)
+  const handleStartFocusMode = (mode, duration) => {
+    Alert.alert(
+      "🎯 Focus Mode Starting!", 
+      `Starting ${mode} mode for ${duration} minutes.\n\nThis is a demo - in the full app, this would:\n• Start the focus timer\n• Enable distraction blocking\n• Track your session\n• Reward you with points!`,
+      [{ text: 'Got it! 🚀', style: 'default' }]
+    );
+  };
+  
+  // If full dashboard is enabled, show ADHD-friendly components with Phase 3 features
+  if (showFullDashboard) {
+    return (
+      <ScrollView style={[styles.container, { paddingTop: insets.top }]} showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View style={styles.dashboardHeader}>
+          <Text style={styles.header}>🎯 Your ADHD Journey</Text>
+          <Text style={styles.subtitle}>Phase 3: Full Gamification System Active!</Text>
+          
+          <TouchableOpacity 
+            style={[styles.testButton, { backgroundColor: '#FF6B35', marginHorizontal: 16 }]} 
+            onPress={() => {
+              setShowFullDashboard(false);
+              Alert.alert("🔙 Switched!", "Back to simple test mode");
+            }}
+          >
+            <Text style={styles.testButtonText}>← Back to Test Mode</Text>
+          </TouchableOpacity>
         </View>
         
         {/* Points & Level Display */}
@@ -72,14 +234,53 @@ import React, { useMemo, useState, useEffect } from "react";
           </Text>
           
           <View style={styles.focusModeOptions}>
-          {/* Dashboard header with close button */}
-        </View>
+            <TouchableOpacity 
+              style={[styles.focusCard, { borderColor: '#FF6B35' }]}
+              onPress={() => Alert.alert(
+                "🍅 Pomodoro Mode", 
+                "25 minutes focused work + 5 minute break\n\nPerfect for ADHD brains! Short bursts prevent burnout and the timer creates urgency that helps with procrastination.\n\n• Built-in breaks prevent hyperfocus exhaustion\n• Visual countdown reduces time anxiety\n• Rewards after each session\n• Body doubling available",
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Start Pomodoro 🍅', onPress: () => handleStartFocusMode('pomodoro', 25) }
+                ]
+              )}
+            >
+              <Text style={styles.focusIcon}>🍅</Text>
+              <Text style={styles.focusTitle}>Pomodoro</Text>
+              <Text style={styles.focusSubtitle}>25 min focus</Text>
+            </TouchableOpacity>
             
-          {/* Dashboard header with close button */}
-        </View>
+            <TouchableOpacity 
+              style={[styles.focusCard, { borderColor: '#6C5CE7' }]}
+              onPress={() => Alert.alert(
+                "🧠 Deep Work Mode", 
+                "90 minutes of deep, uninterrupted focus\n\nFor when you're feeling that ADHD hyperfocus energy! Longer sessions for complex tasks that need sustained attention.\n\n• Distraction blocking enabled\n• Phone in 'Do Not Disturb'\n• Background noise options\n• Emergency break button available",
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Enter Deep Work 🧠', onPress: () => handleStartFocusMode('deep_work', 90) }
+                ]
+              )}
+            >
+              <Text style={styles.focusIcon}>🧠</Text>
+              <Text style={styles.focusTitle}>Deep Work</Text>
+              <Text style={styles.focusSubtitle}>90 min deep</Text>
+            </TouchableOpacity>
             
-          {/* Dashboard header with close button */}
-        </View>
+            <TouchableOpacity 
+              style={[styles.focusCard, { borderColor: '#00C851' }]}
+              onPress={() => Alert.alert(
+                "⚡ ADHD Sprint", 
+                "15 minutes of quick, energetic focus\n\nWhen you need to just GET STUFF DONE! Perfect for low-energy days or when you're feeling overwhelmed.\n\n• Extra short to match ADHD attention\n• High-energy background music\n• Quick wins and instant rewards\n• Perfect for task switching",
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Sprint Now ⚡', onPress: () => handleStartFocusMode('adhd_sprint', 15) }
+                ]
+              )}
+            >
+              <Text style={styles.focusIcon}>⚡</Text>
+              <Text style={styles.focusTitle}>ADHD Sprint</Text>
+              <Text style={styles.focusSubtitle}>15 min burst</Text>
+            </TouchableOpacity>
           </View>
         </View>
         
@@ -149,11 +350,22 @@ import React, { useMemo, useState, useEffect } from "react";
       </View>
       
       {/* Action Buttons */}
-          {/* Dashboard header with close button */}
-        </View>
+      <TouchableOpacity 
+        style={[styles.testButton, { backgroundColor: '#FFD700' }]} 
+        onPress={handleAddTask}
+      >
+        <Text style={[styles.testButtonText, { color: '#000' }]}>✨ Add New Task</Text>
+      </TouchableOpacity>
       
-          {/* Dashboard header with close button */}
-        </View>
+      <TouchableOpacity 
+        style={[styles.testButton, { backgroundColor: '#00C851', marginTop: 10 }]} 
+        onPress={() => {
+          setShowFullDashboard(true);
+          Alert.alert("🚀 Loading!", "Switching to full ADHD dashboard...");
+        }}
+      >
+        <Text style={styles.testButtonText}>🚀 Show ADHD Dashboard</Text>
+      </TouchableOpacity>
     </View>
   );
 }
