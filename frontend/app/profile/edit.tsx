@@ -173,15 +173,15 @@ export default function EditProfileScreen() {
             <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
           <Text style={styles.title}>Edit Profile</Text>
-          <TouchableOpacity
-            onPress={() => {
-              console.log('🚀 SAVE BUTTON PRESSED!');
-              Alert.alert('TEST', 'Save button works!');
+          <View 
+            style={[styles.saveButton, { backgroundColor: '#FF0000' }]}
+            onTouchEnd={() => {
+              console.log('🚀 TOUCH END!');
+              Alert.alert('SUCCESS', 'Touch works!');
             }}
-            style={[styles.saveButton]}
           >
-            <Text style={styles.saveButtonText}>SAVE TEST</Text>
-          </TouchableOpacity>
+            <Text style={styles.saveButtonText}>TAP ME</Text>
+          </View>
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
