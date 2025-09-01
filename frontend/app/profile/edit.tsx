@@ -45,8 +45,11 @@ export default function EditProfileScreen() {
   useEffect(() => {
     console.log('🔄 useEffect triggered for loadProfileData');
     console.log('🔍 Current state:', { mode, isAuthenticated, userExists: !!user, hasToken: !!user?.token });
+    
+    // FORCE LOAD - Her component mount'ta çalıştır
+    console.log('🚀 FORCING loadProfileData...');
     loadProfileData();
-  }, [mode, isAuthenticated, user]);
+  }, []); // Empty dependency - sadece component mount'ta çalış
 
   const loadProfileData = async () => {
     console.log('🔄 loadProfileData called:', { mode, isAuthenticated, hasToken: !!user?.token });
