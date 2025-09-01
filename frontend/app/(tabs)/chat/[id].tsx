@@ -318,13 +318,7 @@ export default function ChatDetail() {
                   <Ionicons name="attach" size={20} color="#4A90E2" />
                 )}
               </TouchableOpacity>
-              <VoiceRecorder
-                onVoiceRecorded={handleVoiceComplete}
-                onCancel={handleVoiceCancel}
-                onRecordingStart={() => setIsRecordingVoice(true)}
-                onRecordingEnd={() => setIsRecordingVoice(false)}
-                style={styles.voiceRecorder}
-              />
+
               <TextInput
                 style={styles.input}
                 placeholder="Type a message..."
