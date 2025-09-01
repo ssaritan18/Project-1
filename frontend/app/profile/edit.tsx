@@ -172,9 +172,12 @@ export default function EditProfileScreen() {
       console.log('👤 User object:', user);
       console.log('📝 Profile data to save:', profileData);
       
-      // FORCE LOCAL MODE SAVE FOR TESTING
-      console.log('💾 FORCING LOCAL MODE SAVE FOR TESTING...');
-      Alert.alert('Success', 'Profile updated (testing)!', [
+      // Save to localStorage for offline mode
+      console.log('💾 Saving profile data to localStorage...');
+      localStorage.setItem('profile_data', JSON.stringify(profileData));
+      console.log('✅ Profile data saved successfully!');
+      
+      Alert.alert('Success', 'Profile updated successfully!', [
         { text: 'OK', onPress: () => router.back() }
       ]);
       
