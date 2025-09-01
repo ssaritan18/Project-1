@@ -240,7 +240,7 @@ export default function Login() {
               }}
             >
               <span style={{ color: '#4A90E2', fontSize: '14px', textDecoration: 'underline' }}>
-                Hesabınız yok mu? Kaydolun
+                Don't have an account? Sign up
               </span>
             </button>
             
