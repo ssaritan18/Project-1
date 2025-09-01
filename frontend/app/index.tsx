@@ -27,11 +27,24 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator color="#A3C9FF" />
-      <Text style={styles.text}>ADHDers Social Club</Text>
-      <Text style={styles.subtext}>
-        {isAuthed ? "Welcome back! 👋" : "Loading... 🚀"}
-      </Text>
+      {/* Loading Logo */}
+      <View style={styles.logoContainer}>
+        <Image 
+          source={{ uri: "https://customer-assets.emergentagent.com/job_profile-wizard-9/artifacts/e7sw25g5_image.png" }}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.text}>ADHDers Social Club</Text>
+        <Text style={styles.subtext}>
+          {isAuthed ? "Welcome back! 👋" : "Loading... 🚀"}
+        </Text>
+      </View>
+      
+      <ActivityIndicator 
+        color="#A3C9FF" 
+        size="large"
+        style={styles.spinner}
+      />
     </View>
   );
 }
