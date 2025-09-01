@@ -22,7 +22,7 @@ import uuid
 from typing import Dict, Optional, List
 
 # Base URL from frontend .env
-BASE_URL = "https://kaldigi-yerden.preview.emergentagent.com/api"
+BASE_URL = "https://profile-wizard-9.preview.emergentagent.com/api"
 WS_URL = "wss://adhd-connect.preview.emergentagent.com/api/ws"
 
 class WhatsAppMessageTester:

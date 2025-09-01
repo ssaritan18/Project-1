@@ -11,7 +11,7 @@ import base64
 from typing import Dict, Optional, List
 
 # Base URL from frontend .env
-BASE_URL = "https://kaldigi-yerden.preview.emergentagent.com/api"
+BASE_URL = "https://profile-wizard-9.preview.emergentagent.com/api"
 
 class ComprehensiveAPITester:
     def __init__(self):
