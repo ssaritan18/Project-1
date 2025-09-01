@@ -155,6 +155,72 @@
         -agent: "testing"
         -comment: "✅ PASSED: File upload and storage system comprehensive testing completed successfully. Voice files properly stored in /app/backend/uploads/voices/ with unique UUID filenames (format: voice_[32-char-hex].[ext]). Base64 audio decoding working for all formats (.wav, .m4a, .ogg, .webm). File serving endpoints working: GET /api/uploads/voices/{filename} serves audio files with correct MIME types (audio/mpeg, audio/mp4, audio/ogg, audio/webm), GET /api/uploads/profiles/{filename} serves profile pictures with image/* MIME types. Security measures working: path traversal blocked (../../../etc/passwd rejected with 502), file existence validation (404 for non-existent files). File storage verified with actual file sizes (8044+ bytes for test files). Directory creation automatic (/app/backend/uploads/voices/ and /app/backend/uploads/profiles/)."
 ## frontend:
+  - task: "Edit Profile Button Navigation Fix"
+    implemented: false
+    working: false
+    file: "/app/frontend/app/(tabs)/profile.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "USER REPORTED: Edit Profile button does not redirect correctly. Need to ensure clicking Edit Profile redirects to the correct profile edit page and profile data persistence works properly."
+  - task: "Profile Photo Upload Frontend"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/components/ProfilePictureUpload.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Need to add functionality for uploading profile photo with camera and gallery access. Once updated, propagate new profile photo across chat messages avatars and all circular user image components throughout the app."
+  - task: "Theme Preference Fix"
+    implemented: false
+    working: false
+    file: "/app/frontend/app/profile/settings.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "USER REPORTED: Theme switching (dark/light/auto) under Settings → Preferences not working properly. Need to fix functionality so selected theme applies instantly across entire app. Also remove language selection - app should only support English."
+  - task: "Chat Media Upload Frontend"
+    implemented: false
+    working: false
+    file: "/app/frontend/app/(tabs)/chat/[id].tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Need to add camera and gallery access in chat input area. When sending media, integrate with backend/API so users can send images and videos in chat."
+  - task: "Voice Recorder Bug Fix"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/components/VoiceRecorder.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "USER REPORTED: Voice recorder button is present but does not actually record or send audio. Need to fix so that pressing record → captures audio → uploads → sends as a playable audio message in chat."
+  - task: "Homepage Test Button Removal"
+    implemented: false
+    working: false
+    file: "/app/frontend/app/(tabs)/index.tsx"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Remove the unused test button at the bottom of the homepage for clean UI."
   - task: "WhatsApp-style VoiceRecorder Component"
     implemented: true
     working: true
