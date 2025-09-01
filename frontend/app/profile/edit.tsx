@@ -79,11 +79,14 @@ export default function EditProfileScreen() {
       }
     } else {
       // Local mode - localStorage'dan yükle
+      console.log('📂 LOADING FROM localStorage...');
       try {
         const savedProfile = localStorage.getItem('user_profile');
+        console.log('📂 localStorage data:', savedProfile);
+        
         if (savedProfile) {
           const parsedProfile = JSON.parse(savedProfile);
-          console.log('📂 Loaded profile from localStorage:', parsedProfile);
+          console.log('📂 Parsed profile from localStorage:', parsedProfile);
           setProfileData({
             name: parsedProfile.name || user?.name || 'Your Name',
             bio: parsedProfile.bio || 'Tell us about yourself...',
@@ -91,7 +94,9 @@ export default function EditProfileScreen() {
             website: parsedProfile.website || '',
             birth_date: parsedProfile.birth_date || '',
           });
+          console.log('✅ Profile data loaded from localStorage!');
         } else {
+          console.log('❌ No saved profile found in localStorage');
           // Kayıtlı data yok, default değerler
           setProfileData({
             name: user?.name || 'Your Name',
@@ -102,7 +107,7 @@ export default function EditProfileScreen() {
           });
         }
       } catch (error) {
-        console.error('localStorage read error:', error);
+        console.error('❌ localStorage read error:', error);
         setProfileData({
           name: user?.name || 'Your Name',
           bio: 'Tell us about yourself...',
