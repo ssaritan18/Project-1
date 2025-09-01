@@ -177,6 +177,22 @@ export default function EditProfileScreen() {
             <Ionicons name="arrow-back" size={24} color="white" />
           </Pressable>
           <Text style={styles.title}>Edit Profile</Text>
+          
+          {/* RAW HTML BUTTON TEST */}
+          <button 
+            onClick={() => alert('HTML BUTTON WORKS!')}
+            style={{
+              backgroundColor: '#FF0000',
+              color: 'white',
+              padding: '10px',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer'
+            }}
+          >
+            HTML BUTTON
+          </button>
+          
           <Pressable
             onPress={() => {
               console.log('🚀 SAVE BUTTON PRESSED!');
