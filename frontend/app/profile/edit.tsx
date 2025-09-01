@@ -193,20 +193,65 @@ export default function EditProfileScreen() {
             onClick={async () => {
               console.log('🚀 SAVE BUTTON CLICKED!');
               
-              // GERÇEK SAVE LOGIC
               try {
+                // Form data'yı al
+                const nameInput = document.querySelector('input[placeholder*="name"]');
+                const bioInput = document.querySelector('textarea[placeholder*="bio"]');
+                const locationInput = document.querySelector('input[placeholder*="location"]');
+                const websiteInput = document.querySelector('input[placeholder*="website"]');
+                
                 const profileData = {
-                  name: document.querySelector('input[placeholder*="name"]')?.value || '',
-                  bio: document.querySelector('textarea[placeholder*="bio"]')?.value || ''
+                  name: nameInput?.value || '',
+                  bio: bioInput?.value || '',
+                  location: locationInput?.value || '',
+                  website: websiteInput?.value || '',
+                  birth_date: ''
                 };
                 
-                console.log('💾 Saving profile:', profileData);
-                alert('Profile Saved Successfully!');
+                console.log('💾 Saving profile data:', profileData);
+                
+                // Backend'e gönder (sync mode için)
+                const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
+                
+                const response = await fetch(`${backendUrl}/api/profile`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    // Token gerekiyorsa ekle - şimdilik offline test
+                  },
+                  body: JSON.stringify(profileData)
+                });
+                
+                console.log('📡 Backend response status:', response.status);
+                
+                if (response.ok) {
+                  console.log('✅ Profile saved to backend!');
+                  alert('✅ Profile Saved Successfully to Backend!');
+                } else {
+                  console.log('❌ Backend save failed, saving locally...');
+                  // Local storage'a kaydet
+                  localStorage.setItem('user_profile', JSON.stringify(profileData));
+                  alert('✅ Profile Saved Locally!');
+                }
+                
+                // Geri dön
                 router.back();
                 
               } catch (error) {
-                console.error('Save error:', error);
-                alert('Save failed: ' + error.message);
+                console.error('❌ Save error:', error);
+                
+                // Hata olursa local storage'a kaydet
+                try {
+                  const profileData = {
+                    name: document.querySelector('input[placeholder*="name"]')?.value || '',
+                    bio: document.querySelector('textarea[placeholder*="bio"]')?.value || ''
+                  };
+                  localStorage.setItem('user_profile', JSON.stringify(profileData));
+                  alert('✅ Profile Saved Locally (Fallback)!');
+                  router.back();
+                } catch (localError) {
+                  alert('❌ Save failed: ' + error.message);
+                }
               }
             }}
             style={{
