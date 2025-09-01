@@ -112,9 +112,10 @@ export default function HomeScreen() {
                 addTask(taskText.trim(), 1, COLOR_PRESETS[Math.floor(Math.random() * COLOR_PRESETS.length)]);
                 
                 // Show rewarding feedback
+                const alertMessage = '"' + taskText.trim() + '" has been added to your quest!\n\n✅ +10 points for planning ahead\n📊 Progress bars updated\n🎯 Ready to tackle it?';
                 Alert.alert(
                   "🎉 Task Created!",
-                  `"${taskText.trim()}" has been added to your quest!\n\n✅ +10 points for planning ahead\n📊 Progress bars updated\n🎯 Ready to tackle it?`,
+                  alertMessage,
                   [
                     { text: 'Let\'s do this! 💪', style: 'default' }
                   ]
