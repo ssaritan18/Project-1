@@ -29,7 +29,8 @@ type ProfileData = {
 
 export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { user, isAuthenticated, mode } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const { mode } = useRuntimeConfig();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   
