@@ -122,7 +122,7 @@ export default function Login() {
             editable={!isLoading}
           />
 
-          <Text style={styles.label}>İsim (İsteğe Bağlı)</Text>
+          <Text style={styles.label}>Name (Optional)</Text>
           <TextInput
             style={styles.input}
             placeholder="Adınızı girin"
