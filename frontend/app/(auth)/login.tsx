@@ -135,7 +135,7 @@ export default function Login() {
           <Text style={styles.label}>Password (Optional)</Text>
           <TextInput
             style={styles.input}
-            placeholder="Şifrenizi girin"
+            placeholder="Enter your password"
             placeholderTextColor="#777"
             value={password}
             onChangeText={setPassword}
