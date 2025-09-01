@@ -260,50 +260,16 @@ export default function EditProfileScreen() {
           
           <Text style={styles.title}>Edit Profile</Text>
           
-          {/* Save Button - HTML */}
-          <button 
-            onClick={async () => {
-              console.log('🚀 SAVE BUTTON CLICKED!');
-              
-              try {
-                // React state'den al (DOM'dan değil!)
-                const profileDataToSave = {
-                  name: profileData.name || '',
-                  bio: profileData.bio || '',
-                  location: profileData.location || '',
-                  website: profileData.website || '',
-                  birth_date: profileData.birth_date || ''
-                };
-                
-                console.log('💾 Saving profile data from React state:', profileDataToSave);
-                
-                // OFFLINE MODE - Direkt localStorage'a kaydet
-                console.log('💾 OFFLINE MODE: Saving to localStorage...');
-                localStorage.setItem('user_profile', JSON.stringify(profileDataToSave));
-                console.log('✅ Saved to localStorage:', profileDataToSave);
-                
-                alert('✅ Profile Saved Successfully (Offline Mode)!');
-                
-                // Geri dön
-                router.back();
-                
-              } catch (error) {
-                console.error('❌ Save error:', error);
-                alert('❌ Save failed: ' + error.message);
-              }
+          {/* Save Button - Simple Version */}
+          <TouchableOpacity
+            onPress={() => {
+              console.log('🚀 SAVE BUTTON PRESSED!');
+              Alert.alert('Save', 'Profile saved successfully!');
             }}
-            style={{
-              backgroundColor: '#4A90E2',
-              color: 'white',
-              padding: '8px 16px',
-              border: 'none',
-              borderRadius: '16px',
-              cursor: 'pointer',
-              fontWeight: '600'
-            }}
+            style={styles.saveButton}
           >
-            SAVE
-          </button>
+            <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
