@@ -205,9 +205,9 @@ export default function HomeScreen() {
               <ScaleDecorator>
                 <TaskCard
                   task={item}
-                  onToggle={() => increment(item.id)}
+                  onIncrement={() => increment(item.id)}
                   onDelete={() => remove(item.id)}
-                  onLongPress={drag}
+                  onDrag={drag}
                   disabled={isActive}
                 />
               </ScaleDecorator>
