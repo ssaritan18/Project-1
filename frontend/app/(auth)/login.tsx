@@ -185,34 +185,78 @@ export default function Login() {
 
           {/* Alternative Actions */}
           <View style={styles.alternativeActions}>
-            <Pressable 
-              style={[styles.altBtn, { backgroundColor: '#FFE3A3' }]} 
-              onPress={submitMockGoogle}
+            <button
+              onClick={submitMockGoogle}
               disabled={!validEmail || isLoading}
+              style={{
+                backgroundColor: '#FFE3A3',
+                flexDirection: 'row',
+                alignItems: 'center',
+                padding: '12px 20px',
+                borderRadius: '25px',
+                border: 'none',
+                cursor: 'pointer',
+                marginVertical: '4px',
+                minWidth: '160px',
+                justifyContent: 'center',
+                opacity: (!validEmail || isLoading) ? 0.5 : 1
+              }}
             >
-              <Ionicons name="logo-google" size={16} color="#000" />
-              <Text style={styles.altBtnText}>Google ile Giriş</Text>
-            </Pressable>
+              <span style={{ marginRight: '8px' }}>🌐</span>
+              <span style={{ color: '#000', fontSize: '14px', fontWeight: '600' }}>Google ile Giriş</span>
+            </button>
 
-            <Pressable 
-              style={[styles.altBtn, { backgroundColor: '#FFCFE1' }]} 
-              onPress={reset}
+            <button
+              onClick={reset}
               disabled={isLoading}
+              style={{
+                backgroundColor: '#FFCFE1',
+                flexDirection: 'row',
+                alignItems: 'center',
+                padding: '12px 20px',
+                borderRadius: '25px',
+                border: 'none',
+                cursor: 'pointer',
+                marginVertical: '4px',
+                minWidth: '160px',
+                justifyContent: 'center',
+                opacity: isLoading ? 0.5 : 1
+              }}
             >
-              <Ionicons name="refresh" size={16} color="#000" />
-              <Text style={styles.altBtnText}>Verileri Sıfırla</Text>
-            </Pressable>
+              <span style={{ marginRight: '8px' }}>🔄</span>
+              <span style={{ color: '#000', fontSize: '14px', fontWeight: '600' }}>Verileri Sıfırla</span>
+            </button>
           </View>
 
           {/* Navigation */}
           <View style={styles.navigation}>
-            <Pressable onPress={() => router.push("/(auth)/signup")}>
-              <Text style={styles.linkText}>Hesabınız yok mu? Kaydolun</Text>
-            </Pressable>
+            <button 
+              onClick={() => router.push("/(auth)/signup")}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                marginVertical: '8px'
+              }}
+            >
+              <span style={{ color: '#4A90E2', fontSize: '14px', textDecoration: 'underline' }}>
+                Hesabınız yok mu? Kaydolun
+              </span>
+            </button>
             
-            <Pressable onPress={() => router.push("/(auth)/forgot-pin")}>
-              <Text style={styles.linkText}>Şifremi Unuttum</Text>
-            </Pressable>
+            <button 
+              onClick={() => router.push("/(auth)/forgot-pin")}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                marginVertical: '8px'
+              }}
+            >
+              <span style={{ color: '#4A90E2', fontSize: '14px', textDecoration: 'underline' }}>
+                Şifremi Unuttum
+              </span>
+            </button>
           </View>
         </View>
       </View>
