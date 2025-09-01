@@ -358,16 +358,6 @@ export default function HomeScreen() {
       </TouchableOpacity>
       
       <TouchableOpacity 
-        style={styles.testButton} 
-        onPress={() => {
-          console.log("🔘 Test Button pressed!");
-          Alert.alert("✅ Success!", "Test button is working perfectly! 🎉\n\nPhase 1 & Phase 2 ADHD-friendly components are ready!");
-        }}
-      >
-        <Text style={styles.testButtonText}>Test Button</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity 
         style={[styles.testButton, { backgroundColor: '#00C851', marginTop: 10 }]} 
         onPress={() => {
           setShowFullDashboard(true);
