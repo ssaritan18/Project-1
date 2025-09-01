@@ -90,13 +90,22 @@ export default function EditProfileScreen() {
   };
 
   const handleSave = async () => {
+    console.log('🚀 SAVE BUTTON CLICKED!'); // İlk log
     setSaving(true);
     try {
       console.log('🔄 Starting profile save process...');
       console.log('📊 Current mode:', mode);
       console.log('🔐 Is authenticated:', isAuthenticated);
+      console.log('👤 User object:', user);
       console.log('📝 Profile data to save:', profileData);
       
+      // FORCE LOCAL MODE SAVE FOR TESTING
+      console.log('💾 FORCING LOCAL MODE SAVE FOR TESTING...');
+      Alert.alert('Success', 'Profile updated (testing)!', [
+        { text: 'OK', onPress: () => router.back() }
+      ]);
+      
+      /* ORIGINAL LOGIC - COMMENTED FOR TESTING
       if (mode === 'sync' && isAuthenticated && user?.token) {
         console.log('🌐 Sync mode - saving to backend...');
         console.log('🔐 Using token:', user.token ? 'Token exists' : 'NO TOKEN');
@@ -130,6 +139,7 @@ export default function EditProfileScreen() {
           { text: 'OK', onPress: () => router.back() }
         ]);
       }
+      */
     } catch (error) {
       console.error('❌ Failed to save profile:', error);
       Alert.alert('Error', `Failed to save profile: ${error.message}`);
