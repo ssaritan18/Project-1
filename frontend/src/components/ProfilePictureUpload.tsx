@@ -60,13 +60,13 @@ export function ProfilePictureUpload({ currentImageUrl, onUploadComplete }: Prof
   };
 
   const uploadImage = async (base64Data: string, fileName: string) => {
-    if (mode === 'sync' && isAuthenticated) {
+    if (mode === 'sync' && isAuthenticated && user?.token) {
       setUploading(true);
       try {
         const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/profile/picture`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${user?.token}`,
+            'Authorization': `Bearer ${user.token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -80,11 +80,12 @@ export function ProfilePictureUpload({ currentImageUrl, onUploadComplete }: Prof
           onUploadComplete(data.profile_image_url);
           Alert.alert('Success', 'Profile picture updated successfully!');
         } else {
-          throw new Error(`Upload failed: ${response.status}`);
+          const errorData = await response.json();
+          throw new Error(`Upload failed: ${response.status} - ${errorData.detail || 'Unknown error'}`);
         }
       } catch (error) {
         console.error('Failed to upload image:', error);
-        Alert.alert('Error', 'Failed to upload profile picture. Please try again.');
+        Alert.alert('Error', `Failed to upload profile picture: ${error.message}`);
       } finally {
         setUploading(false);
       }
