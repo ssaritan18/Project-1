@@ -29,6 +29,42 @@ class APITester:
     def log(self, message: str, level: str = "INFO"):
         print(f"[{level}] {message}")
         
+    def create_verified_user_directly(self, name: str, email: str, password: str) -> bool:
+        """Create a verified user directly in the database for testing"""
+        import asyncio
+        import os
+        import uuid
+        from motor.motor_asyncio import AsyncIOMotorClient
+        from passlib.context import CryptContext
+        from datetime import datetime, timezone
+        
+        async def create_user():
+            try:
+                client = AsyncIOMotorClient(os.environ.get('MONGO_URL', 'mongodb://localhost:27017'))
+                db = client.adhd_app
+                pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+                
+                uid = str(uuid.uuid4())
+                doc = {
+                    "_id": uid,
+                    "email": email.lower(),
+                    "name": name,
+                    "password_hash": pwd_context.hash(password),
+                    "palette": {"primary": "#A3C9FF", "secondary": "#FFCFE1", "accent": "#B8F1D9"},
+                    "friends": [],
+                    "email_verified": True,  # Skip verification for testing
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
+                }
+                await db.users.insert_one(doc)
+                client.close()
+                return True
+            except Exception as e:
+                self.log(f"❌ Error creating user directly: {e}", "ERROR")
+                return False
+        
+        return asyncio.run(create_user())
+
     def test_auth_register(self, name: str, email: str, password: str) -> Dict:
         """Test user registration"""
         url = f"{self.base_url}/auth/register"
