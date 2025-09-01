@@ -4,21 +4,26 @@ import { router, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
 
 export default function Index() {
-  const { isAuthed, user, token } = useAuth();
+  const { isAuthed, user, token, loading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    console.log("🔍 Index auth state check:", { isAuthed, hasUser: !!user, hasToken: !!token });
+    console.log("🔍 Index auth state check:", { isAuthed, hasUser: !!user, hasToken: !!token, loading });
     
-    // Immediate navigation - no timeout to prevent race conditions
-    if (isAuthed && user) {
-      console.log("✅ User authenticated, redirecting to tabs");
-      router.replace("/(tabs)");
+    // Navigation logic - wait for loading to complete
+    if (!loading) {
+      if (isAuthed && user) {
+        console.log("✅ User authenticated, redirecting to tabs");
+        router.replace("/(tabs)");
+      } else {
+        console.log("❌ User not authenticated, redirecting to welcome");
+        router.replace("/(auth)/welcome");
+      }
     } else {
-      console.log("❌ User not authenticated, redirecting to welcome");
-      router.replace("/(auth)/welcome");
+      console.log("⏳ Still loading authentication state...");
     }
     
-  }, [isAuthed, user, token]); // Added user and token as dependencies
+  }, [isAuthed, user, token, loading]); // Added loading to dependencies
 
   return (
     <View style={styles.container}>
