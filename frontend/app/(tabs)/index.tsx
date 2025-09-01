@@ -154,15 +154,7 @@ export default function HomeScreen() {
           <Text style={styles.header}>🎯 Your ADHD Journey</Text>
           <Text style={styles.subtitle}>Phase 3: Full Gamification System Active!</Text>
           
-          <TouchableOpacity 
-            style={[styles.testButton, { backgroundColor: '#FF6B35', marginHorizontal: 16 }]} 
-            onPress={() => {
-              setShowFullDashboard(false);
-              Alert.alert("🔙 Switched!", "Back to simple test mode");
-            }}
-          >
-            <Text style={styles.testButtonText}>← Back to Test Mode</Text>
-          </TouchableOpacity>
+          {/* Dashboard header with close button */}
         </View>
         
         {/* Points & Level Display */}
