@@ -104,7 +104,7 @@ export default function Login() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>ADHDers Social Club</Text>
-          <Text style={styles.subtitle}>Hoş geldiniz! Giriş yapın veya yeni hesap oluşturun</Text>
+          <Text style={styles.subtitle}>Welcome! Login or create a new account</Text>
         </View>
 
         {/* Login Form */}
