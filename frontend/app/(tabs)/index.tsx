@@ -368,7 +368,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#0c0c0c' 
   },
   header: { color: "#fff", fontSize: 28, fontWeight: "900", textAlign: "center", marginVertical: 20 },
-  testText: { color: "#fff", fontSize: 18, textAlign: "center", marginVertical: 10, paddingHorizontal: 20 },
   testButton: { 
     backgroundColor: "#A3C9FF", 
     padding: 16, 
