@@ -177,8 +177,25 @@ export default function EditProfileScreen() {
       
       // Save to localStorage for offline mode
       console.log('💾 Saving profile data to localStorage...');
+      console.log('📊 Profile data being saved:', {
+        name: profileData.name,
+        bio: profileData.bio,
+        location: profileData.location,
+        website: profileData.website,
+        birth_date: profileData.birth_date,
+        profile_image: profileData.profile_image ? 'IMAGE_DATA_PRESENT' : 'NO_IMAGE'
+      });
+      
       localStorage.setItem('profile_data', JSON.stringify(profileData));
-      console.log('✅ Profile data saved successfully!');
+      console.log('✅ Profile data saved to localStorage successfully!');
+      
+      // Verify save by reading back
+      const savedData = localStorage.getItem('profile_data');
+      const parsedSaved = JSON.parse(savedData || '{}');
+      console.log('🔍 Verification - data read back from localStorage:', {
+        name: parsedSaved.name,
+        profile_image: parsedSaved.profile_image ? 'IMAGE_DATA_VERIFIED' : 'NO_IMAGE_IN_STORAGE'
+      });
       
       Alert.alert('Success', 'Profile updated successfully!', [
         { text: 'OK', onPress: () => router.back() }
