@@ -94,7 +94,8 @@ export default function HomeScreen() {
         
         // Show rewarding feedback
         if (Platform.OS === 'web') {
-          window.alert(`🎉 Task Created!\n\n"${taskPrompt.trim()}" has been added to your quest!\n\n✅ +10 points for planning ahead\n📊 Progress bars updated\n🎯 Ready to tackle it?`);
+          const message = '🎉 Task Created!\n\n"' + taskPrompt.trim() + '" has been added to your quest!\n\n✅ +10 points for planning ahead\n📊 Progress bars updated\n🎯 Ready to tackle it?';
+          window.alert(message);
         }
       }
     } else if (Platform.OS !== 'web') {
