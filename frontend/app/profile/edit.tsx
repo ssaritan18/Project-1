@@ -129,15 +129,30 @@ export default function EditProfileScreen() {
       
       if (savedProfile) {
         const parsedProfile = JSON.parse(savedProfile);
-        console.log('📂 Parsed profile from localStorage:', parsedProfile);
-        setProfileData({
+        console.log('📂 Parsed profile from localStorage:', {
+          name: parsedProfile.name,
+          bio: parsedProfile.bio,
+          location: parsedProfile.location,
+          website: parsedProfile.website,
+          birth_date: parsedProfile.birth_date,
+          profile_image: parsedProfile.profile_image ? 'IMAGE_DATA_LOADED' : 'NO_IMAGE_DATA'
+        });
+        
+        const loadedData = {
           name: parsedProfile.name || user?.name || 'Your Name',
           bio: parsedProfile.bio || 'Tell us about yourself...',
           location: parsedProfile.location || '',
           website: parsedProfile.website || '',
           birth_date: parsedProfile.birth_date || '',
           profile_image: parsedProfile.profile_image || null,
+        };
+        
+        console.log('🔄 Setting profile data to:', {
+          ...loadedData,
+          profile_image: loadedData.profile_image ? 'IMAGE_WILL_BE_SET' : 'NO_IMAGE_TO_SET'
         });
+        
+        setProfileData(loadedData);
         console.log('✅ Profile data loaded from localStorage!');
       } else {
         console.log('❌ No saved profile found in localStorage');
