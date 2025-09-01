@@ -178,7 +178,7 @@ export default function Login() {
               {isLoading ? (
                 "Logging in..."
               ) : (
-                password ? 'Giriş Yap' : 'Hızlı Giriş'
+                password ? 'Login' : 'Hızlı Giriş'
               )}
             </button>
           </View>
