@@ -178,7 +178,6 @@ export default function EditProfileScreen() {
     }
     setLoading(false);
   };
-  };
 
   const handleSave = async () => {
     try {
