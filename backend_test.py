@@ -6342,13 +6342,15 @@ if __name__ == "__main__":
             success = run_community_feed_privacy_test()
         elif sys.argv[1] == "profile":
             success = run_comprehensive_profile_management_test()
+        elif sys.argv[1] == "profile_edit":
+            success = run_profile_edit_functionality_test()
         elif sys.argv[1] == "voice":
             success = run_comprehensive_voice_recording_test()
         elif sys.argv[1] == "adhd" or sys.argv[1] == "phase2" or sys.argv[1] == "dashboard":
             result = run_phase2_adhd_dashboard_backend_test()
             success = result["success"]
         else:
-            print("Usage: python backend_test.py [adhd|phase2|dashboard|privacy|chat|e2e|end-to-end|full|websocket|ws|message|msg|ratelimit|rate|invite|invite_code|community|feed|posts|profile|voice]")
+            print("Usage: python backend_test.py [adhd|phase2|dashboard|privacy|chat|e2e|end-to-end|full|websocket|ws|message|msg|ratelimit|rate|invite|invite_code|community|feed|posts|profile|profile_edit|voice]")
             print("  adhd/phase2/dashboard: Run Phase 2 ADHD-friendly Dashboard backend testing")
             print("  privacy: Run Community Feed Privacy Fix Verification (Sprint 1 Final Test)")
             print("  chat: Run comprehensive chat functionality tests")
@@ -6360,6 +6362,7 @@ if __name__ == "__main__":
             print("  invite/invite_code: Run comprehensive invite code system test")
             print("  community/feed/posts: Run comprehensive community feed system test")
             print("  profile: Run comprehensive profile management system test")
+            print("  profile_edit: Run specific profile edit functionality test")
             print("  voice: Run comprehensive voice recording system test")
             print("  (no args): Run Phase 2 ADHD Dashboard test by default (as per review request)")
             sys.exit(1)
