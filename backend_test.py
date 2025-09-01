@@ -29,6 +29,25 @@ class APITester:
     def log(self, message: str, level: str = "INFO"):
         print(f"[{level}] {message}")
         
+    def cleanup_user_by_email(self, email: str) -> bool:
+        """Clean up existing user by email for testing"""
+        import asyncio
+        import os
+        from motor.motor_asyncio import AsyncIOMotorClient
+        
+        async def cleanup():
+            try:
+                client = AsyncIOMotorClient(os.environ.get('MONGO_URL', 'mongodb://localhost:27017'))
+                db = client.adhd_app
+                await db.users.delete_many({"email": email.lower()})
+                client.close()
+                return True
+            except Exception as e:
+                self.log(f"❌ Error cleaning up user: {e}", "ERROR")
+                return False
+        
+        return asyncio.run(cleanup())
+
     def create_verified_user_directly(self, name: str, email: str, password: str) -> bool:
         """Create a verified user directly in the database for testing"""
         import asyncio
