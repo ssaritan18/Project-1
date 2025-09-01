@@ -64,13 +64,25 @@ export default function HomeScreen() {
     }
   };
 
-  // Handle starting different focus modes (demo functionality)
+  // Handle starting different focus modes with actual timer
   const handleStartFocusMode = (mode, duration) => {
-    const message = 'Starting ' + mode + ' mode for ' + duration + ' minutes.\n\nThis is a demo - in the full app, this would:\n• Start the focus timer\n• Enable distraction blocking\n• Track your session\n• Reward you with points!';
     Alert.alert(
-      "🎯 Focus Mode Starting!", 
-      message,
-      [{ text: 'Got it! 🚀', style: 'default' }]
+      "🎯 Start " + mode + "?", 
+      "Ready to focus for " + duration + " minutes?",
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: '🚀 Start Focus!', 
+          style: 'default',
+          onPress: () => {
+            // Navigate to focus timer (we'll create this)
+            router.push({
+              pathname: '/focus-timer',
+              params: { mode: mode, duration: duration }
+            });
+          }
+        }
+      ]
     );
   };
 
