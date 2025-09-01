@@ -6365,8 +6365,7 @@ if __name__ == "__main__":
             sys.exit(1)
     else:
         # Default to Phase 2 ADHD Dashboard test as requested in review
-        result = run_phase2_adhd_dashboard_backend_test()
-        success = result["success"]
+        success = run_phase2_adhd_dashboard_backend_test()
     
     sys.exit(0 if success else 1)
 
