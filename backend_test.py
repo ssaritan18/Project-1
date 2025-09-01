@@ -7565,9 +7565,11 @@ if __name__ == "__main__":
             success = run_comprehensive_voice_recording_test()
         elif test_name == "profile_edit":
             success = run_profile_edit_functionality_test()
+        elif test_name == "profile_picture":
+            success = run_profile_picture_upload_test()
         else:
             print(f"Unknown test: {test_name}")
-            print("Available tests: phase3, profile, phase2, chat, e2e, privacy, voice, profile_edit")
+            print("Available tests: phase3, profile, phase2, chat, e2e, privacy, voice, profile_edit, profile_picture")
             sys.exit(1)
     else:
         # Default to profile edit test as requested
