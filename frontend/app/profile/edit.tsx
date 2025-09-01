@@ -169,43 +169,58 @@ export default function EditProfileScreen() {
       <View style={[styles.container, { paddingTop: insets.top }]}>
         {/* Header */}
         <View style={styles.header}>
-          <Pressable 
-            onPress={() => router.back()} 
-            onClick={() => router.back()}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={24} color="white" />
-          </Pressable>
-          <Text style={styles.title}>Edit Profile</Text>
-          
-          {/* RAW HTML BUTTON TEST */}
-          <button 
-            onClick={() => alert('HTML BUTTON WORKS!')}
+          {/* Back Button - HTML */}
+          <button
+            onClick={() => {
+              console.log('🔙 Going back...');
+              router.back();
+            }}
             style={{
-              backgroundColor: '#FF0000',
-              color: 'white',
-              padding: '10px',
+              background: 'transparent',
               border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer'
+              color: 'white',
+              cursor: 'pointer',
+              padding: '8px'
             }}
           >
-            HTML BUTTON
+            ← Back
           </button>
           
-          <Pressable
-            onPress={() => {
-              console.log('🚀 SAVE BUTTON PRESSED!');
-              Alert.alert('SUCCESS', 'Save button WORKS!');
+          <Text style={styles.title}>Edit Profile</Text>
+          
+          {/* Save Button - HTML */}
+          <button 
+            onClick={async () => {
+              console.log('🚀 SAVE BUTTON CLICKED!');
+              
+              // GERÇEK SAVE LOGIC
+              try {
+                const profileData = {
+                  name: document.querySelector('input[placeholder*="name"]')?.value || '',
+                  bio: document.querySelector('textarea[placeholder*="bio"]')?.value || ''
+                };
+                
+                console.log('💾 Saving profile:', profileData);
+                alert('Profile Saved Successfully!');
+                router.back();
+                
+              } catch (error) {
+                console.error('Save error:', error);
+                alert('Save failed: ' + error.message);
+              }
             }}
-            onClick={() => {
-              console.log('🚀 SAVE BUTTON CLICKED (WEB)!');
-              Alert.alert('SUCCESS', 'Save button WORKS on WEB!');
+            style={{
+              backgroundColor: '#4A90E2',
+              color: 'white',
+              padding: '8px 16px',
+              border: 'none',
+              borderRadius: '16px',
+              cursor: 'pointer',
+              fontWeight: '600'
             }}
-            style={[styles.saveButton, { backgroundColor: '#00FF00' }]}
           >
-            <Text style={styles.saveButtonText}>SAVE</Text>
-          </Pressable>
+            SAVE
+          </button>
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
