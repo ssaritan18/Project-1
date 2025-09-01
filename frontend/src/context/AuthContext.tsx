@@ -22,6 +22,7 @@ export type Credentials = {
 type AuthContextType = {
   isAuthed: boolean;
   user: User | null;
+  loading: boolean;
   palette: Palette;
   token: string | null;
   setPalette: (p: Palette) => void;
