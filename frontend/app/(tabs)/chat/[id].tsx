@@ -13,11 +13,10 @@ import * as ImagePicker from 'expo-image-picker';
 
 export default function ChatDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { chats, messagesByChat, sendText, sendVoice, sendVoiceMock, markRead, reactMessage } = useChat();
+  const { chats, messagesByChat, sendText, markRead, reactMessage } = useChat();
   const { mode } = useRuntimeConfig();
   const insets = useSafeAreaInsets();
   const [text, setText] = React.useState("");
-  const [isRecordingVoice, setIsRecordingVoice] = React.useState(false);
   const [isUploadingMedia, setIsUploadingMedia] = React.useState(false);
   const chat = chats.find((c) => c.id === id);
   const msgs = messagesByChat[id || ""] || [];
