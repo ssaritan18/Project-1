@@ -187,8 +187,8 @@
         -agent: "main"
         -comment: "✅ IMPLEMENTED: Fixed ProfilePictureUpload component by importing useRuntimeConfig context and updating authentication checks. Added proper error handling and improved user feedback. Backend endpoint POST /api/profile/picture tested and confirmed working. Component now supports both camera and gallery access with proper permissions handling."
   - task: "Theme Preference Fix"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "/app/frontend/app/profile/settings.tsx"
     stuck_count: 0
     priority: "high"
@@ -197,6 +197,9 @@
         -working: false
         -agent: "main"
         -comment: "USER REPORTED: Theme switching (dark/light/auto) under Settings → Preferences not working properly. Need to fix functionality so selected theme applies instantly across entire app. Also remove language selection - app should only support English."
+        -working: true
+        -agent: "main"
+        -comment: "✅ IMPLEMENTED: Removed language selection as requested - app now only supports English. Added applyTheme function that uses Appearance.setColorScheme to apply theme changes instantly. Theme switching now provides immediate user feedback with success alerts. Enhanced theme options with clear descriptions (Auto, Dark, Light)."
   - task: "Chat Media Upload Frontend"
     implemented: false
     working: false
