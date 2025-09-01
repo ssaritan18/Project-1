@@ -358,12 +358,8 @@
   run_ui: false
 ## test_plan:
   current_focus:
-    - "Edit Profile Button Navigation Fix"
-    - "Profile Photo Upload Implementation"
-    - "Theme Preference Functionality Fix"
-    - "Chat Media Upload Features"
-    - "Voice Recorder Bug Fix"
     - "Homepage Test Button Removal"
+    - "Theme Preference Fix"
   stuck_tasks:
   test_all: false
   test_priority: "high_first"
