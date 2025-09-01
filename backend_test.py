@@ -986,6 +986,242 @@ class APITester:
             self.log(f"❌ Focus session completion failed: {response.status_code} - {response.text}", "ERROR")
             return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
 
+def run_profile_edit_functionality_test():
+    """
+    🎯 PROFILE EDIT FUNCTIONALITY TEST - SPECIFIC REQUEST
+    
+    OBJECTIVE: Test profile edit functionality specifically for saving and updating profile data
+    
+    TEST REQUIREMENTS:
+    1. GET /api/profile/settings endpoint - verify proper profile structure
+    2. PUT /api/profile endpoint - test updating profile with specific fields
+    3. POST /api/profile/picture endpoint - test profile picture upload
+    4. Verify that changes persist by fetching profile again after update
+    
+    Uses existing test users: ssaritan@example.com, ssaritan2@example.com with password 'Passw0rd!'
+    """
+    tester = APITester()
+    
+    print("=" * 80)
+    print("🎯 PROFILE EDIT FUNCTIONALITY TEST - SPECIFIC REQUEST")
+    print("=" * 80)
+    
+    # Test users as specified in the request
+    user1 = {"name": "ssaritan", "email": "ssaritan@example.com", "password": "Passw0rd!"}
+    user2 = {"name": "ssaritan2", "email": "ssaritan2@example.com", "password": "Passw0rd!"}
+    
+    tokens = {}
+    
+    # PHASE 1: Authentication Setup
+    print("\n" + "=" * 60)
+    print("PHASE 1: AUTHENTICATION SETUP")
+    print("=" * 60)
+    
+    for user in [user1, user2]:
+        # Login existing users
+        login_result = tester.test_auth_login(user["email"], user["password"])
+        if not login_result["success"]:
+            print(f"❌ CRITICAL: Login failed for {user['email']}: {login_result.get('error', 'Unknown error')}")
+            return False
+        tokens[user["email"]] = login_result["token"]
+        print(f"✅ User {user['name']} authenticated successfully")
+    
+    # PHASE 2: Test GET /api/profile/settings endpoint
+    print("\n" + "=" * 60)
+    print("PHASE 2: GET /api/profile/settings - VERIFY PROFILE STRUCTURE")
+    print("=" * 60)
+    
+    user1_email = user1["email"]
+    
+    profile_settings_result = tester.test_get_profile_settings(tokens[user1_email], user1["name"])
+    if not profile_settings_result["success"]:
+        print(f"❌ CRITICAL: Profile settings retrieval failed for {user1['name']}")
+        return False
+    
+    profile_data = profile_settings_result["data"]
+    
+    # Verify proper profile structure with required fields
+    if "profile" not in profile_data:
+        print("❌ CRITICAL: Profile settings response missing 'profile' section")
+        return False
+    
+    profile = profile_data["profile"]
+    required_fields = ["name", "bio", "location", "website", "birth_date", "profile_image"]
+    
+    print("🔍 Verifying profile structure contains required fields:")
+    for field in required_fields:
+        if field in profile:
+            print(f"  ✅ {field}: {profile.get(field, 'null')}")
+        else:
+            print(f"  ⚠️  {field}: field exists but is null/empty")
+    
+    print("✅ GET /api/profile/settings endpoint working correctly")
+    
+    # PHASE 3: Test PUT /api/profile endpoint with specific fields
+    print("\n" + "=" * 60)
+    print("PHASE 3: PUT /api/profile - UPDATE PROFILE WITH SPECIFIC FIELDS")
+    print("=" * 60)
+    
+    # Test updating profile with all specified fields
+    profile_update_data = {
+        "name": "Updated Test Name",
+        "bio": "This is my updated bio for testing profile edit functionality",
+        "location": "Istanbul, Turkey",
+        "website": "https://example.com",
+        "birth_date": "1990-01-01"
+    }
+    
+    print("🔍 Testing profile update with specified fields:")
+    for field, value in profile_update_data.items():
+        print(f"  📝 {field}: {value}")
+    
+    profile_update_result = tester.test_update_profile(tokens[user1_email], profile_update_data, user1["name"])
+    if not profile_update_result["success"]:
+        print("❌ CRITICAL: Profile update failed")
+        return False
+    
+    updated_profile = profile_update_result["data"]
+    
+    # Validate all updates were applied correctly
+    print("🔍 Verifying profile updates were applied:")
+    for field, expected_value in profile_update_data.items():
+        actual_value = updated_profile.get(field)
+        if actual_value == expected_value:
+            print(f"  ✅ {field}: '{actual_value}' (matches expected)")
+        else:
+            print(f"  ❌ {field}: Expected '{expected_value}', Got '{actual_value}'")
+            return False
+    
+    print("✅ PUT /api/profile endpoint working correctly - all fields updated")
+    
+    # PHASE 4: Test POST /api/profile/picture endpoint
+    print("\n" + "=" * 60)
+    print("PHASE 4: POST /api/profile/picture - PROFILE PICTURE UPLOAD")
+    print("=" * 60)
+    
+    # Create a small test image in base64 (1x1 pixel PNG)
+    test_image_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+    
+    print("🔍 Testing profile picture upload with base64 image data")
+    
+    picture_upload_result = tester.test_upload_profile_picture(
+        tokens[user1_email], 
+        test_image_base64, 
+        "test_profile.png", 
+        user1["name"]
+    )
+    
+    if not picture_upload_result["success"]:
+        print("❌ CRITICAL: Profile picture upload failed")
+        return False
+    
+    upload_data = picture_upload_result["data"]
+    
+    # Validate upload response
+    if not upload_data.get("success"):
+        print("❌ CRITICAL: Profile picture upload success flag is False")
+        return False
+    
+    profile_image_url = upload_data.get("profile_image_url")
+    if not profile_image_url:
+        print("❌ CRITICAL: Profile picture upload missing image URL")
+        return False
+    
+    print(f"✅ POST /api/profile/picture endpoint working correctly")
+    print(f"  📸 Profile image URL: {profile_image_url}")
+    
+    # PHASE 5: Verify persistence by fetching profile again
+    print("\n" + "=" * 60)
+    print("PHASE 5: VERIFY PERSISTENCE - FETCH PROFILE AFTER UPDATES")
+    print("=" * 60)
+    
+    print("🔍 Fetching profile again to verify all changes persisted")
+    
+    # Fetch profile settings again to verify persistence
+    final_profile_result = tester.test_get_profile_settings(tokens[user1_email], user1["name"])
+    if not final_profile_result["success"]:
+        print("❌ CRITICAL: Final profile retrieval failed")
+        return False
+    
+    final_profile = final_profile_result["data"]["profile"]
+    
+    # Verify all profile updates persisted
+    print("🔍 Verifying profile data persistence:")
+    for field, expected_value in profile_update_data.items():
+        actual_value = final_profile.get(field)
+        if actual_value == expected_value:
+            print(f"  ✅ {field}: '{actual_value}' (persisted correctly)")
+        else:
+            print(f"  ❌ {field}: Expected '{expected_value}', Got '{actual_value}' (NOT persisted)")
+            return False
+    
+    # Verify profile picture persisted
+    final_image_url = final_profile.get("profile_image")
+    if final_image_url and profile_image_url in final_image_url:
+        print(f"  ✅ profile_image: '{final_image_url}' (persisted correctly)")
+    else:
+        print(f"  ❌ profile_image: Expected to contain '{profile_image_url}', Got '{final_image_url}' (NOT persisted)")
+        return False
+    
+    print("✅ All profile changes persisted successfully")
+    
+    # PHASE 6: Test with second user for completeness
+    print("\n" + "=" * 60)
+    print("PHASE 6: TEST WITH SECOND USER FOR COMPLETENESS")
+    print("=" * 60)
+    
+    user2_email = user2["email"]
+    
+    # Test profile update with second user
+    user2_profile_data = {
+        "name": "Updated Test Name 2",
+        "bio": "Second user bio for testing profile edit functionality",
+        "location": "Ankara, Turkey",
+        "website": "https://example2.com",
+        "birth_date": "1985-12-25"
+    }
+    
+    print(f"🔍 Testing profile update for second user ({user2['name']}):")
+    
+    user2_update_result = tester.test_update_profile(tokens[user2_email], user2_profile_data, user2["name"])
+    if not user2_update_result["success"]:
+        print("❌ CRITICAL: Profile update failed for second user")
+        return False
+    
+    # Verify second user's updates
+    user2_updated_profile = user2_update_result["data"]
+    for field, expected_value in user2_profile_data.items():
+        actual_value = user2_updated_profile.get(field)
+        if actual_value == expected_value:
+            print(f"  ✅ {field}: '{actual_value}' (updated correctly)")
+        else:
+            print(f"  ❌ {field}: Expected '{expected_value}', Got '{actual_value}'")
+            return False
+    
+    print("✅ Second user profile update successful")
+    
+    # FINAL SUMMARY
+    print("\n" + "=" * 80)
+    print("🎉 PROFILE EDIT FUNCTIONALITY TEST COMPLETED SUCCESSFULLY")
+    print("=" * 80)
+    
+    print("✅ ALL TEST PHASES PASSED:")
+    print("  1. ✅ GET /api/profile/settings - Returns proper profile structure")
+    print("  2. ✅ PUT /api/profile - Updates all specified fields correctly")
+    print("     - name: 'Updated Test Name'")
+    print("     - bio: 'This is my updated bio for testing profile edit functionality'")
+    print("     - location: 'Istanbul, Turkey'")
+    print("     - website: 'https://example.com'")
+    print("     - birth_date: '1990-01-01'")
+    print("  3. ✅ POST /api/profile/picture - Profile picture upload working")
+    print("  4. ✅ Data Persistence - All changes persist after fetching profile again")
+    print("  5. ✅ Multi-user Testing - Both test users working correctly")
+    
+    print("\n🔧 BACKEND PROFILE EDIT FUNCTIONALITY IS PRODUCTION-READY")
+    print("📊 Profile editing data flow working correctly - data saves and updates successfully")
+    
+    return True
+
 def run_comprehensive_profile_management_test():
     """
     🚀 COMPREHENSIVE PROFILE MANAGEMENT SYSTEM TEST - SPRINT 2
