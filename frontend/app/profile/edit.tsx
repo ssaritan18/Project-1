@@ -253,9 +253,11 @@ export default function EditProfileScreen() {
       }
       */
     } catch (error) {
-      console.error('❌ Failed to save profile:', error);
-      Alert.alert('Error', `Failed to save profile: ${error.message}`);
+      console.error('❌ SAVE ERROR:', error);
+      console.error('❌ Error details:', error?.message || 'Unknown error');
+      Alert.alert('Error', 'Failed to save profile. Please try again.');
     } finally {
+      console.log('🔚 Save process completed, setting saving to false');
       setSaving(false);
     }
   };
