@@ -165,7 +165,7 @@ export function ProfilePictureUpload({ currentImageUrl, onUploadComplete }: Prof
           const reader = new FileReader();
           reader.onload = async (e) => {
             const base64 = e.target.result.split(',')[1]; // Remove data:image/jpeg;base64, prefix
-            await uploadImage(base64);
+            await uploadImage(base64, file.name || 'profile.jpg');
           };
           reader.readAsDataURL(file);
         } catch (error) {
