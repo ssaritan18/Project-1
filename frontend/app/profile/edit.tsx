@@ -10,6 +10,7 @@ import {
   Platform,
   ActivityIndicator,
   Pressable,
+  TouchableOpacity,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
