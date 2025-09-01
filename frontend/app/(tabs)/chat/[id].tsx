@@ -518,16 +518,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 4
   },
-  voiceRecorder: {
-    backgroundColor: "#FFE3A3",
-    padding: 12,
-    borderRadius: 20,
-  },
-  voiceRecorderActive: {
-    backgroundColor: "#FF7CA3",
-    padding: 12,
-    borderRadius: 20,
-    flex: 1,
+  recordingText: {
+    color: "#999",
+    fontSize: 14,
+    textAlign: 'center'
   },
   mediaButton: {
     backgroundColor: "#f0f0f0",
