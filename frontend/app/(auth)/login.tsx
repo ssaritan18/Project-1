@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Platform, TextInput, Alert, Switch } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, TextInput, Alert, Switch } from "react-native";
 import { useAuth } from "../../src/context/AuthContext";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -18,11 +18,7 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const validEmail = useMemo(() => {
-    const result = emailRegex.test(email.trim());
-    console.log("📧 EMAIL VALIDATION:", { email, result, trimmed: email.trim() });
-    return result;
-  }, [email]);
+  const validEmail = useMemo(() => emailRegex.test(email.trim()), [email]);
 
   // Load saved email on component mount
   useEffect(() => {
@@ -41,19 +37,14 @@ export default function Login() {
   }, []);
 
   const submit = async () => {
-    console.log("🚀 LOGIN SUBMIT CALLED", { email, password: password ? "***" : "", validEmail });
-    
     if (!validEmail) {
-      console.log("❌ Invalid email, showing alert");
-      Alert.alert("Invalid Email", "Please enter a valid email (e.g: test@example.com)");
+      Alert.alert("Geçersiz Email", "Lütfen geçerli bir email girin (örn: test@example.com)");
       return;
     }
     
-    console.log("✅ Email valid, starting login process");
     setIsLoading(true);
     
     try {
-      console.log("💾 Saving email preference...");
       // Save email if remember me is checked
       if (rememberMe) {
         await AsyncStorage.setItem(REMEMBER_EMAIL_KEY, email.trim());
@@ -61,23 +52,16 @@ export default function Login() {
         await AsyncStorage.removeItem(REMEMBER_EMAIL_KEY);
       }
       
-      console.log("🔐 Calling auth function...");
       if (password.trim().length > 0) {
-        console.log("📡 Using login with password");
         await login(email, password);
       } else {
-        console.log("📱 Using signIn without password");
         await signIn({ name, email });
       }
-      
-      console.log("✅ Auth successful, navigating...");
       router.replace("/(tabs)");
     } catch (error) {
-      console.error("❌ LOGIN ERROR:", error);
-      Alert.alert("Login Error", `Error: ${error.message || 'Please check your email/password and try again'}`);
+      Alert.alert("Giriş Hatası", "Email/şifre kontrol edin ve tekrar deneyin");
     } finally {
       setIsLoading(false);
-      console.log("🏁 Login process completed");
     }
   };
 
@@ -87,7 +71,7 @@ export default function Login() {
       await signIn({ name: name || "Google User", email });
       router.replace("/(tabs)");
     } catch (error) {
-      Alert.alert("Login Error", "Google login failed");
+      Alert.alert("Giriş Hatası", "Google girişinde sorun oluştu");
     } finally {
       setIsLoading(false);
     }
@@ -95,7 +79,7 @@ export default function Login() {
 
   const reset = async () => {
     await resetCredentials();
-    Alert.alert("Reset Complete", "All data has been reset");
+    Alert.alert("Sıfırlandı", "Tüm veriler sıfırlandı");
   };
 
   return (
@@ -104,7 +88,7 @@ export default function Login() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>ADHDers Social Club</Text>
-          <Text style={styles.subtitle}>Welcome! Login or create a new account</Text>
+          <Text style={styles.subtitle}>Hoş geldiniz! Giriş yapın veya yeni hesap oluşturun</Text>
         </View>
 
         {/* Login Form */}
@@ -112,7 +96,7 @@ export default function Login() {
           <Text style={styles.label}>Email</Text>
           <TextInput
             style={[styles.input, { borderColor: validEmail ? '#B8F1D9' : '#333' }]}
-            placeholder="Enter your email address"
+            placeholder="Email adresinizi girin"
             placeholderTextColor="#777"
             value={email}
             onChangeText={setEmail}
@@ -122,20 +106,20 @@ export default function Login() {
             editable={!isLoading}
           />
 
-          <Text style={styles.label}>Name (Optional)</Text>
+          <Text style={styles.label}>İsim (İsteğe Bağlı)</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter your name"
+            placeholder="Adınızı girin"
             placeholderTextColor="#777"
             value={name}
             onChangeText={setName}
             editable={!isLoading}
           />
 
-          <Text style={styles.label}>Password (Optional)</Text>
+          <Text style={styles.label}>Şifre (Varsa)</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter your password"
+            placeholder="Şifrenizi girin"
             placeholderTextColor="#777"
             value={password}
             onChangeText={setPassword}
@@ -151,112 +135,54 @@ export default function Login() {
               trackColor={{ false: '#333', true: '#B8F1D9' }}
               thumbColor={rememberMe ? '#000' : '#666'}
             />
-            <Text style={styles.rememberText}>Remember my email</Text>
+            <Text style={styles.rememberText}>Email adresimi hatırla</Text>
           </View>
 
-          {/* Submit Button - Web Compatible */}
-          <View style={[styles.submitBtn, { opacity: validEmail && !isLoading ? 1 : 0.5 }]}>
-            <button
-              type="button"
-              onClick={() => {
-                console.log("🚨 BUTTON CLICKED - HTML HANDLER", { validEmail, isLoading });
-                submit();
-              }}
-              disabled={!validEmail || isLoading}
-              style={{
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'transparent',
-                border: 'none',
-                color: '#000',
-                fontSize: 16,
-                fontWeight: '700',
-                cursor: validEmail && !isLoading ? 'pointer' : 'not-allowed',
-                outline: 'none',
-              }}
-            >
-              {isLoading ? (
-                "Logging in..."
-              ) : (
-                password ? 'Login' : 'Quick Login'
-              )}
-            </button>
-          </View>
+          {/* Submit Button */}
+          <TouchableOpacity 
+            style={[styles.submitBtn, { opacity: validEmail && !isLoading ? 1 : 0.5 }]} 
+            onPress={submit}
+            disabled={!validEmail || isLoading}
+          >
+            {isLoading ? (
+              <Text style={styles.submitText}>Giriş yapılıyor...</Text>
+            ) : (
+              <Text style={styles.submitText}>
+                {password ? 'Giriş Yap' : 'Hızlı Giriş'}
+              </Text>
+            )}
+          </TouchableOpacity>
 
           {/* Alternative Actions */}
           <View style={styles.alternativeActions}>
-            <button
-              onClick={submitMockGoogle}
+            <TouchableOpacity 
+              style={[styles.altBtn, { backgroundColor: '#FFE3A3' }]} 
+              onPress={submitMockGoogle}
               disabled={!validEmail || isLoading}
-              style={{
-                backgroundColor: '#FFE3A3',
-                flexDirection: 'row',
-                alignItems: 'center',
-                padding: '12px 20px',
-                borderRadius: '25px',
-                border: 'none',
-                cursor: 'pointer',
-                marginVertical: '4px',
-                minWidth: '160px',
-                justifyContent: 'center',
-                opacity: (!validEmail || isLoading) ? 0.5 : 1
-              }}
             >
-              <span style={{ marginRight: '8px' }}>🌐</span>
-              <span style={{ color: '#000', fontSize: '14px', fontWeight: '600' }}>Login with Google</span>
-            </button>
+              <Ionicons name="logo-google" size={16} color="#000" />
+              <Text style={styles.altBtnText}>Google ile Giriş</Text>
+            </TouchableOpacity>
 
-            <button
-              onClick={reset}
+            <TouchableOpacity 
+              style={[styles.altBtn, { backgroundColor: '#FFCFE1' }]} 
+              onPress={reset}
               disabled={isLoading}
-              style={{
-                backgroundColor: '#FFCFE1',
-                flexDirection: 'row',
-                alignItems: 'center',
-                padding: '12px 20px',
-                borderRadius: '25px',
-                border: 'none',
-                cursor: 'pointer',
-                marginVertical: '4px',
-                minWidth: '160px',
-                justifyContent: 'center',
-                opacity: isLoading ? 0.5 : 1
-              }}
             >
-              <span style={{ marginRight: '8px' }}>🔄</span>
-              <span style={{ color: '#000', fontSize: '14px', fontWeight: '600' }}>Reset Data</span>
-            </button>
+              <Ionicons name="refresh" size={16} color="#000" />
+              <Text style={styles.altBtnText}>Verileri Sıfırla</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Navigation */}
           <View style={styles.navigation}>
-            <button 
-              onClick={() => router.push("/(auth)/signup")}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                marginVertical: '8px'
-              }}
-            >
-              <span style={{ color: '#4A90E2', fontSize: '14px', textDecoration: 'underline' }}>
-                Don't have an account? Sign up
-              </span>
-            </button>
+            <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
+              <Text style={styles.linkText}>Hesabınız yok mu? Kaydolun</Text>
+            </TouchableOpacity>
             
-            <button 
-              onClick={() => router.push("/(auth)/forgot-pin")}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                marginVertical: '8px'
-              }}
-            >
-              <span style={{ color: '#4A90E2', fontSize: '14px', textDecoration: 'underline' }}>
-                Forgot Password
-              </span>
-            </button>
+            <TouchableOpacity onPress={() => router.push("/(auth)/forgot-pin")}>
+              <Text style={styles.linkText}>Şifremi Unuttum</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
