@@ -151,7 +151,7 @@ export default function Login() {
               trackColor={{ false: '#333', true: '#B8F1D9' }}
               thumbColor={rememberMe ? '#000' : '#666'}
             />
-            <Text style={styles.rememberText}>Email adresimi hatırla</Text>
+            <Text style={styles.rememberText}>Remember my email</Text>
           </View>
 
           {/* Submit Button - Web Compatible */}
