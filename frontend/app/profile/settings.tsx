@@ -27,7 +27,6 @@ type SettingsData = {
   };
   preferences: {
     theme: string;
-    language: string;
   };
 };
 
