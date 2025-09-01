@@ -51,9 +51,13 @@ export default function EditProfileScreen() {
   const loadProfileData = async () => {
     console.log('🔄 loadProfileData called:', { mode, isAuthenticated, hasToken: !!user?.token });
     
+    // HER DURUMDA localStorage'dan yükle önce
+    console.log('📱 FORCED OFFLINE MODE: Always loading from localStorage first...');
+    await loadFromLocalStorage();
+    
+    // Eğer sync mode ve token varsa, backend'den de dene (optional)
     if (mode === 'sync' && isAuthenticated && user?.token) {
-      console.log('🌐 SYNC MODE: Loading from backend...');
-      setLoading(true);
+      console.log('🌐 SYNC MODE: Also trying backend...');
       try {
         const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/profile/settings`, {
           headers: {
@@ -73,20 +77,11 @@ export default function EditProfileScreen() {
             birth_date: profile.birth_date || '',
             profile_image: profile.profile_image || '',
           });
-          console.log('✅ Profile loaded from backend!');
-        } else {
-          throw new Error(`Failed to load profile: ${response.status}`);
+          console.log('✅ Profile loaded from backend and overwrote localStorage!');
         }
       } catch (error) {
-        console.error('❌ Backend load failed, falling back to localStorage:', error);
-        // Fallback to localStorage
-        await loadFromLocalStorage();
-      } finally {
-        setLoading(false);
+        console.log('❌ Backend failed, keeping localStorage data:', error);
       }
-    } else {
-      console.log('📱 OFFLINE MODE or NO TOKEN: Loading from localStorage...');
-      await loadFromLocalStorage();
     }
   };
 
