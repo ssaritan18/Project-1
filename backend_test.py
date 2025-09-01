@@ -1054,21 +1054,21 @@ def run_profile_edit_functionality_test():
     print("=" * 60)
     
     for user in [user1, user2]:
-        # Try to login first, if it fails, register the user
+        # Try to login first, if it fails, create the user directly in database
         login_result = tester.test_auth_login(user["email"], user["password"])
         if not login_result["success"]:
-            print(f"⚠️ User {user['email']} doesn't exist, creating user...")
-            # Register the user
-            register_result = tester.test_auth_register(user["name"], user["email"], user["password"])
-            if not register_result["success"]:
-                print(f"❌ CRITICAL: Registration failed for {user['email']}: {register_result.get('error', 'Unknown error')}")
+            print(f"⚠️ User {user['email']} doesn't exist, creating verified user directly...")
+            # Create user directly in database (bypassing email verification for testing)
+            success = tester.create_verified_user_directly(user["name"], user["email"], user["password"])
+            if not success:
+                print(f"❌ CRITICAL: Failed to create user {user['email']}")
                 return False
-            print(f"✅ User {user['name']} registered successfully")
+            print(f"✅ User {user['name']} created successfully")
             
             # Now login
             login_result = tester.test_auth_login(user["email"], user["password"])
             if not login_result["success"]:
-                print(f"❌ CRITICAL: Login failed after registration for {user['email']}: {login_result.get('error', 'Unknown error')}")
+                print(f"❌ CRITICAL: Login failed after user creation for {user['email']}: {login_result.get('error', 'Unknown error')}")
                 return False
         
         tokens[user["email"]] = login_result["token"]
