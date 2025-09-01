@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Modal, Alert, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Modal, Alert, ScrollView, Image } from "react-native";
 import DraggableFlatList, { ScaleDecorator } from "react-native-draggable-flatlist";
 import { useTasks } from "../../src/context/TasksContext";
 import { useAuth } from "../../src/context/AuthContext";
@@ -341,22 +341,35 @@ export default function HomeScreen() {
         </View>
       </View>
       
+      {/* Logo Header */}
+      <View style={styles.logoHeader}>
+        <View style={styles.logoContainer}>
+          <Image 
+            source={{ uri: "https://customer-assets.emergentagent.com/job_profile-wizard-9/artifacts/e7sw25g5_image.png" }}
+            style={styles.circularLogo}
+            resizeMode="contain"
+          />
+        </View>
+        <Text style={styles.appTitle}>ADHDers Social Club</Text>
+        <Text style={styles.welcomeText}>Welcome back! 🧠💖</Text>
+      </View>
+
       {/* Action Buttons */}
       <TouchableOpacity 
-        style={[styles.testButton, { backgroundColor: '#FFD700' }]} 
+        style={[styles.gradientButton, styles.addTaskButton]} 
         onPress={handleAddTask}
       >
-        <Text style={[styles.testButtonText, { color: '#000' }]}>✨ Add New Task</Text>
+        <Text style={styles.gradientButtonText}>✨ Add New Task</Text>
       </TouchableOpacity>
       
       <TouchableOpacity 
-        style={[styles.testButton, { backgroundColor: '#00C851', marginTop: 10 }]} 
+        style={[styles.gradientButton, styles.dashboardButton]} 
         onPress={() => {
           setShowFullDashboard(true);
           Alert.alert("🚀 Loading!", "Switching to full ADHD dashboard...");
         }}
       >
-        <Text style={styles.testButtonText}>🚀 Show ADHD Dashboard</Text>
+        <Text style={styles.gradientButtonText}>🚀 Show ADHD Dashboard</Text>
       </TouchableOpacity>
     </View>
   );
@@ -368,7 +381,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#0c0c0c' 
   },
   header: { color: "#fff", fontSize: 28, fontWeight: "900", textAlign: "center", marginVertical: 20 },
-  testText: { color: "#fff", fontSize: 18, textAlign: "center", marginVertical: 10, paddingHorizontal: 20 },
   testButton: { 
     backgroundColor: "#A3C9FF", 
     padding: 16, 
@@ -838,5 +850,55 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
   },
+  // Logo Header Styles
+  logoHeader: {
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+  },
+  logoContainer: {
+    marginBottom: 12,
+  },
+  circularLogo: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: '#A3C9FF',
+  },
+  appTitle: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: '900',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  welcomeText: {
+    color: '#999',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  // Gradient Button Styles
+  gradientButton: {
+    padding: 16,
+    borderRadius: 12,
+    margin: 20,
+    alignItems: 'center',
+    borderWidth: 2,
+  },
+  addTaskButton: {
+    backgroundColor: '#FFD700',
+    borderColor: '#FFC107',
+  },
+  dashboardButton: {
+    backgroundColor: '#00C851',
+    borderColor: '#00A040',
+    marginTop: 10,
+  },
+  gradientButtonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000',
   },
 });
