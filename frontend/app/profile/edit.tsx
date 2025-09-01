@@ -266,26 +266,21 @@ export default function EditProfileScreen() {
               console.log('🚀 SAVE BUTTON CLICKED!');
               
               try {
-                // Form data'yı al
-                const nameInput = document.querySelector('input[placeholder*="name"]');
-                const bioInput = document.querySelector('textarea[placeholder*="bio"]');
-                const locationInput = document.querySelector('input[placeholder*="location"]');
-                const websiteInput = document.querySelector('input[placeholder*="website"]');
-                
-                const profileData = {
-                  name: nameInput?.value || '',
-                  bio: bioInput?.value || '',
-                  location: locationInput?.value || '',
-                  website: websiteInput?.value || '',
-                  birth_date: ''
+                // React state'den al (DOM'dan değil!)
+                const profileDataToSave = {
+                  name: profileData.name || '',
+                  bio: profileData.bio || '',
+                  location: profileData.location || '',
+                  website: profileData.website || '',
+                  birth_date: profileData.birth_date || ''
                 };
                 
-                console.log('💾 Saving profile data:', profileData);
+                console.log('💾 Saving profile data from React state:', profileDataToSave);
                 
                 // OFFLINE MODE - Direkt localStorage'a kaydet
                 console.log('💾 OFFLINE MODE: Saving to localStorage...');
-                localStorage.setItem('user_profile', JSON.stringify(profileData));
-                console.log('✅ Saved to localStorage:', profileData);
+                localStorage.setItem('user_profile', JSON.stringify(profileDataToSave));
+                console.log('✅ Saved to localStorage:', profileDataToSave);
                 
                 alert('✅ Profile Saved Successfully (Offline Mode)!');
                 
@@ -296,7 +291,7 @@ export default function EditProfileScreen() {
                 console.error('❌ Save error:', error);
                 alert('❌ Save failed: ' + error.message);
               }
-            }}
+            }}}
             style={{
               backgroundColor: '#4A90E2',
               color: 'white',
