@@ -4,12 +4,12 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
   ScrollView,
   Alert,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Pressable,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
