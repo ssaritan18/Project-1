@@ -551,6 +551,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     flex: 1,
   },
+  mediaButton: {
+    backgroundColor: "#f0f0f0",
+    padding: 12,
+    borderRadius: 20,
+    marginRight: 8,
+  },
+  uploadingText: {
+    color: "#4A90E2",
+    fontSize: 12,
+    fontWeight: "600",
+  },
   recordingMode: {
     flexDirection: "row",
     alignItems: "center",
