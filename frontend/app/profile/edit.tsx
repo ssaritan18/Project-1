@@ -174,15 +174,13 @@ export default function EditProfileScreen() {
           </TouchableOpacity>
           <Text style={styles.title}>Edit Profile</Text>
           <TouchableOpacity
-            onPress={handleSave}
-            disabled={saving}
-            style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+            onPress={() => {
+              console.log('🚀 SAVE BUTTON PRESSED!');
+              Alert.alert('TEST', 'Save button works!');
+            }}
+            style={[styles.saveButton]}
           >
-            {saving ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <Text style={styles.saveButtonText}>Save</Text>
-            )}
+            <Text style={styles.saveButtonText}>SAVE TEST</Text>
           </TouchableOpacity>
         </View>
 
