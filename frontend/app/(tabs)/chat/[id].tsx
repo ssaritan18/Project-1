@@ -271,45 +271,37 @@ export default function ChatDetail() {
 
         {/* Message Composer */}
         <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-          {!isRecordingVoice ? (
-            <>
-              <TouchableOpacity 
-                onPress={handleMediaUpload}
-                style={styles.mediaButton}
-                disabled={isUploadingMedia}
-              >
-                {isUploadingMedia ? (
-                  <Text style={styles.uploadingText}>...</Text>
-                ) : (
-                  <Ionicons name="attach" size={20} color="#4A90E2" />
-                )}
-              </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={handleMediaUpload}
+            style={styles.mediaButton}
+            disabled={isUploadingMedia}
+          >
+            {isUploadingMedia ? (
+              <Text style={styles.uploadingText}>...</Text>
+            ) : (
+              <Ionicons name="attach" size={20} color="#4A90E2" />
+            )}
+          </TouchableOpacity>
 
-              <TextInput
-                style={styles.input}
-                placeholder="Type a message..."
-                placeholderTextColor="#777"
-                value={text}
-                onChangeText={setText}
-                multiline
-                maxLength={500}
-                onSubmitEditing={onSend}
-                blurOnSubmit={false}
-                returnKeyType="send"
-              />
-              <TouchableOpacity 
-                onPress={onSend} 
-                style={[styles.sendBtn, { opacity: text.trim() ? 1 : 0.5 }]} 
-                disabled={!text.trim()}
-              >
-                <Ionicons name="send" size={18} color="#000" />
-              </TouchableOpacity>
-            </>
-          ) : (
-            <View style={styles.recordingMode}>
-              <Text style={styles.recordingText}>Voice recording removed</Text>
-            </View>
-          )}
+          <TextInput
+            style={styles.input}
+            placeholder="Type a message..."
+            placeholderTextColor="#777"
+            value={text}
+            onChangeText={setText}
+            multiline
+            maxLength={500}
+            onSubmitEditing={onSend}
+            blurOnSubmit={false}
+            returnKeyType="send"
+          />
+          <TouchableOpacity 
+            onPress={onSend} 
+            style={[styles.sendBtn, { opacity: text.trim() ? 1 : 0.5 }]} 
+            disabled={!text.trim()}
+          >
+            <Ionicons name="send" size={18} color="#000" />
+          </TouchableOpacity>
         </View>
         </View>
     </KeyboardAvoidingView>
