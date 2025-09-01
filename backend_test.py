@@ -60,7 +60,7 @@ class APITester:
         async def create_user():
             try:
                 client = AsyncIOMotorClient(os.environ.get('MONGO_URL', 'mongodb://localhost:27017'))
-                db = client.adhd_app
+                db = client.test_database
                 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
                 
                 uid = str(uuid.uuid4())
