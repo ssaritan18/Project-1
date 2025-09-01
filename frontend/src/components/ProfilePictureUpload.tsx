@@ -95,6 +95,7 @@ export function ProfilePictureUpload({ currentImageUrl, onUploadComplete }: Prof
       const mockUrl = `data:image/jpeg;base64,${base64Data}`;
       onUploadComplete(mockUrl);
       Alert.alert('Success', 'Profile picture updated (local mode)!');
+      setUploading(false);
     }
   };
 
