@@ -45,7 +45,7 @@ export default function Login() {
     
     if (!validEmail) {
       console.log("❌ Invalid email, showing alert");
-      Alert.alert("Geçersiz Email", "Lütfen geçerli bir email girin (örn: test@example.com)");
+      Alert.alert("Invalid Email", "Please enter a valid email (e.g: test@example.com)");
       return;
     }
     
