@@ -466,7 +466,7 @@ export default function ProfileScreen() {
         colors={['#FF3CAC', '#B74BFF', '#00CFFF']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={[styles.gradientHeader, { paddingTop: insets.top + 20 }]}
+        style={[styles.glowHeader, { paddingTop: insets.top + 20 }]}
       >
         {/* Profile Header with Modern Card Design */}
         <View style={styles.modernProfileCard}>
