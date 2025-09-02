@@ -67,10 +67,56 @@ export function TaskCard({ task, onIncrement, onDelete, onDrag }: { task: any; o
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: "#111", borderRadius: 16, padding: 12, marginBottom: 12, flexDirection: "row", alignItems: "center" },
-  title: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  meta: { color: "#bdbdbd", marginTop: 6, fontSize: 12 },
-  actions: { marginLeft: 8, gap: 8, flexDirection: 'row' },
-  iconBtn: { padding: 8 },
-  dragHandle: { paddingHorizontal: 6, marginRight: 6 },
+  card: { 
+    borderRadius: 16, 
+    padding: 16, 
+    marginBottom: 12, 
+    flexDirection: "row", 
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  title: { 
+    color: "#fff", 
+    fontSize: 16, 
+    fontWeight: "700",
+    flex: 1,
+  },
+  meta: { 
+    color: "#E5E7EB", 
+    marginTop: 8, 
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  completedBadge: {
+    backgroundColor: 'rgba(255, 179, 71, 0.2)',
+    borderRadius: 12,
+    padding: 4,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 179, 71, 0.4)',
+  },
+  progressContainer: {
+    marginBottom: 4,
+  },
+  progressBar: {
+    borderRadius: 4,
+  },
+  actions: { 
+    marginLeft: 12, 
+    gap: 8, 
+    flexDirection: 'row' 
+  },
+  actionBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dragHandle: { 
+    paddingHorizontal: 8, 
+    marginRight: 8,
+    paddingVertical: 4,
+  },
 });
