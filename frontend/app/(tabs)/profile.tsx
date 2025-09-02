@@ -300,16 +300,23 @@ export default function ProfileScreen() {
         );
       case 'stats':
         return (
-          <ProfileStatistics
-            weeklyStats={weeklyStats}
-            monthlyStats={monthlyStats}
-            totalStats={{
-              tasksCompleted: done,
-              communityPosts: 3,
-              friendsCount: 5,
-              achievementsUnlocked: completionStats.unlocked
-            }}
-          />
+          <View style={styles.modernTabContent}>
+            <LinearGradient
+              colors={['rgba(74, 144, 226, 0.1)', 'rgba(108, 92, 231, 0.1)']}
+              style={styles.modernCard}
+            >
+              <ProfileStatistics
+                weeklyStats={weeklyStats}
+                monthlyStats={monthlyStats}
+                totalStats={{
+                  tasksCompleted: done,
+                  communityPosts: 3,
+                  friendsCount: 5,
+                  achievementsUnlocked: completionStats.unlocked
+                }}
+              />
+            </LinearGradient>
+          </View>
         );
       case 'completion':
         return (
