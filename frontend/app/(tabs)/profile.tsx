@@ -460,7 +460,10 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: 0 }]}>
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#0f172a']}
+      style={[styles.container]}
+    >
       {/* Glow-Inspired Gradient Header */}
       <LinearGradient
         colors={['#8B5CF6', '#A855F7', '#EC4899', '#F97316']}
