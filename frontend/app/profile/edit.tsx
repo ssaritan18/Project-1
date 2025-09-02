@@ -50,7 +50,7 @@ export default function EditProfileScreen() {
     const immediateLoad = async () => {
       console.log('📂 IMMEDIATE localStorage check...');
       try {
-        const savedProfile = localStorage.getItem('user_profile');
+        const savedProfile = localStorage.getItem('profile_data');
         console.log('📂 Immediate localStorage data:', savedProfile);
         
         if (savedProfile) {
