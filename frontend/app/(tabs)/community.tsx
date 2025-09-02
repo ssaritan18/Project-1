@@ -339,6 +339,7 @@ export default function CommunityScreen() {
             showsVerticalScrollIndicator={false}
           />
         )}
+        </ScrollView>
 
         <CreatePostModal
           visible={showCreateModal}
