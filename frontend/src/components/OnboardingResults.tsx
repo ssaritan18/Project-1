@@ -242,7 +242,7 @@ export function OnboardingResults({ result, onContinue }: OnboardingResultsProps
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0c0c0c',
+    backgroundColor: 'transparent', // Transparent to show parent gradient
   },
   content: {
     flex: 1,
@@ -260,11 +260,15 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#fff',
     fontSize: 28,
-    fontWeight: '700',
+    fontWeight: '900',
     marginBottom: 8,
+    textAlign: 'center',
+    textShadowColor: '#8B5CF6',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 8,
   },
   headerSubtitle: {
-    color: '#aaa',
+    color: '#E5E7EB',
     fontSize: 16,
     textAlign: 'center',
     lineHeight: 22,
