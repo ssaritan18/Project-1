@@ -11,6 +11,7 @@ import { FriendsProvider } from "../src/context/FriendsContext";
 import { ChatProvider } from "../src/context/ChatContext";
 import { ErrorBoundary } from "../src/components/ErrorBoundary";
 import { CommunityProvider } from "../src/context/CommunityContext";
+import { MoodProvider } from "../src/context/MoodContext";
 
 const theme = {
   ...MD3LightTheme,
