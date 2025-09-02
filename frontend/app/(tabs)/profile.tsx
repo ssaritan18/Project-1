@@ -33,6 +33,7 @@ export default function ProfileScreen() {
   console.log("🏠 ProfileScreen rendering with ADHD-friendly enhancements...");
   const { user, signOut, palette, setPalette, token } = useAuth();
   const { syncEnabled, setSyncEnabled, wsEnabled, setWsEnabled } = useRuntimeConfig();
+  const { subscription } = useSubscription();
   const insets = useSafeAreaInsets();
   const { tasks } = useTasks();
   const { streak, refresh } = useStreak();
