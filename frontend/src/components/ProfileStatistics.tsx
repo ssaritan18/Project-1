@@ -8,6 +8,8 @@ import {
   Dimensions,
   ScrollView,
 } from 'react-native';
+import { useMood, MOOD_CONFIG } from '../context/MoodContext';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type StatisticData = {
   label: string;
