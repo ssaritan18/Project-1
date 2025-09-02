@@ -515,8 +515,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(139, 92, 246, 0.3)',
   },
   skipText: {
-    color: '#888',
+    color: '#E5E7EB',
     fontSize: 16,
+    fontWeight: '600',
   },
   headerCenter: {
     flex: 1,
