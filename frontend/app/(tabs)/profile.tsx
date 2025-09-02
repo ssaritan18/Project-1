@@ -461,7 +461,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: 0 }]}>
-      {/* Modern Gradient Header - Behance Inspired */}
+      {/* Glow-Inspired Gradient Header */}
       <LinearGradient
         colors={['#FF3CAC', '#B74BFF', '#00CFFF']}
         start={{ x: 0, y: 0 }}
