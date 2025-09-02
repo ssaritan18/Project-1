@@ -173,43 +173,138 @@ export default function CommunityScreen() {
     </View>
   );
 
+  // Hot Topics Data - Glow Inspired
+  const hotTopics = [
+    {
+      id: '1',
+      title: '🎯 ADHD Focus Techniques',
+      description: 'Share your best focus strategies and tips',
+      participants: 1247,
+      color: '#8B5CF6',
+      gradient: ['#8B5CF6', '#A855F7'],
+      icon: '🎯',
+      trending: true
+    },
+    {
+      id: '2', 
+      title: '💊 Medication Experiences',
+      description: 'Open discussion about ADHD medications',
+      participants: 892,
+      color: '#EC4899',
+      gradient: ['#EC4899', '#F97316'],
+      icon: '💊',
+      trending: false
+    },
+    {
+      id: '3',
+      title: '🎨 Creative ADHD Minds',
+      description: 'Show off your creative projects and art',
+      participants: 1156,
+      color: '#F97316',
+      gradient: ['#F97316', '#FBBF24'],
+      icon: '🎨',
+      trending: true
+    },
+    {
+      id: '4',
+      title: '🏢 Workplace Success',
+      description: 'Navigate work life with ADHD',
+      participants: 743,
+      color: '#10B981',
+      gradient: ['#10B981', '#34D399'],
+      icon: '🏢',
+      trending: false
+    },
+    {
+      id: '5',
+      title: '💚 Mental Health Check',
+      description: 'Support and self-care discussions',
+      participants: 1834,
+      color: '#6366F1',
+      gradient: ['#6366F1', '#8B5CF6'],
+      icon: '💚',
+      trending: true
+    }
+  ];
+
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#0f172a']}
       style={styles.container}
     >
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        {/* Single-tap refresh area */}
-        <TouchableOpacity 
-          style={styles.refreshArea}
-          onPress={handleSingleTapRefresh}
-          activeOpacity={0.7}
-          disabled={isRefreshAnimating}
+      <View style={[styles.contentContainer, { paddingTop: insets.top + 20 }]}>
+        {/* Glow Header */}
+        <LinearGradient
+          colors={['#8B5CF6', '#EC4899', '#F97316']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.glowHeader}
         >
-          <Animated.View 
-            style={[
-              styles.refreshIndicator,
-              {
-                opacity: refreshAnimRef,
-                transform: [{
-                  scale: refreshAnimRef.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.2]
-                  })
-                }]
-              }
-            ]}
-          >
-            <Ionicons 
-              name="refresh" 
-              size={20} 
-              color="#4A90E2" 
-            />
-            <Text style={styles.refreshText}>Tap to refresh</Text>
-          </Animated.View>
-        </TouchableOpacity>
-        
-        {renderHeader()}
+          <Text style={styles.glowHeaderTitle}>🌟 Community Hub</Text>
+          <Text style={styles.glowHeaderSubtitle}>Connect with fellow ADHDers</Text>
+        </LinearGradient>
+
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+        >
+          {/* Hot Topics Section */}
+          <View style={styles.hotTopicsSection}>
+            <Text style={styles.sectionTitle}>🔥 Hot Topics</Text>
+            <Text style={styles.sectionSubtitle}>Join the conversation</Text>
+            
+            {hotTopics.map((topic) => (
+              <TouchableOpacity
+                key={topic.id}
+                style={styles.hotTopicCard}
+                onPress={() => Alert.alert('Coming Soon!', `${topic.title} discussion board will launch soon!`)}
+              >
+                <LinearGradient
+                  colors={topic.gradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.hotTopicGradient}
+                >
+                  <View style={styles.hotTopicContent}>
+                    <View style={styles.hotTopicHeader}>
+                      <Text style={styles.hotTopicIcon}>{topic.icon}</Text>
+                      {topic.trending && (
+                        <View style={styles.trendingBadge}>
+                          <Text style={styles.trendingText}>TRENDING</Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text style={styles.hotTopicTitle}>{topic.title}</Text>
+                    <Text style={styles.hotTopicDescription}>{topic.description}</Text>
+                    <View style={styles.hotTopicFooter}>
+                      <Text style={styles.participantCount}>
+                        👥 {topic.participants.toLocaleString()} members
+                      </Text>
+                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.8)" />
+                    </View>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Community Posts Section */}
+          <View style={styles.postsSection}>
+            <View style={styles.postsSectionHeader}>
+              <Text style={styles.sectionTitle}>📝 Recent Posts</Text>
+              <TouchableOpacity 
+                onPress={() => setShowCreateModal(true)}
+                style={styles.createPostBtn}
+              >
+                <LinearGradient
+                  colors={['#EC4899', '#F97316']}
+                  style={styles.createPostGradient}
+                >
+                  <Ionicons name="add" size={20} color="#fff" />
+                  <Text style={styles.createPostText}>New Post</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
         
         {error && (
           <View style={styles.errorContainer}>
