@@ -361,9 +361,138 @@ export default function CommunityScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: "#000" 
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    flex: 1,
+  },
+  glowHeader: {
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+    borderRadius: 20,
+    marginHorizontal: 16,
+    marginBottom: 20,
+  },
+  glowHeaderTitle: {
+    color: '#fff',
+    fontSize: 28,
+    fontWeight: '900',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  glowHeaderSubtitle: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  hotTopicsSection: {
+    paddingHorizontal: 16,
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: '800',
+    marginBottom: 8,
+    textShadowColor: '#8B5CF6',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  sectionSubtitle: {
+    color: '#E5E7EB',
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  hotTopicCard: {
+    marginBottom: 16,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  hotTopicGradient: {
+    padding: 20,
+  },
+  hotTopicContent: {
+    
+  },
+  hotTopicHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  hotTopicIcon: {
+    fontSize: 28,
+  },
+  trendingBadge: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  trendingText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
+  hotTopicTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '800',
+    marginBottom: 8,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  hotTopicDescription: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 16,
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  hotTopicFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  participantCount: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  postsSection: {
+    paddingHorizontal: 16,
+  },
+  postsSectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  createPostBtn: {
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  createPostGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  createPostText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
+    marginLeft: 6,
   },
   headerContainer: { 
     flexDirection: 'row',
