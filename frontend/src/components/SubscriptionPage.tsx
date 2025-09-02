@@ -88,11 +88,16 @@ export function SubscriptionPage() {
       return;
     }
 
+    if (subscription.tier === 'premium') {
+      Alert.alert('Already Premium', 'You already have a premium subscription!');
+      return;
+    }
+
     setIsProcessing(true);
     
     try {
-      // Simulate subscription process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Use the subscription context to upgrade
+      await upgradeToPremium();
       
       Alert.alert(
         '🎉 Subscription Successful!',
