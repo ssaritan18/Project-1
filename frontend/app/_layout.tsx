@@ -12,6 +12,7 @@ import { ChatProvider } from "../src/context/ChatContext";
 import { ErrorBoundary } from "../src/components/ErrorBoundary";
 import { CommunityProvider } from "../src/context/CommunityContext";
 import { MoodProvider } from "../src/context/MoodContext";
+import { SubscriptionProvider } from "../src/context/SubscriptionContext";
 
 const theme = {
   ...MD3LightTheme,
