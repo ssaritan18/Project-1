@@ -945,4 +945,88 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
+  // Modern Empty Text Style
+  modernEmptyText: {
+    color: "rgba(255, 255, 255, 0.7)",
+    textAlign: "center",
+    fontStyle: "italic",
+    paddingVertical: 20,
+    fontSize: 16,
+  },
+  
+  // Modern Quick Stats Styles
+  modernQuickStats: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  modernStatCard: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 16,
+    alignItems: "center",
+    minHeight: 80,
+    justifyContent: "center",
+  },
+  modernStatEmoji: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  modernStatValue: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "800",
+    marginBottom: 4,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  modernStatLabel: {
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 12,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  
+  // Modern Action Grid Styles
+  modernActionGrid: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  modernActionBtn: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 16,
+    alignItems: "center",
+    minHeight: 80,
+    justifyContent: "center",
+  },
+  modernActionEmoji: {
+    fontSize: 20,
+    marginBottom: 8,
+  },
+  modernActionText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 14,
+    textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  
+  // Modern Sync Row Styles
+  modernSyncRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+  },
+  modernSyncLabel: {
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 16,
+    fontWeight: "600",
+  },
 });
