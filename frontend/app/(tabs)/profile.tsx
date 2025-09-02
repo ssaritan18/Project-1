@@ -1135,4 +1135,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  
+  // Subscription Badge Styles
+  subscriptionBadge: {
+    marginTop: 8,
+    alignSelf: 'flex-start',
+  },
+  subscriptionBadgeGradient: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  subscriptionBadgeEmoji: {
+    fontSize: 14,
+  },
+  subscriptionBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
 });
