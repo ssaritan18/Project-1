@@ -427,24 +427,25 @@ export function ADHDOnboarding({ onComplete, onSkip }: ADHDOnboardingProps) {
                   return (
                     <Animated.View
                       key={value}
-                      style={[
-                        styles.answerButton,
-                        { backgroundColor: `${option.color}20`, borderColor: option.color },
-                        { transform: [{ scale: scaleAnim }] }
-                      ]}
+                      style={[{ transform: [{ scale: scaleAnim }] }]}
                     >
                       <TouchableOpacity
                         onPress={() => handleAnswer(value)}
-                        style={styles.answerTouchable}
+                        style={styles.glowAnswerButton}
                       >
-                        <Text style={[styles.answerText, { color: option.color }]}>
-                          {option.text}
-                        </Text>
-                        <View style={styles.answerValue}>
-                          <Text style={[styles.answerValueText, { color: option.color }]}>
-                            {value}
+                        <LinearGradient
+                          colors={[`${option.color}15`, `${option.color}25`]}
+                          style={styles.glowAnswerGradient}
+                        >
+                          <Text style={[styles.glowAnswerText, { color: option.color }]}>
+                            {option.text}
                           </Text>
-                        </View>
+                          <View style={[styles.glowAnswerValue, { borderColor: option.color }]}>
+                            <Text style={[styles.glowAnswerValueText, { color: option.color }]}>
+                              {value}
+                            </Text>
+                          </View>
+                        </LinearGradient>
                       </TouchableOpacity>
                     </Animated.View>
                   );
@@ -459,20 +460,20 @@ export function ADHDOnboarding({ onComplete, onSkip }: ADHDOnboardingProps) {
                   return (
                     <Animated.View
                       key={value}
-                      style={[
-                        styles.answerButton,
-                        styles.yesNoButton,
-                        { backgroundColor: `${option.color}20`, borderColor: option.color },
-                        { transform: [{ scale: scaleAnim }] }
-                      ]}
+                      style={[styles.yesNoButton, { transform: [{ scale: scaleAnim }] }]}
                     >
                       <TouchableOpacity
                         onPress={() => handleAnswer(value)}
-                        style={styles.answerTouchable}
+                        style={styles.glowAnswerButton}
                       >
-                        <Text style={[styles.answerText, { color: option.color }]}>
-                          {option.text}
-                        </Text>
+                        <LinearGradient
+                          colors={[`${option.color}20`, `${option.color}30`]}
+                          style={styles.glowAnswerGradient}
+                        >
+                          <Text style={[styles.glowAnswerText, { color: option.color }]}>
+                            {option.text}
+                          </Text>
+                        </LinearGradient>
                       </TouchableOpacity>
                     </Animated.View>
                   );
