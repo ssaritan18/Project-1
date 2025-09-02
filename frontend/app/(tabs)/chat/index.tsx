@@ -105,6 +105,9 @@ export default function ChatList() {
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
+
+          {/* Chats List */}
+          <FlashList
             </LinearGradient>
 
             {/* Join Chat Card */}
@@ -132,8 +135,14 @@ export default function ChatList() {
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
+
+          {/* Chats List */}
+          <FlashList
             </LinearGradient>
           </View>
+
+          {/* Chats List */}
+          <FlashList
               style={[styles.joinBtn, { 
                 backgroundColor: palette.secondary, 
                 opacity: code.trim() && !isLoading ? 1 : 0.5 
@@ -144,6 +153,9 @@ export default function ChatList() {
               <Ionicons name="key" size={20} color="#0c0c0c" />
             </TouchableOpacity>
           </View>
+
+          {/* Chats List */}
+          <FlashList
         </View>
         
         {/* Chats List */}
@@ -159,6 +171,9 @@ export default function ChatList() {
                   <View style={[styles.groupIcon, { backgroundColor: `${palette.primary}20`, borderColor: `${palette.primary}40` }]}>
                     <Ionicons name="people" size={24} color={palette.primary} />
                   </View>
+
+          {/* Chats List */}
+          <FlashList
                 ) : (
                   <ProfileAvatar
                     userId={item.id}
@@ -168,6 +183,9 @@ export default function ChatList() {
                   />
                 )}
               </View>
+
+          {/* Chats List */}
+          <FlashList
               
               {/* Chat Info */}
               <View style={styles.chatInfo}>
@@ -177,8 +195,14 @@ export default function ChatList() {
                     <View style={[styles.unreadBadge, { backgroundColor: palette.accent }]}>
                       <Text style={styles.unreadText}>{item.unread}</Text>
                     </View>
+
+          {/* Chats List */}
+          <FlashList
                   ) : null}
                 </View>
+
+          {/* Chats List */}
+          <FlashList
                 
                 <Text style={styles.chatMeta} numberOfLines={1}>
                   {item.type === 'GROUP' 
@@ -195,8 +219,14 @@ export default function ChatList() {
                       {item.inviteCode || item.invite_code}
                     </Text>
                   </View>
+
+          {/* Chats List */}
+          <FlashList
                 )}
               </View>
+
+          {/* Chats List */}
+          <FlashList
               
               {/* Chat Type Badge */}
               <View style={styles.chatTypeContainer}>
@@ -209,8 +239,14 @@ export default function ChatList() {
                     {item.type === 'GROUP' ? 'GROUP' : 'DIRECT'}
                   </Text>
                 </View>
+
+          {/* Chats List */}
+          <FlashList
                 <Ionicons name="chevron-forward" color="#666" size={20} />
               </View>
+
+          {/* Chats List */}
+          <FlashList
             </TouchableOpacity>
           )}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: Math.max(insets.bottom, 24) }}
@@ -232,6 +268,9 @@ export default function ChatList() {
                 </TouchableOpacity>
               )}
             </View>
+
+          {/* Chats List */}
+          <FlashList
           )}
           showsVerticalScrollIndicator={false}
         />
