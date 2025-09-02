@@ -322,7 +322,7 @@ export default function ProfileScreen() {
         return (
           <View style={styles.modernTabContent}>
             <LinearGradient
-              colors={['rgba(139, 92, 246, 0.1)', 'rgba(0, 207, 255, 0.1)']}
+              colors={['rgba(139, 92, 246, 0.1)', 'rgba(168, 85, 247, 0.1)']}
               style={styles.modernCard}
             >
               <ProfileCompletionGuide
