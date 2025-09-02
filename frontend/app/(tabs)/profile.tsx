@@ -369,7 +369,7 @@ export default function ProfileScreen() {
               />
             </LinearGradient>
 
-            {/* Recent Achievements with Modern Design */}
+            {/* Recent Achievements with Glow Design */}
             <LinearGradient
               colors={['rgba(183, 75, 255, 0.1)', 'rgba(0, 207, 255, 0.1)']}
               style={[styles.modernCard, { marginTop: 16 }]}
