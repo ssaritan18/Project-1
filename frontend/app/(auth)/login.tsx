@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, TextInput, Alert, Switch } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from "../../src/context/AuthContext";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -38,12 +39,11 @@ export default function Login() {
 
   const submit = async () => {
     if (!validEmail) {
-      Alert.alert("Geçersiz Email", "Lütfen geçerli bir email girin (örn: test@example.com)");
+      Alert.alert("Invalid Email", "Please enter a valid email address");
       return;
     }
-    
+
     setIsLoading(true);
-    
     try {
       // Save email if remember me is checked
       if (rememberMe) {
@@ -51,141 +51,120 @@ export default function Login() {
       } else {
         await AsyncStorage.removeItem(REMEMBER_EMAIL_KEY);
       }
+
+      const credentials = {
+        email: email.trim(),
+        name: name.trim() || email.trim().split('@')[0], // fallback to email username
+        password: password.trim()
+      };
       
-      if (password.trim().length > 0) {
-        await login(email, password);
-      } else {
-        await signIn({ name, email });
-      }
+      await signIn(credentials);
       router.replace("/(tabs)");
     } catch (error) {
-      Alert.alert("Giriş Hatası", "Email/şifre kontrol edin ve tekrar deneyin");
+      console.error("Login error:", error);
+      Alert.alert("Login Failed", "Please check your credentials and try again");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const submitMockGoogle = async () => {
-    setIsLoading(true);
+  const handleForgotPassword = () => {
+    router.push({ pathname: '/(auth)/forgot-password', params: { email } });
+  };
+
+  const handleResetCredentials = async () => {
     try {
-      await signIn({ name: name || "Google User", email });
-      router.replace("/(tabs)");
+      await resetCredentials();
+      Alert.alert("Success", "Credentials reset successfully");
     } catch (error) {
-      Alert.alert("Giriş Hatası", "Google girişinde sorun oluştu");
-    } finally {
-      setIsLoading(false);
+      Alert.alert("Error", "Failed to reset credentials");
     }
-  };
-
-  const reset = async () => {
-    await resetCredentials();
-    Alert.alert("Sıfırlandı", "Tüm veriler sıfırlandı");
   };
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>ADHDers Social Club</Text>
-          <Text style={styles.subtitle}>Hoş geldiniz! Giriş yapın veya yeni hesap oluşturun</Text>
+      <LinearGradient
+        colors={['#1a1a2e', '#16213e', '#8B5CF6', '#A855F7']}
+        style={[styles.container, { paddingTop: insets.top + 20 }]}
+      >
+        <Text style={styles.glowTitle}>Welcome back</Text>
+        <Text style={styles.glowSubtitle}>Sign in to your account</Text>
+
+        <View style={styles.glowInputBox}>
+          <Text style={styles.glowLabel}>Email</Text>
+          <TextInput 
+            style={styles.glowInput} 
+            placeholder="jane@example.com" 
+            placeholderTextColor="#B9B9B9" 
+            keyboardType="email-address" 
+            autoCapitalize="none" 
+            autoCorrect={false} 
+            value={email} 
+            onChangeText={setEmail} 
+            returnKeyType="next" 
+          />
         </View>
 
-        {/* Login Form */}
-        <View style={styles.form}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={[styles.input, { borderColor: validEmail ? '#B8F1D9' : '#333' }]}
-            placeholder="Email adresinizi girin"
-            placeholderTextColor="#777"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!isLoading}
+        <View style={styles.glowInputBox}>
+          <Text style={styles.glowLabel}>Name (Optional)</Text>
+          <TextInput 
+            style={styles.glowInput} 
+            placeholder="Your display name" 
+            placeholderTextColor="#B9B9B9" 
+            value={name} 
+            onChangeText={setName} 
+            returnKeyType="next" 
           />
+        </View>
 
-          <Text style={styles.label}>İsim (İsteğe Bağlı)</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Adınızı girin"
-            placeholderTextColor="#777"
-            value={name}
-            onChangeText={setName}
-            editable={!isLoading}
+        <View style={styles.glowInputBox}>
+          <Text style={styles.glowLabel}>PIN/Password</Text>
+          <TextInput 
+            style={styles.glowInput} 
+            placeholder="••••" 
+            placeholderTextColor="#B9B9B9" 
+            secureTextEntry 
+            value={password} 
+            onChangeText={setPassword} 
+            returnKeyType="done" 
+            onSubmitEditing={submit} 
           />
+        </View>
 
-          <Text style={styles.label}>Şifre (Varsa)</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Şifrenizi girin"
-            placeholderTextColor="#777"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            editable={!isLoading}
+        <View style={styles.glowRememberRow}>
+          <Text style={styles.glowRememberText}>Remember email</Text>
+          <Switch 
+            value={rememberMe} 
+            onValueChange={setRememberMe}
+            trackColor={{false: '#333', true: '#8B5CF6'}}
+            thumbColor={rememberMe ? '#EC4899' : '#B9B9B9'}
           />
+        </View>
 
-          {/* Remember Me */}
-          <View style={styles.rememberRow}>
-            <Switch
-              value={rememberMe}
-              onValueChange={setRememberMe}
-              trackColor={{ false: '#333', true: '#B8F1D9' }}
-              thumbColor={rememberMe ? '#000' : '#666'}
-            />
-            <Text style={styles.rememberText}>Email adresimi hatırla</Text>
-          </View>
-
-          {/* Submit Button */}
-          <TouchableOpacity 
-            style={[styles.submitBtn, { opacity: validEmail && !isLoading ? 1 : 0.5 }]} 
-            onPress={submit}
-            disabled={!validEmail || isLoading}
+        <TouchableOpacity onPress={submit} disabled={!validEmail || isLoading}>
+          <LinearGradient 
+            colors={(!validEmail || isLoading) ? ['#666', '#555'] : ['#8B5CF6', '#A855F7']} 
+            style={styles.glowBtn}
           >
-            {isLoading ? (
-              <Text style={styles.submitText}>Giriş yapılıyor...</Text>
-            ) : (
-              <Text style={styles.submitText}>
-                {password ? 'Giriş Yap' : 'Hızlı Giriş'}
-              </Text>
-            )}
-          </TouchableOpacity>
+            <Text style={styles.glowBtnText}>
+              {isLoading ? 'Signing In...' : 'Sign In'}
+            </Text>
+          </LinearGradient>
+        </TouchableOpacity>
 
-          {/* Alternative Actions */}
-          <View style={styles.alternativeActions}>
-            <TouchableOpacity 
-              style={[styles.altBtn, { backgroundColor: '#FFE3A3' }]} 
-              onPress={submitMockGoogle}
-              disabled={!validEmail || isLoading}
-            >
-              <Ionicons name="logo-google" size={16} color="#000" />
-              <Text style={styles.altBtnText}>Google ile Giriş</Text>
-            </TouchableOpacity>
+        <TouchableOpacity style={styles.glowLinkBtn} onPress={handleForgotPassword}>
+          <Text style={styles.glowLinkText}>Forgot password?</Text>
+        </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={[styles.altBtn, { backgroundColor: '#FFCFE1' }]} 
-              onPress={reset}
-              disabled={isLoading}
-            >
-              <Ionicons name="refresh" size={16} color="#000" />
-              <Text style={styles.altBtnText}>Verileri Sıfırla</Text>
-            </TouchableOpacity>
-          </View>
+        <TouchableOpacity style={styles.glowBackBtn} onPress={() => router.back()}>
+          <Text style={styles.glowBackText}>Back to Welcome</Text>
+        </TouchableOpacity>
 
-          {/* Navigation */}
-          <View style={styles.navigation}>
-            <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
-              <Text style={styles.linkText}>Hesabınız yok mu? Kaydolun</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity onPress={() => router.push("/(auth)/forgot-pin")}>
-              <Text style={styles.linkText}>Şifremi Unuttum</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+        <TouchableOpacity style={styles.glowResetBtn} onPress={handleResetCredentials}>
+          <Ionicons name="refresh" size={16} color="#F97316" />
+          <Text style={styles.glowResetText}>Reset Credentials</Text>
+        </TouchableOpacity>
+      </LinearGradient>
     </KeyboardAvoidingView>
   );
 }
@@ -193,96 +172,116 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#0c0c0c',
-    justifyContent: 'center'
+    alignItems: "center", 
+    justifyContent: "center", 
+    padding: 24 
   },
-  header: {
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    marginBottom: 40,
-  },
-  title: { 
-    color: '#fff', 
+  glowTitle: { 
+    color: "#fff", 
     fontSize: 28, 
-    fontWeight: '800', 
-    textAlign: 'center',
-    marginBottom: 8
-  },
-  subtitle: {
-    color: '#A3C9FF',
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 20
-  },
-  form: {
-    paddingHorizontal: 24,
-  },
-  label: { 
-    color: '#fff', 
-    fontSize: 14, 
-    fontWeight: '600', 
-    marginBottom: 8, 
-    marginTop: 16 
-  },
-  input: {
-    backgroundColor: '#111',
-    color: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderWidth: 1,
-    borderColor: '#333',
-    fontSize: 15,
-  },
-  rememberRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 16,
+    fontWeight: "900", 
     marginBottom: 8,
+    textShadowColor: '#8B5CF6',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
-  rememberText: {
-    color: '#A3C9FF',
-    fontSize: 14,
-    marginLeft: 12,
+  glowSubtitle: { 
+    color: "#E5E7EB", 
+    fontSize: 16,
+    marginBottom: 32,
+    textAlign: 'center',
   },
-  submitBtn: { 
-    backgroundColor: '#B8F1D9', 
-    padding: 16, 
-    borderRadius: 12, 
-    alignItems: 'center',
-    marginTop: 24,
-    elevation: 2,
+  glowInputBox: { 
+    width: "100%", 
+    maxWidth: 360, 
+    marginBottom: 16 
   },
-  submitText: { 
-    color: '#000', 
-    fontSize: 16, 
-    fontWeight: '700' 
-  },
-  alternativeActions: {
-    marginTop: 16,
-    gap: 12,
-  },
-  altBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 12,
-    gap: 8,
-  },
-  altBtnText: {
-    color: '#000',
-    fontSize: 14,
+  glowLabel: { 
+    color: "#E5E7EB", 
+    marginBottom: 8,
+    fontSize: 16,
     fontWeight: '600',
   },
-  navigation: {
-    alignItems: 'center',
-    marginTop: 32,
-    gap: 16,
+  glowInput: { 
+    backgroundColor: "rgba(255, 255, 255, 0.1)", 
+    color: "#fff", 
+    borderRadius: 16, 
+    paddingHorizontal: 16, 
+    paddingVertical: 16, 
+    borderWidth: 1, 
+    borderColor: "rgba(139, 92, 246, 0.3)",
+    fontSize: 16,
   },
-  linkText: {
-    color: '#A3C9FF',
-    fontSize: 14,
+  glowRememberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    maxWidth: 360,
+    marginBottom: 24,
+  },
+  glowRememberText: {
+    color: '#E5E7EB',
+    fontSize: 16,
+  },
+  glowBtn: { 
+    paddingVertical: 16, 
+    paddingHorizontal: 32, 
+    borderRadius: 16, 
+    minWidth: 260, 
+    alignItems: "center", 
+    marginTop: 8,
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  glowBtnText: { 
+    color: "#fff", 
+    fontWeight: "800",
+    fontSize: 16,
+  },
+  glowLinkBtn: {
+    marginTop: 16,
+    padding: 8,
+  },
+  glowLinkText: {
+    color: '#EC4899',
+    fontSize: 16,
+    fontWeight: '600',
     textDecorationLine: 'underline',
+  },
+  glowBackBtn: { 
+    backgroundColor: "transparent", 
+    paddingVertical: 16, 
+    paddingHorizontal: 32, 
+    borderRadius: 16, 
+    minWidth: 260, 
+    alignItems: "center", 
+    marginTop: 16, 
+    borderWidth: 2, 
+    borderColor: "rgba(139, 92, 246, 0.5)",
+  },
+  glowBackText: { 
+    color: "#E5E7EB", 
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  glowResetBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+    padding: 12,
+    backgroundColor: 'rgba(249, 115, 22, 0.1)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(249, 115, 22, 0.3)',
+  },
+  glowResetText: {
+    color: '#F97316',
+    marginLeft: 8,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
