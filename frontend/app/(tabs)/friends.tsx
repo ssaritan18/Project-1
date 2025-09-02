@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert, ScrollView } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFriends } from "../../src/context/FriendsContext";
 import { useChat } from "../../src/context/ChatContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -31,424 +32,478 @@ export default function FriendsScreen() {
     }
   };
 
-  const handleAcceptRequest = async (email: string) => {
+  const handleAccept = async (requestId: string) => {
     try {
-      await acceptRequest(email);
-      Alert.alert("🎉 Friend Added!", `${email} is now your friend!`);
+      await acceptRequest(requestId);
+      Alert.alert("✅ Friend Added!", "You are now friends!");
     } catch (error) {
       Alert.alert("❌ Error", `Failed to accept request: ${error.message}`);
     }
   };
 
-  const handleRejectRequest = async (email: string) => {
+  const handleReject = async (requestId: string) => {
     try {
-      await rejectRequest(email);
-      Alert.alert("✅ Request Rejected", `Request from ${email} has been rejected.`);
+      await rejectRequest(requestId);
+      Alert.alert("Request Rejected", "Friend request has been rejected.");
     } catch (error) {
       Alert.alert("❌ Error", `Failed to reject request: ${error.message}`);
     }
   };
 
-  const handleMessageFriend = async (friendEmail: string) => {
+  const startChat = async (friendId: string, friendName: string) => {
     try {
-      await openDirectChat(friendEmail);
-      // Navigation to chat will be handled by the chat context
+      const chatId = await openDirectChat(friendId);
+      Alert.alert("Chat Ready!", `Starting chat with ${friendName}`);
     } catch (error) {
       Alert.alert("❌ Error", `Failed to open chat: ${error.message}`);
     }
   };
 
-  const getConnectionStatusColor = () => {
-    switch (wsConnectionStatus) {
-      case 'connected': return '#00C851';
-      case 'connecting': return '#FF6B35';
-      case 'disconnected': return '#FF3547';
-      case 'error': return '#FF3547';
-      default: return '#888';
-    }
+  const renderFriendItem = (friend: any) => {
+    const isOnline = presence[friend.id]?.status === 'online';
+    return (
+      <View key={friend.id} style={styles.friendItem}>
+        <LinearGradient
+          colors={isOnline ? ['rgba(16, 185, 129, 0.1)', 'rgba(52, 211, 153, 0.1)'] : ['rgba(107, 114, 128, 0.1)', 'rgba(156, 163, 175, 0.1)']}
+          style={styles.friendItemGradient}
+        >
+          <View style={styles.friendItemContent}>
+            <View style={styles.friendHeader}>
+              <View style={styles.friendInfo}>
+                <ProfileAvatar userId={friend.id} size={40} style={styles.friendAvatar} />
+                <View style={styles.friendDetails}>
+                  <Text style={styles.friendName}>{friend.name || friend.email}</Text>
+                  <View style={styles.friendStatus}>
+                    <View style={[styles.statusDot, { backgroundColor: isOnline ? '#10B981' : '#6B7280' }]} />
+                    <Text style={styles.statusText}>{isOnline ? 'Online' : 'Offline'}</Text>
+                  </View>
+                </View>
+              </View>
+              <View style={styles.friendActions}>
+                <TouchableOpacity 
+                  onPress={() => startChat(friend.id, friend.name || friend.email)}
+                  style={styles.actionBtn}
+                >
+                  <LinearGradient colors={['#8B5CF6', '#A855F7']} style={styles.actionBtnGradient}>
+                    <Ionicons name="chatbubble" size={16} color="#fff" />
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </LinearGradient>
+      </View>
+    );
   };
 
-  const getConnectionStatusText = () => {
-    switch (wsConnectionStatus) {
-      case 'connected': return 'Connected';
-      case 'connecting': return 'Connecting...';
-      case 'disconnected': return 'Disconnected';
-      case 'error': return 'Connection Error';
-      default: return 'Unknown';
-    }
+  const renderRequestItem = (request: any) => {
+    return (
+      <View key={request.id} style={styles.requestItem}>
+        <LinearGradient
+          colors={['rgba(249, 115, 22, 0.1)', 'rgba(251, 191, 36, 0.1)']}
+          style={styles.requestItemGradient}
+        >
+          <View style={styles.requestItemContent}>
+            <View style={styles.requestHeader}>
+              <ProfileAvatar userId={request.from_id} size={36} style={styles.requestAvatar} />
+              <View style={styles.requestInfo}>
+                <Text style={styles.requestName}>{request.from_name || request.from_email}</Text>
+                <Text style={styles.requestEmail}>{request.from_email}</Text>
+              </View>
+            </View>
+            <View style={styles.requestActions}>
+              <TouchableOpacity onPress={() => handleAccept(request.id)}>
+                <LinearGradient colors={['#10B981', '#34D399']} style={styles.acceptBtn}>
+                  <Ionicons name="checkmark" size={16} color="#fff" />
+                </LinearGradient>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleReject(request.id)}>
+                <LinearGradient colors={['#EF4444', '#F87171']} style={styles.rejectBtn}>
+                  <Ionicons name="close" size={16} color="#fff" />
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </LinearGradient>
+      </View>
+    );
   };
-
-  const onlineFriends = friends.filter(f => presence[f.email] === 'online');
-  const offlineFriends = friends.filter(f => presence[f.email] !== 'online');
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={[styles.container, { paddingTop: insets.top }]}
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#0f172a']}
+      style={styles.container}
     >
-      {/* Header with Connection Status */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>👥 Friends</Text>
-        <View style={styles.connectionStatus}>
-          <View style={[styles.statusDot, { backgroundColor: getConnectionStatusColor() }]} />
-          <Text style={styles.statusText}>{getConnectionStatusText()}</Text>
-        </View>
-      </View>
+      <View style={[styles.contentContainer, { paddingTop: insets.top + 20 }]}>
+        {/* Glow Header */}
+        <LinearGradient
+          colors={['#8B5CF6', '#EC4899', '#F97316']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.glowHeader}
+        >
+          <Text style={styles.glowHeaderTitle}>❤️ Friends Hub</Text>
+          <Text style={styles.glowHeaderSubtitle}>Connect with your ADHD support network</Text>
+        </LinearGradient>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Friend Requests */}
-        {requests.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>🔔 Friend Requests ({requests.length})</Text>
-            {requests.map((req) => (
-              <View key={req.email} style={styles.requestCard}>
-                <View style={styles.requestInfo}>
-                  <ProfileAvatar 
-                    userName={req.name || req.email}
-                    size="medium"
-                  />
-                  <View style={styles.requestDetails}>
-                    <Text style={styles.requestName}>{req.name || req.email}</Text>
-                    <Text style={styles.requestEmail}>{req.email}</Text>
-                  </View>
-                </View>
-                <View style={styles.requestActions}>
-                  <TouchableOpacity 
-                    style={[styles.actionBtn, styles.acceptBtn]}
-                    onPress={() => handleAcceptRequest(req.email)}
-                  >
-                    <Ionicons name="checkmark" size={18} color="#fff" />
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.actionBtn, styles.rejectBtn]}
-                    onPress={() => handleRejectRequest(req.email)}
-                  >
-                    <Ionicons name="close" size={18} color="#fff" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Add Friend */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>➕ Add Friend</Text>
-          <View style={styles.addFriendContainer}>
-            <TextInput
-              style={styles.friendInput}
-              placeholder="Enter email address..."
-              placeholderTextColor="#666"
-              value={friendQuery}
-              onChangeText={setFriendQuery}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <TouchableOpacity 
-              style={[styles.addBtn, { backgroundColor: palette.primary }]}
-              onPress={addFriend}
-              disabled={!friendQuery.trim()}
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+        >
+          {/* Add Friend Section */}
+          <View style={styles.addFriendSection}>
+            <Text style={styles.sectionTitle}>➕ Add New Friend</Text>
+            
+            <LinearGradient
+              colors={['rgba(139, 92, 246, 0.1)', 'rgba(168, 85, 247, 0.1)']}
+              style={styles.addFriendCard}
             >
-              <Ionicons name="person-add" size={20} color="#000" />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Online Friends */}
-        {onlineFriends.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>🟢 Online ({onlineFriends.length})</Text>
-            {onlineFriends.map((friend) => (
-              <View key={friend.email} style={styles.friendCard}>
-                <View style={styles.friendInfo}>
-                  <ProfileAvatar 
-                    userName={friend.name || friend.email}
-                    size="medium"
-                    showOnlineStatus={true}
-                    isOnline={true}
-                  />
-                  <View style={styles.friendDetails}>
-                    <Text style={styles.friendName}>{friend.name || friend.email}</Text>
-                    <Text style={styles.friendEmail}>{friend.email}</Text>
-                    <View style={styles.onlineIndicator}>
-                      <View style={styles.onlineDot} />
-                      <Text style={styles.onlineText}>Online now</Text>
-                    </View>
-                  </View>
-                </View>
-                <TouchableOpacity 
-                  style={styles.messageBtn}
-                  onPress={() => handleMessageFriend(friend.email)}
-                >
-                  <Ionicons name="chatbubble" size={18} color="#4A90E2" />
+              <Text style={styles.addFriendTitle}>🌟 Send Friend Request</Text>
+              <View style={styles.addFriendRow}>
+                <TextInput
+                  style={styles.friendInput}
+                  placeholder="Enter friend's email..."
+                  placeholderTextColor="#B9B9B9"
+                  value={friendQuery}
+                  onChangeText={setFriendQuery}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+                <TouchableOpacity onPress={addFriend} disabled={!friendQuery.trim()}>
+                  <LinearGradient 
+                    colors={friendQuery.trim() ? ['#8B5CF6', '#A855F7'] : ['#666', '#555']} 
+                    style={styles.addFriendBtn}
+                  >
+                    <Ionicons name="person-add" size={20} color="#fff" />
+                  </LinearGradient>
                 </TouchableOpacity>
               </View>
-            ))}
-          </View>
-        )}
+            </LinearGradient>
 
-        {/* Offline Friends */}
-        {offlineFriends.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>⚫ Offline ({offlineFriends.length})</Text>
-            {offlineFriends.map((friend) => (
-              <View key={friend.email} style={[styles.friendCard, styles.offlineFriendCard]}>
-                <View style={styles.friendInfo}>
-                  <ProfileAvatar 
-                    userName={friend.name || friend.email}
-                    size="medium"
-                    showOnlineStatus={true}
-                    isOnline={false}
-                  />
-                  <View style={styles.friendDetails}>
-                    <Text style={styles.friendName}>{friend.name || friend.email}</Text>
-                    <Text style={styles.friendEmail}>{friend.email}</Text>
-                    <Text style={styles.offlineText}>Last seen recently</Text>
-                  </View>
-                </View>
-                <TouchableOpacity 
-                  style={[styles.messageBtn, styles.messageOfflineBtn]}
-                  onPress={() => handleMessageFriend(friend.email)}
-                >
-                  <Ionicons name="chatbubble-outline" size={18} color="#666" />
-                </TouchableOpacity>
+            {/* Connection Status */}
+            <LinearGradient
+              colors={['rgba(16, 185, 129, 0.1)', 'rgba(52, 211, 153, 0.1)']}
+              style={styles.statusCard}
+            >
+              <View style={styles.statusHeader}>
+                <Text style={styles.statusTitle}>🔗 Connection Status</Text>
+                <View style={[styles.connectionDot, { backgroundColor: wsConnectionStatus === 'connected' ? '#10B981' : '#EF4444' }]} />
               </View>
-            ))}
+              <Text style={styles.statusDescription}>
+                WebSocket: {wsConnectionStatus} • Sync: {syncEnabled ? 'On' : 'Off'}
+              </Text>
+            </LinearGradient>
           </View>
-        )}
 
-        {/* Empty State */}
-        {friends.length === 0 && requests.length === 0 && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>👥</Text>
-            <Text style={styles.emptyTitle}>No Friends Yet</Text>
-            <Text style={styles.emptySubtitle}>
-              Start building your ADHD support network by adding friends!
-            </Text>
-            <Text style={styles.emptyTip}>
-              💡 Tip: Share your email with other ADHDers to connect
-            </Text>
+          {/* Friend Requests */}
+          {requests.length > 0 && (
+            <View style={styles.requestsSection}>
+              <Text style={styles.sectionTitle}>📥 Friend Requests ({requests.length})</Text>
+              {requests.map(renderRequestItem)}
+            </View>
+          )}
+
+          {/* Friends List */}
+          <View style={styles.friendsSection}>
+            <View style={styles.friendsSectionHeader}>
+              <Text style={styles.sectionTitle}>👥 Your Friends ({friends.length})</Text>
+              <TouchableOpacity onPress={refresh} style={styles.refreshBtn}>
+                <Ionicons name="refresh" size={16} color="#8B5CF6" />
+              </TouchableOpacity>
+            </View>
+
+            {friends.length === 0 ? (
+              <View style={styles.emptyFriendsContainer}>
+                <LinearGradient
+                  colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
+                  style={styles.emptyFriendsCard}
+                >
+                  <Text style={styles.emptyFriendsIcon}>👥✨</Text>
+                  <Text style={styles.emptyFriendsTitle}>No friends yet!</Text>
+                  <Text style={styles.emptyFriendsDescription}>
+                    Add friends by sending them a friend request using their email address above.
+                  </Text>
+                </LinearGradient>
+              </View>
+            ) : (
+              <View style={styles.friendsList}>
+                {friends.map(renderFriendItem)}
+              </View>
+            )}
           </View>
-        )}
-
-        <View style={{ height: insets.bottom + 20 }} />
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0c0c0c',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#222',
-  },
-  headerTitle: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: '700',
-  },
-  connectionStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  statusText: {
-    color: '#bdbdbd',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  content: {
+  contentContainer: {
     flex: 1,
   },
-  section: {
+  glowHeader: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 24,
+    borderRadius: 20,
+    marginHorizontal: 16,
+    marginBottom: 20,
+  },
+  glowHeaderTitle: {
+    color: '#fff',
+    fontSize: 28,
+    fontWeight: '900',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  glowHeaderSubtitle: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  addFriendSection: {
+    paddingHorizontal: 16,
+    marginBottom: 32,
   },
   sectionTitle: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 16,
+    textShadowColor: '#8B5CF6',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  addFriendCard: {
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  addFriendTitle: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 16,
   },
-  requestCard: {
-    backgroundColor: '#111',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#333',
+  addFriendRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  requestInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  requestDetails: {
-    marginLeft: 12,
-    flex: 1,
-  },
-  requestName: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  requestEmail: {
-    color: '#bdbdbd',
-    fontSize: 14,
-  },
-  requestActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  actionBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  acceptBtn: {
-    backgroundColor: '#00C851',
-  },
-  rejectBtn: {
-    backgroundColor: '#FF3547',
-  },
-  addFriendContainer: {
-    flexDirection: 'row',
     gap: 12,
-    alignItems: 'center',
   },
   friendInput: {
     flex: 1,
-    backgroundColor: '#111',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     color: '#fff',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: 'rgba(139, 92, 246, 0.3)',
     fontSize: 16,
   },
-  addBtn: {
-    width: 48,
-    height: 48,
+  addFriendBtn: {
+    width: 44,
+    height: 44,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  friendCard: {
-    backgroundColor: '#111',
-    borderRadius: 12,
+  statusCard: {
     padding: 16,
-    marginBottom: 12,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#222',
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+  },
+  statusHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  statusTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  connectionDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  statusDescription: {
+    color: '#E5E7EB',
+    fontSize: 14,
+  },
+  requestsSection: {
+    paddingHorizontal: 16,
+    marginBottom: 32,
+  },
+  requestItem: {
+    marginBottom: 12,
+  },
+  requestItemGradient: {
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(249, 115, 22, 0.3)',
+  },
+  requestItemContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  offlineFriendCard: {
-    opacity: 0.7,
+  requestHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  requestAvatar: {
+    marginRight: 12,
+  },
+  requestInfo: {
+    flex: 1,
+  },
+  requestName: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  requestEmail: {
+    color: '#E5E7EB',
+    fontSize: 14,
+    marginTop: 2,
+  },
+  requestActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  acceptBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rejectBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  friendsSection: {
+    paddingHorizontal: 16,
+  },
+  friendsSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  refreshBtn: {
+    padding: 8,
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  friendsList: {
+    
+  },
+  friendItem: {
+    marginBottom: 12,
+  },
+  friendItemGradient: {
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.2)',
+  },
+  friendItemContent: {
+    
+  },
+  friendHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   friendInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
+  friendAvatar: {
+    marginRight: 12,
+  },
   friendDetails: {
-    marginLeft: 12,
     flex: 1,
   },
   friendName: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  friendEmail: {
-    color: '#bdbdbd',
-    fontSize: 14,
+    fontWeight: '700',
     marginBottom: 4,
   },
-  onlineIndicator: {
+  friendStatus: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
   },
-  onlineDot: {
+  statusDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#00C851',
+    marginRight: 6,
   },
-  onlineText: {
-    color: '#00C851',
+  statusText: {
+    color: '#E5E7EB',
     fontSize: 12,
-    fontWeight: '500',
   },
-  offlineText: {
-    color: '#666',
-    fontSize: 12,
-    fontWeight: '500',
+  friendActions: {
+    flexDirection: 'row',
+    gap: 8,
   },
-  messageBtn: {
-    width: 40,
-    height: 40,
+  actionBtn: {
+    
+  },
+  actionBtnGradient: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyFriendsContainer: {
+    paddingVertical: 40,
+  },
+  emptyFriendsCard: {
+    padding: 32,
     borderRadius: 20,
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(74, 144, 226, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
   },
-  messageOfflineBtn: {
-    backgroundColor: 'rgba(102, 102, 102, 0.1)',
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 40,
-  },
-  emptyIcon: {
+  emptyFriendsIcon: {
     fontSize: 48,
     marginBottom: 16,
   },
-  emptyTitle: {
+  emptyFriendsTitle: {
     color: '#fff',
     fontSize: 20,
-    fontWeight: '700',
-    textAlign: 'center',
+    fontWeight: '800',
     marginBottom: 8,
+    textAlign: 'center',
   },
-  emptySubtitle: {
-    color: '#bdbdbd',
+  emptyFriendsDescription: {
+    color: '#E5E7EB',
     fontSize: 16,
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 16,
-  },
-  emptyTip: {
-    color: '#A3C9FF',
-    fontSize: 14,
-    textAlign: 'center',
-    fontStyle: 'italic',
   },
 });
