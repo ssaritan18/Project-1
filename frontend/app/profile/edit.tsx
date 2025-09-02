@@ -120,8 +120,6 @@ export default function EditProfileScreen() {
 
   // Separate function for localStorage loading
   const loadFromLocalStorage = async () => {
-  // Separate function for localStorage loading
-  const loadFromLocalStorage = async () => {
     console.log('📂 LOADING FROM localStorage...');
     try {
       const savedProfile = localStorage.getItem('user_profile');
