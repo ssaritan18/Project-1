@@ -497,7 +497,7 @@ export function ADHDOnboarding({ onComplete, onSkip }: ADHDOnboardingProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0c0c0c',
+    backgroundColor: 'transparent', // Transparent to show parent gradient
   },
   header: {
     flexDirection: 'row',
