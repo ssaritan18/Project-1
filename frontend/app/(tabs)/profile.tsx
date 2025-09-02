@@ -611,7 +611,7 @@ export default function ProfileScreen() {
           </LinearGradient>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }
 
