@@ -185,6 +185,11 @@ export function ProfileStatistics({
 }: ProfileStatisticsProps) {
   const [activeTab, setActiveTab] = useState<'weekly' | 'monthly'>('weekly');
   const tabIndicatorAnim = useRef(new Animated.Value(0)).current;
+  
+  // Add mood data
+  const { getMoodHistory, getMoodStats } = useMood();
+  const moodStats = getMoodStats();
+  const recentMoods = getMoodHistory(7); // Last 7 days
 
   useEffect(() => {
     Animated.timing(tabIndicatorAnim, {
