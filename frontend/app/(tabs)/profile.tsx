@@ -320,24 +320,38 @@ export default function ProfileScreen() {
         );
       case 'completion':
         return (
-          <ProfileCompletionGuide
-            completionItems={completionItems}
-            onItemPress={(item) => {
-              if (item.action) {
-                item.action();
-              } else {
-                Alert.alert("Great idea!", `Let's work on: ${item.title}`);
-              }
-            }}
-            showAnimation={false}
-          />
+          <View style={styles.modernTabContent}>
+            <LinearGradient
+              colors={['rgba(0, 200, 81, 0.1)', 'rgba(0, 207, 255, 0.1)']}
+              style={styles.modernCard}
+            >
+              <ProfileCompletionGuide
+                completionItems={completionItems}
+                onItemPress={(item) => {
+                  if (item.action) {
+                    item.action();
+                  } else {
+                    Alert.alert("Great idea!", `Let's work on: ${item.title}`);
+                  }
+                }}
+                showAnimation={false}
+              />
+            </LinearGradient>
+          </View>
         );
       case 'neurodivergency':
         return (
-          <NeurodivergencyContent
-            showFullContent={true}
-            onPress={() => Alert.alert('Neurodivergency Hub', 'Educational content coming soon!')}
-          />
+          <View style={styles.modernTabContent}>
+            <LinearGradient
+              colors={['rgba(183, 75, 255, 0.1)', 'rgba(255, 60, 172, 0.1)']}
+              style={styles.modernCard}
+            >
+              <NeurodivergencyContent
+                showFullContent={true}
+                onPress={() => Alert.alert('Neurodivergency Hub', 'Educational content coming soon!')}
+              />
+            </LinearGradient>
+          </View>
         );
       default:
         return (
