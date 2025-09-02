@@ -264,7 +264,7 @@ export function SubscriptionPage() {
         {/* Pricing Cards */}
         <View style={styles.pricingSection}>
           <Text style={styles.sectionTitle}>Choose Your Adventure</Text>
-          {pricingTiers.map(renderPricingCard)}
+          {updatedPricingTiers.map(renderPricingCard)}
         </View>
 
         {/* FAQ Section */}
