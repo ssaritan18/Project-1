@@ -135,9 +135,8 @@ export default function ChatList() {
             </LinearGradient>
           </View>
         
-        </ScrollView>
-      </View>
-    </LinearGradient>
+          {/* Chats List */}
+          <FlashList
         {/* Chats List */}
         <FlashList
           data={chats}
