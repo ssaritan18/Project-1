@@ -418,21 +418,21 @@ export default function ProfileScreen() {
               </View>
             </LinearGradient>
 
-            {/* Modern Quick Actions */}
+            {/* Glow Quick Actions */}
             <LinearGradient
-              colors={['rgba(108, 92, 231, 0.1)', 'rgba(74, 144, 226, 0.1)']}
+              colors={['rgba(139, 92, 246, 0.1)', 'rgba(168, 85, 247, 0.1)']}
               style={[styles.modernCard, { marginTop: 16 }]}
             >
               <Text style={styles.modernSectionTitle}>⚡ Quick Actions</Text>
               <View style={styles.modernActionGrid}>
                 <TouchableOpacity onPress={navigateToEdit}>
-                  <LinearGradient colors={['#4A90E2', '#5BA0F2']} style={styles.modernActionBtn}>
+                  <LinearGradient colors={['#8B5CF6', '#A855F7']} style={styles.modernActionBtn}>
                     <Text style={styles.modernActionEmoji}>✏️</Text>
                     <Text style={styles.modernActionText}>Edit Profile</Text>
                   </LinearGradient>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={navigateToSettings}>
-                  <LinearGradient colors={['#6C5CE7', '#7C6CF7']} style={styles.modernActionBtn}>
+                  <LinearGradient colors={['#EC4899', '#F97316']} style={styles.modernActionBtn}>
                     <Text style={styles.modernActionEmoji}>⚙️</Text>
                     <Text style={styles.modernActionText}>Settings</Text>
                   </LinearGradient>
