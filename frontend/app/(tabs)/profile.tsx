@@ -477,8 +477,8 @@ export default function ProfileScreen() {
         </View>
       </LinearGradient>
 
-      {/* Tab Navigation */}
-      <View style={styles.tabNav}>
+      {/* Modern Tab Navigation - Behance Style */}
+      <View style={styles.modernTabNav}>
         {[
           { key: 'overview', label: '🏠', title: 'Overview' },
           { key: 'achievements', label: '🏆', title: 'Badges' },
@@ -488,11 +488,11 @@ export default function ProfileScreen() {
         ].map(tab => (
           <TouchableOpacity
             key={tab.key}
-            style={[styles.tab, activeTab === tab.key && styles.activeTab]}
+            style={[styles.modernTab, activeTab === tab.key && styles.modernActiveTab]}
             onPress={() => setActiveTab(tab.key as any)}
           >
             <Text style={styles.tabEmoji}>{tab.label}</Text>
-            <Text style={[styles.tabLabel, activeTab === tab.key && styles.activeTabLabel]}>
+            <Text style={[styles.modernTabLabel, activeTab === tab.key && styles.modernActiveTabLabel]}>
               {tab.title}
             </Text>
           </TouchableOpacity>
