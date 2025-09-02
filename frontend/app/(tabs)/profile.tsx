@@ -356,7 +356,7 @@ export default function ProfileScreen() {
       default:
         return (
           <View style={styles.modernTabContent}>
-            {/* Enhanced Streak Visualization with Modern Card */}
+            {/* Enhanced Streak Visualization with Glow Card */}
             <LinearGradient
               colors={['rgba(255, 107, 53, 0.15)', 'rgba(255, 60, 172, 0.15)']}
               style={styles.modernCard}
