@@ -204,29 +204,10 @@ export default function HomeScreen() {
             </LinearGradient>
           </View>
 
-          {/* Quick Actions */}
-          <View style={styles.actionsSection}>
-            <Text style={styles.sectionTitle}>⚡ Quick Actions</Text>
-            <View style={styles.actionsGrid}>
-              {dashboardFeatures.map(feature => (
-                <TouchableOpacity
-                  key={feature.id}
-                  onPress={feature.onPress}
-                  style={styles.actionCard}
-                >
-                  <LinearGradient
-                    colors={feature.gradient}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.actionCardGradient}
-                  >
-                    <Text style={styles.actionCardTitle}>{feature.title}</Text>
-                    <Text style={styles.actionCardDescription}>{feature.description}</Text>
-                    <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.8)" />
-                  </LinearGradient>
-                </TouchableOpacity>
-              ))}
-            </View>
+          {/* Mood Tracker */}
+          <View style={styles.moodSection}>
+            <Text style={styles.sectionTitle}>💭 Mood Tracker</Text>
+            <MoodTracker />
           </View>
 
           {/* Add New Task Section */}
