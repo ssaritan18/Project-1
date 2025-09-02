@@ -597,4 +597,97 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: 'center',
   },
+
+  // Mood Patterns Styles
+  moodSection: {
+    paddingHorizontal: 16,
+    marginTop: 24,
+  },
+  moodTimelineCard: {
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  moodTimelineTitle: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  moodTimeline: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 16,
+  },
+  moodTimelineItem: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  moodTimelineDay: {
+    color: '#888',
+    fontSize: 10,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+  moodTimelineEmoji: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(139, 92, 246, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(139, 92, 246, 0.4)',
+  },
+  emptyMoodEmoji: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  moodEmojiLarge: {
+    fontSize: 18,
+  },
+  emptyMoodText: {
+    color: '#666',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  moodTimelineLabel: {
+    color: '#E5E7EB',
+    fontSize: 9,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  moodInsight: {
+    color: '#8B5CF6',
+    fontSize: 12,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  moodEmptyCard: {
+    padding: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  moodEmptyEmoji: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  moodEmptyTitle: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  moodEmptyDescription: {
+    color: '#E5E7EB',
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
 });
