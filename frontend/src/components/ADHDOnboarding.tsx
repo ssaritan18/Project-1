@@ -502,9 +502,10 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#1a1a1a',
+    marginBottom: 20,
   },
   skipButton: {
     padding: 8,
