@@ -499,17 +499,19 @@ export default function ProfileScreen() {
         ))}
       </View>
 
-      {/* Tab Content */}
+      {/* Tab Content with Modern Cards */}
       <ScrollView 
         style={styles.content}
         contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 120) }}
         showsVerticalScrollIndicator={false}
       >
-        {renderTabContent()}
+        <View style={styles.modernContentContainer}>
+          {renderTabContent()}
+        </View>
         
-        {/* Sign Out Button */}
-        <button 
-          onClick={async () => {
+        {/* Modern Sign Out Button */}
+        <TouchableOpacity 
+          onPress={async () => {
             console.log("🚨 SIGN OUT BUTTON CLICKED!");
             
             // Use web-compatible confirmation
@@ -545,19 +547,17 @@ export default function ProfileScreen() {
               }
             }
           }}
-          style={{
-            backgroundColor: '#FF4444',
-            padding: '12px 24px',
-            borderRadius: '25px',
-            border: 'none',
-            cursor: 'pointer',
-            marginTop: '32px',
-            alignSelf: 'center',
-            minWidth: '150px'
-          }}
+          style={styles.modernSignOutBtn}
         >
-          <span style={{ color: 'white', fontSize: '16px', fontWeight: '600' }}>🚪 Sign Out</span>
-        </button>
+          <LinearGradient
+            colors={['#FF4444', '#FF6B6B']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.signOutGradient}
+          >
+            <Text style={styles.modernSignOutText}>🚪 Sign Out</Text>
+          </LinearGradient>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -796,5 +796,85 @@ const styles = StyleSheet.create({
     height: 40,
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     marginHorizontal: 10,
+  },
+  
+  // Modern Tab Navigation Styles
+  modernTabNav: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginHorizontal: 20,
+    marginVertical: 16,
+    borderRadius: 16,
+    padding: 6,
+    backdropFilter: 'blur(10px)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  modernTab: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    borderRadius: 12,
+    transition: 'all 0.3s ease',
+  },
+  modernActiveTab: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  modernTabLabel: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  modernActiveTabLabel: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+  
+  // Modern Content Container
+  modernContentContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 20,
+    padding: 16,
+    marginHorizontal: 4,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  
+  // Modern Sign Out Button Styles
+  modernSignOutBtn: {
+    marginTop: 32,
+    marginHorizontal: 20,
+    borderRadius: 25,
+    overflow: 'hidden',
+    shadowColor: '#FF4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  signOutGradient: {
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 56,
+  },
+  modernSignOutText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 });
