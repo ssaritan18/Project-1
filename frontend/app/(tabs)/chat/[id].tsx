@@ -9,7 +9,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProfileAvatar } from "../../../src/components/ProfileAvatar";
 
-
 import * as ImagePicker from 'expo-image-picker';
 
 export default function ChatDetail() {
@@ -31,510 +30,504 @@ export default function ChatDetail() {
     messagesByChat: messagesByChat
   });
 
-  React.useEffect(() => { 
-    if (id) markRead(id); 
-  }, [id, markRead]);
+  const send = async () => {
+    const trimmedText = text.trim();
+    if (!trimmedText || !id) return;
 
-  const onSend = async () => { 
-    console.log("🔥 SEND BUTTON CLICKED! Text:", text, "Chat ID:", id);
-    
-    if (!id || !text.trim()) {
-      console.log("❌ Cannot send - missing ID or text");
-      return;
-    }
-    
     try {
-      console.log("🚀 Calling sendText function...");
-      await sendText(id, text.trim()); 
-      console.log("✅ sendText completed successfully");
-      setText(""); 
-      console.log("✅ Text input cleared");
+      setText("");
+      await sendText(id, trimmedText);
     } catch (error) {
-      console.error("❌ Send error:", error);
+      console.error("Failed to send message:", error);
       Alert.alert("Error", "Failed to send message. Please try again.");
     }
   };
 
-
-
   const handleMediaUpload = async () => {
-    if (Platform.OS === 'web') {
-      // For web, use file input directly
-      handlePickImageWeb();
-    } else {
-      // For mobile, show options
-      Alert.alert(
-        'Send Media',
-        'Choose your media source',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Camera', onPress: handleTakePhoto },
-          { text: 'Gallery', onPress: handlePickImage },
-        ]
-      );
-    }
-  };
+    try {
+      setIsUploadingMedia(true);
+      let pickerResult;
 
-  const handlePickImageWeb = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*,video/*';
-    input.onchange = async (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        try {
-          setIsUploadingMedia(true);
-          // Convert file to base64 for chat media
-          const reader = new FileReader();
-          reader.onload = async (e) => {
-            const base64 = e.target.result.split(',')[1];
-            const mockAsset = {
-              uri: URL.createObjectURL(file),
-              base64: base64,
-              fileName: file.name,
-              type: file.type,
-              fileSize: file.size
+      if (Platform.OS === 'web') {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*,video/*';
+        input.onchange = async (event) => {
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const dataUrl = e.target.result;
+              console.log('File selected for upload:', file.name, file.type);
+              Alert.alert("Upload Ready", `Selected: ${file.name}\nSize: ${(file.size/1024/1024).toFixed(2)}MB\n\nNote: This is a demo - actual upload functionality coming soon!`);
             };
-            await sendMedia(mockAsset);
-          };
-          reader.readAsDataURL(file);
-        } catch (error) {
-          console.error('Web media selection error:', error);
-          Alert.alert('Error', 'Failed to process media');
-          setIsUploadingMedia(false);
-        }
-      }
-    };
-    input.click();
-  };
-
-  const handleTakePhoto = async () => {
-    try {
-      // Request camera permissions
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Needed', 'We need camera permissions to take photos.');
+            reader.readAsDataURL(file);
+          }
+        };
+        input.click();
         return;
       }
 
-      // Launch camera
-      const result = await ImagePicker.launchCameraAsync({
+      const options = {
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
-        quality: 0.7, // Good balance between quality and size
-        base64: true,
-      });
+        aspect: [4, 3],
+        quality: 0.8,
+      };
 
-      if (!result.canceled && result.assets[0]) {
-        await sendMedia(result.assets[0]);
+      pickerResult = await ImagePicker.launchImageLibraryAsync(options);
+
+      if (!pickerResult.canceled && pickerResult.assets && pickerResult.assets.length > 0) {
+        const asset = pickerResult.assets[0];
+        console.log('Selected media asset:', asset);
+
+        Alert.alert("Upload Ready", `Selected: ${asset.type}\nSize: ${asset.fileSize ? (asset.fileSize/1024/1024).toFixed(2) + 'MB' : 'Unknown'}\n\nNote: This is a demo - actual upload functionality coming soon!`);
       }
     } catch (error) {
-      console.error('Error taking photo:', error);
-      Alert.alert('Error', 'Failed to take photo. Please try again.');
-    }
-  };
-
-  const handlePickImage = async () => {
-    try {
-      // Request media library permissions
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Needed', 'We need gallery permissions to select images.');
-        return;
-      }
-
-      // Launch image picker
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All, // Allow images and videos
-        allowsEditing: true,
-        quality: 0.7,
-        base64: true,
-      });
-
-      if (!result.canceled && result.assets[0]) {
-        await sendMedia(result.assets[0]);
-      }
-    } catch (error) {
-      console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to select media. Please try again.');
-    }
-  };
-
-  const sendMedia = async (asset: any) => {
-    if (!id) return;
-    
-    setIsUploadingMedia(true);
-    try {
-      // Simple mock message for now
-      const mediaMessage = `📎 [MEDIA] File uploaded`;
-      await sendText(id, mediaMessage);
-      Alert.alert('Media Sent', 'Media has been shared!');
-    } catch (error) {
-      console.error("Failed to send media:", error);
-      Alert.alert('Error', 'Failed to send media.');
+      console.error('Error selecting media:', error);
+      Alert.alert("Error", "Failed to select media. Please try again.");
     } finally {
       setIsUploadingMedia(false);
     }
   };
-  const handleReaction = async (msgId: string, reactionType: string) => {
-    if (!id) return;
+
+  const handleReaction = async (messageId: string, reaction: string) => {
     try {
-      await reactMessage(id, msgId, reactionType as any);
+      await reactMessage(messageId, reaction);
     } catch (error) {
-      console.error("Failed to add reaction:", error);
+      console.error("Failed to react to message:", error);
     }
   };
 
-  const ReactBar = ({ msgId, counts }: { msgId: string; counts?: Record<string, number> }) => (
-    <View style={styles.reactRow}>
-      <TouchableOpacity onPress={() => handleReaction(msgId, 'like')} style={styles.reactBtn}>
-        <Ionicons name="thumbs-up" size={16} color="#B8F1D9" />
-        <Text style={styles.reactCount}>{counts?.like || 0}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => handleReaction(msgId, 'heart')} style={styles.reactBtn}>
-        <Ionicons name="heart" size={16} color="#FF7CA3" />
-        <Text style={styles.reactCount}>{counts?.heart || 0}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => handleReaction(msgId, 'clap')} style={styles.reactBtn}>
-        <Ionicons name="hand-right" size={16} color="#7C9EFF" />
-        <Text style={styles.reactCount}>{counts?.clap || 0}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => handleReaction(msgId, 'star')} style={styles.reactBtn}>
-        <Ionicons name="star" size={16} color="#FFE3A3" />
-        <Text style={styles.reactCount}>{counts?.star || 0}</Text>
-      </TouchableOpacity>
-    </View>
-  );
+  const renderReactionBar = (message: any) => {
+    const reactions = message.reactions || {};
+    return (
+      <View style={styles.reactionBar}>
+        {['👍', '❤️', '👏', '⭐'].map((emoji, index) => {
+          const reactionKeys = ['like', 'heart', 'clap', 'star'];
+          const reactionKey = reactionKeys[index];
+          const count = reactions[reactionKey] || 0;
+          
+          return (
+            <TouchableOpacity
+              key={emoji}
+              style={styles.reactionBtn}
+              onPress={() => handleReaction(message.id, reactionKey)}
+            >
+              <Text style={styles.reactionEmoji}>{emoji}</Text>
+              {count > 0 && <Text style={styles.reactionCount}>{count}</Text>}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
+  };
 
-  return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        {/* Fixed Header */}
-        <View style={styles.headerContainer}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <View style={styles.headerTitleContainer}>
-            <Text style={styles.header} numberOfLines={1}>{chat?.title || 'Chat'}</Text>
-            <Text style={styles.modeIndicator}>
-              Mode: {mode} | Messages: {msgs.length}
-            </Text>
-          </View>
-          <View style={styles.headerSpacer} />
-        </View>
+  const renderMessageItem = ({ item }: { item: any }) => {
+    const normalizedMessage = {
+      id: item.id ?? item._id ?? Math.random().toString(36).slice(2),
+      text: item.text ?? item.content ?? "",
+      author: item.author ?? "Unknown",
+      author_id: item.author_id ?? item.sender ?? "unknown",
+      author_name: item.author_name ?? item.author ?? "Unknown User",
+      type: item.type ?? "text",
+      ts: item.ts ?? Date.now(),
+      reactions: item.reactions ?? { like: 0, heart: 0, clap: 0, star: 0 },
+      voice_url: item.voice_url ?? null,
+      durationSec: item.durationSec ?? item.duration_sec ?? 0
+    };
 
-        {/* Messages List */}
-        <FlashList
-          data={msgs}
-          keyExtractor={(m) => {
-            // Safe key extraction to prevent crash
-            const safeKey = m.id ?? m._id ?? Math.random().toString(36).slice(2);
-            return safeKey.toString();
-          }}
-          estimatedItemSize={80}
-          contentContainerStyle={{ padding: 12, paddingBottom: 24 }}
-          renderItem={({ item }) => {
-            // Normalize message properties to prevent undefined access
-            const normalizedMessage = {
-              id: item.id ?? item._id ?? Math.random().toString(36).slice(2),
-              text: item.text ?? item.content ?? "",
-              author: item.author ?? "Unknown",
-              author_id: item.author_id ?? item.sender ?? "unknown",
-              author_name: item.author_name ?? item.author ?? "Unknown User",
-              type: item.type ?? "text",
-              ts: item.ts ?? Date.now(),
-              reactions: item.reactions ?? { like: 0, heart: 0, clap: 0, star: 0 },
-              voice_url: item.voice_url ?? null,
-              durationSec: item.durationSec ?? item.duration_sec ?? 0
-            };
-            
-            return (
-              <View style={{ marginBottom: 10 }}>
-                <View style={[
-                  styles.messageContainer, 
-                  normalizedMessage.author === 'me' ? styles.myMessageContainer : styles.theirMessageContainer
-                ]}>
-                  {normalizedMessage.author !== 'me' && (
-                    <ProfileAvatar
-                      userId={normalizedMessage.author_id}
-                      userName={normalizedMessage.author_name || normalizedMessage.author}
-                      size="small"
-                      onPress={() => Alert.alert(
-                        "Profile", 
-                        `View ${normalizedMessage.author_name || normalizedMessage.author}'s profile`
-                      )}
-                    />
-                  )}
-                  <View style={[styles.bubble, normalizedMessage.author === 'me' ? styles.mine : styles.theirs]}>
-                    {normalizedMessage.author !== 'me' && (
-                      <Text style={styles.authorText}>{normalizedMessage.author_name || normalizedMessage.author}</Text>
-                    )}
-                    {normalizedMessage.type === 'text' ? (
-                      <Text style={styles.bubbleText}>{normalizedMessage.text}</Text>
-                    ) : normalizedMessage.type === 'voice' ? (
-                      <VoicePlayer
-                        voiceUrl={normalizedMessage.voice_url || 'placeholder'}
-                        duration={normalizedMessage.durationSec || 0}
-                        isFromMe={normalizedMessage.author === 'me'}
-                        author={normalizedMessage.author_name || normalizedMessage.author}
-                      />
-                    ) : (
-                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Ionicons name="mic" size={16} color={normalizedMessage.author === 'me' ? "#000" : "#fff"} />
-                        <Text style={{ 
-                          color: normalizedMessage.author === 'me' ? "#000" : "#fff", 
-                          fontWeight: '700', 
-                          marginLeft: 8
-                        }}>
-                          Voice message ({normalizedMessage.durationSec || 3}s)
-                        </Text>
-                      </View>
-                    )}
-                    <Text style={styles.timeText}>
-                      {new Date(normalizedMessage.ts).toLocaleTimeString()}
-                    </Text>
-                  </View>
-                  {normalizedMessage.author === 'me' && <View style={styles.avatarSpacer} />}
-                </View>
-                <ReactBar msgId={normalizedMessage.id} counts={normalizedMessage.reactions} />
-              </View>
-            );
-          }}
+    const isOwn = normalizedMessage.author_id === 'current_user_id';
+    const timestamp = new Date(normalizedMessage.ts).toLocaleTimeString();
 
-          ListEmptyComponent={() => (
-            <View style={styles.emptyState}>
-              <Ionicons name="chatbubbles-outline" size={64} color="#444" />
-              <Text style={styles.emptyText}>No messages yet</Text>
-              <Text style={styles.emptySubtext}>Start the conversation!</Text>
+    return (
+      <View style={[styles.messageContainer, isOwn ? styles.ownMessage : styles.otherMessage]}>
+        <LinearGradient
+          colors={isOwn ? ['rgba(139, 92, 246, 0.2)', 'rgba(168, 85, 247, 0.2)'] : ['rgba(55, 65, 81, 0.8)', 'rgba(75, 85, 99, 0.8)']}
+          style={[styles.messageGradient, isOwn ? styles.ownMessageGradient : styles.otherMessageGradient]}
+        >
+          {!isOwn && (
+            <View style={styles.messageHeader}>
+              <Text style={styles.authorName}>{normalizedMessage.author_name}</Text>
+              <Text style={styles.messageTime}>{timestamp}</Text>
             </View>
           )}
-        />
+          
+          <Text style={[styles.messageText, isOwn ? styles.ownMessageText : styles.otherMessageText]}>
+            {normalizedMessage.text}
+          </Text>
+          
+          {isOwn && (
+            <Text style={styles.ownMessageTime}>{timestamp}</Text>
+          )}
+        </LinearGradient>
+        
+        {renderReactionBar(normalizedMessage)}
+      </View>
+    );
+  };
 
-        {/* Message Composer */}
-        <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-          <TouchableOpacity 
-            onPress={handleMediaUpload}
-            style={styles.mediaButton}
-            disabled={isUploadingMedia}
+  if (!chat) {
+    return (
+      <LinearGradient
+        colors={['#1a1a2e', '#16213e', '#0f172a']}
+        style={styles.container}
+      >
+        <View style={styles.errorContainer}>
+          <LinearGradient
+            colors={['rgba(255, 107, 107, 0.1)', 'rgba(255, 107, 107, 0.2)']}
+            style={styles.errorCard}
           >
-            {isUploadingMedia ? (
-              <Text style={styles.uploadingText}>...</Text>
-            ) : (
-              <Ionicons name="attach" size={20} color="#4A90E2" />
-            )}
-          </TouchableOpacity>
+            <Text style={styles.errorIcon}>❌</Text>
+            <Text style={styles.errorTitle}>Chat not found</Text>
+            <Text style={styles.errorDescription}>The chat you're looking for doesn't exist or has been deleted.</Text>
+            <TouchableOpacity onPress={() => router.back()}>
+              <LinearGradient colors={['#8B5CF6', '#A855F7']} style={styles.backBtn}>
+                <Text style={styles.backBtnText}>Go Back</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </LinearGradient>
+        </View>
+      </LinearGradient>
+    );
+  }
 
-          <TextInput
-            style={styles.input}
-            placeholder="Type a message..."
-            placeholderTextColor="#777"
-            value={text}
-            onChangeText={setText}
-            multiline
-            maxLength={500}
-            onSubmitEditing={onSend}
-            blurOnSubmit={false}
-            returnKeyType="send"
+  return (
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#0f172a']}
+      style={styles.container}
+    >
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+        <View style={[styles.contentContainer, { paddingTop: insets.top + 10 }]}>
+          {/* Glow Header */}
+          <LinearGradient
+            colors={['#8B5CF6', '#EC4899', '#F97316']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.chatHeader}
+          >
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <Ionicons name="chevron-back" size={24} color="#fff" />
+            </TouchableOpacity>
+            <View style={styles.headerInfo}>
+              <Text style={styles.chatTitle} numberOfLines={1}>{chat.title || 'Chat'}</Text>
+              <Text style={styles.chatSubtitle}>
+                {msgs.length} messages • {chat.type === 'GROUP' ? 'Group' : 'Direct'}
+              </Text>
+            </View>
+            <View style={styles.headerActions}>
+              <TouchableOpacity style={styles.headerBtn}>
+                <Ionicons name="information-circle" size={20} color="rgba(255,255,255,0.8)" />
+              </TouchableOpacity>
+            </View>
+          </LinearGradient>
+
+          {/* Messages List */}
+          <FlashList
+            data={msgs}
+            keyExtractor={(m) => {
+              const safeKey = m.id ?? m._id ?? Math.random().toString(36).slice(2);
+              return safeKey.toString();
+            }}
+            estimatedItemSize={80}
+            contentContainerStyle={{ padding: 12, paddingBottom: 24 }}
+            renderItem={renderMessageItem}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <View style={styles.emptyMessagesContainer}>
+                <LinearGradient
+                  colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
+                  style={styles.emptyMessagesCard}
+                >
+                  <Text style={styles.emptyMessagesIcon}>💬✨</Text>
+                  <Text style={styles.emptyMessagesTitle}>Start the conversation!</Text>
+                  <Text style={styles.emptyMessagesDescription}>Be the first to send a message in this chat.</Text>
+                </LinearGradient>
+              </View>
+            }
           />
-          <TouchableOpacity 
-            onPress={onSend} 
-            style={[styles.sendBtn, { opacity: text.trim() ? 1 : 0.5 }]} 
-            disabled={!text.trim()}
+
+          {/* Message Input */}
+          <LinearGradient
+            colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
+            style={styles.inputContainer}
           >
-            <Ionicons name="send" size={18} color="#000" />
-          </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={handleMediaUpload} 
+              style={styles.mediaBtn}
+              disabled={isUploadingMedia}
+            >
+              <LinearGradient colors={['#F97316', '#FBBF24']} style={styles.mediaBtnGradient}>
+                <Ionicons name={isUploadingMedia ? "hourglass" : "camera"} size={20} color="#fff" />
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TextInput
+              style={styles.messageInput}
+              placeholder="Type a message..."
+              placeholderTextColor="#B9B9B9"
+              value={text}
+              onChangeText={setText}
+              multiline
+              maxLength={1000}
+            />
+
+            <TouchableOpacity 
+              onPress={send} 
+              style={styles.sendBtn}
+              disabled={!text.trim()}
+            >
+              <LinearGradient 
+                colors={text.trim() ? ['#8B5CF6', '#EC4899'] : ['#666', '#555']} 
+                style={styles.sendBtnGradient}
+              >
+                <Ionicons name="send" size={20} color="#fff" />
+              </LinearGradient>
+            </TouchableOpacity>
+          </LinearGradient>
         </View>
-        </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#0c0c0c' 
+  container: {
+    flex: 1,
   },
-  headerContainer: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    paddingHorizontal: 16, 
-    paddingVertical: 12, 
-    backgroundColor: '#111',
-    borderBottomWidth: 1,
-    borderBottomColor: '#1a1a1a',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+  contentContainer: {
+    flex: 1,
   },
-  backButton: { 
-    padding: 8, 
-    marginRight: 8,
-    borderRadius: 20,
-  },
-  headerTitleContainer: { 
-    flex: 1, 
-    alignItems: 'center' 
-  },
-  header: { 
-    color: '#fff', 
-    fontSize: 18, 
-    fontWeight: '700',
-    textAlign: 'center' 
-  },
-  modeIndicator: { 
-    color: '#A3C9FF', 
-    fontSize: 11, 
-    textAlign: 'center',
-    marginTop: 2
-  },
-  headerSpacer: { 
-    width: 40 
-  },
-  // Enhanced message container styles with profile pictures
-  messageContainer: {
+  chatHeader: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    marginBottom: 4,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 16,
   },
-  myMessageContainer: {
-    justifyContent: 'flex-end',
+  backButton: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    marginRight: 12,
   },
-  theirMessageContainer: {
-    justifyContent: 'flex-start',
+  headerInfo: {
+    flex: 1,
   },
-  avatarSpacer: {
-    width: 32, // Same as small avatar size
+  chatTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '800',
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
-  bubble: { 
-    maxWidth: '75%', 
-    padding: 12, 
-    borderRadius: 16, 
+  chatSubtitle: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 14,
+    marginTop: 2,
+  },
+  headerActions: {
+    flexDirection: 'row',
+  },
+  headerBtn: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    marginLeft: 8,
+  },
+  messageContainer: {
     marginVertical: 4,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    maxWidth: '80%',
   },
-  mine: { 
-    backgroundColor: '#B8F1D9', 
+  ownMessage: {
     alignSelf: 'flex-end',
+    alignItems: 'flex-end',
+  },
+  otherMessage: {
+    alignSelf: 'flex-start',
+    alignItems: 'flex-start',
+  },
+  messageGradient: {
+    padding: 12,
+    borderRadius: 16,
+    minWidth: 60,
+  },
+  ownMessageGradient: {
     borderBottomRightRadius: 4,
   },
-  theirs: { 
-    backgroundColor: '#FFCFE1', 
-    alignSelf: 'flex-start',
+  otherMessageGradient: {
     borderBottomLeftRadius: 4,
   },
-  bubbleText: { 
-    color: '#000', 
-    fontSize: 15,
+  messageHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  authorName: {
+    color: '#8B5CF6',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  messageTime: {
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: 10,
+  },
+  messageText: {
+    fontSize: 16,
     lineHeight: 20,
   },
-  authorText: { 
-    color: '#333', 
-    fontSize: 11, 
-    fontWeight: '600', 
-    marginBottom: 2,
-    opacity: 0.8
+  ownMessageText: {
+    color: '#fff',
   },
-  timeText: { 
-    color: '#666', 
-    fontSize: 10, 
+  otherMessageText: {
+    color: '#E5E7EB',
+  },
+  ownMessageTime: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 10,
+    textAlign: 'right',
     marginTop: 4,
-    textAlign: 'right'
   },
-  composer: { 
-    flexDirection: 'row', 
-    alignItems: 'flex-end', 
-    paddingHorizontal: 16, 
-    paddingTop: 12,
-    backgroundColor: '#111',
-    borderTopWidth: 1,
-    borderTopColor: '#1a1a1a',
-  },
-  input: { 
-    flex: 1, 
-    backgroundColor: '#1a1a1a', 
-    color: '#fff', 
-    borderRadius: 20, 
-    paddingHorizontal: 16, 
-    paddingVertical: 12, 
-    borderWidth: 1, 
-    borderColor: '#333', 
-    maxHeight: 100,
-    fontSize: 15,
-  },
-  sendBtn: { 
-    backgroundColor: '#A3C9FF', 
-    padding: 12, 
-    borderRadius: 20,
-    elevation: 2,
-  },
-  micBtn: { 
-    backgroundColor: '#FFE3A3', 
-    padding: 12, 
-    borderRadius: 20,
-  },
-  reactRow: { 
-    flexDirection: 'row', 
-    gap: 12, 
-    paddingHorizontal: 8, 
+  reactionBar: {
+    flexDirection: 'row',
     marginTop: 4,
-    marginLeft: 50, // Offset for avatar space
+    gap: 8,
   },
-  reactBtn: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    gap: 4, 
-    padding: 6,
+  reactionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.05)'
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
   },
-  reactCount: { 
-    color: '#bdbdbd', 
-    fontSize: 11,
-    fontWeight: '600'
-  },
-  emptyState: { 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    paddingVertical: 60,
-    paddingHorizontal: 40 
-  },
-  emptyText: { 
-    color: '#777', 
-    fontSize: 18, 
-    textAlign: 'center',
-    fontWeight: '600',
-    marginTop: 16 
-  },
-  emptySubtext: { 
-    color: '#555', 
-    fontSize: 14, 
-    textAlign: 'center',
-    marginTop: 4
-  },
-  recordingText: {
-    color: "#999",
+  reactionEmoji: {
     fontSize: 14,
-    textAlign: 'center'
   },
-  mediaButton: {
-    backgroundColor: "#f0f0f0",
-    padding: 12,
-    borderRadius: 20,
-    marginRight: 8,
+  reactionCount: {
+    color: '#8B5CF6',
+    fontSize: 10,
+    fontWeight: '600',
+    marginLeft: 4,
   },
-  uploadingText: {
-    color: "#4A90E2",
-    fontSize: 12,
-    fontWeight: "600",
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    padding: 16,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
   },
-  recordingMode: {
-    flexDirection: "row",
-    alignItems: "center",
+  mediaBtn: {
+    marginRight: 12,
+  },
+  mediaBtnGradient: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  messageInput: {
     flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    color: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+    fontSize: 16,
+    maxHeight: 100,
+    marginRight: 12,
+  },
+  sendBtn: {
+    
+  },
+  sendBtnGradient: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyMessagesContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyMessagesCard: {
+    padding: 32,
+    borderRadius: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  emptyMessagesIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  emptyMessagesTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '800',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyMessagesDescription: {
+    color: '#E5E7EB',
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  errorCard: {
+    padding: 32,
+    borderRadius: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 107, 107, 0.3)',
+  },
+  errorIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  errorTitle: {
+    color: '#FF6B6B',
+    fontSize: 20,
+    fontWeight: '800',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  errorDescription: {
+    color: '#E5E7EB',
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  backBtn: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  backBtnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
   },
 });
