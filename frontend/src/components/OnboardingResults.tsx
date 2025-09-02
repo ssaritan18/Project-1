@@ -222,13 +222,17 @@ export function OnboardingResults({ result, onContinue }: OnboardingResultsProps
 
           {/* Continue Button */}
           <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
-            <TouchableOpacity 
-              style={[styles.continueButton, { backgroundColor: typeInfo.color }]}
-              onPress={onContinue}
-            >
-              <Text style={styles.continueButtonText}>
-                Continue to Your Dashboard 🚀
-              </Text>
+            <TouchableOpacity onPress={onContinue}>
+              <LinearGradient
+                colors={['#8B5CF6', '#EC4899', '#F97316']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.continueButton}
+              >
+                <Text style={styles.continueButtonText}>
+                  Continue to Your Dashboard 🚀
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
           </Animated.View>
 
