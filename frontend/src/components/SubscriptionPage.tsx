@@ -123,7 +123,20 @@ export function SubscriptionPage() {
     }
   };
 
-  const renderFeature = (feature: FeatureItem, index: number) => (
+  // Update pricing tiers based on current subscription
+  const updatedPricingTiers = pricingTiers.map(tier => {
+    if (tier.id === 'free') {
+      return {
+        ...tier,
+        buttonText: subscription.tier === 'free' ? 'Current Plan' : 'Downgrade'
+      };
+    } else {
+      return {
+        ...tier,
+        buttonText: subscription.tier === 'premium' ? 'Current Plan' : 'Upgrade Now'
+      };
+    }
+  });
     <View key={index} style={styles.featureItem}>
       <Text style={styles.featureIcon}>{feature.icon}</Text>
       <Text style={[
