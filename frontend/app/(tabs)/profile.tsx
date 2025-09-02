@@ -277,7 +277,7 @@ export default function ProfileScreen() {
         return (
           <View style={styles.modernTabContent}>
             <LinearGradient
-              colors={['rgba(255, 60, 172, 0.1)', 'rgba(183, 75, 255, 0.1)', 'rgba(0, 207, 255, 0.1)']}
+              colors={['rgba(255, 60, 172, 0.1)', 'rgba(168, 85, 247, 0.1)', 'rgba(139, 92, 246, 0.1)']}
               style={styles.modernCard}
             >
               <Text style={styles.modernSectionTitle}>🏆 Achievement Gallery</Text>
@@ -371,7 +371,7 @@ export default function ProfileScreen() {
 
             {/* Recent Achievements with Glow Design */}
             <LinearGradient
-              colors={['rgba(183, 75, 255, 0.1)', 'rgba(0, 207, 255, 0.1)']}
+              colors={['rgba(168, 85, 247, 0.1)', 'rgba(139, 92, 246, 0.1)']}
               style={[styles.modernCard, { marginTop: 16 }]}
             >
               <Text style={styles.modernSectionTitle}>🎉 Recent Achievements</Text>
