@@ -433,7 +433,7 @@ export default function ProfileScreen() {
             )}
           </View>
           <View style={styles.headerInfo}>
-            <Text style={styles.title}>{user?.name || "You"}</Text>
+            <Text style={styles.title}>{profileData.name || "You"}</Text>
             <Text style={styles.subtitle}>ADHD Champion • Level {currentLevel}</Text>
           </View>
         </View>
