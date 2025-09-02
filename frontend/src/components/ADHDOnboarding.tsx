@@ -525,8 +525,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 22,
+    fontWeight: '900',
+    textShadowColor: '#8B5CF6',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
   },
   headerSubtitle: {
     color: '#888',
