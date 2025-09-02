@@ -182,41 +182,66 @@ export default function EditProfileScreen() {
   const handleSave = async () => {
     try {
       console.log('🚀 SAVE BUTTON CLICKED!');
-      
-      // Simple immediate save without complex state
       console.log('💾 DIRECT localStorage save starting...');
+      
+      // Check if localStorage is available
+      if (typeof Storage === "undefined") {
+        console.error('❌ localStorage not supported!');
+        Alert.alert('Error', 'Storage not supported in this browser');
+        return;
+      }
       
       // Create save data
       const dataToSave = {
-        name: profileData.name,
-        bio: profileData.bio,
-        location: profileData.location,
-        website: profileData.website,
-        birth_date: profileData.birth_date,
-        profile_image: profileData.profile_image,
+        name: profileData.name || 'Your Name',
+        bio: profileData.bio || 'Tell us about yourself...',
+        location: profileData.location || '',
+        website: profileData.website || '',
+        birth_date: profileData.birth_date || '',
+        profile_image: profileData.profile_image || null,
       };
       
       console.log('📊 Data to save:', {
         name: dataToSave.name,
-        profile_image: dataToSave.profile_image ? 'IMAGE_DATA_READY' : 'NO_IMAGE'
+        profile_image: dataToSave.profile_image ? 'IMAGE_DATA_READY' : 'NO_IMAGE',
+        dataSize: JSON.stringify(dataToSave).length
       });
       
-      // Direct localStorage save
-      localStorage.setItem('profile_data', JSON.stringify(dataToSave));
-      console.log('✅ localStorage.setItem completed!');
-      
-      // Immediate verification
-      const verification = localStorage.getItem('profile_data');
-      console.log('🔍 Immediate verification:', verification ? 'DATA_FOUND' : 'NO_DATA');
-      
-      // Success message
-      console.log('🎉 About to show success alert...');
-      Alert.alert('Success', 'Profile saved!', [
-        { text: 'OK', onPress: () => {
-          console.log('📱 Alert OK pressed, navigating back...');
-          router.back();
-        }}
-      ]);
+      // Try localStorage save with error handling
+      try {
+        const jsonString = JSON.stringify(dataToSave);
+        console.log('🔄 JSON string created, length:', jsonString.length);
+        
+        localStorage.setItem('profile_data', jsonString);
+        console.log('✅ localStorage.setItem completed!');
+        
+        // Immediate verification
+        const verification = localStorage.getItem('profile_data');
+        console.log('🔍 Immediate verification:', verification ? 'DATA_FOUND' : 'NO_DATA');
+        
+        if (verification) {
+          const parsed = JSON.parse(verification);
+          console.log('✅ Verification successful:', {
+            name: parsed.name,
+            hasProfileImage: parsed.profile_image ? 'YES' : 'NO'
+          });
+        }
+        
+        // Success message
+        console.log('🎉 About to show success alert...');
+        Alert.alert('Success', 'Profile saved successfully!', [
+          { text: 'OK', onPress: () => {
+            console.log('📱 Alert OK pressed, navigating back...');
+            router.back();
+          }}
+        ]);
+        
+      } catch (storageError) {
+        console.error('❌ localStorage save error:', storageError);
+        console.error('❌ Error type:', typeof storageError);
+        console.error('❌ Error message:', String(storageError));
+        Alert.alert('Storage Error', 'Failed to save to localStorage: ' + String(storageError));
+      }
       
       /* ORIGINAL LOGIC - COMMENTED FOR TESTING
       if (mode === 'sync' && isAuthenticated && user?.token) {
