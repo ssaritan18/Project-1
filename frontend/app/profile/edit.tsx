@@ -261,9 +261,20 @@ export default function EditProfileScreen() {
           
           <Text style={styles.title}>Edit Profile</Text>
           
-          {/* Save Button - Fixed */}
+          {/* Save Button - Debug Version */}
           <TouchableOpacity
-            onPress={handleSave}
+            onPress={() => {
+              console.log('🔴 SAVE BUTTON TOUCH DETECTED!');
+              console.log('🔍 Current loading state:', loading);
+              console.log('🔍 Current saving state:', saving);
+              console.log('🔍 handleSave function exists:', typeof handleSave);
+              try {
+                handleSave();
+                console.log('✅ handleSave called successfully!');
+              } catch (error) {
+                console.error('❌ handleSave call error:', error);
+              }
+            }}
             style={styles.saveButton}
           >
             <Text style={styles.saveButtonText}>Save</Text>
