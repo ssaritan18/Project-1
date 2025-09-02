@@ -285,7 +285,6 @@ export default function EditProfileScreen() {
       Alert.alert('Error', 'Save failed: ' + String(error));
     }
   };
-  };
 
   const updateField = (field: keyof ProfileData, value: string) => {
     setProfileData(prev => ({ ...prev, [field]: value }));
