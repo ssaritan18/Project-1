@@ -774,7 +774,7 @@ const styles = StyleSheet.create({
   },
   
   // Modern Gradient Header Styles
-  gradientHeader: {
+  glowHeader: {
     paddingHorizontal: 20,
     paddingBottom: 30,
   },
