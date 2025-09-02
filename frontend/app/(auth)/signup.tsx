@@ -34,19 +34,22 @@ export default function SignUp() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Create your tester account</Text>
-        <Text style={styles.subtitle}>Offline-only. Stored locally on your device.</Text>
+      <LinearGradient
+        colors={['#1a1a2e', '#16213e', '#8B5CF6', '#A855F7']}
+        style={styles.container}
+      >
+        <Text style={styles.glowTitle}>Create your tester account</Text>
+        <Text style={styles.glowSubtitle}>Offline-only. Stored locally on your device.</Text>
 
-        <View style={styles.inputBox}>
-          <Text style={styles.label}>Name</Text>
-          <TextInput style={styles.input} placeholder="Jane" placeholderTextColor="#777" value={name} onChangeText={setName} returnKeyType="next" />
+        <View style={styles.glowInputBox}>
+          <Text style={styles.glowLabel}>Name</Text>
+          <TextInput style={styles.glowInput} placeholder="Jane" placeholderTextColor="#B9B9B9" value={name} onChangeText={setName} returnKeyType="next" />
         </View>
-        <View style={styles.inputBox}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput style={styles.input} placeholder="jane@example.com" placeholderTextColor="#777" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} value={email} onChangeText={setEmail} returnKeyType="next" />
+        <View style={styles.glowInputBox}>
+          <Text style={styles.glowLabel}>Email</Text>
+          <TextInput style={styles.glowInput} placeholder="jane@example.com" placeholderTextColor="#B9B9B9" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} value={email} onChangeText={setEmail} returnKeyType="next" />
         </View>
-        <View style={styles.inputBox}>
+        <View style={styles.glowInputBox}>
           <Text style={styles.label}>PIN/Password</Text>
           <TextInput style={styles.input} placeholder="••••" placeholderTextColor="#777" secureTextEntry value={password} onChangeText={setPassword} returnKeyType="done" onSubmitEditing={submit} />
         </View>
