@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from "expo-router";
 import { useAuth } from "../../src/context/AuthContext";
 
@@ -19,48 +20,137 @@ export default function WelcomeAuth() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Logo Section */}
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#8B5CF6', '#A855F7']}
+      style={styles.container}
+    >
+      {/* Glow Logo Section */}
       <View style={styles.logoContainer}>
-        <Image 
-          source={{ uri: "https://customer-assets.emergentagent.com/job_profile-wizard-9/artifacts/e7sw25g5_image.png" }}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <Text style={styles.title}>ADHDers Social Club</Text>
-        <Text style={styles.subtitle}>Your neural network community</Text>
+        <View style={styles.glowLogoWrapper}>
+          <LinearGradient
+            colors={['#F97316', '#EC4899', '#8B5CF6']}
+            style={styles.logoBorder}
+          >
+            <Image 
+              source={{ uri: "https://customer-assets.emergentagent.com/job_profile-wizard-9/artifacts/e7sw25g5_image.png" }}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </LinearGradient>
+        </View>
+        <Text style={styles.glowTitle}>ADHDers Social Club</Text>
+        <Text style={styles.glowSubtitle}>The app that helps neurodivergents thrive</Text>
       </View>
 
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#6C5CE7' }]} onPress={() => router.push('/onboarding')}>
-          <Text style={styles.btnTextDark}>🧠 Take ADHD Assessment</Text>
+        <TouchableOpacity onPress={() => router.push('/onboarding')}>
+          <LinearGradient colors={['#8B5CF6', '#A855F7']} style={styles.glowBtn}>
+            <Text style={styles.glowBtnText}>🧠 Take ADHD Assessment</Text>
+          </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#A3C9FF' }]} onPress={() => router.push('/(auth)/signup')}>
-          <Text style={styles.btnTextDark}>Sign Up</Text>
+        <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
+          <LinearGradient colors={['#EC4899', '#F97316']} style={styles.glowBtn}>
+            <Text style={styles.glowBtnText}>Sign Up</Text>
+          </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.btn, { backgroundColor: '#B8F1D9' }]} onPress={() => router.push('/(auth)/login')}>
-          <Text style={styles.btnTextDark}>Log In</Text>
+        <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
+          <LinearGradient colors={['#F97316', '#FBBF24']} style={styles.glowBtn}>
+            <Text style={styles.glowBtnText}>Log In</Text>
+          </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.btnGhost]} onPress={handleOfflineContinue}>
-          <Text style={styles.btnGhostText}>Continue (offline)</Text>
+        <TouchableOpacity style={styles.glowBtnGhost} onPress={handleOfflineContinue}>
+          <Text style={styles.glowBtnGhostText}>Continue (offline)</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0c0c0c', alignItems: 'center', justifyContent: 'center', padding: 24 },
-  logoContainer: { alignItems: 'center', marginBottom: 40 },
-  logo: { width: 120, height: 120, marginBottom: 20 },
-  title: { color: '#fff', fontSize: 24, fontWeight: '800', marginBottom: 8 },
-  subtitle: { color: '#d1d1d1', marginBottom: 24 },
-  buttonsContainer: { width: '100%', alignItems: 'center' },
-  btn: { paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, minWidth: 240, alignItems: 'center', marginTop: 10 },
-  btnTextDark: { color: '#0c0c0c', fontWeight: '800' },
-  btnGhost: { paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, minWidth: 240, alignItems: 'center', marginTop: 10, borderWidth: 1, borderColor: '#333' },
-  btnGhostText: { color: '#fff', fontWeight: '700' },
+  container: { 
+    flex: 1, 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    padding: 24 
+  },
+  logoContainer: { 
+    alignItems: 'center', 
+    marginBottom: 40 
+  },
+  glowLogoWrapper: {
+    padding: 4,
+    borderRadius: 70,
+    marginBottom: 20,
+  },
+  logoBorder: {
+    padding: 8,
+    borderRadius: 66,
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 20,
+    elevation: 20,
+  },
+  logo: { 
+    width: 120, 
+    height: 120,
+    borderRadius: 60,
+  },
+  glowTitle: { 
+    color: '#fff', 
+    fontSize: 28, 
+    fontWeight: '900', 
+    marginBottom: 8,
+    textShadowColor: '#8B5CF6',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
+  },
+  glowSubtitle: { 
+    color: '#E5E7EB', 
+    fontSize: 16,
+    marginBottom: 24,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  buttonsContainer: { 
+    width: '100%', 
+    alignItems: 'center' 
+  },
+  glowBtn: { 
+    paddingVertical: 16, 
+    paddingHorizontal: 32, 
+    borderRadius: 16, 
+    minWidth: 260, 
+    alignItems: 'center', 
+    marginTop: 12,
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  glowBtnText: { 
+    color: '#fff', 
+    fontWeight: '800',
+    fontSize: 16,
+  },
+  glowBtnGhost: { 
+    paddingVertical: 16, 
+    paddingHorizontal: 32, 
+    borderRadius: 16, 
+    minWidth: 260, 
+    alignItems: 'center', 
+    marginTop: 12, 
+    borderWidth: 2, 
+    borderColor: '#8B5CF6',
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+  },
+  glowBtnGhostText: { 
+    color: '#E5E7EB', 
+    fontWeight: '700',
+    fontSize: 16,
+  },
 });
