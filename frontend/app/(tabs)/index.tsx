@@ -431,35 +431,9 @@ const styles = StyleSheet.create({
     color: '#E5E7EB',
     fontSize: 14,
   },
-  actionsSection: {
+  moodSection: {
     paddingHorizontal: 16,
     marginBottom: 24,
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  actionCard: {
-    width: '48%',
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  actionCardGradient: {
-    padding: 16,
-    minHeight: 80,
-    justifyContent: 'space-between',
-  },
-  actionCardTitle: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '800',
-    marginBottom: 4,
-  },
-  actionCardDescription: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 12,
-    marginBottom: 8,
   },
   addTaskSection: {
     paddingHorizontal: 16,
