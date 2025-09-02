@@ -53,6 +53,34 @@ export default function ProfileScreen() {
 
   useFocusEffect(React.useCallback(() => { refresh(); }, [refresh]));
   
+  // Load profile data from localStorage when screen focuses
+  useFocusEffect(React.useCallback(() => {
+    const loadProfileData = async () => {
+      try {
+        console.log('📂 Loading profile data from localStorage...');
+        const savedProfile = localStorage.getItem('profile_data');
+        if (savedProfile) {
+          const parsedProfile = JSON.parse(savedProfile);
+          console.log('✅ Profile data loaded:', {
+            name: parsedProfile.name,
+            hasProfileImage: parsedProfile.profile_image ? 'YES' : 'NO'
+          });
+          setProfileData({
+            profile_image: parsedProfile.profile_image || null,
+            name: parsedProfile.name || user?.name || 'You',
+            bio: parsedProfile.bio || user?.bio || ''
+          });
+        } else {
+          console.log('📂 No profile data in localStorage');
+        }
+      } catch (error) {
+        console.error('❌ Failed to load profile data:', error);
+      }
+    };
+    
+    loadProfileData();
+  }, [user]));
+  
   const navigateToEdit = () => {
     console.log('🎯 navigateToEdit called - attempting to navigate to /profile/edit');
     
