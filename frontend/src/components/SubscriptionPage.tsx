@@ -78,7 +78,8 @@ const pricingTiers: PricingTier[] = [
 
 export function SubscriptionPage() {
   const insets = useSafeAreaInsets();
-  const [selectedTier, setSelectedTier] = useState<string>('free');
+  const { subscription, upgradeToPremium } = useSubscription();
+  const [selectedTier, setSelectedTier] = useState<string>(subscription.tier);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSubscribe = async (tierId: string) => {
