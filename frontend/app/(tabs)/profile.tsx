@@ -509,6 +509,144 @@ export default function ProfileScreen() {
               <Text style={styles.modernTitle}>{profileData.name || "You"}</Text>
               <Text style={styles.modernSubtitle}>ADHD Champion • Level {currentLevel}</Text>
               <Text style={styles.modernID}>ID: #{Math.random().toString(36).substr(2, 8).toUpperCase()}</Text>
+              
+              {/* Subscription Status Badge */}
+              <View style={styles.subscriptionBadge}>
+                <LinearGradient
+                  colors={subscription.tier === 'premium' 
+                    ? ['#8B5CF6', '#EC4899'] 
+                    : ['#6B7280', '#9CA3AF']
+                  }
+                  style={styles.subscriptionBadgeGradient}
+                >
+                  <Text style={styles.subscriptionBadgeEmoji}>
+                    {subscription.tier === 'premium' ? '👑' : '🆓'}
+                  </Text>
+                  <Text style={styles.subscriptionBadgeText}>
+                    {subscription.tier === 'premium' ? 'Premium' : 'Free Plan'}
+                  </Text>
+                </LinearGradient>
+              </View>
+            </View>
+            {/* User Info with Modern Typography */}
+            <View style={styles.headerInfo}>
+              <Text style={styles.modernTitle}>{profileData.name || "You"}</Text>
+              <Text style={styles.modernSubtitle}>ADHD Champion • Level {currentLevel}</Text>
+              <Text style={styles.modernID}>ID: #{Math.random().toString(36).substr(2, 8).toUpperCase()}</Text>
+              
+              {/* Subscription Status Badge */}
+              <View style={styles.subscriptionBadge}>
+                <LinearGradient
+                  colors={subscription.tier === 'premium' 
+                    ? ['#8B5CF6', '#EC4899'] 
+                    : ['#6B7280', '#9CA3AF']
+                  }
+                  style={styles.subscriptionBadgeGradient}
+                >
+                  <Text style={styles.subscriptionBadgeEmoji}>
+                    {subscription.tier === 'premium' ? '👑' : '🆓'}
+                  </Text>
+                  <Text style={styles.subscriptionBadgeText}>
+                    {subscription.tier === 'premium' ? 'Premium' : 'Free Plan'}
+                  </Text>
+                </LinearGradient>
+              </View>
+            </View>
+            {/* User Info with Modern Typography */}
+            <View style={styles.headerInfo}>
+              <Text style={styles.modernTitle}>{profileData.name || "You"}</Text>
+              <Text style={styles.modernSubtitle}>ADHD Champion • Level {currentLevel}</Text>
+              <Text style={styles.modernID}>ID: #{Math.random().toString(36).substr(2, 8).toUpperCase()}</Text>
+              
+              {/* Subscription Status Badge */}
+              <View style={styles.subscriptionBadge}>
+                <LinearGradient
+                  colors={subscription.tier === 'premium' 
+                    ? ['#8B5CF6', '#EC4899'] 
+                    : ['#6B7280', '#9CA3AF']
+                  }
+                  style={styles.subscriptionBadgeGradient}
+                >
+                  <Text style={styles.subscriptionBadgeEmoji}>
+                    {subscription.tier === 'premium' ? '👑' : '🆓'}
+                  </Text>
+                  <Text style={styles.subscriptionBadgeText}>
+                    {subscription.tier === 'premium' ? 'Premium' : 'Free Plan'}
+                  </Text>
+                </LinearGradient>
+              </View>
+            </View>
+            {/* User Info with Modern Typography */}
+            <View style={styles.headerInfo}>
+              <Text style={styles.modernTitle}>{profileData.name || "You"}</Text>
+              <Text style={styles.modernSubtitle}>ADHD Champion • Level {currentLevel}</Text>
+              <Text style={styles.modernID}>ID: #{Math.random().toString(36).substr(2, 8).toUpperCase()}</Text>
+              
+              {/* Subscription Status Badge */}
+              <View style={styles.subscriptionBadge}>
+                <LinearGradient
+                  colors={subscription.tier === 'premium' 
+                    ? ['#8B5CF6', '#EC4899'] 
+                    : ['#6B7280', '#9CA3AF']
+                  }
+                  style={styles.subscriptionBadgeGradient}
+                >
+                  <Text style={styles.subscriptionBadgeEmoji}>
+                    {subscription.tier === 'premium' ? '👑' : '🆓'}
+                  </Text>
+                  <Text style={styles.subscriptionBadgeText}>
+                    {subscription.tier === 'premium' ? 'Premium' : 'Free Plan'}
+                  </Text>
+                </LinearGradient>
+              </View>
+            </View>
+            {/* User Info with Modern Typography */}
+            <View style={styles.headerInfo}>
+              <Text style={styles.modernTitle}>{profileData.name || "You"}</Text>
+              <Text style={styles.modernSubtitle}>ADHD Champion • Level {currentLevel}</Text>
+              <Text style={styles.modernID}>ID: #{Math.random().toString(36).substr(2, 8).toUpperCase()}</Text>
+              
+              {/* Subscription Status Badge */}
+              <View style={styles.subscriptionBadge}>
+                <LinearGradient
+                  colors={subscription.tier === 'premium' 
+                    ? ['#8B5CF6', '#EC4899'] 
+                    : ['#6B7280', '#9CA3AF']
+                  }
+                  style={styles.subscriptionBadgeGradient}
+                >
+                  <Text style={styles.subscriptionBadgeEmoji}>
+                    {subscription.tier === 'premium' ? '👑' : '🆓'}
+                  </Text>
+                  <Text style={styles.subscriptionBadgeText}>
+                    {subscription.tier === 'premium' ? 'Premium' : 'Free Plan'}
+                  </Text>
+                </LinearGradient>
+              </View>
+            </View>
+            {/* User Info with Modern Typography */}
+            <View style={styles.headerInfo}>
+              <Text style={styles.modernTitle}>{profileData.name || "You"}</Text>
+              <Text style={styles.modernSubtitle}>ADHD Champion • Level {currentLevel}</Text>
+              <Text style={styles.modernID}>ID: #{Math.random().toString(36).substr(2, 8).toUpperCase()}</Text>
+              
+              {/* Subscription Status Badge */}
+              <View style={styles.subscriptionBadge}>
+                <LinearGradient
+                  colors={subscription.tier === 'premium' 
+                    ? ['#8B5CF6', '#EC4899'] 
+                    : ['#6B7280', '#9CA3AF']
+                  }
+                  style={styles.subscriptionBadgeGradient}
+                >
+                  <Text style={styles.subscriptionBadgeEmoji}>
+                    {subscription.tier === 'premium' ? '👑' : '🆓'}
+                  </Text>
+                  <Text style={styles.subscriptionBadgeText}>
+                    {subscription.tier === 'premium' ? 'Premium' : 'Free Plan'}
+                  </Text>
+                </LinearGradient>
+              </View>
             </View>
           </View>
 
