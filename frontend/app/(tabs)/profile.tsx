@@ -275,22 +275,27 @@ export default function ProfileScreen() {
     switch (activeTab) {
       case 'achievements':
         return (
-          <View style={styles.tabContent}>
-            <Text style={styles.sectionTitle}>🏆 Achievement Gallery</Text>
-            <View style={styles.achievementGrid}>
-              {achievements.map((achievement, index) => (
-                <AchievementBadge
-                  key={achievement.id}
-                  achievement={achievement}
-                  size="medium"
-                  showUnlockAnimation={false}
-                  onPress={() => Alert.alert(achievement.name, achievement.description)}
-                />
-              ))}
-            </View>
-            <Text style={styles.achievementSummary}>
-              🎯 {completionStats.unlocked}/{completionStats.total} unlocked • {totalPoints.toLocaleString()} points earned
-            </Text>
+          <View style={styles.modernTabContent}>
+            <LinearGradient
+              colors={['rgba(255, 60, 172, 0.1)', 'rgba(183, 75, 255, 0.1)', 'rgba(0, 207, 255, 0.1)']}
+              style={styles.modernCard}
+            >
+              <Text style={styles.modernSectionTitle}>🏆 Achievement Gallery</Text>
+              <View style={styles.achievementGrid}>
+                {achievements.map((achievement, index) => (
+                  <AchievementBadge
+                    key={achievement.id}
+                    achievement={achievement}
+                    size="medium"
+                    showUnlockAnimation={false}
+                    onPress={() => Alert.alert(achievement.name, achievement.description)}
+                  />
+                ))}
+              </View>
+              <Text style={styles.modernAchievementSummary}>
+                🎯 {completionStats.unlocked}/{completionStats.total} unlocked • {totalPoints.toLocaleString()} points earned
+              </Text>
+            </LinearGradient>
           </View>
         );
       case 'stats':
