@@ -40,7 +40,10 @@ export default function OnboardingScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#8B5CF6', '#A855F7']}
+      style={styles.container}
+    >
       {showResults && results ? (
         <OnboardingResults 
           result={results}
@@ -52,7 +55,7 @@ export default function OnboardingScreen() {
           onSkip={handleSkip}
         />
       )}
-    </View>
+    </LinearGradient>
   );
 }
 
