@@ -599,7 +599,7 @@ export default function ProfileScreen() {
           style={styles.modernSignOutBtn}
         >
           <LinearGradient
-            colors={['#FF4444', '#FF6B6B']}
+            colors={['#EC4899', '#F97316']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.signOutGradient}
