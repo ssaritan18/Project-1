@@ -773,7 +773,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   
-  // Modern Gradient Header Styles
+  // Glow-Inspired Gradient Header Styles
   glowHeader: {
     paddingHorizontal: 20,
     paddingBottom: 30,
