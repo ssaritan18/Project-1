@@ -11,6 +11,7 @@ import { router } from "expo-router";
 import { useRuntimeConfig } from "../../src/context/RuntimeConfigContext";
 import { api } from "../../src/lib/api";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
 // New ADHD-friendly components
 import { AchievementBadge } from "../../src/components/AchievementBadge";
