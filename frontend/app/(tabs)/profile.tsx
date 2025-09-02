@@ -561,6 +561,24 @@ export default function ProfileScreen() {
           {renderTabContent()}
         </View>
         
+        {/* Premium Upgrade Button */}
+        <TouchableOpacity 
+          onPress={() => router.push('/subscription')}
+          style={styles.upgradeButton}
+        >
+          <LinearGradient
+            colors={['#8B5CF6', '#EC4899', '#F97316']}
+            style={styles.upgradeButtonGradient}
+          >
+            <Text style={styles.upgradeButtonEmoji}>👑</Text>
+            <View style={styles.upgradeButtonContent}>
+              <Text style={styles.upgradeButtonTitle}>Upgrade to Premium</Text>
+              <Text style={styles.upgradeButtonSubtitle}>Unlock all features • .99/month</Text>
+            </View>
+            <Ionicons name="arrow-forward" size={20} color="#fff" />
+          </LinearGradient>
+        </TouchableOpacity>
+        
         {/* Modern Sign Out Button */}
         <TouchableOpacity 
           onPress={async () => {
