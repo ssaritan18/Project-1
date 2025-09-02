@@ -411,34 +411,71 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.profileHeader}>
-          <View style={styles.avatar}>
-            {profileData.profile_image ? (
-              <img 
-                src={profileData.profile_image} 
-                alt="Profile" 
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  borderRadius: '50%',
-                  objectFit: 'cover'
-                }}
-              />
-            ) : (
-              <Text style={styles.avatarText}>
-                {(profileData.name || "You").charAt(0).toUpperCase()}
-              </Text>
-            )}
+    <View style={[styles.container, { paddingTop: 0 }]}>
+      {/* Modern Gradient Header - Behance Inspired */}
+      <LinearGradient
+        colors={['#FF3CAC', '#B74BFF', '#00CFFF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.gradientHeader, { paddingTop: insets.top + 20 }]}
+      >
+        {/* Profile Header with Modern Card Design */}
+        <View style={styles.modernProfileCard}>
+          <View style={styles.profileHeader}>
+            {/* Avatar with Gradient Border */}
+            <View style={styles.avatarContainer}>
+              <LinearGradient
+                colors={['#FFB347', '#FF3CAC', '#00CFFF']}
+                style={styles.avatarGradientBorder}
+              >
+                <View style={styles.avatar}>
+                  {profileData.profile_image ? (
+                    <img 
+                      src={profileData.profile_image} 
+                      alt="Profile" 
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '50%',
+                        objectFit: 'cover'
+                      }}
+                    />
+                  ) : (
+                    <Text style={styles.avatarText}>
+                      {(profileData.name || "You").charAt(0).toUpperCase()}
+                    </Text>
+                  )}
+                </View>
+              </LinearGradient>
+            </View>
+            
+            {/* User Info with Modern Typography */}
+            <View style={styles.headerInfo}>
+              <Text style={styles.modernTitle}>{profileData.name || "You"}</Text>
+              <Text style={styles.modernSubtitle}>ADHD Champion • Level {currentLevel}</Text>
+              <Text style={styles.modernID}>ID: #{Math.random().toString(36).substr(2, 8).toUpperCase()}</Text>
+            </View>
           </View>
-          <View style={styles.headerInfo}>
-            <Text style={styles.title}>{profileData.name || "You"}</Text>
-            <Text style={styles.subtitle}>ADHD Champion • Level {currentLevel}</Text>
+
+          {/* Stats Row - Behance Style */}
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{totalPoints}</Text>
+              <Text style={styles.statLabel}>Points</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{completionStats.unlocked}</Text>
+              <Text style={styles.statLabel}>Badges</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{currentStreak}</Text>
+              <Text style={styles.statLabel}>Streak</Text>
+            </View>
           </View>
         </View>
-      </View>
+      </LinearGradient>
 
       {/* Tab Navigation */}
       <View style={styles.tabNav}>
