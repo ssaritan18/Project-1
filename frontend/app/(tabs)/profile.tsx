@@ -877,4 +877,12 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
+  
+  // Missing stat styles
+  statLabel: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 2,
+  },
 });
