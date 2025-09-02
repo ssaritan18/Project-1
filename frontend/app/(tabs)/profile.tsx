@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Platform, DevSettings, Switch } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from "../../src/context/AuthContext";
 import { useTasks } from "../../src/context/TasksContext";
 import { ProgressBar } from "../../src/components/ProgressBar";
