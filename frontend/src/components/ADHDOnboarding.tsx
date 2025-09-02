@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   scaleLabel: {
-    color: '#fff',
+    color: '#E5E7EB',
     fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
@@ -605,36 +605,40 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 16,
   },
-  answerButton: {
-    borderRadius: 12,
-    borderWidth: 2,
-    marginBottom: 12,
-    overflow: 'hidden',
-  },
   yesNoButton: {
     flex: 1,
   },
-  answerTouchable: {
+  glowAnswerButton: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 12,
+  },
+  glowAnswerGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+    borderRadius: 16,
   },
-  answerText: {
+  glowAnswerText: {
     fontSize: 18,
     fontWeight: '600',
+    flex: 1,
   },
-  answerValue: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+  glowAnswerValue: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 2,
   },
-  answerValueText: {
+  glowAnswerValueText: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   encouragement: {
     color: '#888',
