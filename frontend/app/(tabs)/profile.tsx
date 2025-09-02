@@ -1072,4 +1072,47 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  
+  // Premium Upgrade Button Styles
+  upgradeButton: {
+    marginTop: 16,
+    marginHorizontal: 20,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  upgradeButtonGradient: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 70,
+  },
+  upgradeButtonEmoji: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  upgradeButtonContent: {
+    flex: 1,
+    marginRight: 12,
+  },
+  upgradeButtonTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 2,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  upgradeButtonSubtitle: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 14,
+    fontWeight: '600',
+  },
 });
