@@ -108,38 +108,6 @@ export default function HomeScreen() {
     </ScaleDecorator>
   );
 
-  // Dashboard feature cards
-  const dashboardFeatures = [
-    {
-      id: 'focus',
-      title: '🎯 Focus Mode',
-      description: 'Start a focused work session',
-      gradient: ['#8B5CF6', '#A855F7'],
-      onPress: () => router.push('/focus-timer')
-    },
-    {
-      id: 'community',
-      title: '👥 Community',
-      description: 'Connect with ADHDers',
-      gradient: ['#EC4899', '#F97316'],
-      onPress: () => router.push('/(tabs)/community')
-    },
-    {
-      id: 'friends',
-      title: '❤️ Friends',
-      description: 'Manage your connections',
-      gradient: ['#10B981', '#34D399'],
-      onPress: () => router.push('/(tabs)/friends')
-    },
-    {
-      id: 'profile',
-      title: '👤 Profile',
-      description: 'View your progress',
-      gradient: ['#F97316', '#FBBF24'],
-      onPress: () => router.push('/(tabs)/profile')
-    }
-  ];
-
   return (
     <LinearGradient
       colors={['#1a1a2e', '#16213e', '#0f172a']}
