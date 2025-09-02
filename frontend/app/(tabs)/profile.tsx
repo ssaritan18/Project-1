@@ -40,6 +40,13 @@ export default function ProfileScreen() {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [currentUserProfile, setCurrentUserProfile] = useState(user);
   
+  // Profile data state (synced with edit profile)
+  const [profileData, setProfileData] = useState({
+    profile_image: null as string | null,
+    name: user?.name || 'You',
+    bio: user?.bio || ''
+  });
+  
   const total = tasks.reduce((a, t) => a + t.goal, 0);
   const done = tasks.reduce((a, t) => a + t.progress, 0);
   const ratio = total ? done / total : 0;
