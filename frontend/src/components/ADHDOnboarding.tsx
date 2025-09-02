@@ -532,9 +532,9 @@ const styles = StyleSheet.create({
     textShadowRadius: 8,
   },
   headerSubtitle: {
-    color: '#888',
-    fontSize: 12,
-    marginTop: 2,
+    color: '#E5E7EB',
+    fontSize: 16,
+    fontWeight: '500',
   },
   headerRight: {
     width: 40,
