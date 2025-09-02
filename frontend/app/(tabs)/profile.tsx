@@ -415,9 +415,22 @@ export default function ProfileScreen() {
       <View style={styles.header}>
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {(user?.name || "You").charAt(0).toUpperCase()}
-            </Text>
+            {profileData.profile_image ? (
+              <img 
+                src={profileData.profile_image} 
+                alt="Profile" 
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  objectFit: 'cover'
+                }}
+              />
+            ) : (
+              <Text style={styles.avatarText}>
+                {(profileData.name || "You").charAt(0).toUpperCase()}
+              </Text>
+            )}
           </View>
           <View style={styles.headerInfo}>
             <Text style={styles.title}>{user?.name || "You"}</Text>
