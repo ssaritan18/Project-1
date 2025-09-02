@@ -35,12 +35,14 @@ function AppWrapper() {
       <TasksProvider>
         <FriendsProvider>
           <CommunityProvider>
-            <ErrorBoundary>
-              <ChatProvider>
-                <StatusBar style="light" />
-                <Stack screenOptions={{ headerShown: false }} />
-              </ChatProvider>
-            </ErrorBoundary>
+            <MoodProvider>
+              <ErrorBoundary>
+                <ChatProvider>
+                  <StatusBar style="light" />
+                  <Stack screenOptions={{ headerShown: false }} />
+                </ChatProvider>
+              </ErrorBoundary>
+            </MoodProvider>
           </CommunityProvider>
         </FriendsProvider>
       </TasksProvider>
