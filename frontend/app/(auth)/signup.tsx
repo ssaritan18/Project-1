@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, TextInput, Alert } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from "../../src/context/AuthContext";
 import { router, useLocalSearchParams } from "expo-router";
 
