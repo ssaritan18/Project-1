@@ -240,6 +240,108 @@ export function ProfileStatistics({
         />
       </ScrollView>
 
+      {/* Mood Patterns Section */}
+      <View style={styles.moodSection}>
+        <Text style={styles.sectionTitle}>💭 Mood Patterns</Text>
+        
+        {moodStats.totalEntries > 0 ? (
+          <>
+            {/* Mood Statistics Cards */}
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.cardsContainer}
+            >
+              <StatCard
+                title="Mood Streak"
+                value={moodStats.currentStreak}
+                emoji="🔥"
+                color="#FF6B35"
+                subtitle="Days tracked"
+              />
+              <StatCard
+                title="Most Common"
+                value={0}
+                emoji={
+                  Object.entries(MOOD_CONFIG).find(([key, config]) => 
+                    config.label === moodStats.mostCommonMood
+                  )?.[1]?.emoji || '😊'
+                }
+                color="#8B5CF6"
+                subtitle={moodStats.mostCommonMood}
+              />
+              <StatCard
+                title="Total Entries"
+                value={moodStats.totalEntries}
+                emoji="📊"
+                color="#10B981"
+                subtitle="Mood logs"
+              />
+              <StatCard
+                title="Best Streak"
+                value={moodStats.longestStreak}
+                emoji="🏆"
+                color="#F97316"
+                subtitle="Personal record"
+              />
+            </ScrollView>
+
+            {/* Recent Mood Timeline */}
+            <LinearGradient
+              colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
+              style={styles.moodTimelineCard}
+            >
+              <Text style={styles.moodTimelineTitle}>📅 Last 7 Days</Text>
+              <View style={styles.moodTimeline}>
+                {recentMoods.slice(0, 7).map((mood, index) => {
+                  const date = new Date(mood.date);
+                  const dayName = date.toLocaleDateString('en', { weekday: 'short' });
+                  
+                  return (
+                    <View key={mood.id} style={styles.moodTimelineItem}>
+                      <Text style={styles.moodTimelineDay}>{dayName}</Text>
+                      <View style={styles.moodTimelineEmoji}>
+                        <Text style={styles.moodEmojiLarge}>{mood.emoji}</Text>
+                      </View>
+                      <Text style={styles.moodTimelineLabel}>
+                        {MOOD_CONFIG[mood.mood].label}
+                      </Text>
+                    </View>
+                  );
+                })}
+                
+                {/* Fill empty days */}
+                {Array.from({ length: Math.max(0, 7 - recentMoods.length) }).map((_, index) => (
+                  <View key={`empty-${index}`} style={styles.moodTimelineItem}>
+                    <Text style={styles.moodTimelineDay}>--</Text>
+                    <View style={[styles.moodTimelineEmoji, styles.emptyMoodEmoji]}>
+                      <Text style={styles.emptyMoodText}>?</Text>
+                    </View>
+                    <Text style={styles.moodTimelineLabel}>No data</Text>
+                  </View>
+                ))}
+              </View>
+              
+              <Text style={styles.moodInsight}>
+                💡 Track your mood daily to discover patterns and improve your well-being!
+              </Text>
+            </LinearGradient>
+          </>
+        ) : (
+          <LinearGradient
+            colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
+            style={styles.moodEmptyCard}
+          >
+            <Text style={styles.moodEmptyEmoji}>💭✨</Text>
+            <Text style={styles.moodEmptyTitle}>Start Tracking Your Mood!</Text>
+            <Text style={styles.moodEmptyDescription}>
+              Begin logging your daily mood to see patterns and insights here. 
+              Your mood data helps you understand what affects your well-being.
+            </Text>
+          </LinearGradient>
+        )}
+      </View>
+
       {/* Progress Charts */}
       <View style={styles.chartsSection}>
         <Text style={styles.sectionTitle}>📊 Progress Charts</Text>
