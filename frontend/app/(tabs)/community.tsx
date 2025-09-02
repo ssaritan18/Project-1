@@ -9,8 +9,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-  Animated
+  Animated,
+  ScrollView
 } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { FlashList } from "@shopify/flash-list";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
