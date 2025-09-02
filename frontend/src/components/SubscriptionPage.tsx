@@ -137,6 +137,8 @@ export function SubscriptionPage() {
       };
     }
   });
+
+  const renderFeature = (feature: FeatureItem, index: number) => (
     <View key={index} style={styles.featureItem}>
       <Text style={styles.featureIcon}>{feature.icon}</Text>
       <Text style={[
