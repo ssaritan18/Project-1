@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert, ScrollView } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { FlashList } from "@shopify/flash-list";
 import { useChat } from "../../../src/context/ChatContext";
 import { useRuntimeConfig } from "../../../src/context/RuntimeConfigContext";
