@@ -393,24 +393,24 @@ export default function ProfileScreen() {
               )}
             </LinearGradient>
 
-            {/* Modern Quick Stats */}
+            {/* Glow Quick Stats */}
             <LinearGradient
-              colors={['rgba(255, 179, 71, 0.1)', 'rgba(255, 60, 172, 0.1)']}
+              colors={['rgba(249, 115, 22, 0.1)', 'rgba(236, 72, 153, 0.1)']}
               style={[styles.modernCard, { marginTop: 16 }]}
             >
               <Text style={styles.modernSectionTitle}>📊 Quick Stats</Text>
               <View style={styles.modernQuickStats}>
-                <LinearGradient colors={['#00C851', '#00A844']} style={styles.modernStatCard}>
+                <LinearGradient colors={['#8B5CF6', '#A855F7']} style={styles.modernStatCard}>
                   <Text style={styles.modernStatEmoji}>✅</Text>
                   <Text style={styles.modernStatValue}>{done}</Text>
                   <Text style={styles.modernStatLabel}>Tasks Done</Text>
                 </LinearGradient>
-                <LinearGradient colors={['#FF6B35', '#FF8C42']} style={styles.modernStatCard}>
+                <LinearGradient colors={['#EC4899', '#F97316']} style={styles.modernStatCard}>
                   <Text style={styles.modernStatEmoji}>🏆</Text>
                   <Text style={styles.modernStatValue}>{completionStats.unlocked}</Text>
                   <Text style={styles.modernStatLabel}>Badges</Text>
                 </LinearGradient>
-                <LinearGradient colors={['#FFB347', '#FFC77D']} style={styles.modernStatCard}>
+                <LinearGradient colors={['#F97316', '#FBBF24']} style={styles.modernStatCard}>
                   <Text style={styles.modernStatEmoji}>⭐</Text>
                   <Text style={styles.modernStatValue}>{totalPoints}</Text>
                   <Text style={styles.modernStatLabel}>Points</Text>
