@@ -463,7 +463,7 @@ export default function ProfileScreen() {
     <View style={[styles.container, { paddingTop: 0 }]}>
       {/* Glow-Inspired Gradient Header */}
       <LinearGradient
-        colors={['#FF3CAC', '#B74BFF', '#00CFFF']}
+        colors={['#8B5CF6', '#B74BFF', '#00CFFF']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[styles.glowHeader, { paddingTop: insets.top + 20 }]}
