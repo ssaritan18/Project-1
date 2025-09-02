@@ -57,67 +57,83 @@ export default function ChatList() {
   const directChats = chats.filter(chat => chat.type === 'DIRECT');
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerRow}>
-            <Text style={styles.headerTitle}>💬 Chats & Groups</Text>
-            <TouchableOpacity onPress={handleRefresh} style={[styles.refreshBtn, { backgroundColor: palette.primary }]} disabled={isLoading}>
-              <Ionicons name="refresh" size={20} color={isLoading ? "#666" : "#0c0c0c"} />
-            </TouchableOpacity>
-          </View>
-          
-          {/* Status indicator */}
-          <Text style={styles.statusText}>
-            Mode: {mode} • Total: {chats.length} chats • {isLoading ? "Loading..." : "Ready"}
-          </Text>
-          
-          {error && (
-            <View style={styles.errorBanner}>
-              <Ionicons name="warning" size={16} color="#FF6B6B" />
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          )}
-        </View>
-        
-        {/* Create & Join Section */}
-        <View style={styles.actionsContainer}>
-          <Text style={styles.sectionTitle}>✨ Quick Actions</Text>
-          
-          <View style={styles.actionRow}>
-            <TextInput 
-              style={styles.input} 
-              placeholder="Create new group chat..." 
-              placeholderTextColor="#777" 
-              value={title} 
-              onChangeText={setTitle}
-              maxLength={50}
-            />
-            <TouchableOpacity 
-              style={[styles.createBtn, { 
-                backgroundColor: palette.accent, 
-                opacity: title.trim() && !isLoading ? 1 : 0.5 
-              }]} 
-              onPress={create} 
-              disabled={!title.trim() || isLoading}
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#0f172a']}
+      style={styles.container}
+    >
+      <View style={[styles.contentContainer, { paddingTop: insets.top + 20 }]}>
+        {/* Glow Header */}
+        <LinearGradient
+          colors={['#8B5CF6', '#EC4899', '#F97316']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.glowHeader}
+        >
+          <Text style={styles.glowHeaderTitle}>💬 Chat Hub</Text>
+          <Text style={styles.glowHeaderSubtitle}>Connect and chat with ADHDers</Text>
+        </LinearGradient>
+
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+        >
+          {/* Quick Actions Section */}
+          <View style={styles.actionsSection}>
+            <Text style={styles.sectionTitle}>⚡ Quick Actions</Text>
+            
+            {/* Create Chat Card */}
+            <LinearGradient
+              colors={['rgba(139, 92, 246, 0.1)', 'rgba(168, 85, 247, 0.1)']}
+              style={styles.actionCard}
             >
-              <Ionicons name="add-circle" size={20} color="#0c0c0c" />
-            </TouchableOpacity>
+              <Text style={styles.actionCardTitle}>🌟 Create Group Chat</Text>
+              <View style={styles.actionRow}>
+                <TextInput 
+                  style={styles.glowInput} 
+                  placeholder="Enter group name..." 
+                  placeholderTextColor="#B9B9B9" 
+                  value={title} 
+                  onChangeText={setTitle}
+                  maxLength={50}
+                />
+                <TouchableOpacity onPress={create} disabled={!title.trim() || isLoading}>
+                  <LinearGradient 
+                    colors={title.trim() && !isLoading ? ['#8B5CF6', '#A855F7'] : ['#666', '#555']} 
+                    style={styles.actionBtn}
+                  >
+                    <Ionicons name="add-circle" size={20} color="#fff" />
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
+
+            {/* Join Chat Card */}
+            <LinearGradient
+              colors={['rgba(236, 72, 153, 0.1)', 'rgba(249, 115, 22, 0.1)']}
+              style={styles.actionCard}
+            >
+              <Text style={styles.actionCardTitle}>🎯 Join with Code</Text>
+              <View style={styles.actionRow}>
+                <TextInput 
+                  style={styles.glowInput} 
+                  placeholder="Enter invite code..." 
+                  placeholderTextColor="#B9B9B9" 
+                  value={code} 
+                  onChangeText={setCode}
+                  autoCapitalize="characters"
+                  maxLength={10}
+                />
+                <TouchableOpacity onPress={join} disabled={!code.trim() || isLoading}>
+                  <LinearGradient 
+                    colors={code.trim() && !isLoading ? ['#EC4899', '#F97316'] : ['#666', '#555']} 
+                    style={styles.actionBtn}
+                  >
+                    <Ionicons name="enter" size={20} color="#fff" />
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
           </View>
-          
-          <View style={styles.actionRow}>
-            <TextInput 
-              style={styles.input} 
-              placeholder="Join group with invite code..." 
-              placeholderTextColor="#777" 
-              value={code} 
-              onChangeText={setCode}
-              autoCapitalize="characters"
-              maxLength={10}
-            />
-            <TouchableOpacity 
               style={[styles.joinBtn, { 
                 backgroundColor: palette.secondary, 
                 opacity: code.trim() && !isLoading ? 1 : 0.5 
