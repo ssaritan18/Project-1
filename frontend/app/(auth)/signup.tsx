@@ -50,33 +50,100 @@ export default function SignUp() {
           <TextInput style={styles.glowInput} placeholder="jane@example.com" placeholderTextColor="#B9B9B9" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} value={email} onChangeText={setEmail} returnKeyType="next" />
         </View>
         <View style={styles.glowInputBox}>
-          <Text style={styles.label}>PIN/Password</Text>
-          <TextInput style={styles.input} placeholder="••••" placeholderTextColor="#777" secureTextEntry value={password} onChangeText={setPassword} returnKeyType="done" onSubmitEditing={submit} />
+          <Text style={styles.glowLabel}>PIN/Password</Text>
+          <TextInput style={styles.glowInput} placeholder="••••" placeholderTextColor="#B9B9B9" secureTextEntry value={password} onChangeText={setPassword} returnKeyType="done" onSubmitEditing={submit} />
         </View>
 
-        <TouchableOpacity style={[styles.primaryBtn, !valid && styles.disabledBtn]} onPress={submit} disabled={!valid}>
-          <Text style={[styles.primaryText, !valid && styles.disabledText]}>Sign Up</Text>
+        <TouchableOpacity onPress={submit} disabled={!valid}>
+          <LinearGradient colors={!valid ? ['#666', '#555'] : ['#EC4899', '#F97316']} style={styles.glowBtn}>
+            <Text style={styles.glowBtnText}>Sign Up</Text>
+          </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Text style={styles.backText}>Back to Welcome</Text>
+        <TouchableOpacity style={styles.glowBackBtn} onPress={() => router.back()}>
+          <Text style={styles.glowBackText}>Back to Welcome</Text>
         </TouchableOpacity>
-      </View>
+      </LinearGradient>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0c0c0c", alignItems: "center", justifyContent: "center", padding: 24 },
-  title: { color: "#fff", fontSize: 22, fontWeight: "800", marginBottom: 8 },
-  subtitle: { color: "#d1d1d1", fontSize: 12, marginBottom: 24 },
-  inputBox: { width: "100%", maxWidth: 360, marginBottom: 12 },
-  label: { color: "#bdbdbd", marginBottom: 6 },
-  input: { backgroundColor: "#111", color: "#fff", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: "#1a1a1a" },
-  primaryBtn: { backgroundColor: "#A3C9FF", paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, minWidth: 240, alignItems: "center", marginTop: 8 },
-  primaryText: { color: "#0c0c0c", fontWeight: "700" },
-  disabledBtn: { opacity: 0.5 },
-  disabledText: { color: "#333" },
-  backBtn: { backgroundColor: "transparent", paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, minWidth: 240, alignItems: "center", marginTop: 12, borderWidth: 1, borderColor: "#333" },
-  backText: { color: "#bdbdbd", fontWeight: "600" },
+  container: { 
+    flex: 1, 
+    alignItems: "center", 
+    justifyContent: "center", 
+    padding: 24 
+  },
+  glowTitle: { 
+    color: "#fff", 
+    fontSize: 28, 
+    fontWeight: "900", 
+    marginBottom: 8,
+    textShadowColor: '#8B5CF6',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
+  },
+  glowSubtitle: { 
+    color: "#E5E7EB", 
+    fontSize: 16,
+    marginBottom: 32,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  glowInputBox: { 
+    width: "100%", 
+    maxWidth: 360, 
+    marginBottom: 16 
+  },
+  glowLabel: { 
+    color: "#E5E7EB", 
+    marginBottom: 8,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  glowInput: { 
+    backgroundColor: "rgba(255, 255, 255, 0.1)", 
+    color: "#fff", 
+    borderRadius: 16, 
+    paddingHorizontal: 16, 
+    paddingVertical: 16, 
+    borderWidth: 1, 
+    borderColor: "rgba(139, 92, 246, 0.3)",
+    fontSize: 16,
+  },
+  glowBtn: { 
+    paddingVertical: 16, 
+    paddingHorizontal: 32, 
+    borderRadius: 16, 
+    minWidth: 260, 
+    alignItems: "center", 
+    marginTop: 24,
+    shadowColor: '#EC4899',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  glowBtnText: { 
+    color: "#fff", 
+    fontWeight: "800",
+    fontSize: 16,
+  },
+  glowBackBtn: { 
+    backgroundColor: "transparent", 
+    paddingVertical: 16, 
+    paddingHorizontal: 32, 
+    borderRadius: 16, 
+    minWidth: 260, 
+    alignItems: "center", 
+    marginTop: 16, 
+    borderWidth: 2, 
+    borderColor: "rgba(139, 92, 246, 0.5)",
+  },
+  glowBackText: { 
+    color: "#E5E7EB", 
+    fontWeight: "600",
+    fontSize: 16,
+  },
 });
