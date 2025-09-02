@@ -13,7 +13,7 @@ import time
 from typing import Dict, Optional, List
 
 # Base URL from frontend .env
-BASE_URL = "https://adhd-social-hub.preview.emergentagent.com/api"
+BASE_URL = "https://glow-adhd-app.preview.emergentagent.com/api"
 WS_URL = "wss://adhd-social-chat.preview.emergentagent.com/api/ws"
 
 class APITester:
