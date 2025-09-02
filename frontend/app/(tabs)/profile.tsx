@@ -474,7 +474,7 @@ export default function ProfileScreen() {
             {/* Avatar with Gradient Border */}
             <View style={styles.avatarContainer}>
               <LinearGradient
-                colors={['#FFB347', '#FF3CAC', '#00CFFF']}
+                colors={['#F97316', '#EC4899', '#8B5CF6']}
                 style={styles.avatarGradientBorder}
               >
                 <View style={styles.avatar}>
