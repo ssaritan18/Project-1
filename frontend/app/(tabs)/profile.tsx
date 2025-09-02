@@ -20,6 +20,7 @@ import { ProfileStatistics } from "../../src/components/ProfileStatistics";
 import { ProfileCompletionGuide } from "../../src/components/ProfileCompletionGuide";
 import NeurodivergencyContent from "../../src/components/NeurodivergencyContent";
 import { useAchievements } from "../../src/hooks/useAchievements";
+import { useSubscription, getSubscriptionStatusDisplay } from "../../src/context/SubscriptionContext";
 import ProfileEditModal from "../../src/components/ProfileEditModal";
 
 const PRESETS = [
