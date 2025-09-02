@@ -334,18 +334,26 @@ export default function ProfileScreen() {
         );
       default:
         return (
-          <View style={styles.tabContent}>
-            {/* Enhanced Streak Visualization */}
-            <StreakVisualization
-              streak={currentStreak}
-              bestStreak={bestStreak}
-              onPress={() => Alert.alert("Streak Info", "Keep going! Every day counts towards building your habits.")}
-              showAnimation={false}
-            />
+          <View style={styles.modernTabContent}>
+            {/* Enhanced Streak Visualization with Modern Card */}
+            <LinearGradient
+              colors={['rgba(255, 107, 53, 0.15)', 'rgba(255, 60, 172, 0.15)']}
+              style={styles.modernCard}
+            >
+              <StreakVisualization
+                streak={currentStreak}
+                bestStreak={bestStreak}
+                onPress={() => Alert.alert("Streak Info", "Keep going! Every day counts towards building your habits.")}
+                showAnimation={false}
+              />
+            </LinearGradient>
 
-            {/* Recent Achievements */}
-            <View style={styles.recentAchievements}>
-              <Text style={styles.sectionTitle}>🎉 Recent Achievements</Text>
+            {/* Recent Achievements with Modern Design */}
+            <LinearGradient
+              colors={['rgba(183, 75, 255, 0.1)', 'rgba(0, 207, 255, 0.1)']}
+              style={[styles.modernCard, { marginTop: 16 }]}
+            >
+              <Text style={styles.modernSectionTitle}>🎉 Recent Achievements</Text>
               {recentAchievements.length > 0 ? (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <View style={styles.achievementRow}>
@@ -360,59 +368,74 @@ export default function ProfileScreen() {
                   </View>
                 </ScrollView>
               ) : (
-                <Text style={styles.emptyText}>Complete tasks to unlock achievements! 🎯</Text>
+                <Text style={styles.modernEmptyText}>Complete tasks to unlock achievements! 🎯</Text>
               )}
-            </View>
+            </LinearGradient>
 
-            {/* Quick Stats */}
-            <View style={styles.quickStats}>
-              <View style={styles.statCard}>
-                <Text style={styles.statEmoji}>✅</Text>
-                <Text style={styles.statValue}>{done}</Text>
-                <Text style={styles.statLabel}>Tasks Done</Text>
+            {/* Modern Quick Stats */}
+            <LinearGradient
+              colors={['rgba(255, 179, 71, 0.1)', 'rgba(255, 60, 172, 0.1)']}
+              style={[styles.modernCard, { marginTop: 16 }]}
+            >
+              <Text style={styles.modernSectionTitle}>📊 Quick Stats</Text>
+              <View style={styles.modernQuickStats}>
+                <LinearGradient colors={['#00C851', '#00A844']} style={styles.modernStatCard}>
+                  <Text style={styles.modernStatEmoji}>✅</Text>
+                  <Text style={styles.modernStatValue}>{done}</Text>
+                  <Text style={styles.modernStatLabel}>Tasks Done</Text>
+                </LinearGradient>
+                <LinearGradient colors={['#FF6B35', '#FF8C42']} style={styles.modernStatCard}>
+                  <Text style={styles.modernStatEmoji}>🏆</Text>
+                  <Text style={styles.modernStatValue}>{completionStats.unlocked}</Text>
+                  <Text style={styles.modernStatLabel}>Badges</Text>
+                </LinearGradient>
+                <LinearGradient colors={['#FFB347', '#FFC77D']} style={styles.modernStatCard}>
+                  <Text style={styles.modernStatEmoji}>⭐</Text>
+                  <Text style={styles.modernStatValue}>{totalPoints}</Text>
+                  <Text style={styles.modernStatLabel}>Points</Text>
+                </LinearGradient>
               </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statEmoji}>🏆</Text>
-                <Text style={styles.statValue}>{completionStats.unlocked}</Text>
-                <Text style={styles.statLabel}>Badges</Text>
-              </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statEmoji}>⭐</Text>
-                <Text style={styles.statValue}>{totalPoints}</Text>
-                <Text style={styles.statLabel}>Points</Text>
-              </View>
-            </View>
+            </LinearGradient>
 
-            {/* Quick Actions */}
-            <View style={styles.quickActions}>
-              <Text style={styles.sectionTitle}>⚡ Quick Actions</Text>
-              <View style={styles.actionGrid}>
-                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#4A90E2' }]} onPress={navigateToEdit}>
-                  <Text style={styles.actionEmoji}>✏️</Text>
-                  <Text style={styles.actionText}>Edit Profile</Text>
+            {/* Modern Quick Actions */}
+            <LinearGradient
+              colors={['rgba(108, 92, 231, 0.1)', 'rgba(74, 144, 226, 0.1)']}
+              style={[styles.modernCard, { marginTop: 16 }]}
+            >
+              <Text style={styles.modernSectionTitle}>⚡ Quick Actions</Text>
+              <View style={styles.modernActionGrid}>
+                <TouchableOpacity onPress={navigateToEdit}>
+                  <LinearGradient colors={['#4A90E2', '#5BA0F2']} style={styles.modernActionBtn}>
+                    <Text style={styles.modernActionEmoji}>✏️</Text>
+                    <Text style={styles.modernActionText}>Edit Profile</Text>
+                  </LinearGradient>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#6C5CE7' }]} onPress={navigateToSettings}>
-                  <Text style={styles.actionEmoji}>⚙️</Text>
-                  <Text style={styles.actionText}>Settings</Text>
+                <TouchableOpacity onPress={navigateToSettings}>
+                  <LinearGradient colors={['#6C5CE7', '#7C6CF7']} style={styles.modernActionBtn}>
+                    <Text style={styles.modernActionEmoji}>⚙️</Text>
+                    <Text style={styles.modernActionText}>Settings</Text>
+                  </LinearGradient>
                 </TouchableOpacity>
               </View>
-            </View>
+            </LinearGradient>
 
-            {/* Advanced Controls (Collapsible) */}
-            <View style={styles.advancedSection}>
-              <Text style={styles.sectionTitle}>🔧 Advanced</Text>
-              <View style={styles.syncRow}>
-                <Text style={styles.meta}>Sync: {syncEnabled ? 'Online' : 'Local'}</Text>
+            {/* Modern Advanced Controls */}
+            <LinearGradient
+              colors={['rgba(255, 255, 255, 0.05)', 'rgba(255, 255, 255, 0.02)']}
+              style={[styles.modernCard, { marginTop: 16 }]}
+            >
+              <Text style={styles.modernSectionTitle}>🔧 Advanced</Text>
+              <View style={styles.modernSyncRow}>
+                <Text style={styles.modernSyncLabel}>Sync: {syncEnabled ? 'Online' : 'Local'}</Text>
                 <Switch value={syncEnabled} onValueChange={onToggleSync} />
               </View>
-              <View style={styles.syncRow}>
-                <Text style={styles.meta}>WebSocket: {wsEnabled ? 'On' : 'Off'}</Text>
+              <View style={styles.modernSyncRow}>
+                <Text style={styles.modernSyncLabel}>WebSocket: {wsEnabled ? 'On' : 'Off'}</Text>
                 <Switch value={wsEnabled} onValueChange={setWsEnabled} />
               </View>
-            </View>
+            </LinearGradient>
           </View>
-        );
-    }
+        );    }
   };
 
   return (
