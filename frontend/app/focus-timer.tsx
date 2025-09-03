@@ -198,6 +198,21 @@ export default function FocusTimer() {
           <Text style={styles.statLabel}>Duration</Text>
         </View>
       </View>
+      
+      {/* Feature Unlock Interstitial */}
+      <MockInterstitialAd
+        visible={showInterstitial}
+        onClose={() => {
+          setShowInterstitial(false);
+          // Navigate back after showing limit
+          router.back();
+        }}
+        adType="feature_unlock"
+        context={{
+          featureName: 'Focus Sessions',
+          limitReached: `You've used all 3 focus sessions today (${subscription.tier === 'free' ? 'Free Plan' : 'Current Plan'})`
+        }}
+      />
     </View>
   );
 }
