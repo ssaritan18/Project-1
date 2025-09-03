@@ -378,7 +378,7 @@ export default function CommunityScreen() {
           style={styles.glowHeader}
         >
           <Text style={styles.glowHeaderTitle}>🌟 Community Hub</Text>
-          <Text style={styles.glowHeaderSubtitle}>Connect with fellow ADHDers</Text>
+          <Text style={styles.glowHeaderSubtitle}>Real ADHD discussions & support</Text>
         </LinearGradient>
 
         {/* Filter Tabs */}
