@@ -107,12 +107,12 @@ export default function FocusTimer() {
     }
   };
 
-  const getModeColor = () => {
+  const getModeGradient = () => {
     switch (mode) {
-      case 'Pomodoro': return '#F97316';
-      case 'Deep Work': return '#8B5CF6';
-      case 'ADHD Sprint': return '#10B981';
-      default: return '#4A90E2';
+      case 'Pomodoro': return ['#F97316', '#FBBF24'];
+      case 'Deep Work': return ['#8B5CF6', '#A855F7'];
+      case 'ADHD Sprint': return ['#10B981', '#34D399'];
+      default: return ['#4A90E2', '#60A5FA'];
     }
   };
 
