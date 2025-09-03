@@ -117,33 +117,54 @@ export default function FocusTimer() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleStop} style={styles.backButton}>
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#0f172a']}
+      style={[styles.container, { paddingTop: insets.top }]}
+    >
+      {/* Glow Header */}
+      <LinearGradient
+        colors={getModeGradient()}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.glowHeader}
+      >
+        <TouchableOpacity 
+          onPress={handleStop}
+          style={styles.backButton}
+        >
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{mode} Mode</Text>
+        
+        <Text style={styles.headerTitle}>
+          {getModeIcon()} {mode} Mode
+        </Text>
+        
         <View style={styles.headerSpacer} />
-      </View>
+      </LinearGradient>
 
       {/* Timer Display */}
       <View style={styles.timerContainer}>
-        <Text style={styles.modeIcon}>{getModeIcon()}</Text>
-        <Text style={styles.modeTitle}>{mode}</Text>
-        
         {/* Circular Progress */}
-        <View style={[styles.progressCircle, { borderColor: getModeColor() }]}>
-          <View style={[styles.progressFill, { 
-            backgroundColor: getModeColor(),
-            transform: [{ rotate: `${(progress * 3.6)}deg` }]
-          }]} />
-          <View style={styles.timerDisplay}>
-            <Text style={styles.timeText}>{formatTime(timeLeft)}</Text>
-            <Text style={styles.timeLabel}>
-              {isCompleted ? 'Completed!' : isRunning ? 'Focus Time' : 'Ready to Focus'}
-            </Text>
-          </View>
+        <View style={styles.progressContainer}>
+          <LinearGradient
+            colors={getModeGradient()}
+            style={[styles.progressCircle]}
+          >
+            <View style={styles.progressInner}>
+              <View style={styles.timerDisplay}>
+                <Text style={styles.timeText}>{formatTime(timeLeft)}</Text>
+                <Text style={styles.timeLabel}>
+                  {isCompleted ? '🎉 Completed!' : isRunning ? '🔥 Focus Time' : '⚡ Ready to Focus'}
+                </Text>
+                <View style={styles.progressBar}>
+                  <LinearGradient
+                    colors={getModeGradient()}
+                    style={[styles.progressFill, { width: `${progress}%` }]}
+                  />
+                </View>
+              </View>
+            </View>
+          </LinearGradient>
         </View>
       </View>
 
@@ -152,52 +173,78 @@ export default function FocusTimer() {
         {!isCompleted && (
           <>
             <TouchableOpacity 
-              style={[styles.controlButton, styles.resetButton]} 
+              style={styles.controlButton} 
               onPress={handleReset}
             >
-              <Ionicons name="refresh" size={24} color="#fff" />
-              <Text style={styles.controlButtonText}>Reset</Text>
+              <LinearGradient
+                colors={['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.05)']}
+                style={styles.controlButtonGradient}
+              >
+                <Ionicons name="refresh" size={24} color="#fff" />
+                <Text style={styles.controlButtonText}>Reset</Text>
+              </LinearGradient>
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={[styles.controlButton, styles.primaryButton, { backgroundColor: getModeColor() }]} 
+              style={styles.primaryControlButton} 
               onPress={isRunning ? handlePause : handleStart}
             >
-              <Ionicons name={isRunning ? "pause" : "play"} size={32} color="#fff" />
-              <Text style={styles.primaryButtonText}>{isRunning ? 'Pause' : 'Start'}</Text>
+              <LinearGradient
+                colors={getModeGradient()}
+                style={styles.primaryButtonGradient}
+              >
+                <Ionicons name={isRunning ? "pause" : "play"} size={32} color="#fff" />
+                <Text style={styles.primaryButtonText}>{isRunning ? 'Pause' : 'Start'}</Text>
+              </LinearGradient>
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={[styles.controlButton, styles.stopButton]} 
+              style={styles.controlButton} 
               onPress={handleStop}
             >
-              <Ionicons name="stop" size={24} color="#fff" />
-              <Text style={styles.controlButtonText}>Stop</Text>
+              <LinearGradient
+                colors={['rgba(220, 38, 38, 0.8)', 'rgba(185, 28, 28, 0.8)']}
+                style={styles.controlButtonGradient}
+              >
+                <Ionicons name="stop" size={24} color="#fff" />
+                <Text style={styles.controlButtonText}>Stop</Text>
+              </LinearGradient>
             </TouchableOpacity>
           </>
         )}
         
         {isCompleted && (
           <TouchableOpacity 
-            style={[styles.controlButton, styles.primaryButton, { backgroundColor: getModeColor() }]} 
+            style={styles.primaryControlButton} 
             onPress={() => router.back()}
           >
-            <Ionicons name="checkmark" size={32} color="#fff" />
-            <Text style={styles.primaryButtonText}>Complete!</Text>
+            <LinearGradient
+              colors={['#10B981', '#34D399']}
+              style={styles.primaryButtonGradient}
+            >
+              <Ionicons name="checkmark" size={32} color="#fff" />
+              <Text style={styles.primaryButtonText}>✨ Complete!</Text>
+            </LinearGradient>
           </TouchableOpacity>
         )}
       </View>
 
       {/* Stats */}
-      <View style={styles.stats}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{Math.ceil(progress)}%</Text>
-          <Text style={styles.statLabel}>Progress</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{duration}m</Text>
-          <Text style={styles.statLabel}>Duration</Text>
-        </View>
+      <View style={styles.statsContainer}>
+        <LinearGradient
+          colors={['rgba(139, 92, 246, 0.1)', 'rgba(168, 85, 247, 0.1)']}
+          style={styles.statsCard}
+        >
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{Math.ceil(progress)}%</Text>
+            <Text style={styles.statLabel}>Progress</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{duration}m</Text>
+            <Text style={styles.statLabel}>Duration</Text>
+          </View>
+        </LinearGradient>
       </View>
       
       {/* Feature Unlock Interstitial */}
@@ -205,7 +252,6 @@ export default function FocusTimer() {
         visible={showInterstitial}
         onClose={() => {
           setShowInterstitial(false);
-          // Navigate back after showing limit
           router.back();
         }}
         adType="feature_unlock"
@@ -214,7 +260,7 @@ export default function FocusTimer() {
           limitReached: `You've used all 3 focus sessions today (${subscription.tier === 'free' ? 'Free Plan' : 'Current Plan'})`
         }}
       />
-    </View>
+    </LinearGradient>
   );
 }
 
