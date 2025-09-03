@@ -44,46 +44,50 @@ export default function PaymentScreen() {
     setIsProcessing(true);
     
     try {
-      // TODO: Real Google Play/App Store payment integration
-      // For now, show that payment is required but not actually process
+      if (!iapInitialized) {
+        throw new Error('Payment service not available');
+      }
+
+      console.log('🛒 Starting real App Store/Google Play purchase...');
+      
+      // Use real IAP service
+      const purchaseResult = await iapService.purchasePremiumMonthly();
+      
+      if (purchaseResult.success && purchaseResult.purchase) {
+        // Purchase successful, upgrade user
+        await upgradeToPremium();
+        
+        Alert.alert(
+          '🎉 Payment Successful!',
+          'Welcome to Premium! You now have access to all premium features. Enjoy your ad-free ADHD support experience!',
+          [
+            {
+              text: 'Start Using Premium',
+              onPress: () => {
+                router.replace('/');
+              }
+            }
+          ]
+        );
+      } else if (purchaseResult.userCancelled) {
+        console.log('👤 User cancelled purchase');
+        // Don't show error for user cancellation
+      } else {
+        throw new Error(purchaseResult.error || 'Purchase failed');
+      }
+    } catch (error: any) {
+      console.error('❌ Payment error:', error);
       
       Alert.alert(
-        '🚧 Payment Integration Coming Soon',
-        'Real Google Play/App Store payment integration will be implemented before production. This is currently a demo version.',
+        '🚧 Payment Processing',
+        __DEV__ 
+          ? `Development mode: ${error.message}\n\nIn production, this will process real payments through ${Platform.OS === 'ios' ? 'App Store' : 'Google Play'}.`
+          : 'There was an issue processing your payment. Please try again.',
         [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-            onPress: () => setIsProcessing(false)
-          },
-          {
-            text: 'Demo Upgrade (Dev Only)',
-            onPress: async () => {
-              // Only for development testing
-              await upgradeToPremium();
-              
-              Alert.alert(
-                '🎉 Demo Upgrade Successful!',
-                'This is a development demo. In production, real payment will be processed through Google Play/App Store.',
-                [
-                  {
-                    text: 'Continue to App',
-                    onPress: () => {
-                      router.replace('/');
-                    }
-                  }
-                ]
-              );
-            }
-          }
+          { text: 'OK' }
         ]
       );
-    } catch (error) {
-      Alert.alert(
-        'Error',
-        'There was an issue. Please try again.',
-        [{ text: 'OK' }]
-      );
+    } finally {
       setIsProcessing(false);
     }
   };
