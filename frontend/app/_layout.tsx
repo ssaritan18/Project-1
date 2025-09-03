@@ -55,22 +55,10 @@ function AppWrapper() {
 }
 
 export default function RootLayout() {
-  // Initialize AdMob on app startup
+  // Initialize AdMob on app startup - Disabled for development
   useEffect(() => {
-    const initializeAdMob = async () => {
-      try {
-        const initialized = await adMobService.initialize();
-        if (initialized) {
-          console.log('🎯 AdMob ready for monetization!');
-        } else {
-          console.warn('⚠️ AdMob initialization failed - ads disabled');
-        }
-      } catch (error) {
-        console.error('❌ AdMob setup error:', error);
-      }
-    };
-
-    initializeAdMob();
+    console.log('🔧 Development mode: Using mock ads instead of real AdMob');
+    console.log('🚀 Real AdMob will be initialized in production');
   }, []);
 
   return (
