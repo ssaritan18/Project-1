@@ -23,32 +23,46 @@ export default function PaymentScreen() {
     setIsProcessing(true);
     
     try {
-      // Simulate App Store/Google Play in-app purchase
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Upgrade to premium
-      await upgradeToPremium();
+      // TODO: Real Google Play/App Store payment integration
+      // For now, show that payment is required but not actually process
       
       Alert.alert(
-        '🎉 Payment Successful!',
-        'Welcome to Premium! You now have access to all premium features. Enjoy your ad-free ADHD support experience!',
+        '🚧 Payment Integration Coming Soon',
+        'Real Google Play/App Store payment integration will be implemented before production. This is currently a demo version.',
         [
           {
-            text: 'Start Using Premium',
-            onPress: () => {
-              // Navigate to main app
-              router.replace('/');
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => setIsProcessing(false)
+          },
+          {
+            text: 'Demo Upgrade (Dev Only)',
+            onPress: async () => {
+              // Only for development testing
+              await upgradeToPremium();
+              
+              Alert.alert(
+                '🎉 Demo Upgrade Successful!',
+                'This is a development demo. In production, real payment will be processed through Google Play/App Store.',
+                [
+                  {
+                    text: 'Continue to App',
+                    onPress: () => {
+                      router.replace('/');
+                    }
+                  }
+                ]
+              );
             }
           }
         ]
       );
     } catch (error) {
       Alert.alert(
-        'Payment Failed',
-        'There was an issue processing your payment. Please try again.',
+        'Error',
+        'There was an issue. Please try again.',
         [{ text: 'OK' }]
       );
-    } finally {
       setIsProcessing(false);
     }
   };
