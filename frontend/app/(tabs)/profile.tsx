@@ -22,7 +22,7 @@ import NeurodivergencyContent from "../../src/components/NeurodivergencyContent"
 import { useAchievements } from "../../src/hooks/useAchievements";
 import { useSubscription, getSubscriptionStatusDisplay } from "../../src/context/SubscriptionContext";
 import { DevTools } from "../../src/components/DevTools";
-import { RewardedAdButton } from "../../src/components/RewardedAdButton";
+import { MockRewardedAdButton } from "../../src/components/MockRewardedAdButton";
 import ProfileEditModal from "../../src/components/ProfileEditModal";
 
 const PRESETS = [
@@ -322,7 +322,7 @@ export default function ProfileScreen() {
               />
               
               {/* Rewarded Ad for Extra Points */}
-              <RewardedAdButton
+              <MockRewardedAdButton
                 onRewardEarned={(amount, type) => {
                   console.log(`🎁 User earned ${amount} ${type} from ad!`);
                   // Here you could add points to user's account
