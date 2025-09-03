@@ -211,7 +211,11 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     scheduleSubscriptionExpiry();
   }, []);
 
-  const contextValue: SubscriptionContextType = {
+  // Get friends limit
+  const getFriendsLimit = () => {
+    if (subscription.tier === 'premium') return Infinity;
+    return 5;
+  };
     subscription,
     upgradeToPremium,
     cancelSubscription,
