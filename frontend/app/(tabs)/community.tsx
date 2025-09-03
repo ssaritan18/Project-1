@@ -616,6 +616,20 @@ const styles = StyleSheet.create({
   postsSection: {
     marginBottom: 24,
   },
+  sectionTitle: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: '800',
+    marginBottom: 8,
+    textShadowColor: '#8B5CF6',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  sectionSubtitle: {
+    color: '#E5E7EB',
+    fontSize: 16,
+    marginBottom: 20,
+  },
   postCard: {
     marginBottom: 16,
     borderRadius: 20,
