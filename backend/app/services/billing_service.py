@@ -4,10 +4,16 @@ import requests
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 import logging
-from app.core.config import settings
 import os
 
 logger = logging.getLogger(__name__)
+
+# Mock settings for development
+class MockSettings:
+    ENVIRONMENT = "development"
+    GOOGLE_PLAY_SERVICE_ACCOUNT_PATH = "/mock/path/service-account.json"
+
+settings = MockSettings()
 
 class BillingService:
     """Mock Billing Service for Development - Easy Production Transition"""
