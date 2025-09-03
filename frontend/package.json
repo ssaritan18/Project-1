@@ -47,6 +47,7 @@
     "react-native-dotenv": "^3.4.11",
     "react-native-draggable-flatlist": "^4.0.1",
     "react-native-gesture-handler": "~2.24.0",
+    "react-native-google-mobile-ads": "^15.7.0",
     "react-native-iap": "^14.0.1",
     "react-native-nitro-modules": "^0.29.2",
     "react-native-paper": "^5.12.5",
