@@ -297,6 +297,9 @@ export default function HomeScreen() {
         {showCelebration && <Celebration />}
         {showEnhancedCelebration && <EnhancedCelebration />}
       </View>
+
+      {/* Banner Ad for Free Users */}
+      <AdBanner />
     </LinearGradient>
   );
 }
