@@ -33,8 +33,8 @@ export function SubscriptionCancellationModal({
       await cancelSubscription();
       
       Alert.alert(
-        '😢 Subscription Cancelled',
-        `We're sorry to see you go! Your premium features will remain active until ${subscription.expiresAt?.toLocaleDateString()} and you won't be charged again.`,
+        '💔 Subscription Cancelled',
+        'Your subscription has been cancelled and you\'ve been moved to the Free plan. We\'re sorry to see you go, but you can always upgrade again anytime!',
         [
           {
             text: 'Got it',
