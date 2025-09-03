@@ -63,7 +63,7 @@ export function TaskCard({ task, onIncrement, onDelete, onDrag }: { task: any; o
       </View>
       
       <View style={styles.actions}>
-        <TouchableOpacity onPress={onIncrement}>
+        <TouchableOpacity onPress={handleIncrement}>
           <LinearGradient 
             colors={['#8B5CF6', '#A855F7']} 
             style={styles.actionBtn}
