@@ -55,6 +55,24 @@ function AppWrapper() {
 }
 
 export default function RootLayout() {
+  // Initialize AdMob on app startup
+  useEffect(() => {
+    const initializeAdMob = async () => {
+      try {
+        const initialized = await adMobService.initialize();
+        if (initialized) {
+          console.log('🎯 AdMob ready for monetization!');
+        } else {
+          console.warn('⚠️ AdMob initialization failed - ads disabled');
+        }
+      } catch (error) {
+        console.error('❌ AdMob setup error:', error);
+      }
+    };
+
+    initializeAdMob();
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
