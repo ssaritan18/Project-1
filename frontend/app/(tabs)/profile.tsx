@@ -370,6 +370,35 @@ export default function ProfileScreen() {
             </LinearGradient>
           </View>
         );
+      case 'journey':
+        // Mock assessment result for now - in real app this would come from user data
+        const mockAssessmentResult = {
+          overall_score: 75,
+          categories: {
+            attention: 82,
+            hyperactivity: 45,
+            organization: 78,
+            emotional: 65,
+            social: 58,
+          },
+          recommendations: [
+            "🎯 Try the Pomodoro technique for better focus",
+            "📱 Use our Focus Mode features during work sessions",
+            "📋 Use our task management system daily",
+            "💚 Practice emotional regulation techniques",
+            "🏆 Use our achievement system to build positive habits",
+          ],
+          adhd_type: 'combined' as const,
+        };
+
+        return (
+          <View style={styles.modernTabContent}>
+            <AssessmentFollowupContent
+              assessmentResult={mockAssessmentResult}
+              language="en"
+            />
+          </View>
+        );
       default:
         return (
           <View style={styles.modernTabContent}>
