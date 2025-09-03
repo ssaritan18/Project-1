@@ -462,28 +462,46 @@ const NeurodivergencyContent: React.FC<NeurodivergencyContentProps> = ({
             <Ionicons name="chevron-forward" size={20} color="#8B5CF6" />
           </View>
           <Text style={styles.previewDescription}>
-            Educational content, coping strategies, and community resources for neurodivergent individuals
+            Scientific, research-backed educational content and evidence-based strategies for neurodivergent individuals
           </Text>
           <View style={styles.previewBadge}>
-            <Text style={styles.previewBadgeText}>6 Topics Available</Text>
+            <Text style={styles.previewBadgeText}>{educationalTopics.length} Deep Guides Available</Text>
           </View>
         </LinearGradient>
       </TouchableOpacity>
     );
   }
 
-  // Full content version - Hot Topics Style
+  // Full content version - Scientific Topics
   return (
     <View style={[styles.fullContainer, style]}>
-      <Text style={styles.title}>🧠 Neurodivergency Hub</Text>
-      <Text style={styles.subtitle}>Educational resources and guides</Text>
+      <View style={styles.headerSection}>
+        <Text style={styles.title}>🧠 Evidence-Based ADHD Hub</Text>
+        <Text style={styles.subtitle}>Research-backed guides and scientific resources</Text>
+        
+        {/* Language Toggle */}
+        <View style={styles.languageToggleHeader}>
+          <TouchableOpacity
+            onPress={() => setLanguage('en')}
+            style={[styles.langButton, language === 'en' && styles.langButtonActive]}
+          >
+            <Text style={[styles.langText, language === 'en' && styles.langTextActive]}>EN</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setLanguage('tr')}
+            style={[styles.langButton, language === 'tr' && styles.langButtonActive]}
+          >
+            <Text style={[styles.langText, language === 'tr' && styles.langTextActive]}>TR</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
       
       <ScrollView showsVerticalScrollIndicator={false}>
         {educationalTopics.map((topic) => (
           <TouchableOpacity
             key={topic.id}
             style={styles.topicCard}
-            onPress={() => console.log(`Opening: ${topic.title}`)}
+            onPress={() => openTopicModal(topic)}
           >
             <LinearGradient
               colors={topic.gradient}
@@ -496,7 +514,7 @@ const NeurodivergencyContent: React.FC<NeurodivergencyContentProps> = ({
                   <Text style={styles.topicIcon}>{topic.icon}</Text>
                   {topic.popular && (
                     <View style={styles.popularBadge}>
-                      <Text style={styles.popularText}>POPULAR</Text>
+                      <Text style={styles.popularText}>RESEARCH-BACKED</Text>
                     </View>
                   )}
                 </View>
@@ -504,6 +522,7 @@ const NeurodivergencyContent: React.FC<NeurodivergencyContentProps> = ({
                 <Text style={styles.topicDescription}>{topic.description}</Text>
                 <View style={styles.topicFooter}>
                   <Text style={styles.readTime}>📖 {topic.readTime}</Text>
+                  <Text style={styles.scientificLabel}>🔬 Scientific</Text>
                   <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.8)" />
                 </View>
               </View>
@@ -511,6 +530,8 @@ const NeurodivergencyContent: React.FC<NeurodivergencyContentProps> = ({
           </TouchableOpacity>
         ))}
       </ScrollView>
+
+      {renderTopicModal()}
     </View>
   );
 };
