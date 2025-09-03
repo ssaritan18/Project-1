@@ -108,10 +108,35 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     await saveSubscriptionData(premiumSubscription);
   };
 
-  // Cancel subscription
+  // Cancel subscription (marks for cancellation at period end)
   const cancelSubscription = async () => {
-    setSubscription(FREE_SUBSCRIPTION);
-    await AsyncStorage.removeItem(SUBSCRIPTION_STORAGE_KEY);
+    if (subscription.tier === 'premium' && subscription.expiresAt) {
+      // Mark as cancelled but keep premium until expiry
+      const cancelledSubscription = {
+        ...subscription,
+        isActive: false, // Marked as cancelled
+        // Keep premium features until expiry date
+      };
+      
+      setSubscription(cancelledSubscription);
+      await saveSubscriptionData(cancelledSubscription);
+    } else {
+      // Immediate cancellation for free or expired
+      setSubscription(FREE_SUBSCRIPTION);
+      await AsyncStorage.removeItem(SUBSCRIPTION_STORAGE_KEY);
+    }
+  };
+
+  // Schedule subscription to expire (for cancelled premium users)
+  const scheduleSubscriptionExpiry = async () => {
+    if (subscription.tier === 'premium' && !subscription.isActive && subscription.expiresAt) {
+      const now = new Date();
+      if (now >= subscription.expiresAt) {
+        // Subscription has expired, downgrade to free
+        setSubscription(FREE_SUBSCRIPTION);
+        await AsyncStorage.removeItem(SUBSCRIPTION_STORAGE_KEY);
+      }
+    }
   };
 
   // Check if user has a specific feature
