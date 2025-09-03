@@ -294,6 +294,12 @@ export function SubscriptionPage() {
           </View>
         </View>
       </ScrollView>
+      
+      {/* Cancellation Modal */}
+      <SubscriptionCancellationModal
+        visible={showCancellationModal}
+        onClose={() => setShowCancellationModal(false)}
+      />
     </LinearGradient>
   );
 }
