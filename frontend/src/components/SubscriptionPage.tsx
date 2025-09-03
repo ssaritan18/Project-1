@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useSubscription } from '../context/SubscriptionContext';
+import { SubscriptionCancellationModal } from './SubscriptionCancellationModal';
 
 interface FeatureItem {
   icon: string;
