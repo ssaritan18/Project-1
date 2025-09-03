@@ -61,7 +61,7 @@ export default function HomeScreen() {
     };
   }, [tasks]);
 
-  const addTask = async () => {
+  const handleAddTask = async () => {
     const title = newTask.trim();
     if (!title) return;
 
