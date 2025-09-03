@@ -226,7 +226,7 @@ export function OnboardingResults({ result, onContinue }: OnboardingResultsProps
 
           {/* Continue Button */}
           <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
-            <TouchableOpacity onPress={onContinue}>
+            <TouchableOpacity onPress={() => setShowSubscriptionModal(true)}>
               <LinearGradient
                 colors={['#8B5CF6', '#EC4899', '#F97316']}
                 start={{ x: 0, y: 0 }}
@@ -243,6 +243,19 @@ export function OnboardingResults({ result, onContinue }: OnboardingResultsProps
           <View style={{ height: insets.bottom + 20 }} />
         </ScrollView>
       </Animated.View>
+      
+      {/* Subscription Modal */}
+      <OnboardingSubscriptionModal
+        visible={showSubscriptionModal}
+        onClose={() => {
+          setShowSubscriptionModal(false);
+          onContinue(); // Continue to main app after modal closes
+        }}
+        assessmentResult={
+          result.overall_score >= 70 ? 'high' :
+          result.overall_score >= 40 ? 'moderate' : 'low'
+        }
+      />
     </View>
   );
 }
