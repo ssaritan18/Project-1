@@ -137,6 +137,9 @@ export default function CommunityScreen() {
           </View>
         </ScrollView>
       </View>
+
+      {/* Banner Ad for Free Users */}
+      <AdBanner />
     </LinearGradient>
   );
 }
