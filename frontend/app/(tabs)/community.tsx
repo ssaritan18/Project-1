@@ -474,7 +474,7 @@ export default function CommunityScreen() {
                     {/* Engagement Footer */}
                     <View style={styles.postFooter}>
                       <View style={styles.engagementStats}>
-                        <View style={styles.statItem}>
+                        <View style={styles.engagementStatItem}>
                           <Ionicons 
                             name={post.engagement.userLiked ? "heart" : "heart-outline"} 
                             size={16} 
