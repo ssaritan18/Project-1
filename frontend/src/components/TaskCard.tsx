@@ -6,8 +6,26 @@ import { Ionicons } from "@expo/vector-icons";
 import { MockInterstitialAd } from "./MockInterstitialAd";
 
 export function TaskCard({ task, onIncrement, onDelete, onDrag }: { task: any; onIncrement: () => void; onDelete: () => void; onDrag?: () => void }) {
+  const [showInterstitial, setShowInterstitial] = useState(false);
+  const [wasCompleted, setWasCompleted] = useState(false);
+  
   const ratio = task.goal ? task.progress / task.goal : 0;
   const completed = ratio >= 1;
+  
+  const handleIncrement = () => {
+    const willBeCompleted = task.goal ? (task.progress + 1) / task.goal >= 1 : false;
+    const wasAlreadyCompleted = completed;
+    
+    // Call the original increment
+    onIncrement();
+    
+    // Show interstitial ad if task just got completed (not if already completed)
+    if (willBeCompleted && !wasAlreadyCompleted) {
+      setTimeout(() => {
+        setShowInterstitial(true);
+      }, 500); // Small delay after celebration animation
+    }
+  };
   
   return (
     <LinearGradient
