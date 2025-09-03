@@ -21,6 +21,7 @@ import { ProfileCompletionGuide } from "../../src/components/ProfileCompletionGu
 import NeurodivergencyContent from "../../src/components/NeurodivergencyContent";
 import { useAchievements } from "../../src/hooks/useAchievements";
 import { useSubscription, getSubscriptionStatusDisplay } from "../../src/context/SubscriptionContext";
+import { DevTools } from "../../src/components/DevTools";
 import ProfileEditModal from "../../src/components/ProfileEditModal";
 
 const PRESETS = [
@@ -33,6 +34,7 @@ export default function ProfileScreen() {
   console.log("🏠 ProfileScreen rendering with ADHD-friendly enhancements...");
   const { user, signOut, palette, setPalette, token } = useAuth();
   const { syncEnabled, setSyncEnabled, wsEnabled, setWsEnabled } = useRuntimeConfig();
+  const { subscription } = useSubscription();
   const insets = useSafeAreaInsets();
   const { tasks } = useTasks();
   const { streak, refresh } = useStreak();
@@ -508,6 +510,24 @@ export default function ProfileScreen() {
               <Text style={styles.modernTitle}>{profileData.name || "You"}</Text>
               <Text style={styles.modernSubtitle}>ADHD Champion • Level {currentLevel}</Text>
               <Text style={styles.modernID}>ID: #{Math.random().toString(36).substr(2, 8).toUpperCase()}</Text>
+              
+              {/* Subscription Status Badge */}
+              <View style={styles.subscriptionBadge}>
+                <LinearGradient
+                  colors={subscription.tier === 'premium' 
+                    ? ['#8B5CF6', '#EC4899'] 
+                    : ['#6B7280', '#9CA3AF']
+                  }
+                  style={styles.subscriptionBadgeGradient}
+                >
+                  <Text style={styles.subscriptionBadgeEmoji}>
+                    {subscription.tier === 'premium' ? '👑' : '🆓'}
+                  </Text>
+                  <Text style={styles.subscriptionBadgeText}>
+                    {subscription.tier === 'premium' ? 'Premium' : 'Free Plan'}
+                  </Text>
+                </LinearGradient>
+              </View>
             </View>
           </View>
 
@@ -1115,5 +1135,30 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.9)',
     fontSize: 14,
     fontWeight: '600',
+  },
+  
+  // Subscription Badge Styles
+  subscriptionBadge: {
+    marginTop: 8,
+    alignSelf: 'flex-start',
+  },
+  subscriptionBadgeGradient: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  subscriptionBadgeEmoji: {
+    fontSize: 14,
+  },
+  subscriptionBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 });
