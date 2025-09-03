@@ -722,7 +722,7 @@ const styles = StyleSheet.create({
   engagementStats: {
     flexDirection: 'row',
   },
-  statItem: {
+  engagementStatItem: {
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 16,
