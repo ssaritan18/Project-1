@@ -9,10 +9,13 @@ import { MockInterstitialAd } from '../src/components/MockInterstitialAd';
 export default function FocusTimer() {
   const { mode, duration } = useLocalSearchParams<{ mode: string; duration: string }>();
   const insets = useSafeAreaInsets();
+  const { incrementFocusSession, getFocusSessionsRemaining, subscription } = useSubscription();
   
   const [timeLeft, setTimeLeft] = useState(parseInt(duration || '25') * 60); // Convert to seconds
   const [isRunning, setIsRunning] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [showInterstitial, setShowInterstitial] = useState(false);
+  const [sessionStarted, setSessionStarted] = useState(false);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
