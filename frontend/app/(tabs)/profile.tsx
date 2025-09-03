@@ -320,6 +320,17 @@ export default function ProfileScreen() {
                   achievementsUnlocked: completionStats.unlocked
                 }}
               />
+              
+              {/* Rewarded Ad for Extra Points */}
+              <RewardedAdButton
+                onRewardEarned={(amount, type) => {
+                  console.log(`🎁 User earned ${amount} ${type} from ad!`);
+                  // Here you could add points to user's account
+                }}
+                rewardDescription="Watch ad to earn 50 bonus points!"
+                buttonText="🎁 Watch Ad for 50 Points"
+                style={{ marginTop: 20 }}
+              />
             </LinearGradient>
           </View>
         );
