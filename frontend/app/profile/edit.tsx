@@ -434,97 +434,190 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
+  wrapper: {
+    flex: 1,
   },
   centerContent: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  header: {
+  
+  // Glow Header
+  glowHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    marginHorizontal: 16,
+    marginBottom: 20,
+    borderRadius: 20,
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
   },
   backButton: {
     width: 40,
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 20,
   },
-  title: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
+  headerTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '900',
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   saveButton: {
-    backgroundColor: '#4A90E2',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 16,
-    minWidth: 60,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  saveButtonGradient: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     alignItems: 'center',
   },
-  saveButtonDisabled: {
-    backgroundColor: '#666',
-  },
   saveButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '800',
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
+  
+  // Content
   content: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 16,
   },
+  
+  // Profile Section
+  profileSection: {
+    marginBottom: 24,
+  },
+  profileCard: {
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+    alignItems: 'center',
+  },
+  
+  // Section Styles
   section: {
     marginBottom: 24,
   },
-  label: {
-    color: 'white',
+  sectionCard: {
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  sectionTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 16,
+    textShadowColor: '#8B5CF6',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  
+  // Field Styles
+  fieldContainer: {
+    marginBottom: 20,
+  },
+  fieldLabel: {
+    color: '#E5E7EB',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     marginBottom: 8,
   },
-  input: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+  inputWrapper: {
+    position: 'relative',
+  },
+  glowInput: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 16,
     padding: 16,
-    color: 'white',
+    color: '#fff',
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  inputWithIcon: {
+    paddingLeft: 48,
+  },
+  inputIcon: {
+    position: 'absolute',
+    left: 16,
+    top: 18,
+    zIndex: 1,
   },
   bioInput: {
     minHeight: 100,
+    textAlignVertical: 'top',
   },
   characterCount: {
-    color: '#666',
+    color: 'rgba(255,255,255,0.6)',
     fontSize: 12,
     textAlign: 'right',
-    marginTop: 4,
+    marginTop: 6,
   },
   helpText: {
-    color: '#888',
-    fontSize: 12,
-    marginTop: 4,
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 13,
+    marginTop: 6,
+    lineHeight: 18,
   },
-  loadingText: {
-    color: '#888',
-    fontSize: 16,
-    marginTop: 16,
+  
+  // Footer
+  footerSection: {
+    marginBottom: 24,
   },
-  footer: {
-    padding: 16,
-    marginTop: 16,
+  footerCard: {
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(99, 102, 241, 0.3)',
+    alignItems: 'center',
   },
   footerText: {
-    color: '#666',
+    color: '#E5E7EB',
     fontSize: 14,
     textAlign: 'center',
-    lineHeight: 18,
+    lineHeight: 20,
+    marginTop: 12,
+  },
+  bottomPadding: {
+    height: 40,
+  },
+  
+  // Loading State
+  loadingText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 16,
+    marginTop: 16,
   },
 });
