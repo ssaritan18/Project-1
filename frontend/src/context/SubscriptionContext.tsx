@@ -108,20 +108,14 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     await saveSubscriptionData(premiumSubscription);
   };
 
-  // Cancel subscription (marks for cancellation at period end)
+  // Cancel subscription (immediately downgrade to free)
   const cancelSubscription = async () => {
-    if (subscription.tier === 'premium' && subscription.expiresAt) {
-      // Mark as cancelled but keep premium until expiry
-      const cancelledSubscription = {
-        ...subscription,
-        isActive: false, // Marked as cancelled
-        // Keep premium features until expiry date
-      };
-      
-      setSubscription(cancelledSubscription);
-      await saveSubscriptionData(cancelledSubscription);
+    if (subscription.tier === 'premium') {
+      // Immediately downgrade to free plan
+      setSubscription(FREE_SUBSCRIPTION);
+      await AsyncStorage.removeItem(SUBSCRIPTION_STORAGE_KEY);
     } else {
-      // Immediate cancellation for free or expired
+      // Already free, no action needed
       setSubscription(FREE_SUBSCRIPTION);
       await AsyncStorage.removeItem(SUBSCRIPTION_STORAGE_KEY);
     }
