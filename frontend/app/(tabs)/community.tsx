@@ -139,7 +139,7 @@ export default function CommunityScreen() {
       </View>
 
       {/* Banner Ad for Free Users */}
-      <AdBanner />
+      <MockAdBanner />
     </LinearGradient>
   );
 }
