@@ -43,7 +43,7 @@ export default function ProfileScreen() {
   const { achievements, getCompletionStats, getAchievementsByCategory } = useAchievements();
   
   // UI State
-  const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'stats' | 'completion' | 'neurodivergency'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'stats' | 'completion' | 'neurodivergency' | 'journey'>('overview');
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [currentUserProfile, setCurrentUserProfile] = useState(user);
   
