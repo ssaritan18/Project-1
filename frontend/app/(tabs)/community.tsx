@@ -482,7 +482,7 @@ export default function CommunityScreen() {
                           />
                           <Text style={styles.statText}>{post.engagement.likes}</Text>
                         </View>
-                        <View style={styles.statItem}>
+                        <View style={styles.engagementStatItem}>
                           <Ionicons name="chatbubble-outline" size={16} color="#9CA3AF" />
                           <Text style={styles.statText}>{post.engagement.comments}</Text>
                         </View>
