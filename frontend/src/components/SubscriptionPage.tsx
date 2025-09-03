@@ -84,6 +84,11 @@ export function SubscriptionPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showCancellationModal, setShowCancellationModal] = useState(false);
 
+  // Update selectedTier when subscription changes
+  useEffect(() => {
+    setSelectedTier(subscription.tier);
+  }, [subscription.tier]);
+
   const handleSubscribe = async (tierId: string) => {
     if (tierId === 'free' && subscription.tier === 'free') {
       Alert.alert('Current Plan', 'You are already on the free plan!');
