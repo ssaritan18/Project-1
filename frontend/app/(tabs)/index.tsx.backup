@@ -18,7 +18,7 @@ import { EnhancedCelebration } from "../../src/components/EnhancedCelebration";
 import { AchievementBadge } from "../../src/components/AchievementBadge";
 import { StreakVisualization } from "../../src/components/StreakVisualization";
 import { MoodTracker } from "../../src/components/MoodTracker";
-import { AdBanner } from "../../src/components/AdBanner";
+import { MockAdBanner } from "../../src/components/MockAdBanner";
 import { useChallenges } from "../../src/hooks/useChallenges";
 import { useFocusSession } from "../../src/hooks/useFocusSession";
 import { usePoints } from "../../src/hooks/usePoints";
@@ -31,7 +31,7 @@ const COLOR_PRESETS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#
 export default function HomeScreen() {
   console.log("🏠 HomeScreen rendering...");
 
-  const { tasks, createTask, deleteTask, setCompleted, increment } = useTasks();
+  const { tasks, addTask, remove, increment } = useTasks();
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const [newTask, setNewTask] = useState("");
@@ -297,6 +297,9 @@ export default function HomeScreen() {
         {showCelebration && <Celebration />}
         {showEnhancedCelebration && <EnhancedCelebration />}
       </View>
+
+      {/* Banner Ad for Free Users */}
+      <MockAdBanner />
     </LinearGradient>
   );
 }
