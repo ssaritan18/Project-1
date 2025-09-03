@@ -645,6 +645,48 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   postGradient: {
+  postHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  authorSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  authorDetails: {
+    flex: 1,
+  },
+  postTimeAgo: {
+    color: '#9CA3AF',
+    fontSize: 12,
+  },
+  postPreview: {
+    color: '#E5E7EB',
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  postTags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 12,
+  },
+  postTag: {
+    backgroundColor: 'rgba(139, 92, 246, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginRight: 8,
+    marginBottom: 4,
+  },
+  postTagText: {
+    color: '#A855F7',
+    fontSize: 12,
+    fontWeight: '600',
+  },
     padding: 20,
   },
   postHeader: {
