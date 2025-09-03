@@ -81,11 +81,11 @@ export default function HomeScreen() {
       const task = tasks.find(t => t.id === taskId);
       if (!task) return;
 
-      await increment(taskId);
+      const wasCompleted = task.progress >= task.goal;
+      const taskCompletedNow = await increment(taskId);
       
-      // Check if task was just completed
-      const updatedTask = tasks.find(t => t.id === taskId);
-      if (updatedTask && updatedTask.completed && !task.completed) {
+      // Show celebration if task was just completed
+      if (taskCompletedNow && !wasCompleted) {
         setShowCelebration(true);
         setTimeout(() => setShowCelebration(false), 3000);
       }
