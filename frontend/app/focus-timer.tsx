@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSubscription } from '../src/context/SubscriptionContext';
+import { MockInterstitialAd } from '../src/components/MockInterstitialAd';
 
 export default function FocusTimer() {
   const { mode, duration } = useLocalSearchParams<{ mode: string; duration: string }>();
