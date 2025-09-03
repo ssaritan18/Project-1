@@ -112,137 +112,144 @@ export function OnboardingSubscriptionModal({
               colors={['#1a1a2e', '#16213e', '#0f172a']}
               style={styles.modalContent}
             >
-              {/* Header */}
-              <LinearGradient
-                colors={['#8B5CF6', '#EC4899', '#F97316']}
-                style={styles.header}
+              <ScrollView 
+                style={styles.scrollContainer}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                bounces={false}
               >
-                <Text style={styles.headerTitle}>{personalizedContent.title}</Text>
-                <Text style={styles.headerSubtitle}>{personalizedContent.subtitle}</Text>
-              </LinearGradient>
+                {/* Header */}
+                <LinearGradient
+                  colors={['#8B5CF6', '#EC4899', '#F97316']}
+                  style={styles.header}
+                >
+                  <Text style={styles.headerTitle}>{personalizedContent.title}</Text>
+                  <Text style={styles.headerSubtitle}>{personalizedContent.subtitle}</Text>
+                </LinearGradient>
 
-              {/* Benefits Preview */}
-              <View style={styles.benefitsSection}>
-                <Text style={styles.benefitsTitle}>🧠 Perfect for ADHD Brains:</Text>
-                <View style={styles.benefitsList}>
-                  {personalizedContent.benefits.map((benefit, index) => (
-                    <View key={index} style={styles.benefitItem}>
-                      <Text style={styles.benefitDot}>•</Text>
-                      <Text style={styles.benefitText}>{benefit}</Text>
-                    </View>
-                  ))}
+                {/* Benefits Preview */}
+                <View style={styles.benefitsSection}>
+                  <Text style={styles.benefitsTitle}>🧠 Perfect for ADHD Brains:</Text>
+                  <View style={styles.benefitsList}>
+                    {personalizedContent.benefits.map((benefit, index) => (
+                      <View key={index} style={styles.benefitItem}>
+                        <Text style={styles.benefitDot}>•</Text>
+                        <Text style={styles.benefitText}>{benefit}</Text>
+                      </View>
+                    ))}
+                  </View>
                 </View>
-              </View>
 
-              {/* Plan Selection */}
-              <View style={styles.plansSection}>
-                <Text style={styles.plansSectionTitle}>Choose Your Starting Plan:</Text>
-                
-                <View style={styles.plansContainer}>
-                  {/* Free Plan */}
-                  <TouchableOpacity
-                    style={[styles.planCard, selectedTier === 'free' && styles.selectedPlan]}
-                    onPress={() => setSelectedTier('free')}
-                  >
-                    <LinearGradient
-                      colors={selectedTier === 'free' 
-                        ? ['rgba(139, 92, 246, 0.2)', 'rgba(168, 85, 247, 0.2)']
-                        : ['rgba(107, 114, 128, 0.1)', 'rgba(156, 163, 175, 0.1)']
-                      }
-                      style={styles.planCardGradient}
+                {/* Plan Selection */}
+                <View style={styles.plansSection}>
+                  <Text style={styles.plansSectionTitle}>Choose Your Starting Plan:</Text>
+                  
+                  <View style={styles.plansContainer}>
+                    {/* Free Plan */}
+                    <TouchableOpacity
+                      style={[styles.planCard, selectedTier === 'free' && styles.selectedPlan]}
+                      onPress={() => setSelectedTier('free')}
                     >
-                      <View style={styles.planHeader}>
-                        <Text style={styles.planEmoji}>🆓</Text>
-                        <Text style={styles.planName}>Free Plan</Text>
-                        <Text style={styles.planPrice}>$0/forever</Text>
+                      <LinearGradient
+                        colors={selectedTier === 'free' 
+                          ? ['rgba(139, 92, 246, 0.2)', 'rgba(168, 85, 247, 0.2)']
+                          : ['rgba(107, 114, 128, 0.1)', 'rgba(156, 163, 175, 0.1)']
+                        }
+                        style={styles.planCardGradient}
+                      >
+                        <View style={styles.planHeader}>
+                          <Text style={styles.planEmoji}>🆓</Text>
+                          <Text style={styles.planName}>Free Plan</Text>
+                          <Text style={styles.planPrice}>$0/forever</Text>
+                        </View>
+                        
+                        <View style={styles.featuresContainer}>
+                          {freeFeatures.map((feature, index) => (
+                            <View key={index} style={styles.featureRow}>
+                              <Text style={styles.featureIcon}>{feature.icon}</Text>
+                              <Text style={[
+                                styles.featureText,
+                                !feature.available && styles.featureTextDisabled
+                              ]}>
+                                {feature.text}
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                      </LinearGradient>
+                    </TouchableOpacity>
+
+                    {/* Premium Plan */}
+                    <TouchableOpacity
+                      style={[styles.planCard, selectedTier === 'premium' && styles.selectedPlan]}
+                      onPress={() => setSelectedTier('premium')}
+                    >
+                      <View style={styles.popularBadge}>
+                        <Text style={styles.popularBadgeText}>🔥 Recommended</Text>
                       </View>
                       
-                      <View style={styles.featuresContainer}>
-                        {freeFeatures.map((feature, index) => (
-                          <View key={index} style={styles.featureRow}>
-                            <Text style={styles.featureIcon}>{feature.icon}</Text>
-                            <Text style={[
-                              styles.featureText,
-                              !feature.available && styles.featureTextDisabled
-                            ]}>
-                              {feature.text}
-                            </Text>
-                          </View>
-                        ))}
-                      </View>
-                    </LinearGradient>
-                  </TouchableOpacity>
+                      <LinearGradient
+                        colors={selectedTier === 'premium' 
+                          ? ['rgba(139, 92, 246, 0.3)', 'rgba(236, 72, 153, 0.3)']
+                          : ['rgba(139, 92, 246, 0.2)', 'rgba(236, 72, 153, 0.2)']
+                        }
+                        style={styles.planCardGradient}
+                      >
+                        <View style={styles.planHeader}>
+                          <Text style={styles.planEmoji}>👑</Text>
+                          <Text style={styles.planName}>Premium</Text>
+                          <Text style={styles.planPrice}>$4.99/month</Text>
+                        </View>
+                        
+                        <View style={styles.featuresContainer}>
+                          {premiumFeatures.map((feature, index) => (
+                            <View key={index} style={styles.featureRow}>
+                              <Text style={styles.featureIcon}>{feature.icon}</Text>
+                              <Text style={styles.featureText}>{feature.text}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  </View>
+                </View>
 
-                  {/* Premium Plan */}
+                {/* Action Buttons */}
+                <View style={styles.buttonsContainer}>
                   <TouchableOpacity
-                    style={[styles.planCard, selectedTier === 'premium' && styles.selectedPlan]}
-                    onPress={() => setSelectedTier('premium')}
+                    style={styles.continueButton}
+                    onPress={() => handlePlanSelection(selectedTier)}
+                    disabled={isProcessing}
                   >
-                    <View style={styles.popularBadge}>
-                      <Text style={styles.popularBadgeText}>🔥 Recommended</Text>
-                    </View>
-                    
                     <LinearGradient
                       colors={selectedTier === 'premium' 
-                        ? ['rgba(139, 92, 246, 0.3)', 'rgba(236, 72, 153, 0.3)']
-                        : ['rgba(139, 92, 246, 0.2)', 'rgba(236, 72, 153, 0.2)']
+                        ? ['#10B981', '#059669']
+                        : ['#8B5CF6', '#EC4899']
                       }
-                      style={styles.planCardGradient}
+                      style={styles.continueButtonGradient}
                     >
-                      <View style={styles.planHeader}>
-                        <Text style={styles.planEmoji}>👑</Text>
-                        <Text style={styles.planName}>Premium</Text>
-                        <Text style={styles.planPrice}>$4.99/month</Text>
-                      </View>
-                      
-                      <View style={styles.featuresContainer}>
-                        {premiumFeatures.map((feature, index) => (
-                          <View key={index} style={styles.featureRow}>
-                            <Text style={styles.featureIcon}>{feature.icon}</Text>
-                            <Text style={styles.featureText}>{feature.text}</Text>
-                          </View>
-                        ))}
-                      </View>
+                      <Text style={styles.continueButtonText}>
+                        {isProcessing 
+                          ? 'Processing...' 
+                          : selectedTier === 'premium' 
+                            ? '👑 Start Premium Journey'
+                            : '🆓 Start Free Journey'
+                        }
+                      </Text>
+                      {!isProcessing && <Ionicons name="arrow-forward" size={20} color="#fff" />}
                     </LinearGradient>
                   </TouchableOpacity>
+
+                  <TouchableOpacity onPress={onClose} style={styles.skipButton}>
+                    <Text style={styles.skipButtonText}>I'll decide later</Text>
+                  </TouchableOpacity>
                 </View>
-              </View>
 
-              {/* Action Buttons */}
-              <View style={styles.buttonsContainer}>
-                <TouchableOpacity
-                  style={styles.continueButton}
-                  onPress={() => handlePlanSelection(selectedTier)}
-                  disabled={isProcessing}
-                >
-                  <LinearGradient
-                    colors={selectedTier === 'premium' 
-                      ? ['#10B981', '#059669']
-                      : ['#8B5CF6', '#EC4899']
-                    }
-                    style={styles.continueButtonGradient}
-                  >
-                    <Text style={styles.continueButtonText}>
-                      {isProcessing 
-                        ? 'Processing...' 
-                        : selectedTier === 'premium' 
-                          ? '👑 Start Premium Journey'
-                          : '🆓 Start Free Journey'
-                      }
-                    </Text>
-                    {!isProcessing && <Ionicons name="arrow-forward" size={20} color="#fff" />}
-                  </LinearGradient>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={onClose} style={styles.skipButton}>
-                  <Text style={styles.skipButtonText}>I'll decide later</Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Trust Indicators */}
-              <View style={styles.trustSection}>
-                <Text style={styles.trustText}>🔒 Cancel anytime • 💳 Secure payment • 🎯 ADHD-focused</Text>
-              </View>
+                {/* Trust Indicators */}
+                <View style={styles.trustSection}>
+                  <Text style={styles.trustText}>🔒 Cancel anytime • 💳 Secure payment • 🎯 ADHD-focused</Text>
+                </View>
+              </ScrollView>
             </LinearGradient>
           </View>
         </LinearGradient>
