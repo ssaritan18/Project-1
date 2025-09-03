@@ -21,6 +21,7 @@ import { ProfileCompletionGuide } from "../../src/components/ProfileCompletionGu
 import NeurodivergencyContent from "../../src/components/NeurodivergencyContent";
 import { useAchievements } from "../../src/hooks/useAchievements";
 import { useSubscription, getSubscriptionStatusDisplay } from "../../src/context/SubscriptionContext";
+import { DevTools } from "../../src/components/DevTools";
 import ProfileEditModal from "../../src/components/ProfileEditModal";
 
 const PRESETS = [
