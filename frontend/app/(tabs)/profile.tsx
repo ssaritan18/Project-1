@@ -435,12 +435,18 @@ export default function ProfileScreen() {
                     <Text style={styles.modernActionText}>Edit Profile</Text>
                   </LinearGradient>
                 </TouchableOpacity>
+      
+      {/* Dev Tools */}
+      <DevTools />
                 <TouchableOpacity onPress={navigateToSettings}>
                   <LinearGradient colors={['#EC4899', '#F97316']} style={styles.modernActionBtn}>
                     <Text style={styles.modernActionEmoji}>⚙️</Text>
                     <Text style={styles.modernActionText}>Settings</Text>
                   </LinearGradient>
                 </TouchableOpacity>
+      
+      {/* Dev Tools */}
+      <DevTools />
               </View>
             </LinearGradient>
 
@@ -570,6 +576,9 @@ export default function ProfileScreen() {
               {tab.title}
             </Text>
           </TouchableOpacity>
+      
+      {/* Dev Tools */}
+      <DevTools />
         ))}
       </View>
 
@@ -600,6 +609,9 @@ export default function ProfileScreen() {
             <Ionicons name="arrow-forward" size={20} color="#fff" />
           </LinearGradient>
         </TouchableOpacity>
+      
+      {/* Dev Tools */}
+      <DevTools />
         
         {/* Modern Sign Out Button */}
         <TouchableOpacity 
@@ -650,6 +662,9 @@ export default function ProfileScreen() {
             <Text style={styles.modernSignOutText}>🚪 Sign Out</Text>
           </LinearGradient>
         </TouchableOpacity>
+      
+      {/* Dev Tools */}
+      <DevTools />
       </ScrollView>
     </LinearGradient>
   );
