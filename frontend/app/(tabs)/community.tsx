@@ -641,6 +641,11 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   postGradientBorder: {
+  postContentContainer: {
+    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+    borderRadius: 18,
+    padding: 16,
+  },
     padding: 2,
     borderRadius: 20,
   },
