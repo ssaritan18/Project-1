@@ -236,152 +236,198 @@ export default function EditProfileScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#0f172a']}
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        {/* Header */}
-        <View style={styles.header}>
-          {/* Back Button - HTML */}
-          <button
-            onClick={() => {
-              console.log('🔙 Going back...');
-              router.back();
-            }}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'white',
-              cursor: 'pointer',
-              padding: '8px'
-            }}
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={[styles.wrapper, { paddingTop: insets.top }]}>
+          {/* Glow Header */}
+          <LinearGradient
+            colors={['#8B5CF6', '#EC4899', '#F97316']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.glowHeader}
           >
-            ← Back
-          </button>
-          
-          <Text style={styles.title}>Edit Profile</Text>
-          
-          {/* Save Button - Debug Version */}
-          <TouchableOpacity
-            onPress={() => {
-              console.log('🔴 SAVE BUTTON TOUCH DETECTED!');
-              console.log('🔍 Current loading state:', loading);
-              console.log('🔍 Current saving state:', saving);
-              console.log('🔍 handleSave function exists:', typeof handleSave);
-              try {
-                handleSave();
-                console.log('✅ handleSave called successfully!');
-              } catch (error) {
-                console.error('❌ handleSave call error:', error);
-              }
-            }}
-            style={styles.saveButton}
-          >
-            <Text style={styles.saveButtonText}>Save</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </TouchableOpacity>
+            
+            <Text style={styles.headerTitle}>✨ Edit Profile</Text>
+            
+            <TouchableOpacity
+              onPress={handleSave}
+              style={styles.saveButton}
+            >
+              <LinearGradient
+                colors={['#10B981', '#34D399']}
+                style={styles.saveButtonGradient}
+              >
+                <Text style={styles.saveButtonText}>Save</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </LinearGradient>
+
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            {/* Profile Picture Section */}
+            <View style={styles.profileSection}>
+              <LinearGradient
+                colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
+                style={styles.profileCard}
+              >
+                <Text style={styles.sectionTitle}>📸 Profile Picture</Text>
+                <ProfilePictureUpload
+                  currentImageUrl={profileData.profile_image}
+                  onUploadComplete={(imageUrl) => {
+                    console.log('🖼️ PROFILE EDIT: onUploadComplete received imageUrl:', imageUrl?.substring(0, 50) + '...');
+                    setProfileData(prev => ({ ...prev, profile_image: imageUrl }));
+                  }}
+                />
+              </LinearGradient>
+            </View>
+
+            {/* Personal Info Section */}
+            <View style={styles.section}>
+              <LinearGradient
+                colors={['rgba(139, 92, 246, 0.1)', 'rgba(168, 85, 247, 0.1)']}
+                style={styles.sectionCard}
+              >
+                <Text style={styles.sectionTitle}>👤 Personal Information</Text>
+                
+                {/* Name */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>Display Name</Text>
+                  <View style={styles.inputWrapper}>
+                    <TextInput
+                      style={styles.glowInput}
+                      placeholder="Enter your display name"
+                      placeholderTextColor="rgba(255,255,255,0.5)"
+                      value={profileData.name}
+                      onChangeText={(value) => updateField('name', value)}
+                      maxLength={50}
+                    />
+                  </View>
+                </View>
+
+                {/* Bio */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>Bio</Text>
+                  <View style={styles.inputWrapper}>
+                    <TextInput
+                      style={[styles.glowInput, styles.bioInput]}
+                      placeholder="Tell us about yourself, your interests, or your ADHD journey..."
+                      placeholderTextColor="rgba(255,255,255,0.5)"
+                      value={profileData.bio}
+                      onChangeText={(value) => updateField('bio', value)}
+                      multiline
+                      maxLength={300}
+                      textAlignVertical="top"
+                    />
+                  </View>
+                  <Text style={styles.characterCount}>
+                    {profileData.bio?.length || 0}/300
+                  </Text>
+                </View>
+              </LinearGradient>
+            </View>
+
+            {/* Contact Info Section */}
+            <View style={styles.section}>
+              <LinearGradient
+                colors={['rgba(236, 72, 153, 0.1)', 'rgba(249, 115, 22, 0.1)']}
+                style={styles.sectionCard}
+              >
+                <Text style={styles.sectionTitle}>🌍 Contact & Location</Text>
+                
+                {/* Location */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>Location</Text>
+                  <View style={styles.inputWrapper}>
+                    <Ionicons name="location-outline" size={20} color="rgba(255,255,255,0.7)" style={styles.inputIcon} />
+                    <TextInput
+                      style={[styles.glowInput, styles.inputWithIcon]}
+                      placeholder="City, Country"
+                      placeholderTextColor="rgba(255,255,255,0.5)"
+                      value={profileData.location}
+                      onChangeText={(value) => updateField('location', value)}
+                      maxLength={50}
+                    />
+                  </View>
+                </View>
+
+                {/* Website */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>Website</Text>
+                  <View style={styles.inputWrapper}>
+                    <Ionicons name="link-outline" size={20} color="rgba(255,255,255,0.7)" style={styles.inputIcon} />
+                    <TextInput
+                      style={[styles.glowInput, styles.inputWithIcon]}
+                      placeholder="https://your-website.com"
+                      placeholderTextColor="rgba(255,255,255,0.5)"
+                      value={profileData.website}
+                      onChangeText={(value) => updateField('website', value)}
+                      keyboardType="url"
+                      autoCapitalize="none"
+                      maxLength={100}
+                    />
+                  </View>
+                </View>
+              </LinearGradient>
+            </View>
+
+            {/* Privacy Section */}
+            <View style={styles.section}>
+              <LinearGradient
+                colors={['rgba(16, 185, 129, 0.1)', 'rgba(52, 211, 153, 0.1)']}
+                style={styles.sectionCard}
+              >
+                <Text style={styles.sectionTitle}>🔒 Privacy Settings</Text>
+                
+                {/* Birth Date */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>Birth Date (Optional)</Text>
+                  <View style={styles.inputWrapper}>
+                    <Ionicons name="calendar-outline" size={20} color="rgba(255,255,255,0.7)" style={styles.inputIcon} />
+                    <TextInput
+                      style={[styles.glowInput, styles.inputWithIcon]}
+                      placeholder="YYYY-MM-DD"
+                      placeholderTextColor="rgba(255,255,255,0.5)"
+                      value={profileData.birth_date}
+                      onChangeText={(value) => updateField('birth_date', value)}
+                      maxLength={10}
+                    />
+                  </View>
+                  <Text style={styles.helpText}>
+                    🔐 Your age won't be shown publicly. Used for personalized content.
+                  </Text>
+                </View>
+              </LinearGradient>
+            </View>
+
+            {/* Footer */}
+            <View style={styles.footerSection}>
+              <LinearGradient
+                colors={['rgba(99, 102, 241, 0.1)', 'rgba(139, 92, 246, 0.1)']}
+                style={styles.footerCard}
+              >
+                <Ionicons name="people-outline" size={24} color="#8B5CF6" />
+                <Text style={styles.footerText}>
+                  Your profile information helps connect you with like-minded community members and provides personalized ADHD resources.
+                </Text>
+              </LinearGradient>
+            </View>
+
+            <View style={styles.bottomPadding} />
+          </ScrollView>
         </View>
-
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Profile Picture */}
-          <ProfilePictureUpload
-            currentImageUrl={profileData.profile_image}
-            onUploadComplete={(imageUrl) => {
-              console.log('🖼️ PROFILE EDIT: onUploadComplete received imageUrl:', imageUrl?.substring(0, 50) + '...');
-              console.log('🔄 PROFILE EDIT: Updating profileData with new image...');
-              const updatedData = { ...profileData, profile_image: imageUrl };
-              console.log('📊 PROFILE EDIT: New profileData will be:', {
-                name: updatedData.name,
-                profile_image: updatedData.profile_image ? 'IMAGE_DATA_SET' : 'NO_IMAGE_DATA'
-              });
-              setProfileData(updatedData);
-              console.log('✅ PROFILE EDIT: profileData updated with new image!');
-            }}
-          />
-
-          {/* Name */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Display Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your display name"
-              placeholderTextColor="#666"
-              value={profileData.name}
-              onChangeText={(value) => updateField('name', value)}
-              maxLength={50}
-            />
-          </View>
-
-          {/* Bio */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Bio</Text>
-            <TextInput
-              style={[styles.input, styles.bioInput]}
-              placeholder="Tell us about yourself, your interests, or your ADHD journey..."
-              placeholderTextColor="#666"
-              value={profileData.bio}
-              onChangeText={(value) => updateField('bio', value)}
-              multiline
-              maxLength={300}
-              textAlignVertical="top"
-            />
-            <Text style={styles.characterCount}>
-              {profileData.bio?.length || 0}/300
-            </Text>
-          </View>
-
-          {/* Location */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Location</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="City, Country"
-              placeholderTextColor="#666"
-              value={profileData.location}
-              onChangeText={(value) => updateField('location', value)}
-              maxLength={50}
-            />
-          </View>
-
-          {/* Website */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Website</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="https://your-website.com"
-              placeholderTextColor="#666"
-              value={profileData.website}
-              onChangeText={(value) => updateField('website', value)}
-              keyboardType="url"
-              autoCapitalize="none"
-              maxLength={100}
-            />
-          </View>
-
-          {/* Birth Date */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Birth Date (Optional)</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor="#666"
-              value={profileData.birth_date}
-              onChangeText={(value) => updateField('birth_date', value)}
-              maxLength={10}
-            />
-            <Text style={styles.helpText}>
-              Your age won't be shown publicly. Used for personalized content.
-            </Text>
-          </View>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              Your profile information helps connect you with like-minded community members.
-            </Text>
-          </View>
-        </ScrollView>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
