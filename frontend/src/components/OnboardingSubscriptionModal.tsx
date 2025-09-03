@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
   // Plans
   plansSection: {
     paddingHorizontal: 24,
-    marginBottom: 24,
+    marginBottom: 20, // Reduced from 24
   },
   plansSectionTitle: {
     color: '#fff',
