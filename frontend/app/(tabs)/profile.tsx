@@ -21,6 +21,7 @@ import { ProfileCompletionGuide } from "../../src/components/ProfileCompletionGu
 import NeurodivergencyContent from "../../src/components/NeurodivergencyContent";
 import { useAchievements } from "../../src/hooks/useAchievements";
 import { useSubscription, getSubscriptionStatusDisplay } from "../../src/context/SubscriptionContext";
+import AssessmentFollowupContent from "../../src/components/AssessmentFollowupContent";
 import { DevTools } from "../../src/components/DevTools";
 import { MockRewardedAdButton } from "../../src/components/MockRewardedAdButton";
 import ProfileEditModal from "../../src/components/ProfileEditModal";
