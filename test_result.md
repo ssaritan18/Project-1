@@ -158,19 +158,34 @@
         -agent: "testing"
         -comment: "✅ PASSED: File upload and storage system comprehensive testing completed successfully. Voice files properly stored in /app/backend/uploads/voices/ with unique UUID filenames (format: voice_[32-char-hex].[ext]). Base64 audio decoding working for all formats (.wav, .m4a, .ogg, .webm). File serving endpoints working: GET /api/uploads/voices/{filename} serves audio files with correct MIME types (audio/mpeg, audio/mp4, audio/ogg, audio/webm), GET /api/uploads/profiles/{filename} serves profile pictures with image/* MIME types. Security measures working: path traversal blocked (../../../etc/passwd rejected with 502), file existence validation (404 for non-existent files). File storage verified with actual file sizes (8044+ bytes for test files). Directory creation automatic (/app/backend/uploads/voices/ and /app/backend/uploads/profiles/)."
 ## frontend:
-  - task: "Daily Mood Tracker Implementation"
+  - task: "Create Task Button Bug Fix"
     implemented: true
     working: true
-    file: "/app/frontend/src/components/MoodTracker.tsx, /app/frontend/src/context/MoodContext.tsx"
+    file: "/app/frontend/app/(tabs)/index.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: false
-        -agent: "main"
-        -comment: "User requested to replace Quick Actions section with Daily Mood Tracker widget featuring 5 emoji mood options, streak tracking, and integration with Profile Stats"
+        -agent: "user"
+        -comment: "USER REPORTED: Create new task button on home page is not working - modal doesn't close after task creation attempts, preventing users from adding new tasks"
+        -working: true
+        -agent: "main" 
+        -comment: "✅ FIXED: Root cause was mismatch between methods expected by home screen and what TasksContext provides. Fixed by: 1) Changed destructuring from {createTask, deleteTask, setCompleted} to {addTask, remove} to match TasksContext, 2) Updated addTask function to use correct method signature addTask(title, goal, color) instead of createTask({...}), 3) Set default goal of 5 units with random color selection, 4) Renamed local function to handleAddTask to avoid naming conflicts"
+  - task: "Task Delete Button Bug Fix"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/TaskCard.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "USER REPORTED: Delete button on task progression bars is not working"
         -working: true
         -agent: "main"
+        -comment: "✅ FIXED: Updated renderTaskItem function to use remove(item.id) instead of deleteTask(item.id) to match TasksContext methods. Also fixed task completion calculation to use progress >= goal instead of completed boolean property"
   - task: "Freemium Model & Subscription Page Implementation"
     implemented: true
     working: true
