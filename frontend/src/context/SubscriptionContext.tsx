@@ -164,10 +164,18 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     return Math.max(0, 3 - focusSessionsUsedToday);
   };
 
-  // Get friends limit
-  const getFriendsLimit = () => {
-    if (subscription.tier === 'premium') return Infinity;
-    return 5;
+  // Increment focus session usage
+  const incrementFocusSession = (): boolean => {
+    if (subscription.tier === 'premium') {
+      return true; // Premium users have unlimited sessions
+    }
+    
+    if (focusSessionsUsedToday >= 3) {
+      return false; // Limit reached for free users
+    }
+    
+    setFocusSessionsUsedToday(prev => prev + 1);
+    return true;
   };
 
   // Reset daily limits at midnight
