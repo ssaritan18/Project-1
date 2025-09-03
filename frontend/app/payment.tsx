@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  TextInput,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,22 +18,13 @@ export default function PaymentScreen() {
   const insets = useSafeAreaInsets();
   const { upgradeToPremium } = useSubscription();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState<'card' | 'apple' | 'google'>('card');
-  
-  // Card form state
-  const [cardForm, setCardForm] = useState({
-    number: '',
-    expiry: '',
-    cvv: '',
-    name: '',
-  });
 
-  const handlePayment = async () => {
+  const handleAppStorePayment = async () => {
     setIsProcessing(true);
     
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Simulate App Store/Google Play in-app purchase
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Upgrade to premium
       await upgradeToPremium();
@@ -54,7 +45,7 @@ export default function PaymentScreen() {
     } catch (error) {
       Alert.alert(
         'Payment Failed',
-        'There was an issue processing your payment. Please check your payment details and try again.',
+        'There was an issue processing your payment. Please try again.',
         [{ text: 'OK' }]
       );
     } finally {
@@ -62,23 +53,195 @@ export default function PaymentScreen() {
     }
   };
 
-  const formatCardNumber = (text: string) => {
-    // Remove all non-digits
-    const cleaned = text.replace(/\D/g, '');
-    // Add spaces every 4 digits
-    const formatted = cleaned.replace(/(\d{4})(?=\d)/g, '$1 ');
-    return formatted.substring(0, 19); // Limit to 16 digits + 3 spaces
+  const getPaymentMethodInfo = () => {
+    if (Platform.OS === 'ios') {
+      return {
+        icon: '🍎',
+        title: 'App Store',
+        subtitle: 'Pay with Apple ID • Touch ID/Face ID • Secure',
+        buttonText: '🍎 Pay with App Store'
+      };
+    } else {
+      return {
+        icon: '🤖',
+        title: 'Google Play',
+        subtitle: 'Pay with Google • Saved payment methods • Secure',
+        buttonText: '🤖 Pay with Google Play'
+      };
+    }
   };
 
-  const formatExpiry = (text: string) => {
-    // Remove all non-digits
-    const cleaned = text.replace(/\D/g, '');
-    // Add slash after 2 digits
-    if (cleaned.length >= 2) {
-      return cleaned.substring(0, 2) + '/' + cleaned.substring(2, 4);
-    }
-    return cleaned;
-  };
+  const paymentInfo = getPaymentMethodInfo();
+
+  return (
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#0f172a']}
+      style={styles.container}
+    >
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        
+        <LinearGradient
+          colors={['#8B5CF6', '#EC4899', '#F97316']}
+          style={styles.headerGradient}
+        >
+          <Text style={styles.headerTitle}>👑 Complete Your Premium Upgrade</Text>
+          <Text style={styles.headerSubtitle}>
+            Join thousands of ADHD users already using premium features
+          </Text>
+        </LinearGradient>
+      </View>
+
+      <ScrollView 
+        style={styles.content}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Order Summary */}
+        <LinearGradient
+          colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
+          style={styles.summaryCard}
+        >
+          <Text style={styles.summaryTitle}>📋 Order Summary</Text>
+          
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>ADHDers Social Club Premium</Text>
+            <Text style={styles.summaryValue}>$4.99</Text>
+          </View>
+          
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Billing Period</Text>
+            <Text style={styles.summaryValue}>Monthly</Text>
+          </View>
+          
+          <View style={styles.summaryDivider} />
+          
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryTotalLabel}>Total Today</Text>
+            <Text style={styles.summaryTotalValue}>$4.99</Text>
+          </View>
+          
+          <Text style={styles.summaryNote}>
+            ✨ Cancel anytime in {Platform.OS === 'ios' ? 'App Store' : 'Google Play'} • 🔄 Auto-renews monthly • 📱 Instant access
+          </Text>
+        </LinearGradient>
+
+        {/* Payment Method */}
+        <LinearGradient
+          colors={['rgba(139, 92, 246, 0.1)', 'rgba(168, 85, 247, 0.1)']}
+          style={styles.paymentMethodCard}
+        >
+          <Text style={styles.paymentMethodTitle}>💳 Payment Method</Text>
+          
+          <View style={styles.paymentMethodInfo}>
+            <Text style={styles.paymentMethodIcon}>{paymentInfo.icon}</Text>
+            <View style={styles.paymentMethodDetails}>
+              <Text style={styles.paymentMethodName}>{paymentInfo.title}</Text>
+              <Text style={styles.paymentMethodDescription}>{paymentInfo.subtitle}</Text>
+            </View>
+            <View style={styles.securityBadge}>
+              <Text style={styles.securityBadgeText}>🔒 Secure</Text>
+            </View>
+          </View>
+          
+          <View style={styles.paymentBenefits}>
+            <Text style={styles.benefitItem}>✅ Use existing payment methods</Text>
+            <Text style={styles.benefitItem}>✅ Biometric authentication</Text>
+            <Text style={styles.benefitItem}>✅ Easy subscription management</Text>
+            <Text style={styles.benefitItem}>✅ Automatic receipt via email</Text>
+          </View>
+        </LinearGradient>
+
+        {/* Premium Features */}
+        <LinearGradient
+          colors={['rgba(16, 185, 129, 0.1)', 'rgba(5, 150, 105, 0.1)']}
+          style={styles.featuresCard}
+        >
+          <Text style={styles.featuresTitle}>🎯 What You're Getting:</Text>
+          <View style={styles.featuresList}>
+            <View style={styles.featureRow}>
+              <Text style={styles.featureIcon}>✨</Text>
+              <Text style={styles.featureText}>Completely ad-free experience</Text>
+            </View>
+            <View style={styles.featureRow}>
+              <Text style={styles.featureIcon}>🎯</Text>
+              <Text style={styles.featureText}>Unlimited focus sessions</Text>
+            </View>
+            <View style={styles.featureRow}>
+              <Text style={styles.featureIcon}>📊</Text>
+              <Text style={styles.featureText}>Advanced analytics & insights</Text>
+            </View>
+            <View style={styles.featureRow}>
+              <Text style={styles.featureIcon}>👥</Text>
+              <Text style={styles.featureText}>Unlimited friends & connections</Text>
+            </View>
+            <View style={styles.featureRow}>
+              <Text style={styles.featureIcon}>🏆</Text>
+              <Text style={styles.featureText}>Priority customer support</Text>
+            </View>
+            <View style={styles.featureRow}>
+              <Text style={styles.featureIcon}>🎨</Text>
+              <Text style={styles.featureText}>Premium themes & customization</Text>
+            </View>
+          </View>
+        </LinearGradient>
+
+        {/* Payment Button */}
+        <TouchableOpacity
+          style={styles.paymentButton}
+          onPress={handleAppStorePayment}
+          disabled={isProcessing}
+        >
+          <LinearGradient
+            colors={['#10B981', '#059669']}
+            style={styles.paymentButtonGradient}
+          >
+            <Text style={styles.paymentButtonText}>
+              {isProcessing ? 'Processing Payment...' : paymentInfo.buttonText}
+            </Text>
+            {!isProcessing && <Ionicons name="arrow-forward" size={20} color="#fff" />}
+          </LinearGradient>
+        </TouchableOpacity>
+
+        {/* Subscription Management Info */}
+        <LinearGradient
+          colors={['rgba(59, 130, 246, 0.1)', 'rgba(37, 99, 235, 0.1)']}
+          style={styles.managementCard}
+        >
+          <Text style={styles.managementTitle}>📱 Subscription Management</Text>
+          <Text style={styles.managementText}>
+            Your subscription will be managed through {Platform.OS === 'ios' ? 'App Store' : 'Google Play'}. 
+            You can cancel, upgrade, or modify your subscription anytime in your {Platform.OS === 'ios' ? 'Apple ID' : 'Google Account'} settings.
+          </Text>
+          <View style={styles.managementSteps}>
+            <Text style={styles.managementStep}>
+              1. Go to {Platform.OS === 'ios' ? 'Settings > Apple ID > Subscriptions' : 'Play Store > Subscriptions'}
+            </Text>
+            <Text style={styles.managementStep}>
+              2. Find "ADHDers Social Club Premium"
+            </Text>
+            <Text style={styles.managementStep}>
+              3. Cancel or modify as needed
+            </Text>
+          </View>
+        </LinearGradient>
+
+        {/* Trust Indicators */}
+        <View style={styles.trustSection}>
+          <Text style={styles.trustTitle}>🔒 100% Secure Payment</Text>
+          <View style={styles.trustFeatures}>
+            <Text style={styles.trustItem}>🛡️ {Platform.OS === 'ios' ? 'Apple' : 'Google'} Security</Text>
+            <Text style={styles.trustItem}>💳 No card details stored</Text>
+            <Text style={styles.trustItem}>🔄 Cancel anytime</Text>
+            <Text style={styles.trustItem}>📱 Instant activation</Text>
+          </View>
+        </View>
+      </ScrollView>
+    </LinearGradient>
+  );
+}
 
   return (
     <LinearGradient
