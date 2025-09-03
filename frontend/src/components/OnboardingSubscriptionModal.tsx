@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   // Benefits
   benefitsSection: {
     paddingHorizontal: 24,
-    marginBottom: 24,
+    marginBottom: 20, // Reduced from 24
   },
   benefitsTitle: {
     color: '#fff',
