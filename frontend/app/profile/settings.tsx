@@ -271,41 +271,57 @@ export default function SettingsScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="white" />
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#0f172a']}
+      style={[styles.container, { paddingTop: insets.top }]}
+    >
+      {/* Glow Header */}
+      <LinearGradient
+        colors={['#8B5CF6', '#EC4899', '#F97316']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.glowHeader}
+      >
+        <TouchableOpacity 
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.title}>Settings</Text>
-        <View style={styles.placeholder} />
-      </View>
+        
+        <Text style={styles.headerTitle}>⚙️ Settings</Text>
+        
+        <View style={styles.headerSpacer} />
+      </LinearGradient>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Notifications */}
-        <SettingSection title="Notifications">
+        <SettingSection title="Notifications" icon="🔔">
           <ToggleSetting
             title="Message Notifications"
             description="Get notified when someone sends you a message"
             value={settings.notifications.push_messages}
             onToggle={(value) => updateSettings('notifications', { push_messages: value })}
+            icon="💬"
           />
           <ToggleSetting
             title="Email Updates"
             description="Receive weekly community updates via email"
             value={settings.notifications.email_updates}
             onToggle={(value) => updateSettings('notifications', { email_updates: value })}
+            icon="📧"
           />
           <ToggleSetting
             title="Friend Request Notifications"
             description="Get notified when someone sends you a friend request"
             value={settings.notifications.friend_requests}
             onToggle={(value) => updateSettings('notifications', { friend_requests: value })}
+            icon="👥"
           />
         </SettingSection>
 
         {/* Privacy */}
-        <SettingSection title="Privacy">
+        <SettingSection title="Privacy" icon="🔒">
           <SelectSetting
             title="Profile Visibility"
             value={settings.privacy.profile_visibility}
@@ -315,6 +331,7 @@ export default function SettingsScreen() {
               { key: 'private', label: 'Private - Only you can see your profile' },
             ]}
             onSelect={(value) => updateSettings('privacy', { profile_visibility: value })}
+            icon="👁️"
           />
           
           <SelectSetting
@@ -326,11 +343,12 @@ export default function SettingsScreen() {
               { key: 'no_one', label: 'No One - Block all new message requests' },
             ]}
             onSelect={(value) => updateSettings('privacy', { message_requests: value })}
+            icon="💌"
           />
         </SettingSection>
 
         {/* Preferences */}
-        <SettingSection title="Preferences">
+        <SettingSection title="Preferences" icon="🎨">
           <SelectSetting
             title="Theme"
             value={settings.preferences.theme}
@@ -341,26 +359,41 @@ export default function SettingsScreen() {
             ]}
             onSelect={(value) => {
               updateSettings('preferences', { theme: value });
-              // Apply theme immediately
               applyTheme(value);
             }}
+            icon="🌙"
           />
         </SettingSection>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Settings are automatically saved when changed.
-          </Text>
+        {/* Footer */}
+        <View style={styles.footerSection}>
+          <LinearGradient
+            colors={['rgba(99, 102, 241, 0.1)', 'rgba(139, 92, 246, 0.1)']}
+            style={styles.footerCard}
+          >
+            <Ionicons name="save-outline" size={24} color="#8B5CF6" />
+            <Text style={styles.footerText}>
+              Settings are automatically saved when changed and synced across your devices.
+            </Text>
+          </LinearGradient>
         </View>
+
+        <View style={styles.bottomPadding} />
       </ScrollView>
 
       {/* Loading overlay */}
       {saving && (
         <View style={styles.savingOverlay}>
-          <ActivityIndicator size="small" color="#4A90E2" />
+          <LinearGradient
+            colors={['rgba(139, 92, 246, 0.9)', 'rgba(236, 72, 153, 0.9)']}
+            style={styles.savingGradient}
+          >
+            <ActivityIndicator size="small" color="#fff" />
+            <Text style={styles.savingText}>Saving...</Text>
+          </LinearGradient>
         </View>
       )}
-    </View>
+    </LinearGradient>
   );
 }
 
