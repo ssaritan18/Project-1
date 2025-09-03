@@ -15,6 +15,7 @@ import {
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../src/context/AuthContext';
 import { useRuntimeConfig } from '../../src/context/RuntimeConfigContext';
 import { ProfilePictureUpload } from '../../src/components/ProfilePictureUpload';
