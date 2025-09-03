@@ -93,34 +93,8 @@ export function SubscriptionPage() {
       return;
     }
 
-    setIsProcessing(true);
-    
-    try {
-      // Use the subscription context to upgrade
-      await upgradeToPremium();
-      
-      Alert.alert(
-        '🎉 Subscription Successful!',
-        'Welcome to Premium! You now have access to all premium features. Enjoy your ad-free ADHD support experience!',
-        [
-          {
-            text: 'Continue',
-            onPress: () => {
-              // Navigate back to home or profile
-              router.back();
-            }
-          }
-        ]
-      );
-    } catch (error) {
-      Alert.alert(
-        'Subscription Error',
-        'There was an issue processing your subscription. Please try again later.',
-        [{ text: 'OK' }]
-      );
-    } finally {
-      setIsProcessing(false);
-    }
+    // For premium, redirect to payment page
+    router.push('/payment');
   };
 
   // Update pricing tiers based on current subscription
