@@ -425,8 +425,6 @@
   run_ui: false
 ## test_plan:
   current_focus:
-    - "Create Task Button Bug Fix"
-    - "Task Delete Button Bug Fix"
   stuck_tasks:
   test_all: false
   test_priority: "high_first"
