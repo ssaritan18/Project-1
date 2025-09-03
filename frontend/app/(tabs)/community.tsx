@@ -544,55 +544,63 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+    paddingHorizontal: 20,
   },
   glowHeader: {
-    paddingHorizontal: 20,
-    paddingVertical: 24,
     borderRadius: 20,
-    marginHorizontal: 16,
-    marginBottom: 20,
+    padding: 24,
+    alignItems: 'center',
+    marginBottom: 24,
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
   },
   glowHeaderTitle: {
     color: '#fff',
     fontSize: 28,
     fontWeight: '900',
-    textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.3)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
+    marginBottom: 6,
   },
   glowHeaderSubtitle: {
     color: 'rgba(255,255,255,0.9)',
     fontSize: 16,
-    textAlign: 'center',
-    marginTop: 4,
+    fontWeight: '600',
   },
+  
+  // Filter System
   filterContainer: {
-    paddingHorizontal: 16,
     marginBottom: 20,
   },
   filterScroll: {
-    paddingRight: 16,
+    paddingLeft: 2,
   },
   filterTab: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
     backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
     marginRight: 12,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
   },
   filterTabActive: {
     backgroundColor: 'rgba(139, 92, 246, 0.3)',
     borderColor: '#8B5CF6',
   },
   filterTabText: {
-    color: '#E5E7EB',
+    color: 'rgba(255,255,255,0.8)',
     fontSize: 14,
     fontWeight: '600',
   },
   filterTabTextActive: {
+    color: '#fff',
+    fontWeight: '800',
   },
   filterTabCount: {
     color: 'rgba(255,255,255,0.6)',
@@ -602,56 +610,35 @@ const styles = StyleSheet.create({
   filterTabCountActive: {
     color: '#fff',
     fontWeight: '700',
-    color: '#fff',
   },
+
+  // Posts Section
   postsSection: {
-    paddingHorizontal: 16,
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: '800',
-    marginBottom: 8,
-    textShadowColor: '#8B5CF6',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  sectionSubtitle: {
-    color: '#E5E7EB',
-    fontSize: 16,
-    marginBottom: 20,
+    marginBottom: 24,
   },
   postCard: {
     marginBottom: 16,
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  postGradientBorder: {
-    padding: 2,
-    borderRadius: 16,
+  postGradient: {
+    padding: 20,
   },
-  postContent: {
-    backgroundColor: 'rgba(15, 23, 42, 0.8)',
-    borderRadius: 14,
-    padding: 16,
-  },
-  postHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  authorSection: {
+  postHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    marginBottom: 12,
   },
   authorAvatar: {
-    fontSize: 24,
+    fontSize: 20,
     marginRight: 12,
   },
-  authorDetails: {
+  authorInfo: {
     flex: 1,
   },
   authorNameRow: {
@@ -661,172 +648,205 @@ const styles = StyleSheet.create({
   },
   authorName: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
     marginRight: 6,
   },
-  postTimeAgo: {
-    color: '#9CA3AF',
+  memberSince: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
+  },
+  timeAgo: {
+    color: 'rgba(255,255,255,0.6)',
     fontSize: 12,
   },
   postTopic: {
-    color: '#E5E7EB',
-    fontSize: 12,
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 13,
     fontWeight: '600',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    marginBottom: 4,
   },
   postTitle: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
     marginBottom: 8,
     lineHeight: 24,
   },
-  postPreview: {
-    color: '#E5E7EB',
-    fontSize: 14,
+  postContentPreview: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 15,
     lineHeight: 20,
     marginBottom: 12,
   },
-  postTags: {
+  tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: 12,
+    alignItems: 'center',
   },
-  postTag: {
-    backgroundColor: 'rgba(139, 92, 246, 0.2)',
+  tag: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
     paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    marginRight: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    marginRight: 6,
     marginBottom: 4,
   },
-  postTagText: {
-    color: '#A855F7',
-    fontSize: 12,
+  tagText: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 11,
     fontWeight: '600',
   },
   moreTags: {
-    color: '#9CA3AF',
-    fontSize: 12,
-    alignSelf: 'center',
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 11,
+    fontStyle: 'italic',
   },
-  postFooter: {
+  engagementRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  engagementStats: {
-    flexDirection: 'row',
-  },
-  engagementStatItem: {
+  engagementItem: {
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 16,
   },
-  statText: {
-    color: '#9CA3AF',
-    fontSize: 14,
-    marginLeft: 4,
+  engagementText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 13,
+    fontWeight: '600',
+    marginLeft: 6,
   },
+  readMore: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  readMoreText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 13,
+    fontWeight: '600',
+    marginRight: 4,
+  },
+
+  // Stats Section
+  statsSection: {
+    marginBottom: 24,
+  },
+  statsCard: {
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  statsTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: 16,
+    textShadowColor: '#8B5CF6',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  statItem: {
+    alignItems: 'center',
+    width: '48%',
+    marginBottom: 16,
+  },
+  statNumber: {
+    color: '#8B5CF6',
+    fontSize: 24,
+    fontWeight: '900',
+    textShadowColor: 'rgba(139, 92, 246, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  statLabel: {
+    color: '#E5E7EB',
+    fontSize: 13,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+
   // Modal Styles
   modalContainer: {
     flex: 1,
   },
   modalHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
+    borderBottomColor: 'rgba(139, 92, 246, 0.2)',
   },
   closeButton: {
     padding: 8,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   modalHeaderTitle: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   headerSpacer: {
     width: 40,
   },
   modalContent: {
     flex: 1,
+    paddingHorizontal: 20,
   },
   fullPostContainer: {
-    padding: 20,
+    paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
+    borderBottomColor: 'rgba(139, 92, 246, 0.2)',
+    marginBottom: 20,
   },
-  postHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  postContent: {
+    color: '#E5E7EB',
+    fontSize: 16,
+    lineHeight: 24,
     marginBottom: 16,
-  },
-  authorInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  memberSince: {
-    color: '#9CA3AF',
-    fontSize: 12,
-  },
-  timeAgo: {
-    color: '#9CA3AF',
-    fontSize: 12,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginVertical: 16,
-  },
-  tag: {
-    backgroundColor: 'rgba(139, 92, 246, 0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  tagText: {
-    color: '#A855F7',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  engagementRow: {
-    flexDirection: 'row',
-    marginTop: 16,
+    textAlign: 'justify',
   },
   engagementButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 24,
-  },
-  engagementText: {
-    color: '#E5E7EB',
-    fontSize: 14,
-    marginLeft: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    marginRight: 12,
   },
   commentsSection: {
-    padding: 20,
+    marginBottom: 20,
   },
   commentsTitle: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
     marginBottom: 16,
+    textShadowColor: '#EC4899',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   commentItem: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.2)',
   },
   commentHeader: {
     flexDirection: 'row',
@@ -837,17 +857,18 @@ const styles = StyleSheet.create({
   commentAuthor: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   commentTime: {
-    color: '#9CA3AF',
+    color: 'rgba(255,255,255,0.6)',
     fontSize: 12,
   },
   commentContent: {
     color: '#E5E7EB',
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 8,
+    fontSize: 15,
+    lineHeight: 22,
+    marginBottom: 10,
+    textAlign: 'justify',
   },
   commentLike: {
     flexDirection: 'row',
@@ -856,56 +877,16 @@ const styles = StyleSheet.create({
   commentLikeText: {
     color: '#9CA3AF',
     fontSize: 12,
-    marginLeft: 4,
+    marginLeft: 6,
   },
   noComments: {
-    color: '#9CA3AF',
-    fontSize: 14,
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 15,
     textAlign: 'center',
     fontStyle: 'italic',
-    marginTop: 20,
+    paddingVertical: 20,
   },
   modalFooter: {
-    height: 40,
-  },
-
-  // Stats Section Styles
-  statsSection: {
-    paddingHorizontal: 16,
-    marginBottom: 32,
-  },
-  statsCard: {
-    padding: 20,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(139, 92, 246, 0.3)',
-  },
-  statsTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  statItem: {
-    width: '48%',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  statNumber: {
-    color: '#8B5CF6',
-    fontSize: 24,
-    fontWeight: '900',
-    marginBottom: 4,
-  },
-  statLabel: {
-    color: '#E5E7EB',
-    fontSize: 12,
-    textAlign: 'center',
+    height: 30,
   },
 });
