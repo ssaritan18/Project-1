@@ -1,7 +1,9 @@
 import React from "react";
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from "expo-router";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function HelpScreen() {
   return (
