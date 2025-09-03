@@ -6,54 +6,145 @@ import { router } from "expo-router";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function HelpScreen() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ padding: 16 }}>
-      <View style={styles.headerRow}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 6 }}>
-          <Ionicons name="chevron-back" size={22} color="#fff" />
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#0f172a']}
+      style={[styles.container, { paddingTop: insets.top }]}
+    >
+      {/* Glow Header */}
+      <LinearGradient
+        colors={['#8B5CF6', '#EC4899', '#F97316']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.glowHeader}
+      >
+        <TouchableOpacity 
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.title}>How ADHDers works</Text>
-        <View style={{ width: 28 }} />
-      </View>
+        
+        <Text style={styles.headerTitle}>📚 How Glow Works</Text>
+        
+        <View style={styles.headerSpacer} />
+      </LinearGradient>
 
-      <Text style={styles.h2}>Quick Start</Text>
-      <Text style={styles.p}>1) Giriş yap → Anasayfada küçük görevler ekle</Text>
-      <Text style={styles.p}>2) Her görev için küçük artışlar yap ("+")</Text>
-      <Text style={styles.p}>3) Günlük toplam ilerleme barını doldur</Text>
-      <Text style={styles.p}>4) Arkadaşlar & Gruplar: sohbet et, paylaş, motive ol</Text>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Quick Start Section */}
+        <View style={styles.section}>
+          <LinearGradient
+            colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
+            style={styles.sectionCard}
+          >
+            <Text style={styles.sectionTitle}>🚀 Quick Start</Text>
+            <Text style={styles.stepText}>1️⃣ Sign in → Add small daily tasks on homepage</Text>
+            <Text style={styles.stepText}>2️⃣ Make small progress on each task ("+" button)</Text>
+            <Text style={styles.stepText}>3️⃣ Fill your daily total progress bar</Text>
+            <Text style={styles.stepText}>4️⃣ Friends & Groups: chat, share, stay motivated</Text>
+          </LinearGradient>
+        </View>
 
-      <Text style={styles.h2}>Daily Tasks & Dopamine</Text>
-      <Text style={styles.p}>- Her görevin kendi ilerleme çubuğu vardır. Tamamlanınca kupa ve konfeti ile kutlama alırsın.</Text>
-      <Text style={styles.p}>- Altta günün toplam ilerleme barı, tüm görevlerin minik kazanımlarını toplar.</Text>
-      <Text style={styles.p}>İpucu: Küçük ve net hedefler belirle (ör. 5 bardak su, 1 minik not, 3 esneme seti).</Text>
+        {/* Tasks & Motivation Section */}
+        <View style={styles.section}>
+          <LinearGradient
+            colors={['rgba(236, 72, 153, 0.1)', 'rgba(249, 115, 22, 0.1)']}
+            style={styles.sectionCard}
+          >
+            <Text style={styles.sectionTitle}>🎯 Daily Tasks & Dopamine</Text>
+            <Text style={styles.bodyText}>
+              Every task has its own progress bar. When completed, you get celebration with trophies and confetti! 🏆✨
+            </Text>
+            <Text style={styles.bodyText}>
+              The bottom progress bar collects all your small wins throughout the day.
+            </Text>
+            <Text style={styles.tipText}>
+              💡 Tip: Set small, clear goals (e.g., 5 glasses of water, 1 small note, 3 stretches)
+            </Text>
+          </LinearGradient>
+        </View>
 
-      <Text style={styles.h2}>Streaks</Text>
-      <Text style={styles.p}>- Herhangi bir görevi tamamladığın gün kaydedilir; ardışık günler “streak” oluşturur.</Text>
-      <Text style={styles.p}>İpucu: Çok yoğun günlerde tek bir minik görevi bitirmek bile seriyi korur.</Text>
+        {/* Streaks Section */}
+        <View style={styles.section}>
+          <LinearGradient
+            colors={['rgba(249, 115, 22, 0.1)', 'rgba(251, 191, 36, 0.1)']}
+            style={styles.sectionCard}
+          >
+            <Text style={styles.sectionTitle}>🔥 Streaks</Text>
+            <Text style={styles.bodyText}>
+              Any day you complete a task gets recorded. Consecutive days create "streaks" that build momentum.
+            </Text>
+            <Text style={styles.tipText}>
+              💡 Tip: Even on busy days, completing one tiny task keeps your streak alive!
+            </Text>
+          </LinearGradient>
+        </View>
 
-      <Text style={styles.h2}>Personalization</Text>
-      <Text style={styles.p}>- Profil sayfasından pastel paletini seç → arayüz sana göre şekillenir.</Text>
-      <Text style={styles.p}>- Görev oluştururken renk seçebilirsin; görsel geri bildirim odaklıdır.</Text>
+        {/* Personalization Section */}
+        <View style={styles.section}>
+          <LinearGradient
+            colors={['rgba(16, 185, 129, 0.1)', 'rgba(52, 211, 153, 0.1)']}
+            style={styles.sectionCard}
+          >
+            <Text style={styles.sectionTitle}>🎨 Personalization</Text>
+            <Text style={styles.bodyText}>
+              Choose your color palette from Profile page → interface adapts to your preferences with our Glow aesthetic.
+            </Text>
+            <Text style={styles.bodyText}>
+              Pick colors when creating tasks for visual feedback that matches your ADHD brain.
+            </Text>
+          </LinearGradient>
+        </View>
 
-      <Text style={styles.h2}>Chats & Groups</Text>
-      <Text style={styles.p}>- Grup oluştur, davet kodu ile katıl; mesaj ve sesli not (mock) gönder.</Text>
-      <Text style={styles.p}>- Mesajlara reaksiyon ekleyerek birbirinizi motive edin.</Text>
+        {/* Social Features Section */}
+        <View style={styles.section}>
+          <LinearGradient
+            colors={['rgba(99, 102, 241, 0.1)', 'rgba(139, 92, 246, 0.1)']}
+            style={styles.sectionCard}
+          >
+            <Text style={styles.sectionTitle}>💬 Chats & Community</Text>
+            <Text style={styles.bodyText}>
+              Create groups, join with invite codes, send messages and voice notes. React to messages to motivate each other.
+            </Text>
+            <Text style={styles.bodyText}>
+              Send friend requests, share short updates, and collect reactions from your ADHD community.
+            </Text>
+          </LinearGradient>
+        </View>
 
-      <Text style={styles.h2}>Friends & Feed</Text>
-      <Text style={styles.p}>- Arkadaş isteği gönder/al; kısa güncellemeler paylaş ve reaksiyon topla.</Text>
+        {/* Privacy & Data Section */}
+        <View style={styles.section}>
+          <LinearGradient
+            colors={['rgba(139, 92, 246, 0.1)', 'rgba(168, 85, 247, 0.1)']}
+            style={styles.sectionCard}
+          >
+            <Text style={styles.sectionTitle}>🔒 Privacy & Data</Text>
+            <Text style={styles.bodyText}>
+              In this MVP, all data is stored locally on your device. In the full version, privacy and security are our top priorities.
+            </Text>
+            <Text style={styles.bodyText}>
+              Backup & restore your data via Profile → Data Tools for JSON export/import.
+            </Text>
+          </LinearGradient>
+        </View>
 
-      <Text style={styles.h2}>Backup / Restore</Text>
-      <Text style={styles.p}>- Profil → Data Tools kısmından JSON yedek al ve geri yükle.</Text>
+        {/* CTA Button */}
+        <View style={styles.ctaSection}>
+          <TouchableOpacity style={styles.ctaButton} onPress={() => router.back()}>
+            <LinearGradient
+              colors={['#10B981', '#34D399']}
+              style={styles.ctaGradient}
+            >
+              <Text style={styles.ctaText}>✨ Got it! Let's Go</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
 
-      <Text style={styles.h2}>Privacy</Text>
-      <Text style={styles.p}>- Bu MVP’de tüm veriler cihazında yerel olarak saklanır. Gerçek zamanlı sürümde gizlilik ve güvenlik önceliğimizdir.</Text>
-
-      <View style={{ height: 24 }} />
-      <TouchableOpacity style={styles.cta} onPress={() => router.back()}>
-        <Text style={styles.ctaText}>Tamam</Text>
-      </TouchableOpacity>
-      <View style={{ height: 32 }} />
-    </ScrollView>
+        <View style={styles.bottomPadding} />
+      </ScrollView>
+    </LinearGradient>
   );
 }
 
