@@ -595,7 +595,7 @@ export default function ProfileScreen() {
             <Text style={styles.upgradeButtonEmoji}>👑</Text>
             <View style={styles.upgradeButtonContent}>
               <Text style={styles.upgradeButtonTitle}>Upgrade to Premium</Text>
-              <Text style={styles.upgradeButtonSubtitle}>Unlock all features • .99/month</Text>
+              <Text style={styles.upgradeButtonSubtitle}>Unlock all features • $4.99/month</Text>
             </View>
             <Ionicons name="arrow-forward" size={20} color="#fff" />
           </LinearGradient>
