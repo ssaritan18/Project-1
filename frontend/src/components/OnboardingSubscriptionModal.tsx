@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     paddingHorizontal: 24,
     gap: 12,
-    marginBottom: 16,
+    marginBottom: 12, // Reduced from 16
   },
   continueButton: {
     borderRadius: 16,
