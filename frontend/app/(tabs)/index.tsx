@@ -299,7 +299,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Banner Ad for Free Users */}
-      <AdBanner />
+      <MockAdBanner />
     </LinearGradient>
   );
 }
