@@ -491,6 +491,34 @@ export default function CommunityScreen() {
               </TouchableOpacity>
             ))}
           </View>
+
+          {/* Community Stats */}
+          <View style={styles.statsSection}>
+            <LinearGradient
+              colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
+              style={styles.statsCard}
+            >
+              <Text style={styles.statsTitle}>🏆 Community Impact</Text>
+              <View style={styles.statsGrid}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statNumber}>12.4K</Text>
+                  <Text style={styles.statLabel}>Active Members</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statNumber}>847</Text>
+                  <Text style={styles.statLabel}>Daily Posts</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statNumber}>94%</Text>
+                  <Text style={styles.statLabel}>Positive Feedback</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statNumber}>2.8K</Text>
+                  <Text style={styles.statLabel}>Support Messages</Text>
+                </View>
+              </View>
+            </LinearGradient>
+          </View>
         </ScrollView>
       </View>
 
