@@ -26,14 +26,12 @@ export default function PaymentScreen() {
     initializeIAP();
   }, []);
 
+  // Initialize IAP service - Mock for development
   const initializeIAP = async () => {
     try {
-      const initialized = await iapService.initialize();
-      setIapInitialized(initialized);
-      
-      if (!initialized) {
-        console.warn('⚠️ IAP service failed to initialize, using mock mode');
-      }
+      // Mock initialization for development
+      console.log('🔧 Development mode - using mock IAP service');
+      setIapInitialized(true);
     } catch (error) {
       console.error('❌ IAP initialization error:', error);
       setIapInitialized(false);
