@@ -165,12 +165,20 @@ export default function SettingsScreen() {
     }
   };
 
-  const SettingSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  const SettingSection = ({ title, children, icon }: { title: string; children: React.ReactNode; icon: string }) => (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      <View style={styles.sectionContent}>
-        {children}
-      </View>
+      <LinearGradient
+        colors={['rgba(139, 92, 246, 0.1)', 'rgba(168, 85, 247, 0.1)']}
+        style={styles.sectionCard}
+      >
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionIcon}>{icon}</Text>
+          <Text style={styles.sectionTitle}>{title}</Text>
+        </View>
+        <View style={styles.sectionContent}>
+          {children}
+        </View>
+      </LinearGradient>
     </View>
   );
 
@@ -178,23 +186,29 @@ export default function SettingsScreen() {
     title, 
     description, 
     value, 
-    onToggle 
+    onToggle,
+    icon
   }: { 
     title: string; 
     description?: string; 
     value: boolean; 
     onToggle: (value: boolean) => void;
+    icon?: string;
   }) => (
     <View style={styles.settingRow}>
       <View style={styles.settingInfo}>
-        <Text style={styles.settingTitle}>{title}</Text>
+        <View style={styles.settingTitleRow}>
+          {icon && <Text style={styles.settingIcon}>{icon}</Text>}
+          <Text style={styles.settingTitle}>{title}</Text>
+        </View>
         {description && <Text style={styles.settingDescription}>{description}</Text>}
       </View>
       <Switch
         value={value}
         onValueChange={onToggle}
-        trackColor={{ false: '#333', true: '#4A90E2' }}
-        thumbColor={value ? '#ffffff' : '#888'}
+        trackColor={{ false: 'rgba(255,255,255,0.2)', true: '#8B5CF6' }}
+        thumbColor={value ? '#ffffff' : 'rgba(255,255,255,0.8)'}
+        ios_backgroundColor="rgba(255,255,255,0.2)"
       />
     </View>
   );
@@ -203,15 +217,20 @@ export default function SettingsScreen() {
     title, 
     value, 
     options, 
-    onSelect 
+    onSelect,
+    icon
   }: { 
     title: string; 
     value: string; 
     options: { key: string; label: string }[];
     onSelect: (key: string) => void;
+    icon?: string;
   }) => (
     <View style={styles.settingColumn}>
-      <Text style={styles.settingTitle}>{title}</Text>
+      <View style={styles.settingTitleRow}>
+        {icon && <Text style={styles.settingIcon}>{icon}</Text>}
+        <Text style={styles.settingTitle}>{title}</Text>
+      </View>
       <View style={styles.optionsContainer}>
         {options.map((option) => (
           <TouchableOpacity
@@ -229,7 +248,12 @@ export default function SettingsScreen() {
               {option.label}
             </Text>
             {value === option.key && (
-              <Ionicons name="checkmark" size={16} color="#4A90E2" />
+              <LinearGradient
+                colors={['#8B5CF6', '#EC4899']}
+                style={styles.checkmarkGradient}
+              >
+                <Ionicons name="checkmark" size={16} color="#fff" />
+              </LinearGradient>
             )}
           </TouchableOpacity>
         ))}
