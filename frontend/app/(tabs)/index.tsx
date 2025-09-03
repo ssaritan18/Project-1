@@ -66,12 +66,8 @@ export default function HomeScreen() {
     if (!title) return;
 
     try {
-      await createTask({
-        title,
-        category: "General",
-        priority: "medium",
-        color: COLOR_PRESETS[Math.floor(Math.random() * COLOR_PRESETS.length)]
-      });
+      const color = COLOR_PRESETS[Math.floor(Math.random() * COLOR_PRESETS.length)];
+      addTask(title, 5, color); // Default goal of 5 units, random color
       setNewTask("");
       setShowModal(false);
     } catch (error) {
