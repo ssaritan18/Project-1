@@ -82,6 +82,7 @@ export function SubscriptionPage() {
   const { subscription, upgradeToPremium } = useSubscription();
   const [selectedTier, setSelectedTier] = useState<string>(subscription.tier);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showCancellationModal, setShowCancellationModal] = useState(false);
 
   const handleSubscribe = async (tierId: string) => {
     if (tierId === 'free') {
