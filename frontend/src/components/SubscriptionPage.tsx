@@ -112,7 +112,7 @@ export function SubscriptionPage() {
     if (tier.id === 'free') {
       return {
         ...tier,
-        buttonText: subscription.tier === 'free' ? 'Current Plan' : 'Downgrade'
+        buttonText: subscription.tier === 'free' ? 'Current Plan' : 'Downgrade to Free'
       };
     } else {
       return {
