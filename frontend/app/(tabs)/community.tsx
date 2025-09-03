@@ -486,7 +486,7 @@ export default function CommunityScreen() {
                           <Ionicons name="chatbubble-outline" size={16} color="#9CA3AF" />
                           <Text style={styles.statText}>{post.engagement.comments}</Text>
                         </View>
-                        <View style={styles.statItem}>
+                        <View style={styles.engagementStatItem}>
                           <Ionicons name="share-outline" size={16} color="#9CA3AF" />
                           <Text style={styles.statText}>{post.engagement.shares}</Text>
                         </View>
