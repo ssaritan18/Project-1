@@ -592,12 +592,20 @@ export default function ProfileScreen() {
             colors={['#8B5CF6', '#EC4899', '#F97316']}
             style={styles.upgradeButtonGradient}
           >
-            <Text style={styles.upgradeButtonEmoji}>👑</Text>
+            <Text style={styles.upgradeButtonEmoji}>
+              {subscription.tier === 'premium' ? '👑' : '👑'}
+            </Text>
             <View style={styles.upgradeButtonContent}>
-              <Text style={styles.upgradeButtonTitle}>Upgrade to Premium</Text>
-              <Text style={styles.upgradeButtonSubtitle}>Unlock all features • $4.99/month</Text>
-            </View>
-            <Ionicons name="arrow-forward" size={20} color="#fff" />
+              <Text style={styles.upgradeButtonTitle}>
+                {subscription.tier === 'premium' ? 'Manage Subscription' : 'Upgrade to Premium'}
+              </Text>
+              <Text style={styles.upgradeButtonSubtitle}>
+                {subscription.tier === 'premium' 
+                  ? 'View plans & manage billing' 
+                  : 'Unlock all features • $4.99/month'
+                }
+              </Text>
+            </View>            <Ionicons name="arrow-forward" size={20} color="#fff" />
           </LinearGradient>
         </TouchableOpacity>
         
