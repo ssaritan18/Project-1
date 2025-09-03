@@ -31,7 +31,7 @@ const COLOR_PRESETS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#
 export default function HomeScreen() {
   console.log("🏠 HomeScreen rendering...");
 
-  const { tasks, createTask, deleteTask, setCompleted, increment } = useTasks();
+  const { tasks, addTask, remove, increment } = useTasks();
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const [newTask, setNewTask] = useState("");
