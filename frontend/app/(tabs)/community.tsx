@@ -590,7 +590,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  activeFilterTabText: {
+  filterTabTextActive: {
     color: '#fff',
   },
   postsSection: {
