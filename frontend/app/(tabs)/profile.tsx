@@ -650,6 +650,9 @@ export default function ProfileScreen() {
             <Text style={styles.modernSignOutText}>🚪 Sign Out</Text>
           </LinearGradient>
         </TouchableOpacity>
+      
+      {/* Dev Tools */}
+      <DevTools />
       </ScrollView>
     </LinearGradient>
   );
