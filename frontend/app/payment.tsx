@@ -19,6 +19,26 @@ export default function PaymentScreen() {
   const insets = useSafeAreaInsets();
   const { upgradeToPremium } = useSubscription();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [iapInitialized, setIapInitialized] = useState(false);
+
+  // Initialize IAP service
+  useEffect(() => {
+    initializeIAP();
+  }, []);
+
+  const initializeIAP = async () => {
+    try {
+      const initialized = await iapService.initialize();
+      setIapInitialized(initialized);
+      
+      if (!initialized) {
+        console.warn('⚠️ IAP service failed to initialize, using mock mode');
+      }
+    } catch (error) {
+      console.error('❌ IAP initialization error:', error);
+      setIapInitialized(false);
+    }
+  };
 
   const handleAppStorePayment = async () => {
     setIsProcessing(true);
