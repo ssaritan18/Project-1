@@ -293,7 +293,7 @@ export default function CommunityScreen() {
 
               <Text style={styles.postTopic}>{selectedPost.topic}</Text>
               <Text style={styles.postTitle}>{selectedPost.title}</Text>
-              <Text style={styles.postContent}>{selectedPost.content}</Text>
+              <Text style={styles.postContentContainer}>{selectedPost.content}</Text>
 
               {/* Tags */}
               <View style={styles.tagsContainer}>
@@ -435,7 +435,7 @@ export default function CommunityScreen() {
                   end={{ x: 1, y: 1 }}
                   style={styles.postGradientBorder}
                 >
-                  <View style={styles.postContent}>
+                  <View style={styles.postContentContainer}>
                     {/* Post Header */}
                     <View style={styles.postHeaderRow}>
                       <View style={styles.authorSection}>
