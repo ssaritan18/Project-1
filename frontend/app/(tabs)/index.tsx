@@ -49,7 +49,7 @@ export default function HomeScreen() {
   // Task statistics
   const stats = useMemo(() => {
     const completed = tasks.filter(t => t.progress >= t.goal).length;
-    const inProgress = tasks.filter(t => !t.progress >= t.goal && t.progress > 0).length;
+    const inProgress = tasks.filter(t => t.progress > 0 && t.progress < t.goal).length;
     const notStarted = tasks.filter(t => t.progress === 0).length;
     
     return {
