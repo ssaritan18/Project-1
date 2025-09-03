@@ -286,6 +286,12 @@ const styles = StyleSheet.create({
   modalContent: {
     flex: 1,
   },
+  scrollContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
   
   // Header
   header: {
