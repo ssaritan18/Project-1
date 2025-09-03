@@ -529,6 +529,9 @@ export default function CommunityScreen() {
         </ScrollView>
       </View>
 
+
+      {/* Post Detail Modal */}
+      {renderPostModal()}
       {/* Banner Ad for Free Users */}
       <MockAdBanner />
     </LinearGradient>
