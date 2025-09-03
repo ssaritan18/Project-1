@@ -58,11 +58,87 @@ export default function HelpScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0c0c0c' },
-  headerRow: { flexDirection: 'row', alignItems: 'center' },
-  title: { color: '#fff', fontSize: 18, fontWeight: '800', padding: 8, flex: 1, textAlign: 'center' },
-  h2: { color: '#fff', fontSize: 16, fontWeight: '800', marginTop: 12, marginBottom: 6 },
-  p: { color: '#d7d7d7', marginBottom: 6 },
-  cta: { backgroundColor: '#A3C9FF', paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
-  ctaText: { color: '#0c0c0c', fontWeight: '800' },
+  container: {
+    flex: 1,
+  },
+  glowHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  backButton: {
+    padding: 8,
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#fff',
+    marginLeft: -40, // Compensate for back button
+  },
+  headerSpacer: {
+    width: 40,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  section: {
+    marginTop: 20,
+  },
+  sectionCard: {
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 12,
+  },
+  stepText: {
+    fontSize: 15,
+    color: '#E5E7EB',
+    marginBottom: 8,
+    lineHeight: 22,
+  },
+  bodyText: {
+    fontSize: 15,
+    color: '#D1D5DB',
+    marginBottom: 12,
+    lineHeight: 22,
+  },
+  tipText: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    fontStyle: 'italic',
+    lineHeight: 20,
+  },
+  ctaSection: {
+    marginTop: 32,
+    marginBottom: 20,
+  },
+  ctaButton: {
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  ctaGradient: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+  },
+  ctaText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  bottomPadding: {
+    height: 40,
+  },
 });
