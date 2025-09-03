@@ -99,7 +99,7 @@ export default function HomeScreen() {
       <TaskCard
         task={item}
         onIncrement={() => handleTaskIncrement(item.id)}
-        onDelete={() => deleteTask(item.id)}
+        onDelete={() => remove(item.id)}
         onLongPress={drag}
       />
     </ScaleDecorator>
