@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useSubscription } from '../src/context/SubscriptionContext';
-import { iapService } from '../src/services/InAppPurchaseService';
+// import { iapService } from '../src/services/InAppPurchaseService'; // Disabled for now - will enable in production
 
 export default function PaymentScreen() {
   const insets = useSafeAreaInsets();
