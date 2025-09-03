@@ -591,6 +591,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   filterTabTextActive: {
+  },
+  filterTabCount: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  filterTabCountActive: {
+    color: '#fff',
+    fontWeight: '700',
     color: '#fff',
   },
   postsSection: {
