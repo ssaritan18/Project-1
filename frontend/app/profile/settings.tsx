@@ -400,130 +400,216 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
   },
   centerContent: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  header: {
+  
+  // Glow Header
+  glowHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    marginHorizontal: 16,
+    marginBottom: 20,
+    borderRadius: 20,
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
   },
   backButton: {
     width: 40,
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 20,
   },
-  title: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
+  headerTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '900',
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
-  placeholder: {
+  headerSpacer: {
     width: 40,
   },
+  
+  // Content
   content: {
     flex: 1,
+    paddingHorizontal: 16,
   },
+  
+  // Section Styles
   section: {
-    marginBottom: 32,
+    marginBottom: 24,
+  },
+  sectionCard: {
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sectionIcon: {
+    fontSize: 20,
+    marginRight: 12,
   },
   sectionTitle: {
-    color: 'white',
+    color: '#fff',
     fontSize: 18,
-    fontWeight: '600',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    fontWeight: '800',
+    textShadowColor: '#8B5CF6',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   sectionContent: {
-    backgroundColor: '#1A1A1A',
-    marginHorizontal: 16,
-    borderRadius: 12,
-    padding: 16,
+    
   },
+  
+  // Setting Row Styles
   settingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    borderBottomColor: 'rgba(139, 92, 246, 0.2)',
   },
   settingColumn: {
-    paddingVertical: 12,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    borderBottomColor: 'rgba(139, 92, 246, 0.2)',
   },
   settingInfo: {
     flex: 1,
     marginRight: 16,
   },
-  settingTitle: {
-    color: 'white',
+  settingTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  settingIcon: {
     fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 2,
+    marginRight: 8,
+  },
+  settingTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   settingDescription: {
-    color: '#888',
+    color: 'rgba(255,255,255,0.7)',
     fontSize: 13,
-    lineHeight: 16,
+    lineHeight: 18,
+    marginTop: 4,
   },
+  
+  // Options
   optionsContainer: {
-    marginTop: 8,
+    marginTop: 12,
   },
   optionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#333',
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   optionButtonSelected: {
-    backgroundColor: '#1E2A3A',
-    borderWidth: 1,
-    borderColor: '#4A90E2',
+    backgroundColor: 'rgba(139, 92, 246, 0.2)',
+    borderColor: '#8B5CF6',
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   optionText: {
-    color: '#888',
+    color: 'rgba(255,255,255,0.8)',
     fontSize: 14,
     flex: 1,
+    lineHeight: 18,
   },
   optionTextSelected: {
-    color: '#4A90E2',
-    fontWeight: '500',
+    color: '#fff',
+    fontWeight: '600',
   },
-  loadingText: {
-    color: '#888',
-    fontSize: 16,
-    marginTop: 16,
+  checkmarkGradient: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  footer: {
-    padding: 24,
+  
+  // Footer
+  footerSection: {
+    marginBottom: 24,
+  },
+  footerCard: {
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(99, 102, 241, 0.3)',
     alignItems: 'center',
   },
   footerText: {
-    color: '#666',
+    color: '#E5E7EB',
     fontSize: 14,
     textAlign: 'center',
+    lineHeight: 20,
+    marginTop: 12,
+  },
+  bottomPadding: {
+    height: 40,
+  },
+  
+  // Loading States
+  loadingText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 16,
+    marginTop: 16,
   },
   savingOverlay: {
     position: 'absolute',
-    top: 60,
-    right: 16,
-    backgroundColor: '#1A1A1A',
+    top: 100,
+    right: 20,
     borderRadius: 20,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: '#333',
+    overflow: 'hidden',
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  savingGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  savingText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });
