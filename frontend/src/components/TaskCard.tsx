@@ -81,6 +81,16 @@ export function TaskCard({ task, onIncrement, onDelete, onDrag }: { task: any; o
           </LinearGradient>
         </TouchableOpacity>
       </View>
+      
+      {/* Achievement Interstitial Ad */}
+      <MockInterstitialAd
+        visible={showInterstitial}
+        onClose={() => setShowInterstitial(false)}
+        adType="achievement"
+        context={{
+          taskName: task.title
+        }}
+      />
     </LinearGradient>
   );
 }
