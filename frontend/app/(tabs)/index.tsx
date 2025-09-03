@@ -201,7 +201,7 @@ export default function HomeScreen() {
                   onChangeText={setNewTask}
                   maxLength={100}
                 />
-                <TouchableOpacity onPress={addTask} disabled={!newTask.trim()}>
+                <TouchableOpacity onPress={handleAddTask} disabled={!newTask.trim()}>
                   <LinearGradient 
                     colors={newTask.trim() ? ['#8B5CF6', '#A855F7'] : ['#666', '#555']} 
                     style={styles.quickAddBtn}
@@ -275,7 +275,7 @@ export default function HomeScreen() {
                     </LinearGradient>
                   </TouchableOpacity>
                   
-                  <TouchableOpacity onPress={addTask} disabled={!newTask.trim()}>
+                  <TouchableOpacity onPress={handleAddTask} disabled={!newTask.trim()}>
                     <LinearGradient 
                       colors={newTask.trim() ? ['#8B5CF6', '#EC4899'] : ['#666', '#555']} 
                       style={styles.modalBtn}
