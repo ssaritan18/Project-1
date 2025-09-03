@@ -13,7 +13,7 @@ import { ErrorBoundary } from "../src/components/ErrorBoundary";
 import { CommunityProvider } from "../src/context/CommunityContext";
 import { MoodProvider } from "../src/context/MoodContext";
 import { SubscriptionProvider } from "../src/context/SubscriptionContext";
-import { adMobService } from "../src/services/AdMobService";
+// import { adMobService } from "../src/services/AdMobService"; // Disabled for development
 
 const theme = {
   ...MD3LightTheme,
