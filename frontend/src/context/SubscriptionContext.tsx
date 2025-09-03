@@ -216,13 +216,17 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     if (subscription.tier === 'premium') return Infinity;
     return 5;
   };
+
+  const contextValue: SubscriptionContextType = {
     subscription,
+    focusSessionsUsedToday,
     upgradeToPremium,
     cancelSubscription,
     hasFeature,
     isFeatureLimited,
     getFocusSessionsRemaining,
     getFriendsLimit,
+    incrementFocusSession,
   };
 
   return (
