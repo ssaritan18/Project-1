@@ -383,24 +383,32 @@ export default function CommunityScreen() {
 
         {/* Filter Tabs */}
         <View style={styles.filterContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScrollView}>
-            {(['trending', 'recent', 'research', 'all'] as const).map((filter) => (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
+            {[
+              { key: 'trending', label: '🔥 Trending', count: filteredPosts.length },
+              { key: 'recent', label: '🕐 Recent', count: communityPosts.filter(p => p.timeAgo.includes('hours')).length },
+              { key: 'research', label: '🔬 Research', count: communityPosts.filter(p => p.category === 'research').length },
+              { key: 'all', label: '📋 All Posts', count: communityPosts.length }
+            ].map((filter) => (
               <TouchableOpacity
-                key={filter}
+                key={filter.key}
                 style={[
                   styles.filterTab,
-                  activeFilter === filter && styles.activeFilterTab
+                  activeFilter === filter.key && styles.filterTabActive
                 ]}
-                onPress={() => setActiveFilter(filter)}
+                onPress={() => setActiveFilter(filter.key as any)}
               >
                 <Text style={[
                   styles.filterTabText,
-                  activeFilter === filter && styles.activeFilterTabText
+                  activeFilter === filter.key && styles.filterTabTextActive
                 ]}>
-                  {filter === 'trending' && '🔥 Trending'}
-                  {filter === 'recent' && '⏰ Recent'}
-                  {filter === 'research' && '🔬 Research'}
-                  {filter === 'all' && '📋 All Posts'}
+                  {filter.label}
+                </Text>
+                <Text style={[
+                  styles.filterTabCount,
+                  activeFilter === filter.key && styles.filterTabCountActive
+                ]}>
+                  {filter.count}
                 </Text>
               </TouchableOpacity>
             ))}
