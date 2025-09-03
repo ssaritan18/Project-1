@@ -202,6 +202,9 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     loadSubscriptionData();
+    
+    // Check subscription expiry on app start
+    scheduleSubscriptionExpiry();
   }, []);
 
   const contextValue: SubscriptionContextType = {
