@@ -435,7 +435,7 @@ export default function CommunityScreen() {
                   end={{ x: 1, y: 1 }}
                   style={styles.postGradientBorder}
                 >
-                  <View style={styles.postContent}>
+                  <View style={styles.postContentContainer}>
                     {/* Post Header */}
                     <View style={styles.postHeaderRow}>
                       <View style={styles.authorSection}>
