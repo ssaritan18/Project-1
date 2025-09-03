@@ -293,7 +293,7 @@ export default function CommunityScreen() {
 
               <Text style={styles.postTopic}>{selectedPost.topic}</Text>
               <Text style={styles.postTitle}>{selectedPost.title}</Text>
-              <Text style={styles.postContentContainer}>{selectedPost.content}</Text>
+              <Text style={styles.postContent}>{selectedPost.content}</Text>
 
               {/* Tags */}
               <View style={styles.tagsContainer}>
