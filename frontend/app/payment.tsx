@@ -550,97 +550,63 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   
-  // Payment Methods
-  paymentSection: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 16,
-  },
-  paymentMethods: {
-    gap: 12,
-  },
-  paymentMethod: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  selectedPayment: {
-    borderColor: '#8B5CF6',
-    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-  },
-  paymentMethodContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  paymentMethodIcon: {
-    fontSize: 20,
-  },
-  paymentMethodText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  recommendedBadge: {
-    backgroundColor: '#10B981',
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: '700',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-    marginLeft: 8,
-  },
-  
-  // Card Form
-  cardForm: {
+  // Payment Method
+  paymentMethodCard: {
     padding: 20,
     borderRadius: 16,
     marginBottom: 24,
     borderWidth: 1,
     borderColor: 'rgba(139, 92, 246, 0.3)',
   },
-  cardFormTitle: {
+  paymentMethodTitle: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 16,
   },
-  formGroup: {
-    marginBottom: 16,
-  },
-  formRow: {
+  paymentMethodInfo: {
     flexDirection: 'row',
-    gap: 12,
-  },
-  formGroupHalf: {
-    flex: 1,
+    alignItems: 'center',
     marginBottom: 16,
+    padding: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
   },
-  formLabel: {
+  paymentMethodIcon: {
+    fontSize: 32,
+    marginRight: 16,
+  },
+  paymentMethodDetails: {
+    flex: 1,
+  },
+  paymentMethodName: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  paymentMethodDescription: {
     color: '#E5E7EB',
     fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
   },
-  formInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  securityBadge: {
+    backgroundColor: '#10B981',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  securityBadgeText: {
     color: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(139, 92, 246, 0.3)',
-    fontSize: 16,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  paymentBenefits: {
+    gap: 8,
+  },
+  benefitItem: {
+    color: '#E5E7EB',
+    fontSize: 14,
+    fontWeight: '500',
   },
   
   // Features
@@ -658,12 +624,22 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   featuresList: {
-    gap: 8,
+    gap: 12,
   },
-  featureItem: {
+  featureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  featureIcon: {
+    fontSize: 16,
+    width: 20,
+  },
+  featureText: {
     color: '#E5E7EB',
     fontSize: 14,
     fontWeight: '500',
+    flex: 1,
   },
   
   // Payment Button
@@ -684,6 +660,35 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '700',
+  },
+  
+  // Management
+  managementCard: {
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+  },
+  managementTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  managementText: {
+    color: '#E5E7EB',
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  managementSteps: {
+    gap: 6,
+  },
+  managementStep: {
+    color: '#9CA3AF',
+    fontSize: 13,
+    fontWeight: '500',
   },
   
   // Trust
