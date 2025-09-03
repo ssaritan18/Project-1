@@ -37,6 +37,9 @@ export function OnboardingResults({ result, onContinue }: OnboardingResultsProps
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  
+  // Subscription modal state
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
   useEffect(() => {
     // Start entrance animations
