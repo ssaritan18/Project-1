@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useSubscription } from '../src/context/SubscriptionContext';
+import { iapService } from '../src/services/InAppPurchaseService';
 
 export default function PaymentScreen() {
   const insets = useSafeAreaInsets();
