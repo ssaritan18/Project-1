@@ -20,12 +20,14 @@ interface SubscriptionState {
 
 interface SubscriptionContextType {
   subscription: SubscriptionState;
+  focusSessionsUsedToday: number;
   upgradeToPremium: () => Promise<void>;
   cancelSubscription: () => Promise<void>;
   hasFeature: (feature: keyof SubscriptionState['features']) => boolean;
   isFeatureLimited: (feature: string) => boolean;
   getFocusSessionsRemaining: () => number;
   getFriendsLimit: () => number;
+  incrementFocusSession: () => boolean; // Returns true if allowed, false if limit reached
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
