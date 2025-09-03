@@ -2475,6 +2475,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include subscription router
+app.include_router(subscriptions_router)
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
