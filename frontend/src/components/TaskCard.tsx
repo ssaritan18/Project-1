@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProgressBar } from "./ProgressBar";
 import { Ionicons } from "@expo/vector-icons";
+import { MockInterstitialAd } from "./MockInterstitialAd";
 
 export function TaskCard({ task, onIncrement, onDelete, onDrag }: { task: any; onIncrement: () => void; onDelete: () => void; onDrag?: () => void }) {
   const ratio = task.goal ? task.progress / task.goal : 0;
