@@ -419,10 +419,9 @@
   run_ui: false
 ## test_plan:
   current_focus:
-    - "Homepage Test Button Removal"
-    - "Theme Preference Fix"
+    - "Create Task Button Bug Fix"
+    - "Task Delete Button Bug Fix"
   stuck_tasks:
-    - "Homepage Test Button Removal"
   test_all: false
   test_priority: "high_first"
 ## agent_communication:
