@@ -640,6 +640,10 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
+  postGradientBorder: {
+    padding: 2,
+    borderRadius: 20,
+  },
   postGradient: {
     padding: 20,
   },
