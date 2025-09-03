@@ -56,6 +56,19 @@ export default function FocusTimer() {
   }, [isRunning, timeLeft, mode]);
 
   const handleStart = () => {
+    // Check if this is the first start of this session
+    if (!sessionStarted) {
+      const canStart = incrementFocusSession();
+      
+      if (!canStart) {
+        // Show interstitial ad for limit reached
+        setShowInterstitial(true);
+        return;
+      }
+      
+      setSessionStarted(true);
+    }
+    
     setIsRunning(true);
   };
 
