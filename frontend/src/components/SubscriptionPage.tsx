@@ -85,18 +85,26 @@ export function SubscriptionPage() {
   const [showCancellationModal, setShowCancellationModal] = useState(false);
 
   const handleSubscribe = async (tierId: string) => {
-    if (tierId === 'free') {
+    if (tierId === 'free' && subscription.tier === 'free') {
       Alert.alert('Current Plan', 'You are already on the free plan!');
       return;
     }
 
-    if (subscription.tier === 'premium') {
+    if (tierId === 'premium' && subscription.tier === 'premium') {
       Alert.alert('Already Premium', 'You already have a premium subscription!');
       return;
     }
 
-    // For premium, redirect to payment page
-    router.push('/payment');
+    if (tierId === 'free' && subscription.tier === 'premium') {
+      // User wants to downgrade from premium to free
+      setShowCancellationModal(true);
+      return;
+    }
+
+    if (tierId === 'premium') {
+      // For premium upgrade, redirect to payment page
+      router.push('/payment');
+    }
   };
 
   // Update pricing tiers based on current subscription
