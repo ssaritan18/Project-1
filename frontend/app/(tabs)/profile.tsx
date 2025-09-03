@@ -22,6 +22,7 @@ import NeurodivergencyContent from "../../src/components/NeurodivergencyContent"
 import { useAchievements } from "../../src/hooks/useAchievements";
 import { useSubscription, getSubscriptionStatusDisplay } from "../../src/context/SubscriptionContext";
 import { DevTools } from "../../src/components/DevTools";
+import { RewardedAdButton } from "../../src/components/RewardedAdButton";
 import ProfileEditModal from "../../src/components/ProfileEditModal";
 
 const PRESETS = [
