@@ -10,7 +10,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AdBanner } from "../../src/components/AdBanner";
+import { MockAdBanner } from "../../src/components/MockAdBanner";
 
 export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
