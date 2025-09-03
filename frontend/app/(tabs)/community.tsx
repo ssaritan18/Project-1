@@ -849,4 +849,44 @@ const styles = StyleSheet.create({
   modalFooter: {
     height: 40,
   },
+
+  // Stats Section Styles
+  statsSection: {
+    paddingHorizontal: 16,
+    marginBottom: 32,
+  },
+  statsCard: {
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  statsTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  statItem: {
+    width: '48%',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  statNumber: {
+    color: '#8B5CF6',
+    fontSize: 24,
+    fontWeight: '900',
+    marginBottom: 4,
+  },
+  statLabel: {
+    color: '#E5E7EB',
+    fontSize: 12,
+    textAlign: 'center',
+  },
 });
