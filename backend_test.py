@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Test Suite for ADHDers API
-Tests Auth, Friends, and Chat endpoints as per test_result.md requirements
+Backend API Test Suite for Task Management System
+Tests task management functionality as requested in review
 """
 
 import requests
