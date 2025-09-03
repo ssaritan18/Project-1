@@ -23,6 +23,9 @@ from email.mime.multipart import MIMEMultipart
 import jinja2
 import random
 
+# Import subscription router
+from app.routers.subscriptions import router as subscriptions_router
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
