@@ -601,6 +601,7 @@ export default function ProfileScreen() {
           { key: 'stats', label: '📊', title: 'Stats' },
           { key: 'completion', label: '🎯', title: 'Tasks' },
           { key: 'neurodivergency', label: '🧠', title: 'Learn' },
+          { key: 'journey', label: '🗺️', title: 'Journey' },
         ].map(tab => (
           <TouchableOpacity
             key={tab.key}
