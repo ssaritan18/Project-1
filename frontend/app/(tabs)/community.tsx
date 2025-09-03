@@ -367,7 +367,6 @@ export default function CommunityScreen() {
       colors={['#1a1a2e', '#16213e', '#0f172a']}
       style={styles.container}
     >
-      {renderPostModal()}
       
       <View style={[styles.contentContainer, { paddingTop: insets.top + 20 }]}>
         {/* Glow Header */}
