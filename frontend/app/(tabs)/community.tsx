@@ -50,6 +50,7 @@ interface Comment {
 
 export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
+  const { user } = useAuth(); // Get user info for comments
   const [selectedPost, setSelectedPost] = useState<CommunityPost | null>(null);
   const [showPostModal, setShowPostModal] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'all' | 'trending' | 'recent' | 'research'>('trending');
