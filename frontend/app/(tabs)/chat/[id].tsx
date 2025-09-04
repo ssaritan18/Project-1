@@ -305,8 +305,36 @@ export default function ChatDetail() {
               </LinearGradient>
             </TouchableOpacity>
           </LinearGradient>
-        </View>
-      </KeyboardAvoidingView>
+
+        {/* Emoji Picker Panel */}
+        {showEmojiPicker && (
+          <View style={styles.emojiPickerContainer}>
+            <View style={styles.emojiPickerHeader}>
+              <Text style={styles.emojiPickerTitle}>😊 Choose an emoji</Text>
+              <TouchableOpacity onPress={() => setShowEmojiPicker(false)}>
+                <Ionicons name="close" size={20} color="#FFF" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.emojiGrid}>
+              {[
+                '😊', '😂', '😍', '🥰', '😘', '😉', '😇', '🙂',
+                '😎', '🤔', '😴', '😋', '😜', '🤪', '😁', '😆',
+                '👍', '👎', '👌', '✌️', '🤞', '👏', '🙌', '💪',
+                '❤️', '💙', '💚', '💛', '🧡', '💜', '🖤', '🤍',
+                '🔥', '⭐', '✨', '💫', '🌟', '🎉', '🎊', '🎈',
+                '🌈', '☀️', '🌙', '⚡', '💯', '✅', '❌', '❓'
+              ].map((emoji, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.emojiButton}
+                  onPress={() => insertEmoji(emoji)}
+                >
+                  <Text style={styles.emojiText}>{emoji}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}      </KeyboardAvoidingView>
     </LinearGradient>
   );
 }
