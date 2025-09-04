@@ -308,7 +308,7 @@ export default function CommunityScreen() {
     const comments = getCommentsForPost(selectedPost.id);
 
     return (
-        visible={showPostModal}
+      <Modal
         animationType="slide"
         presentationStyle="formSheet"
         onRequestClose={() => setShowPostModal(false)}
