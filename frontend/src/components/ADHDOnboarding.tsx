@@ -165,6 +165,7 @@ export function ADHDOnboarding({ onComplete, onSkip }: ADHDOnboardingProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isCompleting, setIsCompleting] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(true); // Show disclaimer first
   
   const slideAnim = useRef(new Animated.Value(0)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
