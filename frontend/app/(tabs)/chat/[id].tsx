@@ -21,6 +21,7 @@ export default function ChatDetail() {
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const [messageReactions, setMessageReactions] = React.useState<Record<string, boolean>>({}); // Track heart reactions
   const [lastTap, setLastTap] = React.useState<{messageId: string, time: number} | null>(null); // Double-tap detection
+  const [animatedHearts, setAnimatedHearts] = React.useState<Record<string, Animated.Value>>({}); // Animation values
   const chat = chats.find((c) => c.id === id);
   const msgs = messagesByChat[id || ""] || [];
   
