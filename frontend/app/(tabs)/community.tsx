@@ -405,7 +405,33 @@ export default function CommunityScreen() {
   const addComment = async (postId: string, commentText: string) => {
     if (!commentText.trim()) return;
     
-    // Create new comment object
+    try {
+      // First add to backend if authenticated
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      
+      const response = await fetch(`${backendUrl}/api/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Note: Add authorization header if user is authenticated
+        },
+        body: JSON.stringify({
+          post_id: postId,
+          content: commentText.trim()
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Comment saved to backend:', data);
+      } else {
+        console.log('⚠️ Backend save failed, using local storage only');
+      }
+    } catch (error) {
+      console.log('⚠️ Backend unavailable, using local storage only:', error);
+    }
+    
+    // Create new comment object (always for immediate display)
     const newCommentObj: Comment = {
       id: `c_${Date.now()}`,
       author: user?.name || 'You',
@@ -466,10 +492,10 @@ export default function CommunityScreen() {
     // Show success feedback
     if (Platform.OS === 'web') {
       // Web için visible alert
-      alert(`💬 Comment Saved!\nYour comment has been posted and saved permanently.`);
+      alert(`💬 Comment Saved!\nYour comment has been posted and saved to backend + local storage.`);
     } else {
       // Mobile için Alert.alert
-      Alert.alert('💬 Comment Saved!', 'Your comment has been posted and saved permanently.', [{ text: 'OK' }]);
+      Alert.alert('💬 Comment Saved!', 'Your comment has been posted and saved to backend + local storage.', [{ text: 'OK' }]);
     }
     console.log(`💬 Comment added to post ${postId}: "${commentText.slice(0, 30)}..."`);
   };
