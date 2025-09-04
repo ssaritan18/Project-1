@@ -4,6 +4,7 @@ import { loadJSON, saveJSON } from "../utils/persist";
 import { chatAPI } from "../lib/api";
 import { useAuth } from "./AuthContext";
 import { useRuntimeConfig } from "./RuntimeConfigContext";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type ReactionType = "like" | "heart" | "clap" | "star";
 
