@@ -34,7 +34,7 @@ export default function WelcomeAuth() {
             <Image 
               source={require("../../assets/images/perfect-logo.png")}
               style={styles.logo}
-              resizeMode="cover"
+              resizeMode="contain"
             />
           </LinearGradient>
         </View>
