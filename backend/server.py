@@ -503,6 +503,31 @@ async def get_current_user(authorization: str = Header(default=None)):
     return user
 
 # MODELS
+# Pydantic models
+class User(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    email: str
+    name: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class Comment(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    post_id: str
+    author_id: str
+    author_name: str
+    content: str
+    likes: int = 0
+    user_liked: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    
+class MessageReaction(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    message_id: str
+    chat_id: str
+    user_id: str
+    reaction_type: str = "heart"  # Currently only heart
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 class StatusCheck(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     client_name: str
