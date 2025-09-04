@@ -564,6 +564,7 @@ export function ADHDOnboarding({ onComplete, onSkip }: ADHDOnboardingProps) {
         </Animated.View>
       </ScrollView>
     </View>
+    </>
   );
 }
 
