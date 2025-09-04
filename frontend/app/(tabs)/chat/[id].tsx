@@ -223,7 +223,7 @@ export default function ChatDetail() {
             <Text style={styles.errorIcon}>❌</Text>
             <Text style={styles.errorTitle}>Chat not found</Text>
             <Text style={styles.errorDescription}>The chat you're looking for doesn't exist or has been deleted.</Text>
-            <TouchableOpacity onPress={() => router.replace('/(tabs)/chat/')}>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/chat/')}>
               <LinearGradient colors={['#8B5CF6', '#A855F7']} style={styles.backBtn}>
                 <Text style={styles.backBtnText}>Go Back</Text>
               </LinearGradient>
