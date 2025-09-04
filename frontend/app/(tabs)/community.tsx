@@ -329,22 +329,37 @@ export default function CommunityScreen() {
   };
 
   const toggleCommentLike = (commentId: string, postId: string) => {
-    setComments(prevComments => ({
-      ...prevComments,
-      [postId]: (prevComments[postId] || []).map(comment => {
-        if (comment.id === commentId) {
-          const newLikedState = !comment.userLiked;
-          return {
-            ...comment,
-            likes: newLikedState ? comment.likes + 1 : comment.likes - 1,
-            userLiked: newLikedState
-          };
-        }
-        return comment;
-      })
-    }));
+    // First try to update user comments
+    let foundInUserComments = false;
+    setComments(prevComments => {
+      const updatedComments = { ...prevComments };
+      if (updatedComments[postId]) {
+        updatedComments[postId] = updatedComments[postId].map(comment => {
+          if (comment.id === commentId) {
+            foundInUserComments = true;
+            const newLikedState = !comment.userLiked;
+            return {
+              ...comment,
+              likes: newLikedState ? comment.likes + 1 : comment.likes - 1,
+              userLiked: newLikedState
+            };
+          }
+          return comment;
+        });
+      }
+      return updatedComments;
+    });
     
-    console.log(`❤️ Comment like toggled: ${commentId} in post ${postId}`);
+    // If not found in user comments, it must be a mock comment - show visual feedback
+    if (!foundInUserComments) {
+      if (Platform.OS === 'web') {
+        alert(`❤️ Liked comment! (Mock comments don't persist)`);
+      } else {
+        Alert.alert('❤️ Liked!', 'Comment liked! (Mock comments don\'t persist)', [{ text: 'OK' }]);
+      }
+    }
+    
+    console.log(`❤️ Comment like toggled: ${commentId} in post ${postId}, found in user comments: ${foundInUserComments}`);
   };
 
   const addComment = (postId: string, commentText: string) => {
