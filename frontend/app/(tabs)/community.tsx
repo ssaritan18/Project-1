@@ -395,7 +395,7 @@ export default function CommunityScreen() {
     console.log(`❤️ Comment like toggled: ${commentId} in post ${postId}, found in user comments: ${foundInUserComments}`);
   };
 
-  const addComment = (postId: string, commentText: string) => {
+  const addComment = async (postId: string, commentText: string) => {
     if (!commentText.trim()) return;
     
     // Create new comment object
@@ -409,14 +409,16 @@ export default function CommunityScreen() {
     };
     
     // Add comment to local state for immediate display
-    setComments(prevComments => {
-      const newCommentsState = {
-        ...prevComments,
-        [postId]: [...(prevComments[postId] || []), newCommentObj]
-      };
-      console.log(`💬 Updated comments state for post ${postId}:`, newCommentsState[postId]);
-      return newCommentsState;
-    });
+    const newCommentsState = {
+      ...comments,
+      [postId]: [...(comments[postId] || []), newCommentObj]
+    };
+    
+    setComments(newCommentsState);
+    console.log(`💬 Updated comments state for post ${postId}:`, newCommentsState[postId]);
+    
+    // Save to persistent storage
+    await saveCommentsToStorage(newCommentsState);
     
     // Update comment count in post
     setPosts(prevPosts => 
@@ -457,10 +459,10 @@ export default function CommunityScreen() {
     // Show success feedback
     if (Platform.OS === 'web') {
       // Web için visible alert
-      alert(`💬 Comment Added!\nYour comment has been posted successfully.`);
+      alert(`💬 Comment Saved!\nYour comment has been posted and saved permanently.`);
     } else {
       // Mobile için Alert.alert
-      Alert.alert('💬 Comment Added!', 'Your comment has been posted successfully.', [{ text: 'OK' }]);
+      Alert.alert('💬 Comment Saved!', 'Your comment has been posted and saved permanently.', [{ text: 'OK' }]);
     }
     console.log(`💬 Comment added to post ${postId}: "${commentText.slice(0, 30)}..."`);
   };
