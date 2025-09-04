@@ -203,6 +203,13 @@ export default function CommunityScreen() {
     }
   };
 
+  // Safe array helper to prevent .map errors
+  const safeToArray = (value: any): any[] => {
+    if (Array.isArray(value)) return value;
+    if (value === null || value === undefined) return [];
+    return [];
+  };
+
   // Mock comments for posts
   const getCommentsForPost = (postId: string): Comment[] => {
     const commentDatabase: Record<string, Comment[]> = {
