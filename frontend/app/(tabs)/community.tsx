@@ -362,6 +362,11 @@ export default function CommunityScreen() {
     setNewComment('');
     Keyboard.dismiss();
     
+    // Scroll to bottom to show new comment
+    setTimeout(() => {
+      modalScrollRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+    
     // Show success feedback
     Alert.alert('💬 Comment Added!', 'Your comment has been posted successfully.', [{ text: 'OK' }]);
     console.log(`💬 Comment added to post ${postId}: "${commentText.slice(0, 30)}..."`);
