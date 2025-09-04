@@ -479,6 +479,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  emojiBtn: {
+    marginRight: 12,
+  },
+  emojiBtnGradient: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   emptyMessagesContainer: {
     flex: 1,
     justifyContent: 'center',
