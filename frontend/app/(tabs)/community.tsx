@@ -309,6 +309,7 @@ export default function CommunityScreen() {
 
     return (
       <Modal
+        visible={showPostModal}
         animationType="slide"
         presentationStyle="formSheet"
         onRequestClose={() => setShowPostModal(false)}
