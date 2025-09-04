@@ -17,7 +17,20 @@ export default function FriendsScreen() {
   const insets = useSafeAreaInsets();
   const [friendQuery, setFriendQuery] = React.useState("");
 
-  React.useEffect(() => { refresh(); }, [refresh]);
+  // Safe array access to prevent undefined errors
+  const safeFriends = friends || [];
+  const safeRequests = requests || [];
+
+  React.useEffect(() => { 
+    console.log("🔍 FriendsScreen - State Debug:", {
+      friendsLength: safeFriends.length,
+      requestsLength: safeRequests.length,
+      friendsType: typeof friends,
+      requestsType: typeof requests,
+      isArray: Array.isArray(friends)
+    });
+    refresh(); 
+  }, [refresh]);
 
   const addFriend = async () => {
     const email = friendQuery.trim();
