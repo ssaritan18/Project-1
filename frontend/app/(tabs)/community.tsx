@@ -293,20 +293,27 @@ export default function CommunityScreen() {
     setPosts(prevPosts => 
       prevPosts.map(post => {
         if (post.id === postId) {
-          return {
+          const updatedPost = {
             ...post,
             engagement: {
               ...post.engagement,
               comments: post.engagement.comments + 1
             }
           };
+          
+          // Also update selectedPost if it's the same post
+          if (selectedPost && selectedPost.id === postId) {
+            setSelectedPost(updatedPost);
+          }
+          
+          return updatedPost;
         }
         return post;
       })
     );
     
     setNewComment('');
-    Alert.alert('💬', 'Comment added!', [{ text: 'OK' }]);
+    console.log(`💬 Comment added to post ${postId}: "${commentText.slice(0, 30)}..."`);
   };
 
   const renderPostModal = () => {
