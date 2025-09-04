@@ -1008,5 +1008,25 @@ const styles = StyleSheet.create({
   },
   modalFooter: {
     height: 30,
+  postFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  engagementStats: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  engagementStatItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  statText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 13,
+    fontWeight: '600',
+    marginLeft: 6,
+  },
   },
 });
