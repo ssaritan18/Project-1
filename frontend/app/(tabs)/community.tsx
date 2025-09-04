@@ -461,6 +461,13 @@ export default function CommunityScreen() {
                     onChangeText={setNewComment}
                     multiline
                     maxLength={500}
+                    onSubmitEditing={() => {
+                      if (newComment.trim()) {
+                        addComment(selectedPost.id, newComment);
+                      }
+                    }}
+                    blurOnSubmit={false}
+                    returnKeyType="send"
                   />
                   <TouchableOpacity 
                     style={[styles.commentSubmitBtn, { opacity: newComment.trim() ? 1 : 0.5 }]}
