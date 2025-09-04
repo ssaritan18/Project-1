@@ -164,7 +164,7 @@ export default function CommunityScreen() {
 
   const [posts, setPosts] = useState<CommunityPost[]>(communityPosts); // Make posts state manageable
   const [newComment, setNewComment] = useState(''); // For comment input
-  const [comments, setComments] = useState<Comment[]>([]); // Store actual comments per post
+  const [comments, setComments] = useState<Record<string, Comment[]>>({}); // Store comments per post ID
   const commentInputRef = useRef<TextInput>(null); // Reference for comment input
   const modalScrollRef = useRef<ScrollView>(null); // Reference for modal scroll
 
