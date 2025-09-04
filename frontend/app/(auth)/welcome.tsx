@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 20,
     elevation: 20,
+    overflow: 'hidden',
   },
   logo: { 
     width: 120, 
