@@ -36,8 +36,9 @@ export function ProfileAvatar({
   
   // Generate initials from user name
   const getInitials = (name: string) => {
-    if (!name) return '?';
-    const words = name.trim().split(' ');
+    if (!name || typeof name !== 'string') return '?';
+    const words = name.trim().split(' ').filter(word => word.length > 0);
+    if (words.length === 0) return '?';
     if (words.length === 1) {
       return words[0].charAt(0).toUpperCase();
     }
