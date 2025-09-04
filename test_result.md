@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-## user_problem_statement: "Fix critical bugs: 1) Create new task button on home page is not working - modal doesn't close after task creation attempts, preventing users from adding new tasks. 2) Delete button on task progression bars is not working. Both are critical functionality issues that need immediate resolution."
+## user_problem_statement: "Fix 5 critical bugs: 1) Friend request via mail redirects to error page (Screenshot 1), 2) Recent achievements mobile display bug - badges not showing properly (Screenshot 2), 3) ADHD assessment needs medical disclaimer popup, 4) Community posts - users cannot comment and likes don't work, 5) Chat emojis - need emoji insertion capability"
 ## backend:
   - task: "Profile Photo Upload Backend"
     implemented: true
