@@ -8,6 +8,7 @@ import { useRuntimeConfig } from "../../src/context/RuntimeConfigContext";
 import { useAuth } from "../../src/context/AuthContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProfileAvatar } from "../../src/components/ProfileAvatar";
+import { router } from "expo-router";
 
 export default function FriendsScreen() {
   const { friends, requests, presence, wsConnectionStatus, sendRequest, acceptRequest, rejectRequest, refresh } = useFriends();
