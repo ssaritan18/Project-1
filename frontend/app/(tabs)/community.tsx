@@ -307,16 +307,22 @@ export default function CommunityScreen() {
     );
     
     // Show success feedback
-    Alert.alert(
-      '🔗 Shared Successfully!', 
-      `"${postTitle}" has been shared to your network.`, 
-      [
-        { 
-          text: 'OK',
-          style: 'default'
-        }
-      ]
-    );
+    if (Platform.OS === 'web') {
+      // Web için visible alert
+      alert(`🔗 Shared Successfully!\n"${postTitle}" has been shared to your network.`);
+    } else {
+      // Mobile için Alert.alert
+      Alert.alert(
+        '🔗 Shared Successfully!', 
+        `"${postTitle}" has been shared to your network.`, 
+        [
+          { 
+            text: 'OK',
+            style: 'default'
+          }
+        ]
+      );
+    }
     console.log(`🔗 Post shared: ${postId} - "${postTitle}"`);
   };
 
