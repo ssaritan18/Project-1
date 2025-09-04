@@ -440,7 +440,9 @@ export function ADHDOnboarding({ onComplete, onSkip }: ADHDOnboardingProps) {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <>
+      {renderDisclaimerModal()}
+      <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onSkip} style={styles.skipButton}>
