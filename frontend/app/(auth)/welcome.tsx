@@ -95,10 +95,9 @@ const styles = StyleSheet.create({
     elevation: 20,
   },
   logo: { 
-    width: 132, 
-    height: 132,
-    borderRadius: 66,
-    transform: [{ scale: 0.9 }],  // Fine-tune alignment
+    width: 100, 
+    height: 100,
+    borderRadius: 50,
   },
   glowTitle: { 
     color: '#fff', 
