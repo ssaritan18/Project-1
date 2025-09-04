@@ -400,7 +400,7 @@ export default function CommunityScreen() {
             <View style={styles.headerSpacer} />
           </View>
 
-          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+          <ScrollView ref={modalScrollRef} style={styles.modalContent} showsVerticalScrollIndicator={false}>
             {/* Post Content */}
             <View style={styles.fullPostContainer}>
               <View style={styles.postHeader}>
