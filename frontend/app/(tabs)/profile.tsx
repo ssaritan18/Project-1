@@ -422,13 +422,17 @@ export default function ProfileScreen() {
             >
               <Text style={styles.modernSectionTitle}>🎉 Recent Achievements</Text>
               {recentAchievements.length > 0 ? (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.achievementScrollContainer}
+                >
                   <View style={styles.achievementRow}>
                     {recentAchievements.map((achievement) => (
                       <AchievementBadge
                         key={achievement.id}
                         achievement={achievement}
-                        size="small"
+                        size="medium"
                         showUnlockAnimation={false}
                       />
                     ))}
