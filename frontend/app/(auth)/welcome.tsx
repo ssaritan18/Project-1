@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   logoBorder: {
-    padding: 8,
+    padding: 10,
     borderRadius: 66,
     shadowColor: '#8B5CF6',
     shadowOffset: { width: 0, height: 0 },
