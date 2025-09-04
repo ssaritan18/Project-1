@@ -34,7 +34,7 @@ export default function WelcomeAuth() {
             <Image 
               source={require("../../assets/images/aligned-logo.png")}
               style={styles.logo}
-              resizeMode="contain"
+              resizeMode="cover"
             />
           </LinearGradient>
         </View>
