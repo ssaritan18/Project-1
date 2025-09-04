@@ -159,6 +159,9 @@ export default function CommunityScreen() {
     }
   ];
 
+  const [posts, setPosts] = useState<CommunityPost[]>(communityPosts); // Make posts state manageable
+  const [newComment, setNewComment] = useState(''); // For comment input
+
   // Mock comments for posts
   const getCommentsForPost = (postId: string): Comment[] => {
     const commentDatabase: Record<string, Comment[]> = {
