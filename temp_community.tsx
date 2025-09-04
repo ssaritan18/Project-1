@@ -49,3 +49,4 @@ export default function CommunityScreen() {
   const [selectedPost, setSelectedPost] = useState<CommunityPost | null>(null);
   const [showPostModal, setShowPostModal] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'all' | 'trending' | 'recent' | 'research'>('trending');
+  const [posts, setPosts] = useState<CommunityPost[]>(communityPosts); // Make posts state manageable
