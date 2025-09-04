@@ -88,7 +88,12 @@ export default function FriendsScreen() {
           <View style={styles.friendItemContent}>
             <View style={styles.friendHeader}>
               <View style={styles.friendInfo}>
-                <ProfileAvatar userId={friend.id} size={40} style={styles.friendAvatar} />
+                <ProfileAvatar 
+                  userId={friend.id} 
+                  userName={friend.name || friend.email || 'Friend'} 
+                  size="medium" 
+                  style={styles.friendAvatar} 
+                />
                 <View style={styles.friendDetails}>
                   <Text style={styles.friendName}>{friend.name || friend.email}</Text>
                   <View style={styles.friendStatus}>
