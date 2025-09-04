@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-## user_problem_statement: "Fix 5 critical bugs: 1) Friend request via mail redirects to error page (Screenshot 1), 2) Recent achievements mobile display bug - badges not showing properly (Screenshot 2), 3) ADHD assessment needs medical disclaimer popup, 4) Community posts - users cannot comment and likes don't work, 5) Chat emojis - need emoji insertion capability"
+## user_problem_statement: "Fix the following issues: 1) Comment feature - keyboard should popup on mobile, user should be able to type and press Enter to submit, comments should appear under posts and be saved persistently. 2) Share button - should display confirmation indicator and complete share action. 3) Friends tab - currently throws error when tapped, fix so it loads correctly without errors."
 ## backend:
   - task: "Friends API Backend System"
     implemented: true
