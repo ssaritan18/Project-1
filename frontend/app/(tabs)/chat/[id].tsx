@@ -266,11 +266,20 @@ export default function ChatDetail() {
             </View>
           )}
           
-          {/* Instagram-style heart reaction */}
-          {messageReactions[normalizedMessage.id] && (
-            <View style={styles.heartReaction}>
+          {/* Instagram-style animated heart reaction */}
+          {messageReactions[normalizedMessage.id] && animatedHearts[normalizedMessage.id] && (
+            <Animated.View 
+              style={[
+                styles.heartReaction,
+                {
+                  transform: [{ 
+                    scale: animatedHearts[normalizedMessage.id]
+                  }]
+                }
+              ]}
+            >
               <Ionicons name="heart" size={16} color="#EC4899" />
-            </View>
+            </Animated.View>
           )}
         </LinearGradient>
         
