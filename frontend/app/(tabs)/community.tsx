@@ -375,7 +375,13 @@ export default function CommunityScreen() {
     }, 100);
     
     // Show success feedback
-    Alert.alert('💬 Comment Added!', 'Your comment has been posted successfully.', [{ text: 'OK' }]);
+    if (Platform.OS === 'web') {
+      // Web için visible alert
+      alert(`💬 Comment Added!\nYour comment has been posted successfully.`);
+    } else {
+      // Mobile için Alert.alert
+      Alert.alert('💬 Comment Added!', 'Your comment has been posted successfully.', [{ text: 'OK' }]);
+    }
     console.log(`💬 Comment added to post ${postId}: "${commentText.slice(0, 30)}..."`);
   };
 
