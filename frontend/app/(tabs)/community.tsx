@@ -425,9 +425,29 @@ export default function CommunityScreen() {
 
             {/* Comments Section */}
             <View style={styles.commentsSection}>
-              <Text style={styles.commentsTitle}>💬 Comments ({comments.length})</Text>
+              <Text style={styles.commentsTitle}>💬 Comments ({selectedPost.engagement.comments})</Text>
               
-              {comments.map((comment) => (
+              {/* Show actual comments first, then mock comments */}
+              {comments.filter(comment => comment.author === 'You').map((comment) => (
+                <View key={comment.id} style={styles.commentItem}>
+                  <View style={styles.commentHeader}>
+                    <Text style={styles.commentAuthor}>{comment.author}</Text>
+                    <Text style={styles.commentTime}>{comment.timeAgo}</Text>
+                  </View>
+                  <Text style={styles.commentContent}>{comment.content}</Text>
+                  <TouchableOpacity style={styles.commentLike}>
+                    <Ionicons 
+                      name={comment.userLiked ? "heart" : "heart-outline"} 
+                      size={16} 
+                      color={comment.userLiked ? "#EC4899" : "#9CA3AF"} 
+                    />
+                    <Text style={styles.commentLikeText}>{comment.likes}</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+              
+              {/* Then show mock comments */}
+              {getCommentsForPost(selectedPost.id).map((comment) => (
                 <View key={comment.id} style={styles.commentItem}>
                   <View style={styles.commentHeader}>
                     <Text style={styles.commentAuthor}>{comment.author}</Text>
@@ -445,10 +465,9 @@ export default function CommunityScreen() {
                 </View>
               ))}
 
-              {comments.length === 0 && (
+              {comments.filter(comment => comment.author === 'You').length === 0 && getCommentsForPost(selectedPost.id).length === 0 && (
                 <Text style={styles.noComments}>No comments yet. Be the first to share your thoughts!</Text>
-              )}
-              
+              )}              
               {/* Comment Input Section */}
               <View style={styles.commentInputSection}>
                 <View style={styles.commentInputContainer}>
