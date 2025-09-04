@@ -32,7 +32,7 @@ export default function WelcomeAuth() {
             style={styles.logoBorder}
           >
             <Image 
-              source={{ uri: "https://customer-assets.emergentagent.com/job_profile-wizard-9/artifacts/e7sw25g5_image.png" }}
+              source={require("../../assets/images/new-logo.jpg")}
               style={styles.logo}
               resizeMode="contain"
             />
