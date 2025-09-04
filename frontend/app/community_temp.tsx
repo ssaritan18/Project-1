@@ -171,6 +171,38 @@ export default function CommunityScreen() {
   const commentInputRef = useRef<TextInput>(null); // Reference for comment input
   const modalScrollRef = useRef<ScrollView>(null); // Reference for modal scroll
 
+  // Storage keys for persistence
+  const COMMENTS_STORAGE_KEY = '@adhd_community_comments';
+
+  // Load comments from storage on mount
+  useEffect(() => {
+    loadCommentsFromStorage();
+  }, []);
+
+  // Load persisted comments
+  const loadCommentsFromStorage = async () => {
+    try {
+      const storedComments = await AsyncStorage.getItem(COMMENTS_STORAGE_KEY);
+      if (storedComments) {
+        const parsedComments = JSON.parse(storedComments);
+        setComments(parsedComments);
+        console.log('📱 Loaded comments from storage:', Object.keys(parsedComments).length, 'posts');
+      }
+    } catch (error) {
+      console.error('❌ Failed to load comments from storage:', error);
+    }
+  };
+
+  // Save comments to storage
+  const saveCommentsToStorage = async (commentsToSave: Record<string, Comment[]>) => {
+    try {
+      await AsyncStorage.setItem(COMMENTS_STORAGE_KEY, JSON.stringify(commentsToSave));
+      console.log('💾 Saved comments to storage');
+    } catch (error) {
+      console.error('❌ Failed to save comments to storage:', error);
+    }
+  };
+
   // Mock comments for posts
   const getCommentsForPost = (postId: string): Comment[] => {
     const commentDatabase: Record<string, Comment[]> = {
