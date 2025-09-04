@@ -128,7 +128,12 @@ export default function FriendsScreen() {
         >
           <View style={styles.requestItemContent}>
             <View style={styles.requestHeader}>
-              <ProfileAvatar userId={request.from_id} size={36} style={styles.requestAvatar} />
+              <ProfileAvatar 
+                userId={request.from_id} 
+                userName={request.from_name || request.from_email || 'User'} 
+                size="medium" 
+                style={styles.requestAvatar} 
+              />
               <View style={styles.requestInfo}>
                 <Text style={styles.requestName}>{request.from_name || request.from_email}</Text>
                 <Text style={styles.requestEmail}>{request.from_email}</Text>
