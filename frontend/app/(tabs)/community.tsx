@@ -571,6 +571,11 @@ export default function CommunityScreen() {
             <View key={`comments-${selectedPost.id}-${safeToArray(comments[selectedPost.id]).length}`} style={styles.commentsSection}>
               <Text style={styles.commentsTitle}>💬 Comments ({selectedPost.engagement.comments})</Text>
               
+              {/* DEBUG INFO */}
+              <Text style={{color: 'yellow', fontSize: 10}}>
+                DEBUG: User comments: {safeToArray(comments[selectedPost.id]).length}, Mock: {safeToArray(getCommentsForPost(selectedPost.id)).length}
+              </Text>
+              
               {/* Show user comments for this post first, then mock comments */}
               {safeToArray(comments[selectedPost.id]).map((comment) => (
                 <View key={comment.id} style={styles.commentItem}>
