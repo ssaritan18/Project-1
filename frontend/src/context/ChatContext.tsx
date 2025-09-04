@@ -19,6 +19,8 @@ export type Message = {
   ts: number;
   created_at?: string;
   reactions?: Record<ReactionType, number>;
+  status?: "sending" | "sent" | "delivered" | "read"; // WhatsApp-like status
+  read_by?: string[]; // Array of user IDs who read the message
 };
 
 export type Chat = {
