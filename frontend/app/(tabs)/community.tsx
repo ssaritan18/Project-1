@@ -328,6 +328,25 @@ export default function CommunityScreen() {
     console.log(`🔗 Post shared: ${postId} - "${postTitle}"`);
   };
 
+  const toggleCommentLike = (commentId: string, postId: string) => {
+    setComments(prevComments => ({
+      ...prevComments,
+      [postId]: (prevComments[postId] || []).map(comment => {
+        if (comment.id === commentId) {
+          const newLikedState = !comment.userLiked;
+          return {
+            ...comment,
+            likes: newLikedState ? comment.likes + 1 : comment.likes - 1,
+            userLiked: newLikedState
+          };
+        }
+        return comment;
+      })
+    }));
+    
+    console.log(`❤️ Comment like toggled: ${commentId} in post ${postId}`);
+  };
+
   const addComment = (postId: string, commentText: string) => {
     if (!commentText.trim()) return;
     
