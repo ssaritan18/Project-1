@@ -813,6 +813,9 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 4,
   },
+  achievementScrollContainer: {
+    paddingHorizontal: 4,
+  },
   emptyText: {
     color: '#bdbdbd',
     textAlign: 'center',
