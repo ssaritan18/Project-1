@@ -838,7 +838,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     marginLeft: 6,
-  },
   readMore: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -998,7 +997,6 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     fontSize: 12,
     marginLeft: 6,
-  },
   noComments: {
     color: 'rgba(255,255,255,0.6)',
     fontSize: 15,
@@ -1028,6 +1026,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     marginLeft: 6,
-  },
   },
 });
