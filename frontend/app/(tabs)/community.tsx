@@ -446,9 +446,7 @@ export default function CommunityScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity 
                   style={styles.engagementButton}
-                  onPress={() => {
-                    Alert.alert('🔗 Shared!', 'Post shared successfully!', [{ text: 'OK' }]);
-                  }}
+                  onPress={() => handleShare(selectedPost.id, selectedPost.title)}
                 >
                   <Ionicons name="share-outline" size={20} color="#E5E7EB" />
                   <Text style={styles.engagementText}>{selectedPost.engagement.shares}</Text>
