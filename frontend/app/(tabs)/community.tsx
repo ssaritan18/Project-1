@@ -6,7 +6,8 @@ import {
   TouchableOpacity, 
   ScrollView,
   Alert,
-  Modal
+  Modal,
+  TextInput
 } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
@@ -307,7 +308,8 @@ export default function CommunityScreen() {
     const comments = getCommentsForPost(selectedPost.id);
 
     return (
-      <Modal
+      <Modal,
+  TextInput
         visible={showPostModal}
         animationType="slide"
         presentationStyle="formSheet"
