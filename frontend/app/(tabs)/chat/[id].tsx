@@ -103,7 +103,7 @@ export default function ChatDetail() {
       
       // Save reaction to backend
       try {
-        const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
         
         const response = await fetch(`${backendUrl}/api/messages/${messageId}/react?chat_id=${id}`, {
           method: 'POST',
