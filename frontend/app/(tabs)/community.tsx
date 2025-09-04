@@ -334,7 +334,7 @@ export default function CommunityScreen() {
     // Create new comment object
     const newCommentObj: Comment = {
       id: `c_${Date.now()}`,
-      author: 'You',
+      author: user?.name || 'You',
       content: commentText.trim(),
       timeAgo: 'just now',
       likes: 0,
