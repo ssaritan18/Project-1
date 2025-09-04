@@ -402,7 +402,7 @@ export default function CommunityScreen() {
                 <TouchableOpacity 
                   style={styles.engagementButton}
                   onPress={() => {
-                    // Focus on comment input
+                    // Focus on comment input when comment button is pressed
                     setTimeout(() => {
                       commentInputRef.current?.focus();
                     }, 100);
