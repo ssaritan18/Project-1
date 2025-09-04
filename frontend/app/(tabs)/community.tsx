@@ -49,8 +49,6 @@ export default function CommunityScreen() {
   const [selectedPost, setSelectedPost] = useState<CommunityPost | null>(null);
   const [showPostModal, setShowPostModal] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'all' | 'trending' | 'recent' | 'research'>('trending');
-  const [posts, setPosts] = useState<CommunityPost[]>(communityPosts); // Make posts state manageable
-  const [newComment, setNewComment] = useState(''); // For comment input
 
   // Real ADHD Community Posts with authentic content
   const communityPosts: CommunityPost[] = [
