@@ -158,7 +158,12 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     // Global debug access for console
     if (typeof window !== 'undefined') {
       (window as any).friendsDebug = { friends, requests, posts, presence };
-      console.log("🔍 Friends Debug Updated:", { friendsCount: friends.length, friends: friends.slice(0, 2) });
+      console.log("🔍 Friends Debug Updated:", { 
+        friendsCount: friends?.length || 0, 
+        friends: friends?.slice(0, 2) || [],
+        friendsType: typeof friends,
+        friendsIsArray: Array.isArray(friends)
+      });
     }
   }, [friends, requests, posts, presence]);
 
