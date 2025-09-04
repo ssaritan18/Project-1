@@ -421,6 +421,29 @@ export default function CommunityScreen() {
               {comments.length === 0 && (
                 <Text style={styles.noComments}>No comments yet. Be the first to share your thoughts!</Text>
               )}
+              
+              {/* Comment Input Section */}
+              <View style={styles.commentInputSection}>
+                <View style={styles.commentInputContainer}>
+                  <TextInput
+                    style={styles.commentInput}
+                    placeholder="Write a comment..."
+                    placeholderTextColor="#9CA3AF"
+                    value={newComment}
+                    onChangeText={setNewComment}
+                    multiline
+                    maxLength={500}
+                  />
+                  <TouchableOpacity 
+                    style={[styles.commentSubmitBtn, { opacity: newComment.trim() ? 1 : 0.5 }]}
+                    onPress={() => addComment(selectedPost.id, newComment)}
+                    disabled={!newComment.trim()}
+                  >
+                    <Ionicons name="send" size={16} color="#8B5CF6" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              )}
             </View>
 
             <View style={styles.modalFooter} />
