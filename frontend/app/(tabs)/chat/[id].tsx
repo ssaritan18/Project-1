@@ -55,6 +55,29 @@ export default function ChatDetail() {
     setShowEmojiPicker(!showEmojiPicker);
   };
 
+  // Double-tap detection for Instagram-style heart reactions
+  const handleMessageTap = (messageId: string) => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300; // milliseconds
+    
+    if (lastTap && lastTap.messageId === messageId && (now - lastTap.time) < DOUBLE_TAP_DELAY) {
+      // This is a double-tap! Toggle heart reaction
+      setMessageReactions(prev => ({
+        ...prev,
+        [messageId]: !prev[messageId]
+      }));
+      
+      // Clear the last tap to prevent triple-tap issues
+      setLastTap(null);
+      
+      console.log(`❤️ Double-tap detected on message ${messageId}, toggled heart reaction`);
+    } else {
+      // This is a single tap, just record it
+      setLastTap({ messageId, time: now });
+    }
+  };
+
+
   const handleMediaUpload = async () => {
     try {
       setIsUploadingMedia(true);
