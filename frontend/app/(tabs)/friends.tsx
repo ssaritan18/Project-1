@@ -36,11 +36,16 @@ export default function FriendsScreen() {
     const email = friendQuery.trim();
     if (!email) return;
     
+    console.log("🔍 Starting addFriend function:", { email, safeFriendsLength: safeFriends.length, safeRequestsLength: safeRequests.length });
+    
     try {
+      console.log("📧 Calling sendRequest...");
       await sendRequest(email);
       setFriendQuery("");
+      console.log("✅ sendRequest successful, showing success alert");
       Alert.alert("✅ Request Sent!", `Friend request sent to ${email}`);
     } catch (error) {
+      console.error("❌ sendRequest failed:", error);
       Alert.alert("❌ Error", `Failed to send friend request: ${error.message}`);
     }
   };
