@@ -299,7 +299,21 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       (window as any).friendsDebug = { friends, requests, posts, presence };
     }
-    return { friends, requests, posts, presence, lastNotification, wsConnectionStatus, clearNotification, refresh, sendRequest, acceptRequest, rejectRequest, addPost, reactPost };
+    return { 
+      friends: friends || [], 
+      requests: requests || [], 
+      posts: posts || [], 
+      presence, 
+      lastNotification, 
+      wsConnectionStatus, 
+      clearNotification, 
+      refresh, 
+      sendRequest, 
+      acceptRequest, 
+      rejectRequest, 
+      addPost, 
+      reactPost 
+    };
   }, [friends, requests, posts, presence, lastNotification, wsConnectionStatus, syncEnabled, token]);
 
   return <FriendsContext.Provider value={value}>{children}</FriendsContext.Provider>;
