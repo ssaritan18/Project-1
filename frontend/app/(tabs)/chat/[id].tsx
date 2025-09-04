@@ -205,7 +205,11 @@ export default function ChatDetail() {
     };
 
     return (
-      <View style={[styles.messageContainer, isOwn ? styles.ownMessage : styles.otherMessage]}>
+      <TouchableOpacity 
+        style={[styles.messageContainer, isOwn ? styles.ownMessage : styles.otherMessage]}
+        onPress={() => handleMessageTap(normalizedMessage.id)}
+        activeOpacity={0.7}
+      >
         <LinearGradient
           colors={isOwn ? ['rgba(139, 92, 246, 0.2)', 'rgba(168, 85, 247, 0.2)'] : ['rgba(55, 65, 81, 0.8)', 'rgba(75, 85, 99, 0.8)']}
           style={[styles.messageGradient, isOwn ? styles.ownMessageGradient : styles.otherMessageGradient]}
@@ -227,10 +231,17 @@ export default function ChatDetail() {
               {getStatusIcon()}
             </View>
           )}
+          
+          {/* Instagram-style heart reaction */}
+          {messageReactions[normalizedMessage.id] && (
+            <View style={styles.heartReaction}>
+              <Ionicons name="heart" size={16} color="#EC4899" />
+            </View>
+          )}
         </LinearGradient>
         
         {renderReactionBar(normalizedMessage)}
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -703,5 +714,15 @@ const styles = StyleSheet.create({
   },
   emojiText: {
     fontSize: 20,
+  },
+  heartReaction: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: 'rgba(236, 72, 153, 0.2)',
+    borderRadius: 12,
+    padding: 4,
+    borderWidth: 1,
+    borderColor: '#EC4899',
   },
 });
