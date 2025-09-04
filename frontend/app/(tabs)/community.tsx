@@ -340,7 +340,10 @@ export default function CommunityScreen() {
     };
     
     // Add comment to local state for immediate display
-    setComments(prevComments => [...prevComments, newCommentObj]);
+    setComments(prevComments => ({
+      ...prevComments,
+      [postId]: [...(prevComments[postId] || []), newCommentObj]
+    }));
     
     // Update comment count in post
     setPosts(prevPosts => 
