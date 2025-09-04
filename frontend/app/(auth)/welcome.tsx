@@ -32,7 +32,7 @@ export default function WelcomeAuth() {
             style={styles.logoBorder}
           >
             <Image 
-              source={require("../../assets/images/new-logo.jpg")}
+              source={require("../../assets/images/aligned-logo.png")}
               style={styles.logo}
               resizeMode="contain"
             />
