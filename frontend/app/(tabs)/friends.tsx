@@ -240,7 +240,7 @@ export default function FriendsScreen() {
               </View>
             ) : (
               <View style={styles.friendsList}>
-                {friends.map(renderFriendItem)}
+                {safeFriends.map(renderFriendItem)}
               </View>
             )}
           </View>
