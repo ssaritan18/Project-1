@@ -420,7 +420,7 @@ export default function CommunityScreen() {
 
               {comments.length === 0 && (
                 <Text style={styles.noComments}>No comments yet. Be the first to share your thoughts!</Text>
-              )}</Text>
+              )}
               
               {/* Comment Input Section */}
               <View style={styles.commentInputSection}>
