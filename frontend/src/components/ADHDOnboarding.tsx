@@ -171,6 +171,74 @@ export function ADHDOnboarding({ onComplete, onSkip }: ADHDOnboardingProps) {
   const progressAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
+  const renderDisclaimerModal = () => (
+    <Modal
+      visible={showDisclaimer}
+      animationType="fade"
+      transparent={true}
+      onRequestClose={() => setShowDisclaimer(false)}
+    >
+      <View style={styles.disclaimerOverlay}>
+        <View style={styles.disclaimerContainer}>
+          <LinearGradient
+            colors={['#8B5CF6', '#EC4899']}
+            style={styles.disclaimerGradient}
+          >
+            <View style={styles.disclaimerContent}>
+              {/* Warning Icon */}
+              <View style={styles.disclaimerIcon}>
+                <Ionicons name="warning" size={48} color="#FFF" />
+              </View>
+              
+              {/* Disclaimer Title */}
+              <Text style={styles.disclaimerTitle}>⚠️ Important Medical Disclaimer</Text>
+              
+              {/* Disclaimer Text */}
+              <ScrollView style={styles.disclaimerScrollView} showsVerticalScrollIndicator={false}>
+                <Text style={styles.disclaimerText}>
+                  <Text style={styles.disclaimerBold}>This assessment is NOT a medical diagnosis.</Text>
+                  {'\n\n'}
+                  This ADHD screening tool is designed for <Text style={styles.disclaimerBold}>educational and self-awareness purposes only</Text>. It cannot replace professional medical evaluation.
+                  {'\n\n'}
+                  <Text style={styles.disclaimerBold}>Key Points:</Text>
+                  {'\n'}• This is a screening tool, not a diagnostic test
+                  {'\n'}• Results should not be used for self-diagnosis
+                  {'\n'}• Only qualified healthcare professionals can diagnose ADHD
+                  {'\n'}• If you have concerns, please consult a doctor or mental health professional
+                  {'\n\n'}
+                  <Text style={styles.disclaimerBold}>By continuing, you acknowledge:</Text>
+                  {'\n'}• You understand this is not medical advice
+                  {'\n'}• Results are for personal insight only
+                  {'\n'}• You will seek professional help if needed
+                </Text>
+              </ScrollView>
+              
+              {/* Action Buttons */}
+              <View style={styles.disclaimerActions}>
+                <TouchableOpacity 
+                  style={styles.disclaimerCancelBtn}
+                  onPress={() => {
+                    setShowDisclaimer(false);
+                    onSkip?.();
+                  }}
+                >
+                  <Text style={styles.disclaimerCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.disclaimerAcceptBtn}
+                  onPress={() => setShowDisclaimer(false)}
+                >
+                  <Text style={styles.disclaimerAcceptText}>I Understand - Continue</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </LinearGradient>
+        </View>
+      </View>
+    </Modal>
+  );
+
   const currentQuestion = adhdQuestions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / adhdQuestions.length) * 100;
   const isLastQuestion = currentQuestionIndex === adhdQuestions.length - 1;
