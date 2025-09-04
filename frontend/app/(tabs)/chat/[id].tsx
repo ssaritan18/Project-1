@@ -19,6 +19,8 @@ export default function ChatDetail() {
   const [text, setText] = React.useState("");
   const [isUploadingMedia, setIsUploadingMedia] = React.useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
+  const [messageReactions, setMessageReactions] = React.useState<Record<string, boolean>>({}); // Track heart reactions
+  const [lastTap, setLastTap] = React.useState<{messageId: string, time: number} | null>(null); // Double-tap detection
   const chat = chats.find((c) => c.id === id);
   const msgs = messagesByChat[id || ""] || [];
   
