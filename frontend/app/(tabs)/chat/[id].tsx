@@ -334,7 +334,8 @@ export default function ChatDetail() {
               ))}
             </View>
           </View>
-        )}      </KeyboardAvoidingView>
+        )}
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
 }
