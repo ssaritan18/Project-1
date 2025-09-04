@@ -164,17 +164,21 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       await loadFromStorage();
       
       // Then load from file system if available
-      const c = loadJSON(CHATS_FILE, []);
-      const m = loadJSON(MESSAGES_FILE, {});
-      
-      if (c.length > 0) {
-        setLocalChats(c);
-        console.log("📁 Loaded legacy chats from file:", c.length);
-      }
-      
-      if (Object.keys(m).length > 0) {
-        setLocalMessages(m);
-        console.log("📁 Loaded legacy messages from file:", Object.keys(m).length, "chats");
+      try {
+        const c = await loadJSON<Chat[] | null>(KEYS.chats, null);
+        const m = await loadJSON<Record<string, Message[]> | null>(KEYS.messages, null);
+        
+        if (c && Array.isArray(c) && c.length > 0) {
+          setLocalChats(c);
+          console.log("📁 Loaded legacy chats from file:", c.length);
+        }
+        
+        if (m && typeof m === 'object' && Object.keys(m).length > 0) {
+          setLocalMessages(m);
+          console.log("📁 Loaded legacy messages from file:", Object.keys(m).length, "chats");
+        }
+      } catch (error) {
+        console.error("❌ Failed to load legacy chat data:", error);
       }
       
       setHydrated(true);
