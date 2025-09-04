@@ -37,11 +37,20 @@ export default function ChatDetail() {
 
     try {
       setText("");
+      setShowEmojiPicker(false); // Close emoji picker when sending
       await sendText(id, trimmedText);
     } catch (error) {
       console.error("Failed to send message:", error);
       Alert.alert("Error", "Failed to send message. Please try again.");
     }
+  };
+
+  const insertEmoji = (emoji: string) => {
+    setText(prevText => prevText + emoji);
+  };
+
+  const toggleEmojiPicker = () => {
+    setShowEmojiPicker(!showEmojiPicker);
   };
 
   const handleMediaUpload = async () => {
