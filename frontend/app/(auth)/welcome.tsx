@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     elevation: 20,
   },
   logo: { 
-    width: 100, 
+    width: 85, 
     height: 100,
     borderRadius: 50,
   },
