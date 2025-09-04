@@ -280,6 +280,39 @@ export default function CommunityScreen() {
     Alert.alert('TEST', `Like clicked for post ${postId}!`, [{ text: 'OK' }]); // DEBUG: Temporary test alert
   };
 
+  const handleShare = (postId: string, postTitle: string) => {
+    // Update share count in posts
+    setPosts(prevPosts => 
+      prevPosts.map(post => {
+        if (post.id === postId) {
+          const updatedPost = {
+            ...post,
+            engagement: {
+              ...post.engagement,
+              shares: post.engagement.shares + 1
+            }
+          };
+          
+          // Also update selectedPost if it's the same post
+          if (selectedPost && selectedPost.id === postId) {
+            setSelectedPost(updatedPost);
+          }
+          
+          return updatedPost;
+        }
+        return post;
+      })
+    );
+    
+    // Show success feedback
+    Alert.alert(
+      '🔗 Shared Successfully!', 
+      `"${postTitle}" has been shared to your network.`, 
+      [{ text: 'OK' }]
+    );
+    console.log(`🔗 Post shared: ${postId} - "${postTitle}"`);
+  };
+
   const addComment = (postId: string, commentText: string) => {
     if (!commentText.trim()) return;
     
