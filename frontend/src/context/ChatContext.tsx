@@ -109,6 +109,47 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     usingBackend: mode === "sync" ? true : false
   });
 
+  // Persistent storage keys
+  const CHATS_STORAGE_KEY = '@adhd_chats';
+  const MESSAGES_STORAGE_KEY = '@adhd_messages';
+  
+  // Load chats and messages from storage
+  const loadFromStorage = async () => {
+    try {
+      const [storedChats, storedMessages] = await Promise.all([
+        AsyncStorage.getItem(CHATS_STORAGE_KEY),
+        AsyncStorage.getItem(MESSAGES_STORAGE_KEY)
+      ]);
+      
+      if (storedChats) {
+        const parsedChats = JSON.parse(storedChats);
+        setChats(parsedChats);
+        console.log('📱 Loaded chats from storage:', parsedChats.length);
+      }
+      
+      if (storedMessages) {
+        const parsedMessages = JSON.parse(storedMessages);
+        setMessagesByChat(parsedMessages);
+        console.log('📱 Loaded messages from storage:', Object.keys(parsedMessages).length, 'chats');
+      }
+    } catch (error) {
+      console.error('❌ Failed to load from storage:', error);
+    }
+  };
+  
+  // Save chats and messages to storage
+  const saveToStorage = async (chatsToSave: Chat[], messagesToSave: Record<string, Message[]>) => {
+    try {
+      await Promise.all([
+        AsyncStorage.setItem(CHATS_STORAGE_KEY, JSON.stringify(chatsToSave)),
+        AsyncStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(messagesToSave))
+      ]);
+      console.log('💾 Saved to storage - chats:', chatsToSave.length, 'messages:', Object.keys(messagesToSave).length);
+    } catch (error) {
+      console.error('❌ Failed to save to storage:', error);
+    }
+  };
+
   // Load persisted data on mount
   useEffect(() => {
     if (!PERSIST_ENABLED) { setHydrated(true); return; }
