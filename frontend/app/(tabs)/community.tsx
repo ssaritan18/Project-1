@@ -514,7 +514,10 @@ export default function CommunityScreen() {
                     <Text style={styles.commentTime}>{comment.timeAgo}</Text>
                   </View>
                   <Text style={styles.commentContent}>{comment.content}</Text>
-                  <TouchableOpacity style={styles.commentLike}>
+                  <TouchableOpacity 
+                    style={styles.commentLike}
+                    onPress={() => toggleCommentLike(comment.id, selectedPost.id)}
+                  >
                     <Ionicons 
                       name={comment.userLiked ? "heart" : "heart-outline"} 
                       size={16} 
@@ -533,7 +536,7 @@ export default function CommunityScreen() {
                     <Text style={styles.commentTime}>{comment.timeAgo}</Text>
                   </View>
                   <Text style={styles.commentContent}>{comment.content}</Text>
-                  <TouchableOpacity style={styles.commentLike}>
+                  <TouchableOpacity                     style={styles.commentLike}                    onPress={() => toggleCommentLike(comment.id, selectedPost.id)}                  >
                     <Ionicons 
                       name={comment.userLiked ? "heart" : "heart-outline"} 
                       size={16} 
