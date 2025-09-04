@@ -529,7 +529,7 @@ export default function CommunityScreen() {
               ))}
               
               {/* Then show mock comments */}
-              {getCommentsForPost(selectedPost.id).map((comment) => (
+              {(getCommentsForPost(selectedPost.id) || []).map((comment) => (
                 <View key={comment.id} style={styles.commentItem}>
                   <View style={styles.commentHeader}>
                     <Text style={styles.commentAuthor}>{comment.author}</Text>
