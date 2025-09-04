@@ -308,7 +308,12 @@ export default function CommunityScreen() {
     Alert.alert(
       '🔗 Shared Successfully!', 
       `"${postTitle}" has been shared to your network.`, 
-      [{ text: 'OK' }]
+      [
+        { 
+          text: 'OK',
+          style: 'default'
+        }
+      ]
     );
     console.log(`🔗 Post shared: ${postId} - "${postTitle}"`);
   };
