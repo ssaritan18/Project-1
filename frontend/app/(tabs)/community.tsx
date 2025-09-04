@@ -403,7 +403,9 @@ export default function CommunityScreen() {
                   style={styles.engagementButton}
                   onPress={() => {
                     // Focus on comment input
-                    Alert.alert('💬', 'Scroll down to add a comment!', [{ text: 'OK' }]);
+                    setTimeout(() => {
+                      commentInputRef.current?.focus();
+                    }, 100);
                   }}
                 >
                   <Ionicons name="chatbubble-outline" size={20} color="#E5E7EB" />
