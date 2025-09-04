@@ -123,13 +123,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       
       if (storedChats) {
         const parsedChats = JSON.parse(storedChats);
-        setChats(parsedChats);
+        setLocalChats(parsedChats);
         console.log('📱 Loaded chats from storage:', parsedChats.length);
       }
       
       if (storedMessages) {
         const parsedMessages = JSON.parse(storedMessages);
-        setMessagesByChat(parsedMessages);
+        setLocalMessages(parsedMessages);
         console.log('📱 Loaded messages from storage:', Object.keys(parsedMessages).length, 'chats');
       }
     } catch (error) {
