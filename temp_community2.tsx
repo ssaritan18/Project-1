@@ -159,3 +159,4 @@ export default function CommunityScreen() {
     }
   ];
 
+  const [posts, setPosts] = useState<CommunityPost[]>(communityPosts); // Make posts state manageable
