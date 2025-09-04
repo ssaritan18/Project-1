@@ -584,8 +584,52 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   backBtnText: {
+  backBtnText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
+  },
+  emojiPickerContainer: {
+    position: 'absolute',
+    bottom: 100,
+    left: 16,
+    right: 16,
+    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+    maxHeight: 300,
+  },
+  emojiPickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(139, 92, 246, 0.2)',
+  },
+  emojiPickerTitle: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  emojiGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    padding: 16,
+    gap: 8,
+  },
+  emojiButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.2)',
+  },
+  emojiText: {
+    fontSize: 20,
   },
 });
