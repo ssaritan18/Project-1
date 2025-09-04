@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   logo: { 
     width: 85, 
     height: 85,
-    borderRadius: 50,
+    borderRadius: 42.5,
   },
   glowTitle: { 
     color: '#fff', 
