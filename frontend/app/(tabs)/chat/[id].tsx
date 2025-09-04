@@ -144,11 +144,40 @@ export default function ChatDetail() {
       ts: item.ts ?? Date.now(),
       reactions: item.reactions ?? { like: 0, heart: 0, clap: 0, star: 0 },
       voice_url: item.voice_url ?? null,
-      durationSec: item.durationSec ?? item.duration_sec ?? 0
+      durationSec: item.durationSec ?? item.duration_sec ?? 0,
+      status: item.status ?? "sent" // WhatsApp-like status
     };
 
     const isOwn = normalizedMessage.author_id === 'current_user_id';
     const timestamp = new Date(normalizedMessage.ts).toLocaleTimeString();
+    
+    // WhatsApp-like read receipt icons
+    const getStatusIcon = () => {
+      if (!isOwn) return null; // Only show ticks for own messages
+      
+      switch (normalizedMessage.status) {
+        case "sending":
+          return <Ionicons name="time-outline" size={12} color="#9CA3AF" />;
+        case "sent":
+          return <Ionicons name="checkmark" size={12} color="#9CA3AF" />; // Single tick
+        case "delivered":
+          return (
+            <View style={styles.doubleTick}>
+              <Ionicons name="checkmark" size={12} color="#9CA3AF" />
+              <Ionicons name="checkmark" size={12} color="#9CA3AF" style={styles.secondTick} />
+            </View>
+          ); // Double tick gray
+        case "read":
+          return (
+            <View style={styles.doubleTick}>
+              <Ionicons name="checkmark" size={12} color="#3B82F6" />
+              <Ionicons name="checkmark" size={12} color="#3B82F6" style={styles.secondTick} />
+            </View>
+          ); // Double tick blue
+        default:
+          return null;
+      }
+    };
 
     return (
       <View style={[styles.messageContainer, isOwn ? styles.ownMessage : styles.otherMessage]}>
