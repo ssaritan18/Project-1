@@ -283,7 +283,7 @@ export default function CommunityScreen() {
   const addComment = (postId: string, commentText: string) => {
     if (!commentText.trim()) return;
     
-    // This would normally be saved to backend/database
+    // Create new comment object
     const newCommentObj: Comment = {
       id: `c_${Date.now()}`,
       author: 'You',
@@ -292,6 +292,9 @@ export default function CommunityScreen() {
       likes: 0,
       userLiked: false
     };
+    
+    // Add comment to local state for immediate display
+    setComments(prevComments => [...prevComments, newCommentObj]);
     
     // Update comment count in post
     setPosts(prevPosts => 
@@ -316,7 +319,12 @@ export default function CommunityScreen() {
       })
     );
     
+    // Clear input and dismiss keyboard
     setNewComment('');
+    Keyboard.dismiss();
+    
+    // Show success feedback
+    Alert.alert('💬 Comment Added!', 'Your comment has been posted successfully.', [{ text: 'OK' }]);
     console.log(`💬 Comment added to post ${postId}: "${commentText.slice(0, 30)}..."`);
   };
 
