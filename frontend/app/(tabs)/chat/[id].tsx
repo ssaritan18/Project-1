@@ -197,7 +197,10 @@ export default function ChatDetail() {
           </Text>
           
           {isOwn && (
-            <Text style={styles.ownMessageTime}>{timestamp}</Text>
+            <View style={styles.ownMessageTimeContainer}>
+              <Text style={styles.ownMessageTime}>{timestamp}</Text>
+              {getStatusIcon()}
+            </View>
           )}
         </LinearGradient>
         
