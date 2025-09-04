@@ -415,6 +415,10 @@ export default function CommunityScreen() {
     // Scroll to bottom to show new comment
     setTimeout(() => {
       modalScrollRef.current?.scrollToEnd({ animated: true });
+      // Force another scroll after slight delay to ensure comment is rendered
+      setTimeout(() => {
+        modalScrollRef.current?.scrollToEnd({ animated: true });
+      }, 200);
     }, 100);
     
     // Show success feedback
