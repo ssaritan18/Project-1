@@ -473,6 +473,21 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginTop: 4,
   },
+  ownMessageTimeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginTop: 4,
+    gap: 4,
+  },
+  doubleTick: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  secondTick: {
+    marginLeft: -8, // Overlap the ticks slightly
+  },
   reactionBar: {
     flexDirection: 'row',
     marginTop: 4,
