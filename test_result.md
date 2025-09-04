@@ -227,7 +227,7 @@
         -comment: "USER REPORTED: Community posts - users cannot comment on posts and likes do not increase when clicked"
         -working: true
         -agent: "main"
-        -comment: "✅ IMPLEMENTED: Replaced mock toggleLike functionality with real interactive like system. Added posts state management (setPosts), implemented real toggleLike function that updates like counts and userLiked status with visual feedback. Added addComment function for comment creation with proper state updates. Updated filteredPosts to use dynamic posts state instead of static array. Users can now like/unlike posts with real-time count updates and add comments with instant feedback."
+        -comment: "✅ FIXED: Replaced mock toggleLike/addComment functionality with real interactive system including state synchronization. Fixed critical bug where selectedPost in modal wasn't updating when posts state changed. Added selectedPost state sync in both toggleLike() and addComment() functions. Now both main feed and modal view properly reflect real-time like counts, comment counts, and user interaction states. Replaced intrusive alerts with console logging for better UX. Users can now like/unlike posts with immediate visual feedback and add comments with instant count updates in both list and detailed modal views."
   - task: "Chat Emoji Picker Implementation"
     implemented: true
     working: true
