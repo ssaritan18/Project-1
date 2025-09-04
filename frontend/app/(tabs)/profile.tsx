@@ -797,7 +797,7 @@ const styles = StyleSheet.create({
   achievementGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    alignItems: 'center',
     marginBottom: 16,
   },
   achievementSummary: {
@@ -810,7 +810,7 @@ const styles = StyleSheet.create({
   },
   achievementRow: {
     flexDirection: 'row',
-    gap: 12,
+    alignItems: 'center',
     paddingHorizontal: 4,
   },
   achievementScrollContainer: {
@@ -826,7 +826,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 24,
-    gap: 12,
+    alignItems: 'center',
   },
   statCard: {
     flex: 1,
@@ -854,7 +854,7 @@ const styles = StyleSheet.create({
   },
   actionGrid: {
     flexDirection: 'row',
-    gap: 12,
+    alignItems: 'center',
   },
   actionBtn: {
     flex: 1,
@@ -1083,7 +1083,7 @@ const styles = StyleSheet.create({
   modernQuickStats: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 12,
+    alignItems: 'center',
   },
   modernStatCard: {
     flex: 1,
@@ -1116,7 +1116,7 @@ const styles = StyleSheet.create({
   // Modern Action Grid Styles
   modernActionGrid: {
     flexDirection: "row",
-    gap: 12,
+    alignItems: 'center',
   },
   modernActionBtn: {
     flex: 1,
