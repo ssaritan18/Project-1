@@ -56,13 +56,13 @@ export default function ChatDetail() {
     setShowEmojiPicker(!showEmojiPicker);
   };
 
-  // Enhanced double-tap detection with Instagram-style animation
-  const handleMessageTap = (messageId: string) => {
+  // Enhanced double-tap detection with Instagram-style animation and backend integration
+  const handleMessageTap = async (messageId: string) => {
     const now = Date.now();
     const DOUBLE_TAP_DELAY = 300; // milliseconds
     
     if (lastTap && lastTap.messageId === messageId && (now - lastTap.time) < DOUBLE_TAP_DELAY) {
-      // This is a double-tap! Toggle heart reaction with animation
+      // This is a double-tap! Toggle heart reaction with animation and backend save
       const newReactionState = !messageReactions[messageId];
       
       setMessageReactions(prev => ({
@@ -101,10 +101,32 @@ export default function ChatDetail() {
         }).start();
       }
       
+      // Save reaction to backend
+      try {
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+        
+        const response = await fetch(`${backendUrl}/api/messages/${messageId}/react?chat_id=${id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // Note: Add authorization header if user is authenticated
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ Message reaction saved to backend:', data);
+        } else {
+          console.log('⚠️ Backend reaction save failed, keeping local state');
+        }
+      } catch (error) {
+        console.log('⚠️ Backend unavailable for reaction, keeping local state:', error);
+      }
+      
       // Clear the last tap to prevent triple-tap issues
       setLastTap(null);
       
-      console.log(`❤️ Double-tap detected on message ${messageId}, toggled heart reaction with animation`);
+      console.log(`❤️ Double-tap detected on message ${messageId}, toggled heart reaction with animation and backend save`);
     } else {
       // This is a single tap, just record it
       setLastTap({ messageId, time: now });
