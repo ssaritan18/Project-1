@@ -768,7 +768,8 @@ const styles = StyleSheet.create({
   tab: {
     flex: 1,
     paddingVertical: 8,
-    paddingHorizontal: 4,
+    paddingVertical: 8,
+    minHeight: 100,  // Ensure enough space for medium badges
     alignItems: 'center',
     borderRadius: 8,
   },
@@ -811,10 +812,12 @@ const styles = StyleSheet.create({
   achievementRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 4,
+    paddingVertical: 8,
+    minHeight: 100,  // Ensure enough space for medium badges
   },
   achievementScrollContainer: {
-    paddingHorizontal: 4,
+    paddingVertical: 8,
+    minHeight: 100,  // Ensure enough space for medium badges
   },
   emptyText: {
     color: '#bdbdbd',
