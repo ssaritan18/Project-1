@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   View, 
   Text, 
@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../src/context/AuthContext";
 import { MockAdBanner } from "../../src/components/MockAdBanner";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface CommunityPost {
   id: string;
