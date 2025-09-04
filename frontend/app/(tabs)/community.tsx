@@ -522,7 +522,7 @@ export default function CommunityScreen() {
             </View>
 
             {/* Comments Section */}
-            <View style={styles.commentsSection}>
+            <View key={`comments-${selectedPost.id}-${(comments[selectedPost.id] || []).length}`} style={styles.commentsSection}>
               <Text style={styles.commentsTitle}>💬 Comments ({selectedPost.engagement.comments})</Text>
               
               {/* Show user comments for this post first, then mock comments */}
