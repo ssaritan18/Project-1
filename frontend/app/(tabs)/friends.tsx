@@ -219,13 +219,13 @@ export default function FriendsScreen() {
           {/* Friends List */}
           <View style={styles.friendsSection}>
             <View style={styles.friendsSectionHeader}>
-              <Text style={styles.sectionTitle}>👥 Your Friends ({friends.length})</Text>
+              <Text style={styles.sectionTitle}>👥 Your Friends ({safeFriends.length})</Text>
               <TouchableOpacity onPress={refresh} style={styles.refreshBtn}>
                 <Ionicons name="refresh" size={16} color="#8B5CF6" />
               </TouchableOpacity>
             </View>
 
-            {friends.length === 0 ? (
+            {safeFriends.length === 0 ? (
               <View style={styles.emptyFriendsContainer}>
                 <LinearGradient
                   colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
