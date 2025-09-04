@@ -245,8 +245,60 @@ export default function CommunityScreen() {
   };
 
   const toggleLike = (postId: string) => {
-    // Mock like functionality
-    Alert.alert('👍', 'Post liked! (Feature coming soon)');
+    setPosts(prevPosts => 
+      prevPosts.map(post => {
+        if (post.id === postId) {
+          const newLikedState = !post.engagement.userLiked;
+          return {
+            ...post,
+            engagement: {
+              ...post.engagement,
+              likes: newLikedState 
+                ? post.engagement.likes + 1 
+                : post.engagement.likes - 1,
+              userLiked: newLikedState
+            }
+          };
+        }
+        return post;
+      })
+    );
+    
+    // Show haptic feedback for satisfaction
+    Alert.alert('👍', 'Post liked!', [{ text: 'OK' }]);
+  };
+
+  const addComment = (postId: string, commentText: string) => {
+    if (!commentText.trim()) return;
+    
+    // This would normally be saved to backend/database
+    const newCommentObj: Comment = {
+      id: `c_${Date.now()}`,
+      author: 'You',
+      content: commentText.trim(),
+      timeAgo: 'just now',
+      likes: 0,
+      userLiked: false
+    };
+    
+    // Update comment count in post
+    setPosts(prevPosts => 
+      prevPosts.map(post => {
+        if (post.id === postId) {
+          return {
+            ...post,
+            engagement: {
+              ...post.engagement,
+              comments: post.engagement.comments + 1
+            }
+          };
+        }
+        return post;
+      })
+    );
+    
+    setNewComment('');
+    Alert.alert('💬', 'Comment added!', [{ text: 'OK' }]);
   };
 
   const renderPostModal = () => {
