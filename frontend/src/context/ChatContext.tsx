@@ -152,19 +152,43 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   // Load persisted data on mount
   useEffect(() => {
-    if (!PERSIST_ENABLED) { setHydrated(true); return; }
-    (async () => {
-      try {
-        const storedChats = await loadJSON<Chat[] | null>(KEYS.chats, null);
-        const storedMsgs = await loadJSON<Record<string, Message[]> | null>(KEYS.messages, null);
-        if (storedChats && Array.isArray(storedChats) && storedChats.length) setLocalChats(storedChats);
-        if (storedMsgs && typeof storedMsgs === 'object') setLocalMessages(storedMsgs);
-      } catch (error) {
-        console.error("❌ Failed to load chat data:", error);
+    const initializeData = async () => {
+      if (!PERSIST_ENABLED) { 
+        setHydrated(true); 
+        return; 
       }
+      
+      console.log("🔄 Loading chats/messages on mount...");
+      
+      // Load from AsyncStorage first (WhatsApp-like persistence)
+      await loadFromStorage();
+      
+      // Then load from file system if available
+      const c = loadJSON(CHATS_FILE, []);
+      const m = loadJSON(MESSAGES_FILE, {});
+      
+      if (c.length > 0) {
+        setLocalChats(c);
+        console.log("📁 Loaded legacy chats from file:", c.length);
+      }
+      
+      if (Object.keys(m).length > 0) {
+        setLocalMessages(m);
+        console.log("📁 Loaded legacy messages from file:", Object.keys(m).length, "chats");
+      }
+      
       setHydrated(true);
-    })();
+    };
+    
+    initializeData();
   }, []);
+  
+  // Auto-save to storage when data changes (WhatsApp-like behavior)
+  useEffect(() => {
+    if (hydrated && (localChats.length > 0 || Object.keys(localMessages).length > 0)) {
+      saveToStorage(localChats, localMessages);
+    }
+  }, [localChats, localMessages, hydrated]);
 
   // Persist local data changes
   useEffect(() => {
