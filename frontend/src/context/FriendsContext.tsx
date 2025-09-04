@@ -234,12 +234,25 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => { if (PERSIST_ENABLED && !syncEnabled && hydrated) saveJSON(KEYS.posts, posts); }, [posts, hydrated, syncEnabled]);
 
   const sendRequest = async (email: string, note?: string) => {
+    console.log("📧 Sending friend request:", { email, syncEnabled, hasToken: !!token });
+    
     if (syncEnabled && token) {
-      await api.post("/friends/request", { to_email: email });
-      await refresh();
-      return;
+      try {
+        console.log("🌐 Making API call to /friends/request");
+        await api.post("/friends/request", { to_email: email });
+        console.log("✅ API call successful, refreshing friends list");
+        await refresh();
+        console.log("✅ Friend request sent successfully via API");
+        return;
+      } catch (error) {
+        console.error("❌ API friend request failed:", error);
+        throw new Error(`Failed to send friend request: ${error.message || 'Network error'}`);
+      }
     }
+    
+    console.log("📱 Adding friend request locally");
     setRequests((prev) => [...prev, { id: uid(), from: email, note }]);
+    console.log("✅ Friend request added locally");
   };
 
   const acceptRequest = async (id: string) => {
