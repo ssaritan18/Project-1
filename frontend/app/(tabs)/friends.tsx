@@ -209,9 +209,9 @@ export default function FriendsScreen() {
           </View>
 
           {/* Friend Requests */}
-          {requests.length > 0 && (
+          {safeRequests.length > 0 && (
             <View style={styles.requestsSection}>
-              <Text style={styles.sectionTitle}>📥 Friend Requests ({requests.length})</Text>
+              <Text style={styles.sectionTitle}>📥 Friend Requests ({safeRequests.length})</Text>
               {requests.map(renderRequestItem)}
             </View>
           )}
