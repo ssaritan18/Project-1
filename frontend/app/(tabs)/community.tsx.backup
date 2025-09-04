@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { 
   View, 
   Text, 
@@ -6,7 +6,9 @@ import {
   TouchableOpacity, 
   ScrollView,
   Alert,
-  Modal
+  Modal,
+  TextInput,
+  Keyboard
 } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
@@ -159,6 +161,11 @@ export default function CommunityScreen() {
     }
   ];
 
+  const [posts, setPosts] = useState<CommunityPost[]>(communityPosts); // Make posts state manageable
+  const [newComment, setNewComment] = useState(''); // For comment input
+  const [comments, setComments] = useState<Comment[]>([]); // Store actual comments per post
+  const commentInputRef = useRef<TextInput>(null); // Reference for comment input
+
   // Mock comments for posts
   const getCommentsForPost = (postId: string): Comment[] => {
     const commentDatabase: Record<string, Comment[]> = {
@@ -212,7 +219,7 @@ export default function CommunityScreen() {
     return commentDatabase[postId] || [];
   };
 
-  const filteredPosts = communityPosts.filter(post => {
+  const filteredPosts = posts.filter(post => {
     switch (activeFilter) {
       case 'trending':
         return post.engagement.likes > 80;
@@ -242,8 +249,83 @@ export default function CommunityScreen() {
   };
 
   const toggleLike = (postId: string) => {
-    // Mock like functionality
-    Alert.alert('👍', 'Post liked! (Feature coming soon)');
+    setPosts(prevPosts => 
+      prevPosts.map(post => {
+        if (post.id === postId) {
+          const newLikedState = !post.engagement.userLiked;
+          const updatedPost = {
+            ...post,
+            engagement: {
+              ...post.engagement,
+              likes: newLikedState 
+                ? post.engagement.likes + 1 
+                : post.engagement.likes - 1,
+              userLiked: newLikedState
+            }
+          };
+          
+          // Also update selectedPost if it's the same post
+          if (selectedPost && selectedPost.id === postId) {
+            setSelectedPost(updatedPost);
+          }
+          
+          return updatedPost;
+        }
+        return post;
+      })
+    );
+    
+    // Show feedback
+    console.log(`👍 Like toggled for post ${postId}`);
+    Alert.alert('TEST', `Like clicked for post ${postId}!`, [{ text: 'OK' }]); // DEBUG: Temporary test alert
+  };
+
+  const addComment = (postId: string, commentText: string) => {
+    if (!commentText.trim()) return;
+    
+    // Create new comment object
+    const newCommentObj: Comment = {
+      id: `c_${Date.now()}`,
+      author: 'You',
+      content: commentText.trim(),
+      timeAgo: 'just now',
+      likes: 0,
+      userLiked: false
+    };
+    
+    // Add comment to local state for immediate display
+    setComments(prevComments => [...prevComments, newCommentObj]);
+    
+    // Update comment count in post
+    setPosts(prevPosts => 
+      prevPosts.map(post => {
+        if (post.id === postId) {
+          const updatedPost = {
+            ...post,
+            engagement: {
+              ...post.engagement,
+              comments: post.engagement.comments + 1
+            }
+          };
+          
+          // Also update selectedPost if it's the same post
+          if (selectedPost && selectedPost.id === postId) {
+            setSelectedPost(updatedPost);
+          }
+          
+          return updatedPost;
+        }
+        return post;
+      })
+    );
+    
+    // Clear input and dismiss keyboard
+    setNewComment('');
+    Keyboard.dismiss();
+    
+    // Show success feedback
+    Alert.alert('💬 Comment Added!', 'Your comment has been posted successfully.', [{ text: 'OK' }]);
+    console.log(`💬 Comment added to post ${postId}: "${commentText.slice(0, 30)}..."`);
   };
 
   const renderPostModal = () => {
@@ -317,11 +399,24 @@ export default function CommunityScreen() {
                   />
                   <Text style={styles.engagementText}>{selectedPost.engagement.likes}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.engagementButton}>
+                <TouchableOpacity 
+                  style={styles.engagementButton}
+                  onPress={() => {
+                    // Focus on comment input when comment button is pressed
+                    setTimeout(() => {
+                      commentInputRef.current?.focus();
+                    }, 100);
+                  }}
+                >
                   <Ionicons name="chatbubble-outline" size={20} color="#E5E7EB" />
                   <Text style={styles.engagementText}>{selectedPost.engagement.comments}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.engagementButton}>
+                <TouchableOpacity 
+                  style={styles.engagementButton}
+                  onPress={() => {
+                    Alert.alert('🔗 Shared!', 'Post shared successfully!', [{ text: 'OK' }]);
+                  }}
+                >
                   <Ionicons name="share-outline" size={20} color="#E5E7EB" />
                   <Text style={styles.engagementText}>{selectedPost.engagement.shares}</Text>
                 </TouchableOpacity>
@@ -353,6 +448,36 @@ export default function CommunityScreen() {
               {comments.length === 0 && (
                 <Text style={styles.noComments}>No comments yet. Be the first to share your thoughts!</Text>
               )}
+              
+              {/* Comment Input Section */}
+              <View style={styles.commentInputSection}>
+                <View style={styles.commentInputContainer}>
+                  <TextInput
+                    ref={commentInputRef}
+                    style={styles.commentInput}
+                    placeholder="Write a comment..."
+                    placeholderTextColor="#9CA3AF"
+                    value={newComment}
+                    onChangeText={setNewComment}
+                    multiline
+                    maxLength={500}
+                    onSubmitEditing={() => {
+                      if (newComment.trim()) {
+                        addComment(selectedPost.id, newComment);
+                      }
+                    }}
+                    blurOnSubmit={false}
+                    returnKeyType="send"
+                  />
+                  <TouchableOpacity 
+                    style={[styles.commentSubmitBtn, { opacity: newComment.trim() ? 1 : 0.5 }]}
+                    onPress={() => addComment(selectedPost.id, newComment)}
+                    disabled={!newComment.trim()}
+                  >
+                    <Ionicons name="send" size={16} color="#8B5CF6" />
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
 
             <View style={styles.modalFooter} />
@@ -385,8 +510,8 @@ export default function CommunityScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
             {[
               { key: 'trending', label: '🔥 Trending', count: filteredPosts.length },
-              { key: 'recent', label: '🕐 Recent', count: communityPosts.filter(p => p.timeAgo.includes('hours')).length },
-              { key: 'research', label: '🔬 Research', count: communityPosts.filter(p => p.category === 'research').length },
+              { key: 'recent', label: '🕐 Recent', count: posts.filter(p => p.timeAgo.includes('hours')).length },
+              { key: 'research', label: '🔬 Research', count: posts.filter(p => p.category === 'research').length },
               { key: 'all', label: '📋 All Posts', count: communityPosts.length }
             ].map((filter) => (
               <TouchableOpacity
@@ -435,7 +560,7 @@ export default function CommunityScreen() {
                   end={{ x: 1, y: 1 }}
                   style={styles.postGradientBorder}
                 >
-                  <View style={styles.postContent}>
+                  <View style={styles.postContentContainer}>
                     {/* Post Header */}
                     <View style={styles.postHeaderRow}>
                       <View style={styles.authorSection}>
@@ -474,22 +599,31 @@ export default function CommunityScreen() {
                     {/* Engagement Footer */}
                     <View style={styles.postFooter}>
                       <View style={styles.engagementStats}>
-                        <View style={styles.engagementStatItem}>
+                        <TouchableOpacity 
+                          style={styles.engagementStatItem}
+                          onPress={() => toggleLike(post.id)}
+                        >
                           <Ionicons 
                             name={post.engagement.userLiked ? "heart" : "heart-outline"} 
                             size={16} 
                             color={post.engagement.userLiked ? "#EC4899" : "#9CA3AF"} 
                           />
                           <Text style={styles.statText}>{post.engagement.likes}</Text>
-                        </View>
-                        <View style={styles.engagementStatItem}>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={styles.engagementStatItem}
+                          onPress={() => handlePostPress(post)}
+                        >
                           <Ionicons name="chatbubble-outline" size={16} color="#9CA3AF" />
                           <Text style={styles.statText}>{post.engagement.comments}</Text>
-                        </View>
-                        <View style={styles.engagementStatItem}>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={styles.engagementStatItem}
+                          onPress={() => Alert.alert('🔗 Shared!', `Post "${post.title}" shared!`, [{ text: 'OK' }])}
+                        >
                           <Ionicons name="share-outline" size={16} color="#9CA3AF" />
                           <Text style={styles.statText}>{post.engagement.shares}</Text>
-                        </View>
+                        </TouchableOpacity>
                       </View>
                       <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
                     </View>
@@ -544,55 +678,63 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+    paddingHorizontal: 20,
   },
   glowHeader: {
-    paddingHorizontal: 20,
-    paddingVertical: 24,
     borderRadius: 20,
-    marginHorizontal: 16,
-    marginBottom: 20,
+    padding: 24,
+    alignItems: 'center',
+    marginBottom: 24,
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
   },
   glowHeaderTitle: {
     color: '#fff',
     fontSize: 28,
     fontWeight: '900',
-    textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.3)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
+    marginBottom: 6,
   },
   glowHeaderSubtitle: {
     color: 'rgba(255,255,255,0.9)',
     fontSize: 16,
-    textAlign: 'center',
-    marginTop: 4,
+    fontWeight: '600',
   },
+  
+  // Filter System
   filterContainer: {
-    paddingHorizontal: 16,
     marginBottom: 20,
   },
   filterScroll: {
-    paddingRight: 16,
+    paddingLeft: 2,
   },
   filterTab: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
     backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
     marginRight: 12,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
   },
   filterTabActive: {
     backgroundColor: 'rgba(139, 92, 246, 0.3)',
     borderColor: '#8B5CF6',
   },
   filterTabText: {
-    color: '#E5E7EB',
+    color: 'rgba(255,255,255,0.8)',
     fontSize: 14,
     fontWeight: '600',
   },
   filterTabTextActive: {
+    color: '#fff',
+    fontWeight: '800',
   },
   filterTabCount: {
     color: 'rgba(255,255,255,0.6)',
@@ -602,11 +744,11 @@ const styles = StyleSheet.create({
   filterTabCountActive: {
     color: '#fff',
     fontWeight: '700',
-    color: '#fff',
   },
+
+  // Posts Section
   postsSection: {
-    paddingHorizontal: 16,
-    marginBottom: 32,
+    marginBottom: 24,
   },
   sectionTitle: {
     color: '#fff',
@@ -624,17 +766,25 @@ const styles = StyleSheet.create({
   },
   postCard: {
     marginBottom: 16,
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   postGradientBorder: {
     padding: 2,
-    borderRadius: 16,
+    borderRadius: 20,
   },
-  postContent: {
+  postContentContainer: {
     backgroundColor: 'rgba(15, 23, 42, 0.8)',
-    borderRadius: 14,
+    borderRadius: 18,
     padding: 16,
+  },
+  postGradient: {
+    padding: 20,
   },
   postHeaderRow: {
     flexDirection: 'row',
@@ -647,43 +797,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
-  authorAvatar: {
-    fontSize: 24,
-    marginRight: 12,
-  },
   authorDetails: {
     flex: 1,
-  },
-  authorNameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  authorName: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-    marginRight: 6,
   },
   postTimeAgo: {
     color: '#9CA3AF',
     fontSize: 12,
-  },
-  postTopic: {
-    color: '#E5E7EB',
-    fontSize: 12,
-    fontWeight: '600',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  postTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 8,
-    lineHeight: 24,
   },
   postPreview: {
     color: '#E5E7EB',
@@ -709,124 +828,224 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
-  moreTags: {
-    color: '#9CA3AF',
-    fontSize: 12,
-    alignSelf: 'center',
-  },
-  postFooter: {
+  postHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  authorAvatar: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  authorInfo: {
+    flex: 1,
+  },
+  authorNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
+  authorName: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
+    marginRight: 6,
+  },
+  memberSince: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
+  },
+  timeAgo: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 12,
+  },
+  postTopic: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  postTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 8,
+    lineHeight: 24,
+  },
+  postContentPreview: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 15,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 12,
     alignItems: 'center',
   },
-  engagementStats: {
-    flexDirection: 'row',
+  tag: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    marginRight: 6,
+    marginBottom: 4,
   },
-  engagementStatItem: {
+  tagText: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  moreTags: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 11,
+    fontStyle: 'italic',
+  },
+  engagementRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  engagementItem: {
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 16,
   },
-  statText: {
-    color: '#9CA3AF',
-    fontSize: 14,
-    marginLeft: 4,
+  engagementText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 13,
+    fontWeight: '600',
+    marginLeft: 6,
   },
+  readMore: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  readMoreText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 13,
+    fontWeight: '600',
+    marginRight: 4,
+  },
+
+  // Stats Section
+  statsSection: {
+    marginBottom: 24,
+  },
+  statsCard: {
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  statsTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: 16,
+    textShadowColor: '#8B5CF6',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  statItem: {
+    alignItems: 'center',
+    width: '48%',
+    marginBottom: 16,
+  },
+  statNumber: {
+    color: '#8B5CF6',
+    fontSize: 24,
+    fontWeight: '900',
+    textShadowColor: 'rgba(139, 92, 246, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  statLabel: {
+    color: '#E5E7EB',
+    fontSize: 13,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+
   // Modal Styles
   modalContainer: {
     flex: 1,
   },
   modalHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
+    borderBottomColor: 'rgba(139, 92, 246, 0.2)',
   },
   closeButton: {
     padding: 8,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   modalHeaderTitle: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   headerSpacer: {
     width: 40,
   },
   modalContent: {
     flex: 1,
+    paddingHorizontal: 20,
   },
   fullPostContainer: {
-    padding: 20,
+    paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
+    borderBottomColor: 'rgba(139, 92, 246, 0.2)',
+    marginBottom: 20,
   },
-  postHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  postContent: {
+    color: '#E5E7EB',
+    fontSize: 16,
+    lineHeight: 24,
     marginBottom: 16,
-  },
-  authorInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  memberSince: {
-    color: '#9CA3AF',
-    fontSize: 12,
-  },
-  timeAgo: {
-    color: '#9CA3AF',
-    fontSize: 12,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginVertical: 16,
-  },
-  tag: {
-    backgroundColor: 'rgba(139, 92, 246, 0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  tagText: {
-    color: '#A855F7',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  engagementRow: {
-    flexDirection: 'row',
-    marginTop: 16,
+    textAlign: 'justify',
   },
   engagementButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 24,
-  },
-  engagementText: {
-    color: '#E5E7EB',
-    fontSize: 14,
-    marginLeft: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    marginRight: 12,
   },
   commentsSection: {
-    padding: 20,
+    marginBottom: 20,
   },
   commentsTitle: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
     marginBottom: 16,
+    textShadowColor: '#EC4899',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   commentItem: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.2)',
   },
   commentHeader: {
     flexDirection: 'row',
@@ -837,17 +1056,18 @@ const styles = StyleSheet.create({
   commentAuthor: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   commentTime: {
-    color: '#9CA3AF',
+    color: 'rgba(255,255,255,0.6)',
     fontSize: 12,
   },
   commentContent: {
     color: '#E5E7EB',
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 8,
+    fontSize: 15,
+    lineHeight: 22,
+    marginBottom: 10,
+    textAlign: 'justify',
   },
   commentLike: {
     flexDirection: 'row',
@@ -856,56 +1076,68 @@ const styles = StyleSheet.create({
   commentLikeText: {
     color: '#9CA3AF',
     fontSize: 12,
-    marginLeft: 4,
+    marginLeft: 6,
   },
   noComments: {
-    color: '#9CA3AF',
-    fontSize: 14,
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 15,
     textAlign: 'center',
     fontStyle: 'italic',
-    marginTop: 20,
+    paddingVertical: 20,
   },
   modalFooter: {
-    height: 40,
+    height: 30,
   },
-
-  // Stats Section Styles
-  statsSection: {
-    paddingHorizontal: 16,
-    marginBottom: 32,
-  },
-  statsCard: {
-    padding: 20,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(139, 92, 246, 0.3)',
-  },
-  statsTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  statsGrid: {
+  postFooter: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
     justifyContent: 'space-between',
   },
-  statItem: {
-    width: '48%',
+  engagementStats: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
   },
-  statNumber: {
-    color: '#8B5CF6',
-    fontSize: 24,
-    fontWeight: '900',
-    marginBottom: 4,
+  engagementStatItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
   },
-  statLabel: {
-    color: '#E5E7EB',
-    fontSize: 12,
-    textAlign: 'center',
+  statText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 13,
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+  commentInputSection: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(139, 92, 246, 0.2)",
+  },
+  commentInputContainer: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: "rgba(139, 92, 246, 0.3)",
+  },
+  commentInput: {
+    flex: 1,
+    color: "#fff",
+    fontSize: 15,
+    maxHeight: 100,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  commentSubmitBtn: {
+    marginLeft: 8,
+    padding: 8,
+    backgroundColor: "rgba(139, 92, 246, 0.2)",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(139, 92, 246, 0.4)",
   },
 });
