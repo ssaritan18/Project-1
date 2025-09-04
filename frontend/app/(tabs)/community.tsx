@@ -453,6 +453,7 @@ export default function CommunityScreen() {
               <View style={styles.commentInputSection}>
                 <View style={styles.commentInputContainer}>
                   <TextInput
+                    ref={commentInputRef}
                     style={styles.commentInput}
                     placeholder="Write a comment..."
                     placeholderTextColor="#9CA3AF"
