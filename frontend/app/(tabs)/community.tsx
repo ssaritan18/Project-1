@@ -372,11 +372,22 @@ export default function CommunityScreen() {
                   />
                   <Text style={styles.engagementText}>{selectedPost.engagement.likes}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.engagementButton}>
+                <TouchableOpacity 
+                  style={styles.engagementButton}
+                  onPress={() => {
+                    // Focus on comment input
+                    Alert.alert('💬', 'Scroll down to add a comment!', [{ text: 'OK' }]);
+                  }}
+                >
                   <Ionicons name="chatbubble-outline" size={20} color="#E5E7EB" />
                   <Text style={styles.engagementText}>{selectedPost.engagement.comments}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.engagementButton}>
+                <TouchableOpacity 
+                  style={styles.engagementButton}
+                  onPress={() => {
+                    Alert.alert('🔗 Shared!', 'Post shared successfully!', [{ text: 'OK' }]);
+                  }}
+                >
                   <Ionicons name="share-outline" size={20} color="#E5E7EB" />
                   <Text style={styles.engagementText}>{selectedPost.engagement.shares}</Text>
                 </TouchableOpacity>
