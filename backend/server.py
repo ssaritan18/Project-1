@@ -2510,6 +2510,122 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Comment API endpoints
+@app.post("/api/comments")
+async def create_comment(comment: Comment, current_user = Depends(get_current_user)):
+    """Create a new comment for a post"""
+    try:
+        comment_dict = comment.dict()
+        comment_dict['author_id'] = current_user['id']
+        comment_dict['author_name'] = current_user.get('name', 'Anonymous')
+        comment_dict['created_at'] = datetime.now(timezone.utc)
+        
+        result = await db.comments.insert_one(comment_dict)
+        comment_dict['_id'] = str(result.inserted_id)
+        
+        return {"success": True, "comment": comment_dict}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create comment: {str(e)}")
+
+@app.get("/api/comments/{post_id}")
+async def get_comments(post_id: str):
+    """Get all comments for a post"""
+    try:
+        comments = await db.comments.find({"post_id": post_id}).sort("created_at", 1).to_list(length=None)
+        
+        # Convert ObjectId to string for JSON serialization
+        for comment in comments:
+            comment['id'] = str(comment['_id'])
+            del comment['_id']
+            
+        return {"success": True, "comments": comments}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get comments: {str(e)}")
+
+@app.post("/api/comments/{comment_id}/like")
+async def toggle_comment_like(comment_id: str, current_user = Depends(get_current_user)):
+    """Toggle like on a comment"""
+    try:
+        user_id = current_user['id']
+        
+        # Check if user already liked this comment
+        existing_like = await db.comment_likes.find_one({"comment_id": comment_id, "user_id": user_id})
+        
+        if existing_like:
+            # Remove like
+            await db.comment_likes.delete_one({"comment_id": comment_id, "user_id": user_id})
+            await db.comments.update_one({"id": comment_id}, {"$inc": {"likes": -1}})
+            liked = False
+        else:
+            # Add like
+            like_doc = {
+                "id": str(uuid.uuid4()),
+                "comment_id": comment_id,
+                "user_id": user_id,
+                "created_at": datetime.now(timezone.utc)
+            }
+            await db.comment_likes.insert_one(like_doc)
+            await db.comments.update_one({"id": comment_id}, {"$inc": {"likes": 1}})
+            liked = True
+            
+        return {"success": True, "liked": liked}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to toggle like: {str(e)}")
+
+# Message Reaction API endpoints  
+@app.post("/api/messages/{message_id}/react")
+async def toggle_message_reaction(message_id: str, chat_id: str, current_user = Depends(get_current_user)):
+    """Toggle heart reaction on a chat message"""
+    try:
+        user_id = current_user['id']
+        
+        # Check if user already reacted to this message
+        existing_reaction = await db.message_reactions.find_one({
+            "message_id": message_id, 
+            "user_id": user_id,
+            "reaction_type": "heart"
+        })
+        
+        if existing_reaction:
+            # Remove reaction
+            await db.message_reactions.delete_one({
+                "message_id": message_id, 
+                "user_id": user_id,
+                "reaction_type": "heart"
+            })
+            reacted = False
+        else:
+            # Add reaction
+            reaction_doc = {
+                "id": str(uuid.uuid4()),
+                "message_id": message_id,
+                "chat_id": chat_id,
+                "user_id": user_id,
+                "reaction_type": "heart",
+                "created_at": datetime.now(timezone.utc)
+            }
+            await db.message_reactions.insert_one(reaction_doc)
+            reacted = True
+            
+        return {"success": True, "reacted": reacted}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to toggle reaction: {str(e)}")
+
+@app.get("/api/messages/{message_id}/reactions")
+async def get_message_reactions(message_id: str):
+    """Get all reactions for a message"""
+    try:
+        reactions = await db.message_reactions.find({"message_id": message_id}).to_list(length=None)
+        
+        # Convert ObjectId to string
+        for reaction in reactions:
+            reaction['id'] = str(reaction['_id'])
+            del reaction['_id']
+            
+        return {"success": True, "reactions": reactions}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get reactions: {str(e)}")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
