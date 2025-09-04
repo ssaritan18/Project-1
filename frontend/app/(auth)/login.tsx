@@ -106,7 +106,7 @@ export default function Login() {
         </View>
 
         <View style={styles.glowInputBox}>
-          <Text style={styles.glowLabel}>Name (Optional)</Text>
+          <Text style={styles.glowLabel}>Name</Text>
           <TextInput 
             style={styles.glowInput} 
             placeholder="Your display name" 
