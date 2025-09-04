@@ -568,11 +568,11 @@ export default function CommunityScreen() {
             </View>
 
             {/* Comments Section */}
-            <View key={`comments-${selectedPost.id}-${(comments[selectedPost.id] || []).length}`} style={styles.commentsSection}>
+            <View key={`comments-${selectedPost.id}-${safeToArray(comments[selectedPost.id]).length}`} style={styles.commentsSection}>
               <Text style={styles.commentsTitle}>💬 Comments ({selectedPost.engagement.comments})</Text>
               
               {/* Show user comments for this post first, then mock comments */}
-              {(comments[selectedPost.id] || []).map((comment) => (
+              {safeToArray(comments[selectedPost.id]).map((comment) => (
                 <View key={comment.id} style={styles.commentItem}>
                   <View style={styles.commentHeader}>
                     <Text style={styles.commentAuthor}>{comment.author}</Text>
@@ -615,7 +615,7 @@ export default function CommunityScreen() {
                 </View>
               ))}
 
-              {(comments[selectedPost.id] || []).length === 0 && getCommentsForPost(selectedPost.id).length === 0 && (
+              {safeToArray(comments[selectedPost.id]).length === 0 && getCommentsForPost(selectedPost.id).length === 0 && (
                 <Text style={styles.noComments}>No comments yet. Be the first to share your thoughts!</Text>
               )}                            {/* Comment Input Section */}
               <View style={styles.commentInputSection}>
