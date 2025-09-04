@@ -56,22 +56,55 @@ export default function ChatDetail() {
     setShowEmojiPicker(!showEmojiPicker);
   };
 
-  // Double-tap detection for Instagram-style heart reactions
+  // Enhanced double-tap detection with Instagram-style animation
   const handleMessageTap = (messageId: string) => {
     const now = Date.now();
     const DOUBLE_TAP_DELAY = 300; // milliseconds
     
     if (lastTap && lastTap.messageId === messageId && (now - lastTap.time) < DOUBLE_TAP_DELAY) {
-      // This is a double-tap! Toggle heart reaction
+      // This is a double-tap! Toggle heart reaction with animation
+      const newReactionState = !messageReactions[messageId];
+      
       setMessageReactions(prev => ({
         ...prev,
-        [messageId]: !prev[messageId]
+        [messageId]: newReactionState
       }));
+      
+      // Create or get animation value for this message
+      if (!animatedHearts[messageId]) {
+        setAnimatedHearts(prev => ({
+          ...prev,
+          [messageId]: new Animated.Value(0)
+        }));
+      }
+      
+      if (newReactionState) {
+        // Animate heart appearing (Instagram-style pop effect)
+        Animated.sequence([
+          Animated.timing(animatedHearts[messageId] || new Animated.Value(0), {
+            toValue: 1.3,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(animatedHearts[messageId] || new Animated.Value(0), {
+            toValue: 1,
+            duration: 100,
+            useNativeDriver: true,
+          })
+        ]).start();
+      } else {
+        // Animate heart disappearing
+        Animated.timing(animatedHearts[messageId] || new Animated.Value(0), {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }).start();
+      }
       
       // Clear the last tap to prevent triple-tap issues
       setLastTap(null);
       
-      console.log(`❤️ Double-tap detected on message ${messageId}, toggled heart reaction`);
+      console.log(`❤️ Double-tap detected on message ${messageId}, toggled heart reaction with animation`);
     } else {
       // This is a single tap, just record it
       setLastTap({ messageId, time: now });
