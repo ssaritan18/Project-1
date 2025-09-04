@@ -274,6 +274,7 @@ export default function CommunityScreen() {
     
     // Show feedback
     console.log(`👍 Like toggled for post ${postId}`);
+    Alert.alert('TEST', `Like clicked for post ${postId}!`, [{ text: 'OK' }]); // DEBUG: Temporary test alert
   };
 
   const addComment = (postId: string, commentText: string) => {
