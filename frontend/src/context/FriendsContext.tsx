@@ -220,9 +220,9 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
       const f = await loadJSON<Friend[] | null>(KEYS.friends, null);
       const r = await loadJSON<FriendRequest[] | null>(KEYS.requests, null);
       const p = await loadJSON<Post[] | null>(KEYS.posts, null);
-      if (f && f.length) setFriends(f);
-      if (r && r.length) setRequests(r);
-      if (p && p.length) setPosts(p);
+      if (f && Array.isArray(f) && f.length > 0) setFriends(f);
+      if (r && Array.isArray(r) && r.length > 0) setRequests(r);
+      if (p && Array.isArray(p) && p.length > 0) setPosts(p);
       setHydrated(true);
     }
   };
