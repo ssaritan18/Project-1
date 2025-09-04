@@ -563,22 +563,31 @@ export default function CommunityScreen() {
                     {/* Engagement Footer */}
                     <View style={styles.postFooter}>
                       <View style={styles.engagementStats}>
-                        <View style={styles.engagementStatItem}>
+                        <TouchableOpacity 
+                          style={styles.engagementStatItem}
+                          onPress={() => toggleLike(post.id)}
+                        >
                           <Ionicons 
                             name={post.engagement.userLiked ? "heart" : "heart-outline"} 
                             size={16} 
                             color={post.engagement.userLiked ? "#EC4899" : "#9CA3AF"} 
                           />
                           <Text style={styles.statText}>{post.engagement.likes}</Text>
-                        </View>
-                        <View style={styles.engagementStatItem}>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={styles.engagementStatItem}
+                          onPress={() => handlePostPress(post)}
+                        >
                           <Ionicons name="chatbubble-outline" size={16} color="#9CA3AF" />
                           <Text style={styles.statText}>{post.engagement.comments}</Text>
-                        </View>
-                        <View style={styles.engagementStatItem}>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={styles.engagementStatItem}
+                          onPress={() => Alert.alert('🔗 Shared!', `Post "${post.title}" shared!`, [{ text: 'OK' }])}
+                        >
                           <Ionicons name="share-outline" size={16} color="#9CA3AF" />
                           <Text style={styles.statText}>{post.engagement.shares}</Text>
-                        </View>
+                        </TouchableOpacity>
                       </View>
                       <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
                     </View>
