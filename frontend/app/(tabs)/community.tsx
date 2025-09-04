@@ -1008,6 +1008,7 @@ const styles = StyleSheet.create({
   },
   modalFooter: {
     height: 30,
+  },
   postFooter: {
     flexDirection: 'row',
     alignItems: 'center',
