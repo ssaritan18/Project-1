@@ -250,7 +250,7 @@ export default function CommunityScreen() {
       prevPosts.map(post => {
         if (post.id === postId) {
           const newLikedState = !post.engagement.userLiked;
-          return {
+          const updatedPost = {
             ...post,
             engagement: {
               ...post.engagement,
@@ -260,13 +260,20 @@ export default function CommunityScreen() {
               userLiked: newLikedState
             }
           };
+          
+          // Also update selectedPost if it's the same post
+          if (selectedPost && selectedPost.id === postId) {
+            setSelectedPost(updatedPost);
+          }
+          
+          return updatedPost;
         }
         return post;
       })
     );
     
-    // Show haptic feedback for satisfaction
-    Alert.alert('👍', 'Post liked!', [{ text: 'OK' }]);
+    // Show feedback
+    console.log(`👍 Like toggled for post ${postId}`);
   };
 
   const addComment = (postId: string, commentText: string) => {
