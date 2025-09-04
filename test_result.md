@@ -158,7 +158,20 @@
         -agent: "testing"
         -comment: "✅ PASSED: File upload and storage system comprehensive testing completed successfully. Voice files properly stored in /app/backend/uploads/voices/ with unique UUID filenames (format: voice_[32-char-hex].[ext]). Base64 audio decoding working for all formats (.wav, .m4a, .ogg, .webm). File serving endpoints working: GET /api/uploads/voices/{filename} serves audio files with correct MIME types (audio/mpeg, audio/mp4, audio/ogg, audio/webm), GET /api/uploads/profiles/{filename} serves profile pictures with image/* MIME types. Security measures working: path traversal blocked (../../../etc/passwd rejected with 502), file existence validation (404 for non-existent files). File storage verified with actual file sizes (8044+ bytes for test files). Directory creation automatic (/app/backend/uploads/voices/ and /app/backend/uploads/profiles/)."
 ## frontend:
-  - task: "Create Task Button Bug Fix"
+  - task: "Friend Request JavaScript Error Fix"
+    implemented: true
+    working: false
+    file: "/app/frontend/app/(tabs)/friends.tsx, /app/frontend/src/context/FriendsContext.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "USER REPORTED: Friend request via mail redirects to error page showing 'Cannot read properties of undefined (reading 'length')' JavaScript error"
+        -working: false
+        -agent: "main"
+        -comment: "🔧 DEBUGGING IN PROGRESS: Added safe array access (safeFriends = friends || [], safeRequests = requests || []) to prevent undefined array errors. Enhanced sendRequest function with comprehensive error handling and logging. Added debugging console.log statements to track state and function flow. Root cause appears to be friends/requests arrays being undefined when accessed before context initialization."
     implemented: true
     working: true
     file: "/app/frontend/app/(tabs)/index.tsx"
