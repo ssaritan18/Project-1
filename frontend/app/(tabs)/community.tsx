@@ -308,8 +308,6 @@ export default function CommunityScreen() {
     const comments = getCommentsForPost(selectedPost.id);
 
     return (
-      <Modal,
-  TextInput
         visible={showPostModal}
         animationType="slide"
         presentationStyle="formSheet"
