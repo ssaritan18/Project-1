@@ -361,10 +361,14 @@ export default function CommunityScreen() {
     };
     
     // Add comment to local state for immediate display
-    setComments(prevComments => ({
-      ...prevComments,
-      [postId]: [...(prevComments[postId] || []), newCommentObj]
-    }));
+    setComments(prevComments => {
+      const newCommentsState = {
+        ...prevComments,
+        [postId]: [...(prevComments[postId] || []), newCommentObj]
+      };
+      console.log(`💬 Updated comments state for post ${postId}:`, newCommentsState[postId]);
+      return newCommentsState;
+    });
     
     // Update comment count in post
     setPosts(prevPosts => 
