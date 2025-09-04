@@ -71,10 +71,18 @@ export default function FriendsScreen() {
 
   const startChat = async (friendId: string, friendName: string) => {
     try {
+      console.log(`💬 Starting chat with ${friendName} (${friendId})`);
       const chatId = await openDirectChat(friendId);
-      Alert.alert("Chat Ready!", `Starting chat with ${friendName}`);
+      console.log(`✅ Chat opened with ID: ${chatId}`);
+      
+      // Navigate to chat screen
+      router.push(`/(tabs)/chat/${chatId}`);
+      
+      // Optional: Show success feedback
+      console.log(`🚀 Navigating to chat: /(tabs)/chat/${chatId}`);
     } catch (error) {
-      Alert.alert("❌ Error", `Failed to open chat: ${error.message}`);
+      console.error(`❌ Failed to open chat with ${friendName}:`, error);
+      Alert.alert("❌ Error", `Failed to open chat with ${friendName}: ${error.message}`);
     }
   };
 
