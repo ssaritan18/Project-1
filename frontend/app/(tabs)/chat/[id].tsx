@@ -282,6 +282,16 @@ export default function ChatDetail() {
               maxLength={1000}
             />
 
+            {/* Emoji Button */}
+            <TouchableOpacity 
+              onPress={toggleEmojiPicker}
+              style={styles.emojiBtn}
+            >
+              <LinearGradient colors={showEmojiPicker ? ['#8B5CF6', '#A855F7'] : ['#6B7280', '#9CA3AF']} style={styles.emojiBtnGradient}>
+                <Ionicons name="happy" size={20} color="#fff" />
+              </LinearGradient>
+            </TouchableOpacity>
+
             <TouchableOpacity 
               onPress={send} 
               style={styles.sendBtn}
