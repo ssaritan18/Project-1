@@ -215,7 +215,7 @@ export default function CommunityScreen() {
     return commentDatabase[postId] || [];
   };
 
-  const filteredPosts = communityPosts.filter(post => {
+  const filteredPosts = posts.filter(post => {
     switch (activeFilter) {
       case 'trending':
         return post.engagement.likes > 80;
@@ -440,8 +440,8 @@ export default function CommunityScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
             {[
               { key: 'trending', label: '🔥 Trending', count: filteredPosts.length },
-              { key: 'recent', label: '🕐 Recent', count: communityPosts.filter(p => p.timeAgo.includes('hours')).length },
-              { key: 'research', label: '🔬 Research', count: communityPosts.filter(p => p.category === 'research').length },
+              { key: 'recent', label: '🕐 Recent', count: posts.filter(p => p.timeAgo.includes('hours')).length },
+              { key: 'research', label: '🔬 Research', count: posts.filter(p => p.category === 'research').length },
               { key: 'all', label: '📋 All Posts', count: communityPosts.length }
             ].map((filter) => (
               <TouchableOpacity
