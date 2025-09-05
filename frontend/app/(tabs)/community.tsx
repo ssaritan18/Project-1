@@ -189,7 +189,8 @@ export default function CommunityScreen() {
     
     // Simple comment loading on mount for each post
     const loadInitialComments = async () => {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const backendUrl = getBackendUrl();
+      console.log('📥 Loading comments using backend URL:', backendUrl);
       
       for (const post of communityPosts) {
         try {
@@ -211,9 +212,11 @@ export default function CommunityScreen() {
                 [post.id]: formattedComments
               }));
             }
+          } else {
+            console.log(`⚠️ Failed to load comments for post ${post.id}: ${response.status}`);
           }
         } catch (error) {
-          console.log(`Error loading comments for post ${post.id}:`, error);
+          console.log(`⚠️ Connection error loading comments for post ${post.id}:`, error.message);
         }
       }
     };
