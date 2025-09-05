@@ -15,7 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../src/context/AuthContext";
-import SafeBannerAd from "../../src/components/SafeBannerAd";
+import { MockAdBanner } from "../../src/components/MockAdBanner";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface CommunityPost {
