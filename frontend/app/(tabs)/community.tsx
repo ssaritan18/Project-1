@@ -315,8 +315,30 @@ export default function CommunityScreen() {
                   {/* Post Header */}
                   <View style={styles.postHeader}>
                     <View style={styles.postAuthorInfo}>
-                      <Text style={styles.postAuthor}>{post.author}</Text>
-                      <Text style={styles.postTime}>{getRelativeTime(post.timestamp)}</Text>
+                      {/* Profile Avatar */}
+                      <View style={styles.postAvatar}>
+                        {getUserAvatar(post.authorId) ? (
+                          <img 
+                            src={getUserAvatar(post.authorId)!} 
+                            alt="Profile" 
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              borderRadius: '50%',
+                              objectFit: 'cover'
+                            }}
+                          />
+                        ) : (
+                          <Text style={styles.postAvatarText}>
+                            {getUserInitials(post.author)}
+                          </Text>
+                        )}
+                      </View>
+                      
+                      <View style={styles.postAuthorDetails}>
+                        <Text style={styles.postAuthor}>{post.author}</Text>
+                        <Text style={styles.postTime}>{getRelativeTime(post.timestamp)}</Text>
+                      </View>
                     </View>
                     
                     {/* Delete button - only show for own posts */}
