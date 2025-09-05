@@ -10,13 +10,6 @@ export default function Index() {
   useEffect(() => {
     console.log("🔍 Index auth state check:", { isAuthed, hasUser: !!user, hasToken: !!token, loading });
     
-    // TEMPORARY: Skip auth for comment testing
-    if (!loading) {
-      console.log("🧪 TEMPORARY: Skipping auth for testing - going directly to tabs");
-      router.replace("/(tabs)");
-      return;
-    }
-    
     // Navigation logic - wait for loading to complete
     if (!loading) {
       if (isAuthed && user) {
