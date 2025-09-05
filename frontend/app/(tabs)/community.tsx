@@ -736,16 +736,24 @@ export default function CommunityScreen() {
               {/* SINGLE COMMENT TITLE WITH COUNT */}
               <Text style={styles.commentsTitle}>💬 Comments ({selectedPost.engagement.comments})</Text>
               
-              {/* FIX: Proper array check before map */}
-              {Array.isArray(comments[selectedPost.id]) && comments[selectedPost.id].map((comment, index) => (
-                <View key={`comment-${selectedPost.id}-${index}`} style={styles.commentItem}>
-                  <View style={styles.commentHeader}>
-                    <Text style={styles.commentAuthor}>{comment.author}</Text>
-                    <Text style={styles.commentTime}>{comment.timeAgo}</Text>
+              {/* CHAT-STYLE COMMENT RENDERING - EXACTLY LIKE MESSAGES */}
+              {Array.isArray(comments[selectedPost.id]) && comments[selectedPost.id].map((comment, index) => {
+                console.log('🔴 RENDERING COMMENT:', index, comment);
+                return (
+                  <View key={`comment-${selectedPost.id}-${index}-${comment.id}`} style={styles.commentItem}>
+                    <View style={styles.commentHeader}>
+                      <Text style={styles.commentAuthor}>{comment.author || 'Anonymous'}</Text>
+                      <Text style={styles.commentTime}>{comment.timeAgo || 'just now'}</Text>
+                    </View>
+                    <Text style={styles.commentContent}>{comment.content || 'No content'}</Text>
                   </View>
-                  <Text style={styles.commentContent}>{comment.content}</Text>
-                </View>
-              ))}
+                );
+              })}
+              
+              {/* Show count for debugging */}
+              <Text style={{color: 'yellow', fontSize: 12}}>
+                DEBUG: Total comments in state: {Array.isArray(comments[selectedPost.id]) ? comments[selectedPost.id].length : 'Not array'}
+              </Text>
               
               {/* Show if no comments */}
               {(!Array.isArray(comments[selectedPost.id]) || comments[selectedPost.id].length === 0) && (
