@@ -2512,19 +2512,22 @@ logger = logging.getLogger(__name__)
 
 # Comment API endpoints
 @app.post("/api/comments")
-async def create_comment(comment: Comment):
-    """Create a new comment for a post - TEMPORARY: Auth bypassed for testing"""
+async def create_comment(comment: Comment, current_user = Depends(get_current_user)):
+    """Create a new comment for a post with proper authentication"""
     try:
         comment_dict = comment.dict()
-        comment_dict['author_id'] = "test_user_123"  # Temporary test user
-        comment_dict['author_name'] = "Test User"  # Temporary test user name
+        comment_dict['author_id'] = current_user['id']
+        comment_dict['author_name'] = current_user['name']
         comment_dict['created_at'] = datetime.now(timezone.utc)
         
         result = await db.comments.insert_one(comment_dict)
         comment_dict['_id'] = str(result.inserted_id)
+        comment_dict['id'] = str(result.inserted_id)  # Add id field for frontend compatibility
         
+        logger.info(f"✅ Comment created for post {comment.post_id} by {current_user['name']}")
         return {"success": True, "comment": comment_dict}
     except Exception as e:
+        logger.error(f"❌ Failed to create comment: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to create comment: {str(e)}")
 
 @app.get("/api/comments/{post_id}")
