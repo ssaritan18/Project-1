@@ -76,6 +76,29 @@ export default function CommunityScreen() {
     Alert.alert('Success', 'Post created successfully!');
   };
 
+  // Handle delete post
+  const handleDeletePost = (postId: string) => {
+    Alert.alert(
+      'Delete Post',
+      'Are you sure you want to delete this post?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            setPosts(prev => prev.filter(post => post.id !== postId));
+            console.log('✅ Post deleted:', postId);
+            Alert.alert('Success', 'Post deleted successfully!');
+          },
+        },
+      ]
+    );
+  };
+
   // Handle like
   const handleLike = (postId: string) => {
     setPosts(prev => prev.map(post => {
