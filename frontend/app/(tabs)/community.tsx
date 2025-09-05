@@ -276,6 +276,16 @@ export default function CommunityScreen() {
                       <Text style={styles.postAuthor}>{post.author}</Text>
                       <Text style={styles.postTime}>{getRelativeTime(post.timestamp)}</Text>
                     </View>
+                    
+                    {/* Delete button - only show for own posts */}
+                    {post.authorId === (user?.id || user?.email) && (
+                      <TouchableOpacity 
+                        style={styles.deleteButton}
+                        onPress={() => handleDeletePost(post.id)}
+                      >
+                        <Ionicons name="ellipsis-horizontal" size={20} color="rgba(255,255,255,0.7)" />
+                      </TouchableOpacity>
+                    )}
                   </View>
 
                   {/* Post Content */}
