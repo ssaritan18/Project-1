@@ -35,7 +35,9 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Security
-JWT_SECRET = os.getenv("JWT_SECRET", "devsecret")
+JWT_SECRET = os.getenv("JWT_SECRET")
+if not JWT_SECRET:
+    raise ValueError("JWT_SECRET environment variable is required for production")
 ALGO = "HS256"
 ACCESS_EXPIRES_DAYS = 7
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
