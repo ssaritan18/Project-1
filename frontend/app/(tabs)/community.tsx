@@ -200,11 +200,11 @@ export default function CommunityScreen() {
             if (data.success && data.comments) {
               const formattedComments = data.comments.map((c: any) => ({
                 id: c.id || c._id,
-                author: c.author_name || c.author, // Fix: Map author_name to author
+                author: c.author_name,
                 content: c.content,
-                timeAgo: c.created_at ? getTimeAgo(c.created_at) : c.timeAgo, // Fix: Map created_at to timeAgo
+                timeAgo: getTimeAgo(c.created_at),
                 likes: c.likes || 0,
-                userLiked: c.user_liked !== undefined ? c.user_liked : c.userLiked || false // Fix: Map user_liked to userLiked
+                userLiked: c.user_liked || false
               }));
               
               setComments(prev => ({
@@ -255,11 +255,11 @@ export default function CommunityScreen() {
               // Convert backend comment format to frontend format
               const formattedComments = data.comments.map((comment: any) => ({
                 id: comment.id || comment._id,
-                author: comment.author_name || comment.author, // Fix: Map author_name to author
+                author: comment.author_name,
                 content: comment.content,
-                timeAgo: comment.created_at ? getTimeAgo(comment.created_at) : comment.timeAgo, // Fix: Map created_at to timeAgo  
+                timeAgo: getTimeAgo(comment.created_at),
                 likes: comment.likes || 0,
-                userLiked: comment.user_liked !== undefined ? comment.user_liked : comment.userLiked || false // Fix: Map user_liked to userLiked
+                userLiked: comment.user_liked || false
               }));
               backendComments[post.id] = formattedComments;
               console.log(`📥 Loaded ${formattedComments.length} comments for post ${post.id} from backend`);
@@ -611,11 +611,6 @@ export default function CommunityScreen() {
       setNewComment('');
       Keyboard.dismiss();
       
-      // Scroll to bottom to show new comment  
-      setTimeout(() => {
-        modalScrollRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-      
       console.log('✅ Comment saved and added to UI');
       console.log(`📝 New comment count for post ${postId}: ${(comments[postId] || []).length + 1}`);
       Alert.alert('Success', 'Comment posted successfully!');
@@ -737,18 +732,12 @@ export default function CommunityScreen() {
               <Text style={{color: 'yellow', fontSize: 10}}>
                 DEBUG: User comments: {safeToArray(comments[selectedPost.id]).length}, Mock: {safeToArray(getCommentsForPost(selectedPost.id)).length}
               </Text>
-              <Text style={{color: 'cyan', fontSize: 9}}>
-                Comments State Keys: {Object.keys(comments).join(', ')} | Selected Post ID: {selectedPost.id}
-              </Text>
-              <Text style={{color: 'orange', fontSize: 9}}>
-                Comments for this post: {JSON.stringify(comments[selectedPost.id] || 'undefined')}
-              </Text>
               
               {/* Show user comments for this post first, then mock comments */}
               {safeToArray(comments[selectedPost.id]).map((comment) => (
-                <View key={comment.id} style={[styles.commentItem, {backgroundColor: 'rgba(0, 255, 0, 0.1)', borderLeft: '3px solid green'}]}>
+                <View key={comment.id} style={styles.commentItem}>
                   <View style={styles.commentHeader}>
-                    <Text style={[styles.commentAuthor, {color: '#00FF00'}]}>{comment.author} (USER COMMENT)</Text>
+                    <Text style={styles.commentAuthor}>{comment.author}</Text>
                     <Text style={styles.commentTime}>{comment.timeAgo}</Text>
                   </View>
                   <Text style={styles.commentContent}>{comment.content}</Text>
@@ -766,8 +755,8 @@ export default function CommunityScreen() {
                 </View>
               ))}
               
-              {/* TEMPORARILY DISABLE MOCK COMMENTS FOR DEBUGGING */}
-              {false && safeToArray(getCommentsForPost(selectedPost.id)).map((comment) => (
+              {/* Then show mock comments */}
+              {safeToArray(getCommentsForPost(selectedPost.id)).map((comment) => (
                 <View key={comment.id} style={styles.commentItem}>
                   <View style={styles.commentHeader}>
                     <Text style={styles.commentAuthor}>{comment.author}</Text>
