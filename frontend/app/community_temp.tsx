@@ -765,6 +765,9 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     marginBottom: 15,
   },
+  postContentContainer: {
+    marginBottom: 15,
+  },
   postActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
