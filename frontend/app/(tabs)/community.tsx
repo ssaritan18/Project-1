@@ -406,32 +406,74 @@ export default function CommunityScreen() {
     if (!commentText.trim()) return;
     
     try {
-      // First add to backend if authenticated
+      // Check if user is authenticated
+      if (!user) {
+        if (Platform.OS === 'web') {
+          alert('❌ Please log in to comment');
+        } else {
+          Alert.alert('Authentication Required', 'Please log in to comment on posts.', [{ text: 'OK' }]);
+        }
+        return;
+      }
+      
+      // Try to add to backend with authentication
       const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      
+      // Get auth token (assuming it's stored in AsyncStorage or context)
+      const authToken = await AsyncStorage.getItem('@auth_token');
+      
+      if (!authToken) {
+        console.log('⚠️ No auth token found, cannot save to backend');
+        if (Platform.OS === 'web') {
+          alert('❌ Authentication required for saving comments');
+        } else {
+          Alert.alert('Authentication Required', 'Please log in again to save comments.', [{ text: 'OK' }]);
+        }
+        return;
+      }
       
       const response = await fetch(`${backendUrl}/api/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Note: Add authorization header if user is authenticated
+          'Authorization': `Bearer ${authToken}`,
         },
         body: JSON.stringify({
           post_id: postId,
-          content: commentText.trim()
+          content: commentText.trim(),
+          author_id: user.id || user.email, // Use user id or email as fallback
+          author_name: user.name || 'Anonymous',
+          likes: 0,
+          user_liked: false
         })
       });
       
+      let backendComment = null;
       if (response.ok) {
         const data = await response.json();
+        backendComment = data.comment;
         console.log('✅ Comment saved to backend:', data);
       } else {
-        console.log('⚠️ Backend save failed, using local storage only');
+        const errorText = await response.text();
+        console.log('⚠️ Backend save failed:', response.status, errorText);
+        if (Platform.OS === 'web') {
+          alert(`❌ Failed to save comment: ${response.status} - ${errorText}`);
+        } else {
+          Alert.alert('Save Failed', `Failed to save comment to server: ${response.status}`, [{ text: 'OK' }]);
+        }
+        return; // Don't add to local state if backend fails
       }
     } catch (error) {
-      console.log('⚠️ Backend unavailable, using local storage only:', error);
+      console.log('⚠️ Backend error:', error);
+      if (Platform.OS === 'web') {
+        alert(`❌ Network error: ${error.message}`);
+      } else {
+        Alert.alert('Network Error', `Failed to save comment: ${error.message}`, [{ text: 'OK' }]);
+      }
+      return; // Don't add to local state if backend fails
     }
     
-    // Create new comment object (always for immediate display)
+    // Create new comment object for immediate display (using real user data)
     const newCommentObj: Comment = {
       id: `c_${Date.now()}`,
       author: user?.name || 'You',
@@ -450,7 +492,7 @@ export default function CommunityScreen() {
     setComments(newCommentsState);
     console.log(`💬 Updated comments state for post ${postId}:`, newCommentsState[postId]);
     
-    // Save to persistent storage
+    // Save to persistent local storage as backup
     await saveCommentsToStorage(newCommentsState);
     
     // Update comment count in post
@@ -491,13 +533,11 @@ export default function CommunityScreen() {
     
     // Show success feedback
     if (Platform.OS === 'web') {
-      // Web için visible alert
-      alert(`💬 Comment Saved!\nYour comment has been posted and saved to backend + local storage.`);
+      alert(`💬 Comment Saved!\nYour comment has been posted and saved to the server.`);
     } else {
-      // Mobile için Alert.alert
-      Alert.alert('💬 Comment Saved!', 'Your comment has been posted and saved to backend + local storage.', [{ text: 'OK' }]);
+      Alert.alert('💬 Comment Saved!', 'Your comment has been posted and saved to the server.', [{ text: 'OK' }]);
     }
-    console.log(`💬 Comment added to post ${postId}: "${commentText.slice(0, 30)}..."`);
+    console.log(`💬 Comment added to post ${postId}: "${commentText.slice(0, 30)}..." by ${user?.name}`);
   };
 
   const renderPostModal = () => {
