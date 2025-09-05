@@ -69,6 +69,17 @@ export default function RootLayout() {
   // Initialize AdMob on app startup
   useEffect(() => {
     const initializeAdMob = async () => {
+      if (Platform.OS === 'web') {
+        console.log('🌐 Web platform: Using mock ads for testing');
+        console.log('📱 Real AdMob ads will be available on mobile devices');
+        return;
+      }
+
+      if (!mobileAds) {
+        console.log('⚠️  AdMob SDK not available on this platform');
+        return;
+      }
+
       try {
         console.log('🚀 Initializing AdMob SDK...');
         const adapterStatuses = await mobileAds().initialize();
