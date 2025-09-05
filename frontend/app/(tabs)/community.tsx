@@ -725,7 +725,7 @@ export default function CommunityScreen() {
             </View>
 
             {/* Comments Section */}
-            <View key={`comments-${selectedPost.id}-${safeToArray(comments[selectedPost.id]).length}`} style={styles.commentsSection}>
+            <View key={`comments-${selectedPost.id}-${safeToArray(comments[selectedPost.id]).length}-${Date.now()}`} style={styles.commentsSection}>
               <Text style={styles.commentsTitle}>💬 Comments ({selectedPost.engagement.comments})</Text>
               
               {/* DEBUG INFO */}
