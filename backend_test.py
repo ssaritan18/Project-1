@@ -643,6 +643,119 @@ class APITester:
             self.log(f"❌ Comment addition failed: {response.status_code} - {response.text}", "ERROR")
             return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
 
+    # NEW COMMENT SYSTEM TESTING METHODS
+    def test_create_comment_new_api(self, token: str, post_id: str, content: str, user_name: str = "") -> Dict:
+        """Test creating comment using new /api/comments endpoint with authentication"""
+        url = f"{self.base_url}/comments"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {
+            "post_id": post_id,
+            "content": content,
+            "likes": 0,
+            "user_liked": False
+        }
+        
+        self.log(f"Testing comment creation (NEW API) by {user_name}: '{content[:30]}...'")
+        response = self.session.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "success" in data and data["success"] and "comment" in data:
+                comment = data["comment"]
+                if "id" in comment and "post_id" in comment and "content" in comment:
+                    self.log(f"✅ Comment creation (NEW API) successful: {comment['id']}")
+                    return {"success": True, "data": data}
+                else:
+                    self.log(f"❌ Comment creation response missing required comment fields", "ERROR")
+                    return {"success": False, "error": "Missing required comment fields in response"}
+            else:
+                self.log(f"❌ Comment creation response missing success/comment fields", "ERROR")
+                return {"success": False, "error": "Missing success/comment fields in response"}
+        else:
+            self.log(f"❌ Comment creation failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def test_get_comments_new_api(self, post_id: str, user_name: str = "") -> Dict:
+        """Test getting comments using new /api/comments/{post_id} endpoint"""
+        url = f"{self.base_url}/comments/{post_id}"
+        
+        self.log(f"Testing comment retrieval (NEW API) for post {post_id} by {user_name}")
+        response = self.session.get(url)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "success" in data and data["success"] and "comments" in data:
+                comments = data["comments"]
+                self.log(f"✅ Comment retrieval (NEW API) successful - found {len(comments)} comments")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Comment retrieval response missing success/comments fields", "ERROR")
+                return {"success": False, "error": "Missing success/comments fields in response"}
+        else:
+            self.log(f"❌ Comment retrieval failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def test_comment_authentication_failure(self, post_id: str, content: str) -> Dict:
+        """Test comment creation without authentication (should fail)"""
+        url = f"{self.base_url}/comments"
+        payload = {
+            "post_id": post_id,
+            "content": content,
+            "likes": 0,
+            "user_liked": False
+        }
+        
+        self.log(f"Testing comment creation without authentication (should fail)")
+        response = self.session.post(url, json=payload)
+        
+        if response.status_code == 401:
+            self.log(f"✅ Comment creation properly rejected without authentication (401)")
+            return {"success": True, "data": {"status_code": 401, "message": "Authentication required"}}
+        else:
+            self.log(f"❌ Comment creation should have failed with 401, got {response.status_code}", "ERROR")
+            return {"success": False, "error": f"Expected 401, got {response.status_code}: {response.text}"}
+
+    def test_comment_invalid_token(self, post_id: str, content: str) -> Dict:
+        """Test comment creation with invalid token (should fail)"""
+        url = f"{self.base_url}/comments"
+        headers = {"Authorization": "Bearer invalid_token_here"}
+        payload = {
+            "post_id": post_id,
+            "content": content,
+            "likes": 0,
+            "user_liked": False
+        }
+        
+        self.log(f"Testing comment creation with invalid token (should fail)")
+        response = self.session.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 401:
+            self.log(f"✅ Comment creation properly rejected with invalid token (401)")
+            return {"success": True, "data": {"status_code": 401, "message": "Invalid token"}}
+        else:
+            self.log(f"❌ Comment creation should have failed with 401, got {response.status_code}", "ERROR")
+            return {"success": False, "error": f"Expected 401, got {response.status_code}: {response.text}"}
+
+    def test_toggle_comment_like(self, token: str, comment_id: str, user_name: str = "") -> Dict:
+        """Test toggling like on a comment"""
+        url = f"{self.base_url}/comments/{comment_id}/like"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing comment like toggle by {user_name} for comment {comment_id}")
+        response = self.session.post(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "success" in data and data["success"]:
+                self.log(f"✅ Comment like toggle successful")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Comment like toggle response missing success field", "ERROR")
+                return {"success": False, "error": "Missing success field in response"}
+        else:
+            self.log(f"❌ Comment like toggle failed: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
     # Voice Message Testing Methods
     def test_send_voice_message(self, token: str, chat_id: str, audio_data: str, duration_ms: int, filename: str = None, user_name: str = "") -> Dict:
         """Test sending voice message to chat"""
