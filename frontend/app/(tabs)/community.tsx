@@ -736,58 +736,45 @@ export default function CommunityScreen() {
             <View key={`comments-${selectedPost.id}-${safeToArray(comments[selectedPost.id]).length}-${Date.now()}`} style={styles.commentsSection}>
               <Text style={styles.commentsTitle}>💬 Comments ({selectedPost.engagement.comments})</Text>
               
-              {/* DEBUG INFO */}
-              <Text style={{color: 'yellow', fontSize: 10}}>
-                DEBUG: User comments: {safeToArray(comments[selectedPost.id]).length}, Mock: {safeToArray(getCommentsForPost(selectedPost.id)).length}
-              </Text>
+              {/* TWITTER-STYLE COMMENTS - SIMPLE AND DIRECT */}
               
-              {/* Show user comments for this post first, then mock comments */}
-              {safeToArray(comments[selectedPost.id]).map((comment) => (
-                <View key={comment.id} style={styles.commentItem}>
+              {/* Show ALL comments for this post - no filtering, no complexity */}
+              {(comments[selectedPost.id] || []).map((comment, index) => (
+                <View key={`comment-${index}-${comment.id}`} style={styles.commentItem}>
                   <View style={styles.commentHeader}>
                     <Text style={styles.commentAuthor}>{comment.author}</Text>
                     <Text style={styles.commentTime}>{comment.timeAgo}</Text>
                   </View>
                   <Text style={styles.commentContent}>{comment.content}</Text>
-                  <TouchableOpacity 
-                    style={styles.commentLike}
-                    onPress={() => toggleCommentLike(comment.id, selectedPost.id)}
-                  >
-                    <Ionicons 
-                      name={comment.userLiked ? "heart" : "heart-outline"} 
-                      size={16} 
-                      color={comment.userLiked ? "#EC4899" : "#9CA3AF"} 
-                    />
-                    <Text style={styles.commentLikeText}>{comment.likes}</Text>
-                  </TouchableOpacity>
                 </View>
               ))}
               
-              {/* DISABLE MOCK COMMENTS - THEY ARE OVERRIDING REAL COMMENTS */}
-              {false && safeToArray(getCommentsForPost(selectedPost.id)).map((comment) => (
-                <View key={comment.id} style={styles.commentItem}>
-                  <View style={styles.commentHeader}>
-                    <Text style={styles.commentAuthor}>{comment.author}</Text>
-                    <Text style={styles.commentTime}>{comment.timeAgo}</Text>
-                  </View>
-                  <Text style={styles.commentContent}>{comment.content}</Text>
-                  <TouchableOpacity 
-                    style={styles.commentLike}
-                    onPress={() => toggleCommentLike(comment.id, selectedPost.id)}
-                  >
-                    <Ionicons 
-                      name={comment.userLiked ? "heart" : "heart-outline"} 
-                      size={16} 
-                      color={comment.userLiked ? "#EC4899" : "#9CA3AF"} 
-                    />
-                    <Text style={styles.commentLikeText}>{comment.likes}</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-
-              {safeToArray(comments[selectedPost.id]).length === 0 && getCommentsForPost(selectedPost.id).length === 0 && (
-                <Text style={styles.noComments}>No comments yet. Be the first to share your thoughts!</Text>
+              {/* Show message if no comments */}
+              {(!comments[selectedPost.id] || comments[selectedPost.id].length === 0) && (
+                <Text style={styles.noComments}>No comments yet. Be the first!</Text>
               )}
+
+              {/* TWITTER-STYLE COMMENT INPUT - SIMPLE */}
+              <View style={styles.commentInputSection}>
+                <View style={styles.commentInputContainer}>
+                  <TextInput
+                    style={styles.commentInput}
+                    placeholder="Write a comment..."
+                    placeholderTextColor="rgba(255,255,255,0.6)"
+                    value={newComment}
+                    onChangeText={setNewComment}
+                    multiline={true}
+                    returnKeyType="send"
+                    onSubmitEditing={() => handleSend(selectedPost.id, newComment)}
+                  />
+                  <TouchableOpacity 
+                    style={styles.commentSendButton}
+                    onPress={() => handleSend(selectedPost.id, newComment)}
+                  >
+                    <Ionicons name="send" size={20} color="#8B5CF6" />
+                  </TouchableOpacity>
+                </View>
+              </View>
               {/* Comment Input Section */}
               <View style={styles.commentInputSection}>
                 <View style={styles.commentInputContainer}>
