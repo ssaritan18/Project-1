@@ -1555,4 +1555,21 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#8B5CF6',
   },
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 14,
+    fontStyle: 'italic',
+  },
+  testModeNote: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 12,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 8,
+  },
 });
