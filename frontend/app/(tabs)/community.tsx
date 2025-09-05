@@ -870,4 +870,90 @@ const styles = StyleSheet.create({
   postAuthorDetails: {
     flex: 1,
   },
+  searchContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(139, 92, 246, 0.2)",
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(139, 92, 246, 0.1)",
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: "rgba(139, 92, 246, 0.3)",
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    color: "white",
+    fontSize: 16,
+  },
+  clearButton: {
+    marginLeft: 10,
+    padding: 4,
+  },
+  activeFilters: {
+    flexDirection: "row",
+    marginTop: 10,
+    flexWrap: "wrap",
+  },
+  filterTag: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(139, 92, 246, 0.3)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    marginRight: 8,
+    marginBottom: 4,
+  },
+  filterTagText: {
+    color: "white",
+    fontSize: 14,
+    marginRight: 6,
+  },
+  trendingContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(139, 92, 246, 0.2)",
+  },
+  trendingTitle: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  trendingScroll: {
+    maxHeight: 40,
+  },
+  trendingTag: {
+    backgroundColor: "rgba(139, 92, 246, 0.2)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: "rgba(139, 92, 246, 0.4)",
+  },
+  selectedTrendingTag: {
+    backgroundColor: "rgba(139, 92, 246, 0.5)",
+    borderColor: "#8B5CF6",
+  },
+  trendingTagText: {
+    color: "rgba(255,255,255,0.8)",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  selectedTrendingTagText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+},
 });
