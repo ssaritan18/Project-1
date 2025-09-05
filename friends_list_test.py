@@ -9,7 +9,7 @@ import json
 import sys
 
 # Base URL from frontend .env
-BASE_URL = "https://adhdglow.preview.emergentagent.com/api"
+BASE_URL = "https://neurodiv-hub.preview.emergentagent.com/api"
 
 def test_friends_list_for_ssaritan():
     """Test friends list specifically for ssaritan@example.com as requested"""

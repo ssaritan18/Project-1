@@ -11,7 +11,7 @@ import time
 from typing import Dict, Optional, List
 
 # Backend URL from review request
-BASE_URL = "https://adhdglow.preview.emergentagent.com/api"
+BASE_URL = "https://neurodiv-hub.preview.emergentagent.com/api"
 
 class CommentSystemTester:
     def __init__(self):
@@ -272,7 +272,7 @@ class CommentSystemTester:
         """Test backend URL verification as specified in review request"""
         self.log("🌐 TESTING BACKEND URL VERIFICATION")
         
-        expected_url = "https://adhdglow.preview.emergentagent.com"
+        expected_url = "https://neurodiv-hub.preview.emergentagent.com"
         actual_base_url = self.base_url.replace("/api", "")
         
         self.log(f"Expected URL: {expected_url}")
@@ -301,7 +301,7 @@ def run_comment_system_comprehensive_test():
     1. Verify comment data structure - Check if comments retrieved match expected frontend format
     2. Test comment creation flow - Create a new comment and verify response format
     3. Check existing comments - GET /api/comments/1, /api/comments/2, /api/comments/3
-    4. Verify backend URL - Should be using https://adhdglow.preview.emergentagent.com
+    4. Verify backend URL - Should be using https://neurodiv-hub.preview.emergentagent.com
     5. Check auth token - Verify JWT token is working properly
     """
     tester = CommentSystemTester()

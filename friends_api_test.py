@@ -16,7 +16,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timezone
 
 # Base URL from frontend .env
-BASE_URL = "https://adhdglow.preview.emergentagent.com/api"
+BASE_URL = "https://neurodiv-hub.preview.emergentagent.com/api"
 
 class FriendsAPITester:
     def __init__(self):

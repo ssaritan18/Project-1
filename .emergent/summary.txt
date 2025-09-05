@@ -1,33 +1,31 @@
 <analysis>
-The AI engineer's work primarily focused on resolving critical bugs and laying the groundwork for key monetization features. Initially, a duplicate tab bug () caused by Expo Router's file system routing was identified and fixed by deleting the extraneous file. This led to a related frontend loading issue (Cannot use import.meta outside a module), resolved by replacing  with  in . Subsequently, the user requested an AdMob test integration and a fix for the community comment system. AdMob setup involved installing , creating platform-aware components (), and configuring test IDs, with web preview showing mock ads and mobile being ready for actual test ads. The comment system, previously failing due to backend connection issues, was debugged by fixing the frontend's backend URL reference and temporarily bypassing authentication and comment creation authorization for successful backend API testing. The session concluded with both fixes confirmed, preparing for user-side manual testing and future LLM integration discussions.
+The AI engineer successfully transitioned the application from an initial MVP state to a more robust, feature-rich platform. The journey was marked by persistent debugging, particularly around the community comment system, where frontend-backend URL mismatches, authentication issues, and rendering problems (including a critical format mismatch and a  system error workaround) were systematically addressed. A pivotal moment was the decision, initiated by the user, to completely redesign the community feed to a Twitter-like model, which rapidly resolved many lingering UI/UX issues. Following this, the AI engineer incrementally implemented new features: profile picture integration, a comprehensive search and hashtag system with trending topics, and a full-fledged notification system (in-app, toast, and push). The work concluded mid-implementation of backend integration for the new community features, specifically adding styling for a production toggle.
 </analysis>
 
 <product_requirements>
-The ADHDers Social Club is a social platform for neurodivergents with a Glow UI/UX. Initial requirements included a mood tracker, freemium model, subscription page, onboarding subscription modal, real payment (in-app purchases), downgrade/cancellation flow, and AdMob integration.
+The ADHDers Social Club aims to be a social platform for neurodivergents, featuring a Glow UI/UX. Initial features included a mood tracker, freemium model, subscription management (page, modal, in-app purchases, cancellation), and AdMob integration.
 
-Recent explicit requests addressed in this trajectory were:
-1.  Fix task creation/deletion bugs on the home page.
-2.  Implement scientific/medical educational content (EN/TR) and assessment follow-up.
-3.  Update UI for edit profile, settings, help, and focus timer to match the Glow theme.
-4.  Fix friend request errors, mobile display for achievements, and add an ADHD assessment disclaimer.
-5.  Enable commenting and liking on community posts, including chat emojis, and enhance comment input (keyboard, Enter key, immediate rendering, persistent storage).
-6.  Implement share confirmation and fix persistent Friends tab errors.
-7.  Implement WhatsApp-like 1-1 chat: persistent history, read receipts, real-time sync.
-8.  Replace the app logo with a custom ADHD-themed one, ensuring correct display.
-9.  Implement Instagram-style double-tap heart reactions in chat.
-10. Ensure all community comments and chat reactions persist to a backend.
+Recent explicit requests during this trajectory evolved significantly:
+1.  **Initial Problem:** Fix a broken community comment system (backend connection, authentication, UI rendering, text node errors).
+2.  **AdMob:** Integrate AdMob test ads.
+3.  **Twitter-style Community Feed:** Redesign the community section to be a simple, Twitter-like feed with post creation, liking, replying, and sharing. This was a critical pivot to resolve persistent comment rendering issues.
+4.  **Delete Functionality:** Allow users to delete their own posts via a 3-dots menu with confirmation.
+5.  **Profile Pictures:** Display user profile images (synced from the Profile tab) next to posts and in the reply modal, with initials as a fallback.
+6.  **Search & Hashtags:** Implement a search bar for text and hashtags, clickable hashtags within posts, and a trending hashtags bar per category.
+7.  **Notifications:** Develop a comprehensive notification system including in-app bell with unread count, toast pop-ups for immediate feedback, and push notifications.
+8.  **Backend Integration:** Connect the new community features to a MongoDB backend for data persistence, with a toggle for production mode (test posts not saved).
 </product_requirements>
 
 <key_technical_concepts>
--   **React Native (Expo):** Frontend framework.
+-   **React Native (Expo):** Frontend framework for cross-platform development.
 -   **FastAPI:** Python backend API.
--   **MongoDB:** NoSQL database.
--   **Expo Router:** File-system based navigation.
--   **:** Client-side data persistence.
--   **Glow Theme:** Core UI/UX design.
--   **:** AdMob integration.
--   **:** Environment variable access in frontend.
--   **Platform-specific code:** Handling web vs. mobile differences.
+-   **MongoDB:** NoSQL database for data persistence.
+-   **Expo Router:** File-system based navigation for React Native.
+-   **:** Client-side data persistence for tokens and user data.
+-   **Platform-specific code:** Handling web vs. mobile differences for UI elements (e.g.,  vs ).
+-   **Environment variables ():** Dynamic backend URL configuration.
+-   **Regex:** Used for hashtag detection.
+-   **State Management:** , ,  for managing UI data.
 </key_technical_concepts>
 
 <code_architecture>
@@ -38,56 +36,77 @@ The application uses a React Native (Expo) frontend and a FastAPI backend with M
 **Detailed File Changes and Importance:**
 
 -   :
-    -   **Importance:** Main FastAPI entry point for API routes.
-    -   **Changes:** Temporarily removed  from the  endpoint to allow auth-free testing of comment creation.
+    -   **Importance:** Main FastAPI entry point for API routes. Handles user authentication, comments, and now community posts.
+    -   **Changes:**
+        -   Temporarily removed  from  and later restored it.
+        -   Added new Pydantic models for , , , , etc., specifically for the Twitter-style community.
+        -   Implemented new API endpoints:  (create post),  (get all posts),  (like post),  (reply),  (share). These endpoints are integrated with MongoDB for persistence.
 -   :
-    -   **Importance:** Identified as a duplicate, unnecessary tab file.
-    -   **Changes:** Deleted to resolve the duplicate tab bug.
+    -   **Importance:** Duplicate tab file, caused routing issues.
+    -   **Changes:** Deleted to resolve duplicate tab bug.
 -   :
-    -   **Importance:** Individual chat screen, fetches backend URL.
-    -   **Changes:** Replaced  with  to fix a frontend loading issue (Cannot use import.meta outside a module error).
+    -   **Importance:** Individual chat screen.
+    -   **Changes:** Replaced  with  for  to fix a frontend loading error.
 -   :
-    -   **Importance:** Community forum, interacts with comment backend.
-    -   **Changes:** Updated the  constant to explicitly use  for development to ensure correct backend communication, previously it was likely falling back to an incorrect URL when  was undefined.
-    -   **Changes:**  was replaced with , then reverted to  for web preview compatibility.
+    -   **Importance:** Central component for the community feed, heavily modified.
+    -   **Changes:**
+        -   Initially,  was temporarily hardcoded, then switched to .
+        -   Underwent a complete redesign from a complex comment system to a Twitter-style community feed.
+        -   **Post-redesign changes**:
+            -   Added state for categories, posts, new post input, search query, active filters, profile image, notifications, etc.
+            -   Implemented  for environment-specific backend URL detection.
+            -   Integrated post creation, liking, replying, sharing with local state (initially) and later with backend.
+            -   Added post deletion functionality with platform-aware confirmation.
+            -   Implemented profile picture display, syncing with  from .
+            -   Added search bar functionality for text and hashtags.
+            -   Implemented hashtag extraction, clickable hashtags in posts, and a trending hashtags bar.
+            -   Integrated notification logic (, ) with action handlers (like, reply, share).
+            -   Added UI for categories, search bar, trending hashtags, notification bell, notification modal, and toast component.
+            -   Introduced  toggle for switching between local state and backend persistence.
+            -   Added  state and loading indicator for backend operations.
+            -   Many styling additions for the new UI components.
 -   :
-    -   **Importance:** Root layout for the application, handles global setup.
-    -   **Changes:** Added conditional  call within  for platform safety, ensuring AdMob is only initialized for non-web platforms. Mock ads are used for web.  import path was also corrected from  to .
+    -   **Importance:** Root layout, global setup.
+    -   **Changes:** Added conditional  for platform safety. Corrected  import path.
 -   :
-    -   **Importance:** Main entry component for unauthenticated users, handles welcome redirection.
-    -   **Changes:** Temporarily modified to bypass authentication and navigate directly to tabs for testing purposes (e.g.,  when ).
+    -   **Importance:** Main entry component for unauthenticated users.
+    -   **Changes:** Temporarily modified to bypass authentication for testing, later restored proper authentication flow.
 -   :
-    -   **Importance:** Environment variables for the frontend.
-    -   **Changes:**  was changed from  to  to resolve frontend server startup issues locally.
+    -   **Importance:** Frontend environment variables.
+    -   **Changes:**  changed to .  and  were configured to  to resolve connection issues, then  was introduced to handle preview URLs for web.
 -   :
-    -   **Importance:** New utility file to manage AdMob unit IDs.
-    -   **Changes:** Created to encapsulate AdMob test unit IDs and provide an interface for ad management.
+    -   **Importance:** Manages AdMob unit IDs.
+    -   **Changes:** Created to encapsulate AdMob test unit IDs.
 -   :
-    -   **Importance:** New component for displaying banner ads with platform safety.
-    -   **Changes:** Created to conditionally render  (for mobile) or fallback content/empty view (for web) to prevent crashes on web platforms.
+    -   **Importance:** Displays platform-safe banner ads.
+    -   **Changes:** Created to conditionally render  for mobile or fallback for web.
+-   :
+    -   **Importance:** Reusable toast notification component.
+    -   **Changes:** Created as part of the notification system.
+-   :
+    -   **Importance:** Context for managing global notification state.
+    -   **Changes:** Created to manage notifications across the app.
 </code_architecture>
 
 <pending_tasks>
--   **Real AdMob Integration:** Integrate actual App IDs and ad unit IDs once available, and test on mobile.
--   **Real Google Play/App Store Billing Integration:** Configure with real credentials and product IDs (pending Google Console approval).
--   **Deployment:** Prepare the application for production launch after monetization integrations.
--   **Welcome Page Form Auto-fill:** Investigate and fix the issue where email pre-fills the Name field on the login screen.
--   **Frontend Comment Integration:** Re-integrate the community comment frontend with the now-working backend.
--   **LLM Chatbot Integration:** Brainstorm and potentially implement AI features for the app.
+-   **Complete Backend Integration (Styling):** Finalize styling for the production toggle and other UI elements related to backend integration.
+-   **Test Backend Integration:** Thoroughly test the new backend endpoints and their integration with the frontend for creating, getting, liking, replying, sharing, and deleting posts in production mode.
+-   **Full Notifications System:** Verify in-app bell, toast pop-ups, and push notifications work as intended with real user actions and data.
+-   **Profile Picture Sync:** Ensure profile pictures dynamically update if changed in the profile tab and correctly display for different users.
+-   **Search & Hashtag Functionality:** Verify search by text and hashtags, clickable hashtags, and trending hashtags bar are fully functional and robust.
+-   **Error Handling Refinement:** Further enhance error handling and user feedback for all new features, especially during backend operations.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary, the AI engineer successfully addressed two major issues and progressed on a key feature:
+Immediately before this summary request, the AI engineer was actively working on **Backend Integration (Feature 4)** for the new Twitter-style community feed. The backend API endpoints for creating, getting, liking, replying, and sharing posts have been defined and tested to be functional in .
 
-1.  **Comment System Fix**: The backend API for community comments was thoroughly tested and confirmed to be working. Initial issues stemmed from the frontend's incorrect backend URL () and required authentication for comment creation. The AI engineer temporarily fixed the frontend's backend URL in , bypassed user authentication in , and temporarily removed the  requirement from the  endpoint in . This allowed successful  tests to create and retrieve comments, confirming backend persistence to MongoDB.
-
-2.  **AdMob Test Setup**: The AdMob integration infrastructure for test ads was completed. This involved installing , creating an  utility for ad unit IDs, and a  component for platform-aware banner ad rendering. AdMob initialization was integrated into  with platform checks to ensure real AdMob only runs on mobile, while web previews use mock ads.
-
-3.  **Frontend Loading Fix**: The Cannot use import.meta outside a module error, which prevented the web preview from loading, was resolved by replacing  with  in .
-
-The  duplicate tab was also removed earlier. The application is now loading correctly in the web preview, backend comment APIs are functional, and AdMob test integration is ready for mobile builds.
+On the frontend side, in :
+-   A new  state variable and a toggle button in the header were introduced to switch between local state (test mode) and backend persistence (production mode).
+-   Functions like  and the modified  were implemented to interact with the backend when  is true.
+-   A loading indicator was added to provide user feedback during backend operations.
+-   The current task was to finalize the styling for the new production toggle and associated header actions. The most recent action was to add these missing styles. The file  was being updated to include new style definitions for the  and  within its StyleSheet.
 </current_work>
 
 <optional_next_step>
-Manually test the fixed comment system and app loading in the web preview.
+Finalize the styling for the production mode toggle and header actions in .
 </optional_next_step>
