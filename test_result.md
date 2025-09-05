@@ -566,7 +566,9 @@
   run_ui: false
 ## test_plan:
   current_focus:
+    - "Comment System Format Mismatch Fix"
   stuck_tasks:
+    - "Comment System Backend API"
   test_all: false
   test_priority: "high_first"
 ## agent_communication:
