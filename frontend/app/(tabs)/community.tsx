@@ -241,7 +241,8 @@ export default function CommunityScreen() {
   // Load comments from backend for all posts
   const loadCommentsFromBackend = async () => {
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const backendUrl = getBackendUrl();
+      console.log('📥 loadCommentsFromBackend using URL:', backendUrl);
       const backendComments: Record<string, Comment[]> = {};
       
       // Load comments for each post
@@ -263,9 +264,11 @@ export default function CommunityScreen() {
               backendComments[post.id] = formattedComments;
               console.log(`📥 Loaded ${formattedComments.length} comments for post ${post.id} from backend`);
             }
+          } else {
+            console.log(`⚠️ Backend response error for post ${post.id}: ${response.status}`);
           }
         } catch (error) {
-          console.log(`⚠️ Failed to load comments for post ${post.id}:`, error);
+          console.log(`⚠️ Connection error for post ${post.id}:`, error.message);
         }
       }
       
@@ -278,7 +281,7 @@ export default function CommunityScreen() {
         console.log('📥 Backend comments loaded for', Object.keys(backendComments).length, 'posts');
       }
     } catch (error) {
-      console.log('⚠️ Backend comment loading failed:', error);
+      console.log('⚠️ Backend comment loading failed:', error.message);
     }
   };
 
