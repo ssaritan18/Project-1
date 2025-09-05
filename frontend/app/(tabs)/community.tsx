@@ -290,11 +290,6 @@ export default function CommunityScreen() {
     Alert.alert('Success', 'Reply posted!');
   };
 
-  // Get filtered posts by category
-  const getFilteredPosts = () => {
-    return posts.filter(post => post.category === activeCategory);
-  };
-
   // Get relative time
   const getRelativeTime = (timestamp: Date) => {
     const now = new Date();
