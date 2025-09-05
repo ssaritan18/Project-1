@@ -46,6 +46,35 @@ export default function CommunityScreen() {
   const [showReplyModal, setShowReplyModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [replyText, setReplyText] = useState('');
+  
+  // Profile image state - sync with Profile tab
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  
+  // Load profile image from localStorage (sync with Profile tab)
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      const savedProfile = localStorage.getItem('profile_data');
+      if (savedProfile) {
+        const parsedProfile = JSON.parse(savedProfile);
+        setProfileImage(parsedProfile.profile_image || null);
+        console.log('✅ Profile image loaded for community:', parsedProfile.profile_image ? 'YES' : 'NO');
+      }
+    }
+  }, []);
+  
+  // Get user avatar for posts
+  const getUserAvatar = (authorId: string) => {
+    // Return profile image if it's current user's post
+    if (authorId === (user?.id || user?.email)) {
+      return profileImage;
+    }
+    return null; // Other users don't have profile images yet
+  };
+  
+  // Get user initials for fallback avatar
+  const getUserInitials = (name: string) => {
+    return name.split(' ').map(n => n.charAt(0)).join('').toUpperCase().slice(0, 2);
+  };
 
   // Create new post - Twitter style
   const handleCreatePost = () => {
