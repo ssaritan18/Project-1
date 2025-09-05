@@ -223,7 +223,7 @@ async def update_user_profile(
         # Handle profile picture upload
         if profile_picture and profile_picture.filename:
             # Create uploads directory if it doesn't exist
-            upload_dir = Path("/app/backend/uploads/profiles")
+            upload_dir = Path(os.getenv('UPLOAD_DIR', './uploads/profiles'))
             upload_dir.mkdir(parents=True, exist_ok=True)
             
             # Generate unique filename
