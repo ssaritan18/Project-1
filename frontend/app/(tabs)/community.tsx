@@ -500,6 +500,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
+  deleteButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
   postAuthorInfo: {
     flexDirection: 'row',
     alignItems: 'center',
