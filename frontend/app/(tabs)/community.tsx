@@ -413,10 +413,17 @@ export default function CommunityScreen() {
     // Update reply count
     setPosts(prev => prev.map(post => {
       if (post.id === selectedPost.id) {
-        return {
+        const updatedPost = {
           ...post,
           replies: post.replies + 1
         };
+        
+        // Create notification for post author (if not own post)
+        if (post.authorId !== (user?.id || user?.email)) {
+          createNotification('reply', user?.name || 'Someone', post.id, post.content);
+        }
+        
+        return updatedPost;
       }
       return post;
     }));
@@ -425,7 +432,7 @@ export default function CommunityScreen() {
     setReplyText('');
     setSelectedPost(null);
     
-    Alert.alert('Success', 'Reply posted!');
+    showToast('Reply posted!', 'success');
   };
 
   // Get relative time
