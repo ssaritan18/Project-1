@@ -177,84 +177,19 @@ export default function CommunityScreen() {
   // Load comments from storage on mount
   useEffect(() => {
     loadCommentsFromStorage();
-    loadCommentsFromBackend(); // Also load from backend
   }, []);
 
-  // Load persisted comments from local storage
+  // Load persisted comments
   const loadCommentsFromStorage = async () => {
     try {
       const storedComments = await AsyncStorage.getItem(COMMENTS_STORAGE_KEY);
       if (storedComments) {
         const parsedComments = JSON.parse(storedComments);
         setComments(parsedComments);
-        console.log("📱 Loaded comments from storage:", Object.keys(parsedComments).length, "posts");
+        console.log('📱 Loaded comments from storage:', Object.keys(parsedComments).length, 'posts');
       }
     } catch (error) {
-      console.error("❌ Failed to load comments from storage:", error);
-    }
-  };
-
-  // Load comments from backend for all posts
-  const loadCommentsFromBackend = async () => {
-    try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8001";
-      const backendComments: Record<string, Comment[]> = ./frontend/app/(tabs)/community.tsx;
-      
-      // Load comments for each post
-      for (const post of communityPosts) {
-        try {
-          const response = await fetch(`${backendUrl}/api/comments/${post.id}`);
-          if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.comments) {
-              // Convert backend comment format to frontend format
-              const formattedComments = data.comments.map((comment: any) => ({
-                id: comment.id || comment._id,
-                author: comment.author_name,
-                content: comment.content,
-                timeAgo: getTimeAgo(comment.created_at),
-                likes: comment.likes || 0,
-                userLiked: comment.user_liked || false
-              }));
-              backendComments[post.id] = formattedComments;
-              console.log(`📥 Loaded ${formattedComments.length} comments for post ${post.id} from backend`);
-            }
-          }
-        } catch (error) {
-          console.log(`⚠️ Failed to load comments for post ${post.id}:`, error);
-        }
-      }
-      
-      // Merge backend comments with local storage comments
-      if (Object.keys(backendComments).length > 0) {
-        setComments(prevComments => ({
-          ...prevComments,
-          ...backendComments
-        }));
-        console.log("📥 Backend comments loaded for", Object.keys(backendComments).length, "posts");
-      }
-    } catch (error) {
-      console.log("⚠️ Backend comment loading failed:", error);
-    }
-  };
-
-  // Helper function to format time ago
-  const getTimeAgo = (dateString: string): string => {
-    try {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      const diffMinutes = Math.floor(diffMs / (1000 * 60));
-      const diffHours = Math.floor(diffMinutes / 60);
-      const diffDays = Math.floor(diffHours / 24);
-      
-      if (diffMinutes < 1) return "just now";
-      if (diffMinutes < 60) return `${diffMinutes} min ago`;
-      if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
-      if (diffDays < 30) return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
-      return date.toLocaleDateString();
-    } catch (error) {
-      return "recently";
+      console.error('❌ Failed to load comments from storage:', error);
     }
   };
 
