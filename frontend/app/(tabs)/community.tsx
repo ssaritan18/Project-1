@@ -80,6 +80,75 @@ export default function CommunityScreen() {
   const getUserInitials = (name: string) => {
     return name.split(' ').map(n => n.charAt(0)).join('').toUpperCase().slice(0, 2);
   };
+  
+  // Extract hashtags from text
+  const extractHashtags = (text: string): string[] => {
+    const hashtagRegex = /#(\w+)/g;
+    const matches = text.match(hashtagRegex);
+    return matches ? matches.map(tag => tag.toLowerCase()) : [];
+  };
+  
+  // Get trending hashtags for current category
+  const getTrendingHashtags = (): string[] => {
+    const categoryPosts = posts.filter(post => post.category === activeCategory);
+    const allHashtags: string[] = [];
+    
+    categoryPosts.forEach(post => {
+      const hashtags = extractHashtags(post.content);
+      allHashtags.push(...hashtags);
+    });
+    
+    // Count hashtag frequency
+    const hashtagCounts: Record<string, number> = {};
+    allHashtags.forEach(tag => {
+      hashtagCounts[tag] = (hashtagCounts[tag] || 0) + 1;
+    });
+    
+    // Return top 5 trending hashtags
+    return Object.entries(hashtagCounts)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 5)
+      .map(([tag]) => tag);
+  };
+  
+  // Filter posts based on search query and selected hashtag
+  const getFilteredPosts = () => {
+    let filtered = posts.filter(post => post.category === activeCategory);
+    
+    // Filter by hashtag if selected
+    if (selectedHashtag) {
+      filtered = filtered.filter(post => {
+        const hashtags = extractHashtags(post.content);
+        return hashtags.includes(selectedHashtag.toLowerCase());
+      });
+    }
+    
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(post => {
+        return post.content.toLowerCase().includes(query) ||
+               post.author.toLowerCase().includes(query) ||
+               extractHashtags(post.content).some(tag => tag.includes(query));
+      });
+    }
+    
+    return filtered;
+  };
+  
+  // Handle hashtag click
+  const handleHashtagClick = (hashtag: string) => {
+    setSelectedHashtag(hashtag);
+    setSearchQuery('');
+    console.log('🏷️ Hashtag selected:', hashtag);
+  };
+  
+  // Clear filters
+  const clearFilters = () => {
+    setSearchQuery('');
+    setSelectedHashtag(null);
+    setShowSearch(false);
+  };
 
   // Create new post - Twitter style
   const handleCreatePost = () => {
