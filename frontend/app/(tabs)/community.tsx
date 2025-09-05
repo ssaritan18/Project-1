@@ -1,1019 +1,352 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { 
   View, 
   Text, 
   StyleSheet, 
   TouchableOpacity, 
   ScrollView,
-  Alert,
-  Modal,
   TextInput,
-  Keyboard,
+  Alert,
   Platform
 } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../src/context/AuthContext";
-import { MockAdBanner } from "../../src/components/MockAdBanner";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-interface CommunityPost {
+interface Post {
   id: string;
-  author: {
-    name: string;
-    avatar: string;
-    verified: boolean;
-    memberSince: string;
-  };
-  topic: string;
-  title: string;
   content: string;
-  timeAgo: string;
-  engagement: {
-    likes: number;
-    comments: number;
-    shares: number;
-    userLiked: boolean;
-  };
-  tags: string[];
-  category: 'experience' | 'tips' | 'research' | 'support' | 'success';
-}
-
-interface Comment {
-  id: string;
   author: string;
-  content: string;
-  timeAgo: string;
+  authorId: string;
+  category: string;
+  timestamp: Date;
   likes: number;
+  replies: number;
+  shares: number;
   userLiked: boolean;
 }
 
+const categories = [
+  { id: 'general', name: '🏠 General', icon: '🏠' },
+  { id: 'tips', name: '💡 Tips & Tricks', icon: '💡' },
+  { id: 'research', name: '🧠 ADHD Research', icon: '🧠' },
+  { id: 'success', name: '💪 Success Stories', icon: '💪' },
+  { id: 'support', name: '🆘 Support & Help', icon: '🆘' }
+];
+
 export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
-  const { user } = useAuth(); // Get user info for comments
-  const [selectedPost, setSelectedPost] = useState<CommunityPost | null>(null);
-  const [showPostModal, setShowPostModal] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<'all' | 'trending' | 'recent' | 'research'>('trending');
+  const { user } = useAuth();
+  
+  // State
+  const [activeCategory, setActiveCategory] = useState('general');
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [newPost, setNewPost] = useState('');
+  const [showReplyModal, setShowReplyModal] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [replyText, setReplyText] = useState('');
 
-  // Real ADHD Community Posts with authentic content
-  const communityPosts: CommunityPost[] = [
-    {
-      id: '1',
-      author: {
-        name: 'Dr. Sarah Chen',
-        avatar: '👩‍⚕️',
-        verified: true,
-        memberSince: '2 years'
-      },
-      topic: '🔬 Research Update',
-      title: 'New Study: Exercise vs Medication for ADHD Focus',
-      content: 'Just published research from Stanford shows that 30min daily exercise can be as effective as low-dose stimulants for improving focus in adults with ADHD. The study followed 200 participants over 12 weeks. Key findings:\n\n• 45% improvement in sustained attention tasks\n• 38% reduction in distractibility \n• Works best when combined with structured routines\n\nThoughts? Anyone tried replacing meds with exercise?',
-      timeAgo: '2 hours ago',
-      engagement: {
-        likes: 127,
-        comments: 34,
-        shares: 18,
-        userLiked: false
-      },
-      tags: ['research', 'exercise', 'focus', 'alternatives'],
-      category: 'research'
-    },
-    {
-      id: '2',
-      author: {
-        name: 'Alex M.',
-        avatar: '🧑‍💻',
-        verified: false,
-        memberSince: '8 months'
-      },
-      topic: '💡 Life Hack',
-      title: 'Game-changer: Body doubling for remote work',
-      content: 'Fellow ADHDers! I\'ve been struggling with WFH productivity until I discovered "body doubling" - working alongside others virtually. Started using Focusmate and my productivity DOUBLED.\n\nWhat works:\n✅ 50min sessions with strangers\n✅ Camera on (accountability)\n✅ Brief check-ins at start/end\n✅ No chatting during work\n\nAnyone else tried this? Looking for more body doubling platforms!',
-      timeAgo: '4 hours ago',
-      engagement: {
-        likes: 89,
-        comments: 22,
-        shares: 15,
-        userLiked: true
-      },
-      tags: ['productivity', 'remote-work', 'body-doubling', 'tips'],
-      category: 'tips'
-    },
-    {
-      id: '3',
-      author: {
-        name: 'Maya Rodriguez',
-        avatar: '🎨',
-        verified: false,
-        memberSince: '1 year'
-      },
-      topic: '🎯 Success Story',
-      title: 'From burnout to breakthrough: My ADHD medication journey',
-      content: 'Sharing my story because representation matters. After 3 failed medication attempts and severe burnout, I finally found the right combination:\n\n• Concerta 36mg (extended release)\n• Daily meditation (10min)\n• Protein-heavy breakfast\n• Sleep schedule (10pm-6am religiously)\n\nIt took 8 months to dial in, but I\'m now running my own design studio. Don\'t give up if first attempts don\'t work! 💪\n\nAMA about the journey!',
-      timeAgo: '1 day ago',
-      engagement: {
-        likes: 203,
-        comments: 47,
-        shares: 31,
-        userLiked: false
-      },
-      tags: ['medication', 'success', 'entrepreneur', 'journey'],
-      category: 'success'
-    },
-    {
-      id: '4',
-      author: {
-        name: 'Jordan K.',
-        avatar: '🎓',
-        verified: false,
-        memberSince: '3 months'
-      },
-      topic: '🆘 Need Support',
-      title: 'Struggling with rejection sensitivity - any coping strategies?',
-      content: 'Hi everyone. Having a really tough week with RSD (rejection sensitive dysphoria). Got some feedback at work that sent me spiraling for days. Even positive feedback felt like criticism.\n\nI know this is common with ADHD but feeling really alone. How do you cope when your brain amplifies every social interaction into potential rejection?\n\nLooking for practical strategies that actually work. Therapy waiting list is 3 months. 😔',
-      timeAgo: '6 hours ago',
-      engagement: {
-        likes: 67,
-        comments: 29,
-        shares: 8,
-        userLiked: false
-      },
-      tags: ['rsd', 'support', 'emotional-regulation', 'workplace'],
-      category: 'support'
-    },
-    {
-      id: '5',
-      author: {
-        name: 'Dr. Michael Torres',
-        avatar: '👨‍⚕️',
-        verified: true,
-        memberSince: '4 years'
-      },
-      topic: '📚 Educational',
-      title: 'Myth-busting: ADHD and dopamine - what the research actually says',
-      content: 'Seeing a lot of misinformation about ADHD and dopamine lately. Let\'s clear up some myths with actual neuroscience:\n\n❌ MYTH: ADHD brains don\'t produce enough dopamine\n✅ FACT: ADHD involves dysregulated dopamine reuptake and receptor sensitivity\n\n❌ MYTH: All ADHD people need stimulants\n✅ FACT: ~80% respond to stimulants, but other pathways exist\n\n❌ MYTH: Dopamine = pleasure/reward only\n✅ FACT: Dopamine is crucial for motivation, attention, and executive function\n\nSources: Latest meta-analysis from Journal of Neuropsychopharmacology (2023). Happy to discuss!',
-      timeAgo: '1 day ago',
-      engagement: {
-        likes: 156,
-        comments: 41,
-        shares: 67,
-        userLiked: true
-      },
-      tags: ['neuroscience', 'education', 'dopamine', 'myths'],
-      category: 'research'
-    }
-  ];
-
-  const [posts, setPosts] = useState<CommunityPost[]>(communityPosts); // Make posts state manageable
-  const [newComment, setNewComment] = useState(''); // For comment input
-  const [comments, setComments] = useState<Record<string, Comment[]>>({}); // Store comments per post ID
-  const commentInputRef = useRef<TextInput>(null); // Reference for comment input
-  const modalScrollRef = useRef<ScrollView>(null); // Reference for modal scroll
-
-  // Storage keys for persistence
-  const COMMENTS_STORAGE_KEY = '@adhd_community_comments';
-
-  // Load comments from storage and backend on mount
-  useEffect(() => {
-    loadCommentsFromStorage();
-    loadCommentsFromBackend(); // Also load from backend
+  // Create new post - Twitter style
+  const handleCreatePost = () => {
+    if (!newPost.trim()) return;
     
-    // TEMPORARY: Set auth token for offline testing
-    const setTestToken = async () => {
-      const testToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTU5MmQ4YS0xOWVjLTQ4MmEtODU3ZS1mMTJhMGNjNTRhNzYiLCJlbWFpbCI6InNzYXJpdGFuQGV4YW1wbGUuY29tIiwiZXhwIjoxNzU3Njc1Nzk5LCJpYXQiOjE3NTcwNzA5OTl9.q56z3bbqsQ6K0npfzK7SSR81GC5BeTz_jkGDgLsd7KI";
-      await AsyncStorage.setItem('@auth_token', testToken);
-      console.log('✅ Test auth token set for offline mode');
+    if (!user) {
+      Alert.alert('Login Required', 'Please log in to create posts');
+      return;
+    }
+
+    const post: Post = {
+      id: `post_${Date.now()}`,
+      content: newPost.trim(),
+      author: user.name || 'Anonymous',
+      authorId: user.id || user.email || 'anonymous',
+      category: activeCategory,
+      timestamp: new Date(),
+      likes: 0,
+      replies: 0,
+      shares: 0,
+      userLiked: false
     };
-    setTestToken();
+
+    setPosts(prev => [post, ...prev]); // Latest first
+    setNewPost('');
     
-    // Simple comment loading on mount for each post
-    const loadInitialComments = async () => {
-      const backendUrl = getBackendUrl();
-      console.log('📥 Loading comments using backend URL:', backendUrl);
-      
-      for (const post of communityPosts) {
-        try {
-          const response = await fetch(`${backendUrl}/api/comments/${post.id}`);
-          if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.comments) {
-              const formattedComments = data.comments.map((c: any) => ({
-                id: c.id || c._id,
-                author: c.author_name || c.author,
-                content: c.content,
-                timeAgo: c.created_at ? getTimeAgo(c.created_at) : c.timeAgo,
-                likes: c.likes || 0,
-                userLiked: c.user_liked !== undefined ? c.user_liked : (c.userLiked || false)
-              }));
-              
-              setComments(prev => ({
-                ...prev,
-                [post.id]: formattedComments
-              }));
-            }
-          } else {
-            console.log(`⚠️ Failed to load comments for post ${post.id}: ${response.status}`);
-          }
-        } catch (error) {
-          console.log(`⚠️ Connection error loading comments for post ${post.id}:`, error.message);
-        }
-      }
-    };
-    
-    loadInitialComments();
-  }, []);
-
-  // Load persisted comments from local storage
-  const loadCommentsFromStorage = async () => {
-    try {
-      const storedComments = await AsyncStorage.getItem(COMMENTS_STORAGE_KEY);
-      if (storedComments) {
-        const parsedComments = JSON.parse(storedComments);
-        setComments(parsedComments);
-        console.log('📱 Loaded comments from storage:', Object.keys(parsedComments).length, 'posts');
-      }
-    } catch (error) {
-      console.error('❌ Failed to load comments from storage:', error);
-    }
+    console.log('✅ New post created:', post);
+    Alert.alert('Success', 'Post created successfully!');
   };
 
-  // Load comments from backend for all posts
-  const loadCommentsFromBackend = async () => {
-    try {
-      const backendUrl = getBackendUrl();
-      console.log('📥 loadCommentsFromBackend using URL:', backendUrl);
-      const backendComments: Record<string, Comment[]> = {};
-      
-      // Load comments for each post
-      for (const post of communityPosts) {
-        try {
-          const response = await fetch(`${backendUrl}/api/comments/${post.id}`);
-          if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.comments) {
-              // Convert backend comment format to frontend format
-              const formattedComments = data.comments.map((comment: any) => ({
-                id: comment.id || comment._id,
-                author: comment.author_name || comment.author,
-                content: comment.content,
-                timeAgo: comment.created_at ? getTimeAgo(comment.created_at) : comment.timeAgo,
-                likes: comment.likes || 0,
-                userLiked: comment.user_liked !== undefined ? comment.user_liked : (comment.userLiked || false)
-              }));
-              backendComments[post.id] = formattedComments;
-              console.log(`📥 Loaded ${formattedComments.length} comments for post ${post.id} from backend`);
-            }
-          } else {
-            console.log(`⚠️ Backend response error for post ${post.id}: ${response.status}`);
-          }
-        } catch (error) {
-          console.log(`⚠️ Connection error for post ${post.id}:`, error.message);
-        }
-      }
-      
-      // Merge backend comments with local storage comments
-      if (Object.keys(backendComments).length > 0) {
-        setComments(prevComments => ({
-          ...prevComments,
-          ...backendComments
-        }));
-        console.log('📥 Backend comments loaded for', Object.keys(backendComments).length, 'posts');
-      }
-    } catch (error) {
-      console.log('⚠️ Backend comment loading failed:', error.message);
-    }
-  };
-
-  // Helper function to format time ago
-  const getTimeAgo = (dateString: string): string => {
-    try {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      const diffMinutes = Math.floor(diffMs / (1000 * 60));
-      const diffHours = Math.floor(diffMinutes / 60);
-      const diffDays = Math.floor(diffHours / 24);
-      
-      if (diffMinutes < 1) return 'just now';
-      if (diffMinutes < 60) return `${diffMinutes} min ago`;
-      if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
-      if (diffDays < 30) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
-      return date.toLocaleDateString();
-    } catch (error) {
-      return 'recently';
-    }
-  };
-
-  // Save comments to storage
-  const saveCommentsToStorage = async (commentsToSave: Record<string, Comment[]>) => {
-    try {
-      await AsyncStorage.setItem(COMMENTS_STORAGE_KEY, JSON.stringify(commentsToSave));
-      console.log('💾 Saved comments to storage');
-    } catch (error) {
-      console.error('❌ Failed to save comments to storage:', error);
-    }
-  };
-
-  // Safe array helper to prevent .map errors
-  const safeToArray = (value: any): any[] => {
-    if (Array.isArray(value)) return value;
-    if (value === null || value === undefined) return [];
-    return [];
-  };
-
-  // Mock comments for posts
-  const getCommentsForPost = (postId: string): Comment[] => {
-    const commentDatabase: Record<string, Comment[]> = {
-      '1': [
-        {
-          id: 'c1',
-          author: 'Lisa P.',
-          content: 'This is fascinating! I\'ve been doing morning runs for 6 months and definitely notice better focus. But I still need my meds for really challenging tasks.',
-          timeAgo: '1 hour ago',
-          likes: 12,
-          userLiked: false
-        },
-        {
-          id: 'c2',
-          author: 'Dr. Rodriguez',
-          content: 'Great summary! The neuroplasticity benefits of exercise are well-documented. The key is consistency - even 15min walks can help if done daily.',
-          timeAgo: '45 min ago',
-          likes: 18,
-          userLiked: true
-        }
-      ],
-      '2': [
-        {
-          id: 'c3',
-          author: 'Sam T.',
-          content: 'Body doubling literally saved my freelance career! Also try Caveday - they have amazing facilitated sessions.',
-          timeAgo: '2 hours ago',
-          likes: 8,
-          userLiked: false
-        }
-      ],
-      '4': [
-        {
-          id: 'c4',
-          author: 'Maria S.',
-          content: 'RSD is so real and so hard. What helps me: 1) Immediate self-compassion mantras 2) Reaching out to trusted friends for reality checks 3) Writing down the actual words said vs what I heard. You\'re not alone! 💙',
-          timeAgo: '3 hours ago',
-          likes: 25,
-          userLiked: false
-        },
-        {
-          id: 'c5',
-          author: 'therapist_jenny',
-          content: 'DBT skills are incredible for RSD. Try the STOP technique: Stop, Take a breath, Observe thoughts, Proceed mindfully. Also, remember criticism of behavior ≠ criticism of YOU as a person.',
-          timeAgo: '2 hours ago',
-          likes: 34,
-          userLiked: true
-        }
-      ]
-    };
-    return commentDatabase[postId] || [];
-  };
-
-  const filteredPosts = posts.filter(post => {
-    switch (activeFilter) {
-      case 'trending':
-        return post.engagement.likes > 80;
-      case 'recent':
-        return post.timeAgo.includes('hours') || post.timeAgo.includes('1 day');
-      case 'research':
-        return post.category === 'research';
-      default:
-        return true;
-    }
-  });
-
-  const getCategoryColor = (category: string) => {
-    const colors = {
-      experience: ['#8B5CF6', '#A855F7'],
-      tips: ['#EC4899', '#F97316'],
-      research: ['#10B981', '#34D399'],
-      support: ['#F59E0B', '#FBBF24'],
-      success: ['#6366F1', '#8B5CF6'],
-    };
-    return colors[category as keyof typeof colors] || ['#8B5CF6', '#A855F7'];
-  };
-
-  const handlePostPress = (post: CommunityPost) => {
-    setSelectedPost(post);
-    setShowPostModal(true);
-  };
-
-  const toggleLike = (postId: string) => {
-    setPosts(prevPosts => 
-      prevPosts.map(post => {
-        if (post.id === postId) {
-          const newLikedState = !post.engagement.userLiked;
-          const updatedPost = {
-            ...post,
-            engagement: {
-              ...post.engagement,
-              likes: newLikedState 
-                ? post.engagement.likes + 1 
-                : post.engagement.likes - 1,
-              userLiked: newLikedState
-            }
-          };
-          
-          // Also update selectedPost if it's the same post
-          if (selectedPost && selectedPost.id === postId) {
-            setSelectedPost(updatedPost);
-          }
-          
-          return updatedPost;
-        }
-        return post;
-      })
-    );
-    
-    // Show feedback
-    console.log(`👍 Like toggled for post ${postId}`);
-    Alert.alert('TEST', `Like clicked for post ${postId}!`, [{ text: 'OK' }]); // DEBUG: Temporary test alert
-  };
-
-  const handleShare = (postId: string, postTitle: string) => {
-    // Update share count in posts
-    setPosts(prevPosts => 
-      prevPosts.map(post => {
-        if (post.id === postId) {
-          const updatedPost = {
-            ...post,
-            engagement: {
-              ...post.engagement,
-              shares: post.engagement.shares + 1
-            }
-          };
-          
-          // Also update selectedPost if it's the same post
-          if (selectedPost && selectedPost.id === postId) {
-            setSelectedPost(updatedPost);
-          }
-          
-          return updatedPost;
-        }
-        return post;
-      })
-    );
-    
-    // Show success feedback
-    if (Platform.OS === 'web') {
-      // Web için visible alert
-      alert(`🔗 Shared Successfully!\n"${postTitle}" has been shared to your network.`);
-    } else {
-      // Mobile için Alert.alert
-      Alert.alert(
-        '🔗 Shared Successfully!', 
-        `"${postTitle}" has been shared to your network.`, 
-        [
-          { 
-            text: 'OK',
-            style: 'default'
-          }
-        ]
-      );
-    }
-    console.log(`🔗 Post shared: ${postId} - "${postTitle}"`);
-  };
-
-  const toggleCommentLike = (commentId: string, postId: string) => {
-    // First try to update user comments
-    let foundInUserComments = false;
-    setComments(prevComments => {
-      const updatedComments = { ...prevComments };
-      if (updatedComments[postId]) {
-        updatedComments[postId] = updatedComments[postId].map(comment => {
-          if (comment.id === commentId) {
-            foundInUserComments = true;
-            const newLikedState = !comment.userLiked;
-            return {
-              ...comment,
-              likes: newLikedState ? comment.likes + 1 : comment.likes - 1,
-              userLiked: newLikedState
-            };
-          }
-          return comment;
-        });
-      }
-      return updatedComments;
-    });
-    
-    // If not found in user comments, it must be a mock comment - show visual feedback
-    if (!foundInUserComments) {
-      if (Platform.OS === 'web') {
-        alert(`❤️ Liked comment! (Mock comments don't persist)`);
-      } else {
-        Alert.alert('❤️ Liked!', 'Comment liked! (Mock comments don\'t persist)', [{ text: 'OK' }]);
-      }
-    }
-    
-    console.log(`❤️ Comment like toggled: ${commentId} in post ${postId}, found in user comments: ${foundInUserComments}`);
-  };
-
-  // Get backend URL with environment detection
-  const getBackendUrl = () => {
-    // For web preview environment, use the preview URL
-    if (typeof window !== 'undefined' && window.location.hostname.includes('preview.emergentagent.com')) {
-      return 'https://adhdglow.preview.emergentagent.com';
-    }
-    
-    // For React Native Android emulator
-    if (Platform.OS === 'android') {
-      return process.env.REACT_APP_BACKEND_URL?.replace('localhost', '10.0.2.2') || 'http://10.0.2.2:8001';
-    }
-    
-    // For other environments (iOS simulator, physical device, web dev)
-    return process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-  };
-
-  const handleSend = async (postId: string, commentText: string) => {
-    if (!commentText.trim()) return;
-    
-    try {
-      // Get auth token from storage
-      const authToken = await AsyncStorage.getItem('@auth_token');
-      
-      if (!authToken) {
-        console.log('⚠️ No auth token found, cannot save to backend');
-        Alert.alert('Authentication Required', 'Please log in to save comments.');
-        return;
-      }
-      
-      // Save to backend with proper URL
-      const backendUrl = getBackendUrl();
-      console.log('🔗 Using backend URL:', backendUrl);
-      
-      const response = await fetch(`${backendUrl}/api/comments`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({
-          post_id: postId,
-          content: commentText.trim(),
-          likes: 0,
-          user_liked: false
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
-      }
-      
-      // Immediately update UI by appending new comment to list
-      const newComment = {
-        id: `c_${Date.now()}`,
-        author: user?.name || 'You',
-        content: commentText.trim(),
-        timeAgo: 'just now',
-        likes: 0,
-        userLiked: false
-      };
-      
-      // FIX: Ensure state update uses correct post ID
-      console.log('🔴 FIXING STATE UPDATE - postId:', postId, 'typeof:', typeof postId);
-      
-      setComments(prev => {
-        const updated = {
-          ...prev,
-          [postId]: [...(Array.isArray(prev[postId]) ? prev[postId] : []), newComment]
+  // Handle like
+  const handleLike = (postId: string) => {
+    setPosts(prev => prev.map(post => {
+      if (post.id === postId) {
+        const newLiked = !post.userLiked;
+        return {
+          ...post,
+          userLiked: newLiked,
+          likes: newLiked ? post.likes + 1 : post.likes - 1
         };
-        console.log('🔴 FIXED STATE UPDATE:', JSON.stringify(updated));
-        return updated;
-      });
-      
-      // FIX: Update comment count in selectedPost
-      if (selectedPost && selectedPost.id === postId) {
-        setSelectedPost(prevSelected => ({
-          ...prevSelected!,
-          engagement: {
-            ...prevSelected!.engagement,
-            comments: prevSelected!.engagement.comments + 1
-          }
-        }));
       }
-      
-      // Also update the main posts state
-      setPosts(prevPosts => 
-        prevPosts.map(post => {
-          if (post.id === postId) {
-            return {
-              ...post,
-              engagement: {
-                ...post.engagement,
-                comments: post.engagement.comments + 1
-              }
-            };
-          }
-          return post;
-        })
-      );
-      
-      // Clear input
-      setNewComment('');
-      Keyboard.dismiss();
-      
-      console.log('✅ Comment saved and added to UI');
-      console.log(`📝 New comment count for post ${postId}: ${(comments[postId] || []).length + 1}`);
-      Alert.alert('Success', 'Comment posted successfully!');
-      
-    } catch (err) {
-      console.error('Comment send error:', err);
-      
-      // Improved error handling
-      if (err.name === 'TypeError' && err.message.includes('fetch')) {
-        Alert.alert('Connection Error', 'Server not reachable. Please check your internet connection.');
-      } else if (err.message.includes('401')) {
-        Alert.alert('Authentication Error', 'Please log in again.');
-      } else if (err.message.includes('500')) {
-        Alert.alert('Server Error', 'Server is having issues. Please try again later.');
-      } else {
-        Alert.alert('Error', 'Failed to save comment. Please try again.');
-      }
-    }
+      return post;
+    }));
   };
 
-  const renderPostModal = () => {
-    if (!selectedPost) return null;
+  // Handle reply
+  const handleReply = (post: Post) => {
+    setSelectedPost(post);
+    setShowReplyModal(true);
+    setReplyText('');
+  };
 
-    const comments = getCommentsForPost(selectedPost.id);
+  // Handle share
+  const handleShare = (postId: string) => {
+    setPosts(prev => prev.map(post => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          shares: post.shares + 1
+        };
+      }
+      return post;
+    }));
+    
+    Alert.alert('Shared!', 'Post shared successfully');
+  };
 
-    return (
-      <Modal
-        visible={showPostModal}
-        animationType="slide"
-        presentationStyle="formSheet"
-        onRequestClose={() => setShowPostModal(false)}
-      >
-        <LinearGradient
-          colors={['#1a1a2e', '#16213e', '#0f172a']}
-          style={styles.modalContainer}
-        >
-          {/* Modal Header */}
-          <View style={styles.modalHeader}>
-            <TouchableOpacity 
-              onPress={() => setShowPostModal(false)}
-              style={styles.closeButton}
-            >
-              <Ionicons name="close" size={24} color="#fff" />
-            </TouchableOpacity>
-            <Text style={styles.modalHeaderTitle}>Discussion</Text>
-            <View style={styles.headerSpacer} />
-          </View>
+  // Submit reply
+  const handleSubmitReply = () => {
+    if (!replyText.trim() || !selectedPost) return;
+    
+    // For now, create reply as new post
+    const reply: Post = {
+      id: `reply_${Date.now()}`,
+      content: `@${selectedPost.author} ${replyText.trim()}`,
+      author: user?.name || 'Anonymous',
+      authorId: user?.id || user?.email || 'anonymous',
+      category: selectedPost.category,
+      timestamp: new Date(),
+      likes: 0,
+      replies: 0,
+      shares: 0,
+      userLiked: false
+    };
 
-          <ScrollView ref={modalScrollRef} style={styles.modalContent} showsVerticalScrollIndicator={false}>
-            {/* Post Content */}
-            <View style={styles.fullPostContainer}>
-              <View style={styles.postHeader}>
-                <Text style={styles.authorAvatar}>{selectedPost.author.avatar}</Text>
-                <View style={styles.authorInfo}>
-                  <View style={styles.authorNameRow}>
-                    <Text style={styles.authorName}>{selectedPost.author.name}</Text>
-                    {selectedPost.author.verified && (
-                      <Ionicons name="checkmark-circle" size={16} color="#10B981" />
-                    )}
-                  </View>
-                  <Text style={styles.memberSince}>Member for {selectedPost.author.memberSince}</Text>
-                </View>
-                <Text style={styles.timeAgo}>{selectedPost.timeAgo}</Text>
-              </View>
+    setPosts(prev => [reply, ...prev]);
+    
+    // Update reply count
+    setPosts(prev => prev.map(post => {
+      if (post.id === selectedPost.id) {
+        return {
+          ...post,
+          replies: post.replies + 1
+        };
+      }
+      return post;
+    }));
 
-              <Text style={styles.postTopic}>{selectedPost.topic}</Text>
-              <Text style={styles.postTitle}>{selectedPost.title}</Text>
-              <Text style={styles.postContent}>{selectedPost.content}</Text>
+    setShowReplyModal(false);
+    setReplyText('');
+    setSelectedPost(null);
+    
+    Alert.alert('Success', 'Reply posted!');
+  };
 
-              {/* Tags */}
-              <View style={styles.tagsContainer}>
-                {selectedPost.tags.map((tag, index) => (
-                  <View key={index} style={styles.tag}>
-                    <Text style={styles.tagText}>#{tag}</Text>
-                  </View>
-                ))}
-              </View>
+  // Get filtered posts by category
+  const getFilteredPosts = () => {
+    return posts.filter(post => post.category === activeCategory);
+  };
 
-              {/* Engagement */}
-              <View style={styles.engagementRow}>
-                <TouchableOpacity 
-                  style={styles.engagementButton}
-                  onPress={() => toggleLike(selectedPost.id)}
-                >
-                  <Ionicons 
-                    name={selectedPost.engagement.userLiked ? "heart" : "heart-outline"} 
-                    size={20} 
-                    color={selectedPost.engagement.userLiked ? "#EC4899" : "#E5E7EB"} 
-                  />
-                  <Text style={styles.engagementText}>{selectedPost.engagement.likes}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={styles.engagementButton}
-                  onPress={() => {
-                    // Focus on comment input when comment button is pressed
-                    setTimeout(() => {
-                      commentInputRef.current?.focus();
-                    }, 100);
-                  }}
-                >
-                  <Ionicons name="chatbubble-outline" size={20} color="#E5E7EB" />
-                  <Text style={styles.engagementText}>{selectedPost.engagement.comments}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={styles.engagementButton}
-                  onPress={() => handleShare(selectedPost.id, selectedPost.title)}
-                >
-                  <Ionicons name="share-outline" size={20} color="#E5E7EB" />
-                  <Text style={styles.engagementText}>{selectedPost.engagement.shares}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+  // Get relative time
+  const getRelativeTime = (timestamp: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - timestamp.getTime();
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
 
-            {/* Comments Section */}
-            <View key={`comments-${selectedPost.id}-${safeToArray(comments[selectedPost.id]).length}-${Date.now()}`} style={styles.commentsSection}>
-              {/* SINGLE COMMENT TITLE WITH COUNT */}
-              <Text style={styles.commentsTitle}>💬 Comments ({selectedPost.engagement.comments})</Text>
-              
-              {/* SUPER DETAILED DEBUG */}
-              <Text style={{color: 'red', fontSize: 12}}>
-                🔴 selectedPost.id = "{selectedPost.id}" (type: {typeof selectedPost.id})
-              </Text>
-              <Text style={{color: 'yellow', fontSize: 12}}>
-                🔑 Comments state keys: [{Object.keys(comments).join(', ')}]
-              </Text>
-              <Text style={{color: 'cyan', fontSize: 12}}>
-                🎯 Exact match test: comments["{selectedPost.id}"] = {JSON.stringify(comments[selectedPost.id])}
-              </Text>
-              <Text style={{color: 'green', fontSize: 12}}>
-                📊 All comments state: {JSON.stringify(Object.keys(comments).reduce((acc, key) => ({ ...acc, [key]: comments[key]?.length }), {}))}
-              </Text>
-              
-              {/* CHAT-STYLE COMMENT RENDERING - EXACTLY LIKE MESSAGES */}
-              {Array.isArray(comments[selectedPost.id]) && comments[selectedPost.id].map((comment, index) => {
-                console.log('🔴 RENDERING COMMENT:', index, comment);
-                return (
-                  <View key={`comment-${selectedPost.id}-${index}-${comment.id}`} style={styles.commentItem}>
-                    <View style={styles.commentHeader}>
-                      <Text style={styles.commentAuthor}>{comment.author || 'Anonymous'}</Text>
-                      <Text style={styles.commentTime}>{comment.timeAgo || 'just now'}</Text>
-                    </View>
-                    <Text style={styles.commentContent}>{comment.content || 'No content'}</Text>
-                  </View>
-                );
-              })}
-              
-              {/* Show count for debugging */}
-              <Text style={{color: 'yellow', fontSize: 12}}>
-                DEBUG: Total comments in state: {Array.isArray(comments[selectedPost.id]) ? comments[selectedPost.id].length : 'Not array'}
-              </Text>              
-              {/* Show if no comments */}
-              {(!Array.isArray(comments[selectedPost.id]) || comments[selectedPost.id].length === 0) && (
-                <Text style={styles.noComments}>No comments yet. Be the first!</Text>
-              )}
-
-              {/* SINGLE COMMENT INPUT - NOT IN MAP */}
-              <View style={styles.commentInputSection}>
-                <View style={styles.commentInputContainer}>
-                  <TextInput
-                    style={styles.commentInput}
-                    placeholder="Write a comment..."
-                    placeholderTextColor="rgba(255,255,255,0.6)"
-                    value={newComment}
-                    onChangeText={setNewComment}
-                    multiline={true}
-                    returnKeyType="send"
-                    onSubmitEditing={() => handleSend(selectedPost.id, newComment)}
-                  />
-                  <TouchableOpacity 
-                    style={styles.commentSendButton}
-                    onPress={() => handleSend(selectedPost.id, newComment)}
-                  >
-                    <Ionicons name="send" size={20} color="#8B5CF6" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              {/* Comment Input Section */}
-              <View style={styles.commentInputSection}>
-                <View style={styles.commentInputContainer}>
-                  <TextInput
-                    ref={commentInputRef}
-                    style={styles.commentInput}
-                    placeholder="Write a comment..."
-                    placeholderTextColor="#9CA3AF"
-                    value={newComment}
-                    onChangeText={setNewComment}
-                    multiline
-                    maxLength={500}
-                    onSubmitEditing={() => {
-                      if (newComment.trim()) {
-                        handleSend(selectedPost.id, newComment);
-                      }
-                    }}
-                    blurOnSubmit={false}
-                    returnKeyType="send"
-                  />
-                  <TouchableOpacity 
-                    style={[styles.commentSubmitBtn, { opacity: newComment.trim() ? 1 : 0.5 }]}
-                    onPress={() => handleSend(selectedPost.id, newComment)}
-                    disabled={!newComment.trim()}
-                  >
-                    <Ionicons name="send" size={16} color="#8B5CF6" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-
-            <View style={styles.modalFooter} />
-          </ScrollView>
-        </LinearGradient>
-      </Modal>
-    );
+    if (diffMinutes < 1) return 'just now';
+    if (diffMinutes < 60) return `${diffMinutes}m`;
+    if (diffHours < 24) return `${diffHours}h`;
+    if (diffDays < 7) return `${diffDays}d`;
+    return timestamp.toLocaleDateString();
   };
 
   return (
-    <LinearGradient
-      colors={['#1a1a2e', '#16213e', '#0f172a']}
-      style={styles.container}
-    >
-      
-      <View style={[styles.contentContainer, { paddingTop: insets.top + 20 }]}>
-        {/* Glow Header */}
-        <LinearGradient
-          colors={['#8B5CF6', '#EC4899', '#F97316']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.glowHeader}
-        >
-          <Text style={styles.glowHeaderTitle}>🌟 Community Hub</Text>
-          <Text style={styles.glowHeaderSubtitle}>Real ADHD discussions & support</Text>
-        </LinearGradient>
-
-        {/* Filter Tabs */}
-        <View style={styles.filterContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
-            {[
-              { key: 'trending', label: '🔥 Trending', count: filteredPosts.length },
-              { key: 'recent', label: '🕐 Recent', count: posts.filter(p => p.timeAgo.includes('hours')).length },
-              { key: 'research', label: '🔬 Research', count: posts.filter(p => p.category === 'research').length },
-              { key: 'all', label: '📋 All Posts', count: communityPosts.length }
-            ].map((filter) => (
-              <TouchableOpacity
-                key={filter.key}
-                style={[
-                  styles.filterTab,
-                  activeFilter === filter.key && styles.filterTabActive
-                ]}
-                onPress={() => setActiveFilter(filter.key as any)}
-              >
-                <Text style={[
-                  styles.filterTabText,
-                  activeFilter === filter.key && styles.filterTabTextActive
-                ]}>
-                  {filter.label}
-                </Text>
-                <Text style={[
-                  styles.filterTabCount,
-                  activeFilter === filter.key && styles.filterTabCountActive
-                ]}>
-                  {filter.count}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <LinearGradient
+        colors={['#1a1a2e', '#16213e', '#0f3460']}
+        style={styles.gradient}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>ADHDers Social Club</Text>
         </View>
 
+        {/* Categories */}
         <ScrollView 
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          style={styles.categoriesContainer}
         >
-          {/* Community Posts */}
-          <View style={styles.postsSection}>
-            <Text style={styles.sectionTitle}>💬 Community Posts</Text>
-            <Text style={styles.sectionSubtitle}>Real stories from real people</Text>
-            
-            {filteredPosts.map((post) => (
-              <TouchableOpacity
-                key={post.id}
-                style={styles.postCard}
-                onPress={() => handlePostPress(post)}
-              >
+          {categories.map(category => (
+            <TouchableOpacity
+              key={category.id}
+              style={[
+                styles.categoryButton,
+                activeCategory === category.id && styles.activeCategoryButton
+              ]}
+              onPress={() => setActiveCategory(category.id)}
+            >
+              <Text style={[
+                styles.categoryText,
+                activeCategory === category.id && styles.activeCategoryText
+              ]}>
+                {category.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* Post Creation - Twitter Style */}
+        <View style={styles.postCreationContainer}>
+          <View style={styles.postInputContainer}>
+            <TextInput
+              style={styles.postInput}
+              placeholder="What's happening?"
+              placeholderTextColor="rgba(255,255,255,0.6)"
+              value={newPost}
+              onChangeText={setNewPost}
+              multiline={true}
+              maxLength={280}
+            />
+          </View>
+          <TouchableOpacity 
+            style={[styles.postButton, !newPost.trim() && styles.disabledButton]}
+            onPress={handleCreatePost}
+            disabled={!newPost.trim()}
+          >
+            <Text style={styles.postButtonText}>Post</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Posts Feed */}
+        <ScrollView style={styles.feedContainer} showsVerticalScrollIndicator={false}>
+          {getFilteredPosts().length === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>
+                No posts in {categories.find(c => c.id === activeCategory)?.name} yet
+              </Text>
+              <Text style={styles.emptyStateSubtext}>
+                Be the first to share something!
+              </Text>
+            </View>
+          ) : (
+            getFilteredPosts().map(post => (
+              <View key={post.id} style={styles.postCard}>
                 <LinearGradient
-                  colors={getCategoryColor(post.category)}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.postGradientBorder}
+                  colors={['rgba(139, 92, 246, 0.1)', 'rgba(168, 85, 247, 0.05)']}
+                  style={styles.postGradient}
                 >
-                  <View style={styles.postContentContainer}>
-                    {/* Post Header */}
-                    <View style={styles.postHeaderRow}>
-                      <View style={styles.authorSection}>
-                        <Text style={styles.authorAvatar}>{post.author.avatar}</Text>
-                        <View style={styles.authorDetails}>
-                          <View style={styles.authorNameRow}>
-                            <Text style={styles.authorName}>{post.author.name}</Text>
-                            {post.author.verified && (
-                              <Ionicons name="checkmark-circle" size={14} color="#10B981" />
-                            )}
-                          </View>
-                          <Text style={styles.postTimeAgo}>{post.timeAgo}</Text>
-                        </View>
-                      </View>
-                      <Text style={styles.postTopic}>{post.topic}</Text>
-                    </View>
-
-                    {/* Post Content */}
-                    <Text style={styles.postTitle}>{post.title}</Text>
-                    <Text style={styles.postPreview} numberOfLines={3}>
-                      {post.content}
-                    </Text>
-
-                    {/* Tags */}
-                    <View style={styles.postTags}>
-                      {post.tags.slice(0, 3).map((tag, index) => (
-                        <View key={index} style={styles.postTag}>
-                          <Text style={styles.postTagText}>#{tag}</Text>
-                        </View>
-                      ))}
-                      {post.tags.length > 3 && (
-                        <Text style={styles.moreTags}>+{post.tags.length - 3}</Text>
-                      )}
-                    </View>
-
-                    {/* Engagement Footer */}
-                    <View style={styles.postFooter}>
-                      <View style={styles.engagementStats}>
-                        <TouchableOpacity 
-                          style={styles.engagementStatItem}
-                          onPress={() => toggleLike(post.id)}
-                        >
-                          <Ionicons 
-                            name={post.engagement.userLiked ? "heart" : "heart-outline"} 
-                            size={16} 
-                            color={post.engagement.userLiked ? "#EC4899" : "#9CA3AF"} 
-                          />
-                          <Text style={styles.statText}>{post.engagement.likes}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                          style={styles.engagementStatItem}
-                          onPress={() => handlePostPress(post)}
-                        >
-                          <Ionicons name="chatbubble-outline" size={16} color="#9CA3AF" />
-                          <Text style={styles.statText}>{post.engagement.comments}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                          style={styles.engagementStatItem}
-                          onPress={() => handleShare(post.id, post.title)}
-                        >
-                          <Ionicons name="share-outline" size={16} color="#9CA3AF" />
-                          <Text style={styles.statText}>{post.engagement.shares}</Text>
-                        </TouchableOpacity>
-                      </View>
-                      <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                  {/* Post Header */}
+                  <View style={styles.postHeader}>
+                    <View style={styles.postAuthorInfo}>
+                      <Text style={styles.postAuthor}>{post.author}</Text>
+                      <Text style={styles.postTime}>{getRelativeTime(post.timestamp)}</Text>
                     </View>
                   </View>
+
+                  {/* Post Content */}
+                  <Text style={styles.postContent}>{post.content}</Text>
+
+                  {/* Post Actions - Twitter Style */}
+                  <View style={styles.postActions}>
+                    <TouchableOpacity 
+                      style={styles.actionButton}
+                      onPress={() => handleReply(post)}
+                    >
+                      <Ionicons name="chatbubble-outline" size={18} color="rgba(255,255,255,0.7)" />
+                      <Text style={styles.actionText}>{post.replies}</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                      style={styles.actionButton}
+                      onPress={() => handleShare(post.id)}
+                    >
+                      <Ionicons name="repeat-outline" size={18} color="rgba(255,255,255,0.7)" />
+                      <Text style={styles.actionText}>{post.shares}</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                      style={styles.actionButton}
+                      onPress={() => handleLike(post.id)}
+                    >
+                      <Ionicons 
+                        name={post.userLiked ? "heart" : "heart-outline"} 
+                        size={18} 
+                        color={post.userLiked ? "#EC4899" : "rgba(255,255,255,0.7)"} 
+                      />
+                      <Text style={[
+                        styles.actionText,
+                        post.userLiked && { color: '#EC4899' }
+                      ]}>
+                        {post.likes}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </LinearGradient>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Community Stats */}
-          <View style={styles.statsSection}>
-            <LinearGradient
-              colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
-              style={styles.statsCard}
-            >
-              <Text style={styles.statsTitle}>🏆 Community Impact</Text>
-              <View style={styles.statsGrid}>
-                <View style={styles.statItem}>
-                  <Text style={styles.statNumber}>12.4K</Text>
-                  <Text style={styles.statLabel}>Active Members</Text>
-                </View>
-                <View style={styles.statItem}>
-                  <Text style={styles.statNumber}>847</Text>
-                  <Text style={styles.statLabel}>Daily Posts</Text>
-                </View>
-                <View style={styles.statItem}>
-                  <Text style={styles.statNumber}>94%</Text>
-                  <Text style={styles.statLabel}>Positive Feedback</Text>
-                </View>
-                <View style={styles.statItem}>
-                  <Text style={styles.statNumber}>2.8K</Text>
-                  <Text style={styles.statLabel}>Support Messages</Text>
-                </View>
               </View>
-            </LinearGradient>
-          </View>
+            ))
+          )}
         </ScrollView>
-      </View>
 
+        {/* Reply Modal - Simple Twitter Style */}
+        {showReplyModal && selectedPost && (
+          <View style={styles.modalOverlay}>
+            <View style={styles.replyModal}>
+              <LinearGradient
+                colors={['rgba(139, 92, 246, 0.95)', 'rgba(168, 85, 247, 0.95)']}
+                style={styles.replyModalGradient}
+              >
+                <View style={styles.replyHeader}>
+                  <Text style={styles.replyTitle}>Reply to {selectedPost.author}</Text>
+                  <TouchableOpacity onPress={() => setShowReplyModal(false)}>
+                    <Ionicons name="close" size={24} color="white" />
+                  </TouchableOpacity>
+                </View>
 
-      {/* Post Detail Modal */}
-      {renderPostModal()}
-      {/* Banner Ad for Free Users */}
-      <MockAdBanner />
-    </LinearGradient>
+                <Text style={styles.originalPost}>{selectedPost.content}</Text>
+
+                <TextInput
+                  style={styles.replyInput}
+                  placeholder="Post your reply..."
+                  placeholderTextColor="rgba(255,255,255,0.6)"
+                  value={replyText}
+                  onChangeText={setReplyText}
+                  multiline={true}
+                  maxLength={280}
+                />
+
+                <View style={styles.replyActions}>
+                  <TouchableOpacity 
+                    style={styles.cancelButton}
+                    onPress={() => setShowReplyModal(false)}
+                  >
+                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[styles.replyButton, !replyText.trim() && styles.disabledButton]}
+                    onPress={handleSubmitReply}
+                    disabled={!replyText.trim()}
+                  >
+                    <Text style={styles.replyButtonText}>Reply</Text>
+                  </TouchableOpacity>
+                </View>
+              </LinearGradient>
+            </View>
+          </View>
+        )}
+      </LinearGradient>
+    </View>
   );
 }
 
@@ -1021,468 +354,230 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  contentContainer: {
+  gradient: {
     flex: 1,
-    paddingHorizontal: 20,
   },
-  glowHeader: {
-    borderRadius: 20,
-    padding: 24,
-    alignItems: 'center',
-    marginBottom: 24,
-    shadowColor: '#8B5CF6',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 12,
+  header: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(139, 92, 246, 0.3)',
   },
-  glowHeaderTitle: {
-    color: '#fff',
-    fontSize: 28,
-    fontWeight: '900',
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-    marginBottom: 6,
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
   },
-  glowHeaderSubtitle: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  
-  // Filter System
-  filterContainer: {
-    marginBottom: 20,
-  },
-  filterScroll: {
-    paddingLeft: 2,
-  },
-  filterTab: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 16,
+  categoriesContainer: {
+    paddingHorizontal: 15,
     paddingVertical: 10,
-    borderRadius: 20,
-    marginRight: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    alignItems: 'center',
+    maxHeight: 50,
   },
-  filterTabActive: {
+  categoryButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginRight: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.5)',
+  },
+  activeCategoryButton: {
     backgroundColor: 'rgba(139, 92, 246, 0.3)',
     borderColor: '#8B5CF6',
   },
-  filterTabText: {
+  categoryText: {
     color: 'rgba(255,255,255,0.8)',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
   },
-  filterTabTextActive: {
-    color: '#fff',
-    fontWeight: '800',
+  activeCategoryText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
-  filterTabCount: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 12,
-    marginTop: 2,
+  postCreationContainer: {
+    flexDirection: 'row',
+    padding: 20,
+    alignItems: 'flex-end',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(139, 92, 246, 0.2)',
   },
-  filterTabCountActive: {
-    color: '#fff',
-    fontWeight: '700',
+  postInputContainer: {
+    flex: 1,
+    marginRight: 15,
   },
-
-  // Posts Section
-  postsSection: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: '800',
-    marginBottom: 8,
-    textShadowColor: '#8B5CF6',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  sectionSubtitle: {
-    color: '#E5E7EB',
+  postInput: {
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    borderRadius: 15,
+    padding: 15,
+    color: 'white',
     fontSize: 16,
-    marginBottom: 20,
-  },
-  postCard: {
-    marginBottom: 16,
-    borderRadius: 20,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  postGradientBorder: {
-    padding: 2,
-    borderRadius: 20,
-  },
-  postContentContainer: {
-    backgroundColor: 'rgba(15, 23, 42, 0.8)',
-    borderRadius: 18,
-    padding: 16,
-  },
-  postGradient: {
-    padding: 20,
-  },
-  postHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  authorSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  authorDetails: {
-    flex: 1,
-  },
-  postTimeAgo: {
-    color: '#9CA3AF',
-    fontSize: 12,
-  },
-  postPreview: {
-    color: '#E5E7EB',
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  postTags: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 12,
-  },
-  postTag: {
-    backgroundColor: 'rgba(139, 92, 246, 0.2)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    marginRight: 8,
-    marginBottom: 4,
-  },
-  postTagText: {
-    color: '#A855F7',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  postHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  authorAvatar: {
-    fontSize: 20,
-    marginRight: 12,
-  },
-  authorInfo: {
-    flex: 1,
-  },
-  authorNameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  authorName: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '700',
-    marginRight: 6,
-  },
-  memberSince: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 12,
-  },
-  timeAgo: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 12,
-  },
-  postTopic: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  postTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '800',
-    marginBottom: 8,
-    lineHeight: 24,
-  },
-  postContentPreview: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 15,
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 12,
-    alignItems: 'center',
-  },
-  tag: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 12,
-    marginRight: 6,
-    marginBottom: 4,
-  },
-  tagText: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  moreTags: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 11,
-    fontStyle: 'italic',
-  },
-  engagementRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  engagementItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  engagementText: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 13,
-    fontWeight: '600',
-    marginLeft: 6,
-  },
-  readMore: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  readMoreText: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 13,
-    fontWeight: '600',
-    marginRight: 4,
-  },
-
-  // Stats Section
-  statsSection: {
-    marginBottom: 24,
-  },
-  statsCard: {
-    padding: 20,
-    borderRadius: 20,
+    minHeight: 50,
+    maxHeight: 100,
     borderWidth: 1,
     borderColor: 'rgba(139, 92, 246, 0.3)',
   },
-  statsTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: '800',
-    textAlign: 'center',
-    marginBottom: 16,
-    textShadowColor: '#8B5CF6',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  statItem: {
-    alignItems: 'center',
-    width: '48%',
-    marginBottom: 16,
-  },
-  statNumber: {
-    color: '#8B5CF6',
-    fontSize: 24,
-    fontWeight: '900',
-    textShadowColor: 'rgba(139, 92, 246, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  statLabel: {
-    color: '#E5E7EB',
-    fontSize: 13,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginTop: 4,
-  },
-
-  // Modal Styles
-  modalContainer: {
-    flex: 1,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  postButton: {
+    backgroundColor: '#8B5CF6',
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(139, 92, 246, 0.2)',
+    paddingVertical: 12,
+    borderRadius: 20,
   },
-  closeButton: {
-    padding: 8,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  disabledButton: {
+    backgroundColor: 'rgba(139, 92, 246, 0.3)',
   },
-  modalHeaderTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  headerSpacer: {
-    width: 40,
-  },
-  modalContent: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  fullPostContainer: {
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(139, 92, 246, 0.2)',
-    marginBottom: 20,
-  },
-  postContent: {
-    color: '#E5E7EB',
+  postButtonText: {
+    color: 'white',
     fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 16,
-    textAlign: 'justify',
+    fontWeight: 'bold',
   },
-  engagementButton: {
-    flexDirection: 'row',
+  feedContainer: {
+    flex: 1,
+    paddingHorizontal: 15,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
-    marginRight: 12,
+    paddingVertical: 60,
   },
-  commentsSection: {
-    marginBottom: 20,
-  },
-  commentsTitle: {
-    color: '#fff',
+  emptyStateText: {
+    color: 'white',
     fontSize: 18,
-    fontWeight: '800',
-    marginBottom: 16,
-    textShadowColor: '#EC4899',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  commentItem: {
-    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(139, 92, 246, 0.2)',
-  },
-  commentHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    fontWeight: '600',
     marginBottom: 8,
   },
-  commentAuthor: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  commentTime: {
+  emptyStateSubtext: {
     color: 'rgba(255,255,255,0.6)',
-    fontSize: 12,
+    fontSize: 16,
   },
-  commentContent: {
-    color: '#E5E7EB',
-    fontSize: 15,
-    lineHeight: 22,
-    marginBottom: 10,
-    textAlign: 'justify',
+  postCard: {
+    marginVertical: 8,
+    borderRadius: 15,
+    overflow: 'hidden',
   },
-  commentLike: {
+  postGradient: {
+    padding: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.2)',
+    borderRadius: 15,
+  },
+  postHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-  },
-  commentLikeText: {
-    color: '#9CA3AF',
-    fontSize: 12,
-    marginLeft: 6,
-  },
-  noComments: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 15,
-    textAlign: 'center',
-    fontStyle: 'italic',
-    paddingVertical: 20,
-  },
-  modalFooter: {
-    height: 30,
-  },
-  postFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
   },
-  engagementStats: {
+  postAuthorInfo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  engagementStatItem: {
+  postAuthor: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 8,
+  },
+  postTime: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 14,
+  },
+  postContent: {
+    color: 'white',
+    fontSize: 16,
+    lineHeight: 24,
+    marginBottom: 15,
+  },
+  postActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(139, 92, 246, 0.2)',
+  },
+  actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 16,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
   },
-  statText: {
+  actionText: {
     color: 'rgba(255,255,255,0.7)',
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 14,
     marginLeft: 6,
   },
-  commentInputSection: {
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(139, 92, 246, 0.2)",
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  commentInputContainer: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+  replyModal: {
+    width: '90%',
+    maxWidth: 400,
+    borderRadius: 15,
+    overflow: 'hidden',
+  },
+  replyModalGradient: {
+    padding: 20,
+  },
+  replyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  replyTitle: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  originalPost: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 14,
+    fontStyle: 'italic',
+    marginBottom: 15,
+    padding: 10,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 10,
+  },
+  replyInput: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 10,
+    padding: 15,
+    color: 'white',
+    fontSize: 16,
+    minHeight: 80,
+    maxHeight: 120,
+    marginBottom: 15,
     borderWidth: 1,
-    borderColor: "rgba(139, 92, 246, 0.3)",
+    borderColor: 'rgba(255,255,255,0.2)',
   },
-  commentInput: {
-    flex: 1,
-    color: "#fff",
-    fontSize: 15,
-    maxHeight: 100,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
+  replyActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
-  commentSubmitBtn: {
-    marginLeft: 8,
-    padding: 8,
-    backgroundColor: "rgba(139, 92, 246, 0.2)",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(139, 92, 246, 0.4)",
+  cancelButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginRight: 10,
+  },
+  cancelButtonText: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 16,
+  },
+  replyButton: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  replyButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
