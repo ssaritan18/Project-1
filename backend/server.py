@@ -580,6 +580,41 @@ class CommentCreateNew(BaseModel):
     likes: int = 0
     user_liked: bool = False
 
+# Community Post Models
+class CommunityPost(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    content: str
+    author: str
+    author_id: str
+    category: str
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    likes: int = 0
+    replies: int = 0
+    shares: int = 0
+    user_liked: bool = False
+
+class CommunityPostCreate(BaseModel):
+    content: str
+    category: str
+
+class CommunityPostLike(BaseModel):
+    post_id: str
+
+class CommunityPostShare(BaseModel):
+    post_id: str
+
+class CommunityReply(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    post_id: str
+    author: str
+    author_id: str
+    content: str
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class CommunityReplyCreate(BaseModel):
+    post_id: str
+    content: str
+
 # Profile Management Models
 class ProfileUpdate(BaseModel):
     name: Optional[str] = None
