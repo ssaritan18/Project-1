@@ -86,7 +86,7 @@ export default function CommunityScreen() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   
   // Load profile image from localStorage (sync with Profile tab)
-  useEffect(() => {
+  const loadProfileImage = () => {
     if (Platform.OS === 'web') {
       const savedProfile = localStorage.getItem('profile_data');
       if (savedProfile) {
@@ -94,6 +94,42 @@ export default function CommunityScreen() {
         setProfileImage(parsedProfile.profile_image || null);
         console.log('✅ Profile image loaded for community:', parsedProfile.profile_image ? 'YES' : 'NO');
       }
+    }
+  };
+
+  useEffect(() => {
+    loadProfileImage();
+  }, []);
+
+  // Listen for storage changes to sync profile image updates
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      const handleStorageChange = (e: StorageEvent) => {
+        if (e.key === 'profile_data') {
+          console.log('🔄 Profile data changed, reloading profile image...');
+          loadProfileImage();
+        }
+      };
+
+      window.addEventListener('storage', handleStorageChange);
+      return () => {
+        window.removeEventListener('storage', handleStorageChange);
+      };
+    }
+  }, []);
+
+  // Also check for profile image changes when component gains focus
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      const handleFocus = () => {
+        console.log('🔄 Community tab focused, checking for profile image updates...');
+        loadProfileImage();
+      };
+
+      window.addEventListener('focus', handleFocus);
+      return () => {
+        window.removeEventListener('focus', handleFocus);
+      };
     }
   }, []);
   
