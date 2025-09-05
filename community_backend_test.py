@@ -11,7 +11,7 @@ from datetime import datetime
 
 class CommunityAPITester:
     def __init__(self):
-        self.base_url = "https://neurodv-hub.preview.emergentagent.com/api"
+        self.base_url = "http://localhost:8001/api"
         self.session = requests.Session()
         self.tokens = {}
         self.users = {}
