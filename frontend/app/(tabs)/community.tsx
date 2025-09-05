@@ -200,11 +200,11 @@ export default function CommunityScreen() {
             if (data.success && data.comments) {
               const formattedComments = data.comments.map((c: any) => ({
                 id: c.id || c._id,
-                author: c.author_name,
+                author: c.author_name || c.author, // Fix: Map author_name to author
                 content: c.content,
-                timeAgo: getTimeAgo(c.created_at),
+                timeAgo: c.created_at ? getTimeAgo(c.created_at) : c.timeAgo, // Fix: Map created_at to timeAgo
                 likes: c.likes || 0,
-                userLiked: c.user_liked || false
+                userLiked: c.user_liked !== undefined ? c.user_liked : c.userLiked || false // Fix: Map user_liked to userLiked
               }));
               
               setComments(prev => ({
@@ -255,11 +255,11 @@ export default function CommunityScreen() {
               // Convert backend comment format to frontend format
               const formattedComments = data.comments.map((comment: any) => ({
                 id: comment.id || comment._id,
-                author: comment.author_name,
+                author: comment.author_name || comment.author, // Fix: Map author_name to author
                 content: comment.content,
-                timeAgo: getTimeAgo(comment.created_at),
+                timeAgo: comment.created_at ? getTimeAgo(comment.created_at) : comment.timeAgo, // Fix: Map created_at to timeAgo  
                 likes: comment.likes || 0,
-                userLiked: comment.user_liked || false
+                userLiked: comment.user_liked !== undefined ? comment.user_liked : comment.userLiked || false // Fix: Map user_liked to userLiked
               }));
               backendComments[post.id] = formattedComments;
               console.log(`📥 Loaded ${formattedComments.length} comments for post ${post.id} from backend`);
