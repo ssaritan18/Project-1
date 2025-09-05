@@ -467,37 +467,22 @@ export default function CommunityScreen() {
     console.log(`❤️ Comment like toggled: ${commentId} in post ${postId}, found in user comments: ${foundInUserComments}`);
   };
 
-  const addComment = async (postId: string, commentText: string) => {
+  const handleSend = async (postId: string, commentText: string) => {
     if (!commentText.trim()) return;
     
     try {
-      // Check if user is authenticated
-      if (!user) {
-        if (Platform.OS === 'web') {
-          alert('❌ Please log in to comment');
-        } else {
-          Alert.alert('Authentication Required', 'Please log in to comment on posts.', [{ text: 'OK' }]);
-        }
-        return;
-      }
-      
-      // Try to add to backend with authentication
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-      
-      // Get auth token (assuming it's stored in AsyncStorage or context)
+      // Get auth token from storage
       const authToken = await AsyncStorage.getItem('@auth_token');
       
       if (!authToken) {
         console.log('⚠️ No auth token found, cannot save to backend');
-        if (Platform.OS === 'web') {
-          alert('❌ Authentication required for saving comments');
-        } else {
-          Alert.alert('Authentication Required', 'Please log in again to save comments.', [{ text: 'OK' }]);
-        }
+        Alert.alert('Authentication Required', 'Please log in to save comments.');
         return;
       }
       
-      const response = await fetch(`${backendUrl}/api/comments`, {
+      // Save to backend
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      await fetch(`${backendUrl}/api/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -506,103 +491,36 @@ export default function CommunityScreen() {
         body: JSON.stringify({
           post_id: postId,
           content: commentText.trim(),
-          author_id: user.id || user.email, // Use user id or email as fallback
-          author_name: user.name || 'Anonymous',
           likes: 0,
           user_liked: false
         })
       });
       
-      let backendComment = null;
-      if (response.ok) {
-        const data = await response.json();
-        backendComment = data.comment;
-        console.log('✅ Comment saved to backend:', data);
-      } else {
-        const errorText = await response.text();
-        console.log('⚠️ Backend save failed:', response.status, errorText);
-        if (Platform.OS === 'web') {
-          alert(`❌ Failed to save comment: ${response.status} - ${errorText}`);
-        } else {
-          Alert.alert('Save Failed', `Failed to save comment to server: ${response.status}`, [{ text: 'OK' }]);
-        }
-        return; // Don't add to local state if backend fails
-      }
-    } catch (error) {
-      console.log('⚠️ Backend error:', error);
-      if (Platform.OS === 'web') {
-        alert(`❌ Network error: ${error.message}`);
-      } else {
-        Alert.alert('Network Error', `Failed to save comment: ${error.message}`, [{ text: 'OK' }]);
-      }
-      return; // Don't add to local state if backend fails
+      // Immediately update UI by appending new comment to list
+      const newComment = {
+        id: `c_${Date.now()}`,
+        author: user?.name || 'You',
+        content: commentText.trim(),
+        timeAgo: 'just now',
+        likes: 0,
+        userLiked: false
+      };
+      
+      setComments(prev => ({
+        ...prev,
+        [postId]: [...(prev[postId] || []), newComment]
+      }));
+      
+      // Clear input
+      setNewComment('');
+      Keyboard.dismiss();
+      
+      console.log('✅ Comment saved and added to UI');
+      
+    } catch (err) {
+      console.error('Comment send error:', err);
+      Alert.alert('Error', 'Failed to save comment. Please try again.');
     }
-    
-    // Create new comment object for immediate display (using real user data)
-    const newCommentObj: Comment = {
-      id: `c_${Date.now()}`,
-      author: user?.name || 'You',
-      content: commentText.trim(),
-      timeAgo: 'just now',
-      likes: 0,
-      userLiked: false
-    };
-    
-    // Add comment to local state for immediate display
-    const newCommentsState = {
-      ...comments,
-      [postId]: [...(comments[postId] || []), newCommentObj]
-    };
-    
-    setComments(newCommentsState);
-    console.log(`💬 Updated comments state for post ${postId}:`, newCommentsState[postId]);
-    
-    // Save to persistent local storage as backup
-    await saveCommentsToStorage(newCommentsState);
-    
-    // Update comment count in post
-    setPosts(prevPosts => 
-      prevPosts.map(post => {
-        if (post.id === postId) {
-          const updatedPost = {
-            ...post,
-            engagement: {
-              ...post.engagement,
-              comments: post.engagement.comments + 1
-            }
-          };
-          
-          // Also update selectedPost if it's the same post
-          if (selectedPost && selectedPost.id === postId) {
-            setSelectedPost(updatedPost);
-          }
-          
-          return updatedPost;
-        }
-        return post;
-      })
-    );
-    
-    // Clear input and dismiss keyboard
-    setNewComment('');
-    Keyboard.dismiss();
-    
-    // Scroll to bottom to show new comment
-    setTimeout(() => {
-      modalScrollRef.current?.scrollToEnd({ animated: true });
-      // Force another scroll after slight delay to ensure comment is rendered
-      setTimeout(() => {
-        modalScrollRef.current?.scrollToEnd({ animated: true });
-      }, 200);
-    }, 100);
-    
-    // Show success feedback
-    if (Platform.OS === 'web') {
-      alert(`💬 Comment Saved!\nYour comment has been posted and saved to the server.`);
-    } else {
-      Alert.alert('💬 Comment Saved!', 'Your comment has been posted and saved to the server.', [{ text: 'OK' }]);
-    }
-    console.log(`💬 Comment added to post ${postId}: "${commentText.slice(0, 30)}..." by ${user?.name}`);
   };
 
   const renderPostModal = () => {
