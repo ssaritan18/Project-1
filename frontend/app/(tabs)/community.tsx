@@ -179,6 +179,14 @@ export default function CommunityScreen() {
     loadCommentsFromStorage();
     loadCommentsFromBackend(); // Also load from backend
     
+    // TEMPORARY: Set auth token for offline testing
+    const setTestToken = async () => {
+      const testToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTU5MmQ4YS0xOWVjLTQ4MmEtODU3ZS1mMTJhMGNjNTRhNzYiLCJlbWFpbCI6InNzYXJpdGFuQGV4YW1wbGUuY29tIiwiZXhwIjoxNzU3Njc1Nzk5LCJpYXQiOjE3NTcwNzA5OTl9.q56z3bbqsQ6K0npfzK7SSR81GC5BeTz_jkGDgLsd7KI";
+      await AsyncStorage.setItem('@auth_token', testToken);
+      console.log('✅ Test auth token set for offline mode');
+    };
+    setTestToken();
+    
     // Simple comment loading on mount for each post
     const loadInitialComments = async () => {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
