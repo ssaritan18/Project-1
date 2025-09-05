@@ -367,7 +367,7 @@ export default function CommunityScreen() {
   };
 
   // Create new post - Twitter style
-  const handleCreatePost = () => {
+  const handleCreatePost = async () => {
     if (!newPost.trim()) return;
     
     if (!user) {
@@ -375,24 +375,65 @@ export default function CommunityScreen() {
       return;
     }
 
-    const post: Post = {
-      id: `post_${Date.now()}`,
-      content: newPost.trim(),
-      author: user.name || 'Anonymous',
-      authorId: user.id || user.email || 'anonymous',
-      category: activeCategory,
-      timestamp: new Date(),
-      likes: 0,
-      replies: 0,
-      shares: 0,
-      userLiked: false
-    };
-
-    setPosts(prev => [post, ...prev]); // Latest first
-    setNewPost('');
+    setIsLoading(true);
     
-    console.log('✅ New post created:', post);
-    Alert.alert('Success', 'Post created successfully!');
+    try {
+      const postData = {
+        content: newPost.trim(),
+        author: user.name || 'Anonymous',
+        authorId: user.id || user.email || 'anonymous',
+        category: activeCategory
+      };
+
+      if (isProductionMode) {
+        // Save to backend first
+        const backendPost = await savePostToBackend(postData);
+        if (backendPost) {
+          // Use backend response
+          const post: Post = {
+            ...backendPost,
+            timestamp: new Date(backendPost.timestamp),
+            userLiked: false
+          };
+          setPosts(prev => [post, ...prev]);
+          showToast('Post created and saved!', 'success');
+        } else {
+          // Backend failed, still create locally
+          const localPost: Post = {
+            id: `post_${Date.now()}`,
+            ...postData,
+            timestamp: new Date(),
+            likes: 0,
+            replies: 0,
+            shares: 0,
+            userLiked: false
+          };
+          setPosts(prev => [localPost, ...prev]);
+          showToast('Post created locally (server unavailable)', 'warning');
+        }
+      } else {
+        // Test mode - create locally only
+        const post: Post = {
+          id: `post_${Date.now()}`,
+          ...postData,
+          timestamp: new Date(),
+          likes: 0,
+          replies: 0,
+          shares: 0,
+          userLiked: false
+        };
+        setPosts(prev => [post, ...prev]);
+        showToast('Test post created!', 'success');
+        console.log('🧪 Test post created (not saved to backend):', post);
+      }
+
+      setNewPost('');
+    } catch (error) {
+      console.error('❌ Error creating post:', error);
+      showToast('Failed to create post', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Handle delete post
