@@ -398,3 +398,476 @@ export default function CommunityScreen() {
             </ScrollView>
           </View>
         )}
+        </ScrollView>
+
+        {/* Post Creation - Twitter Style */}
+        <View style={styles.postCreationContainer}>
+          <View style={styles.postInputContainer}>
+            <TextInput
+              style={styles.postInput}
+              placeholder="What's happening?"
+              placeholderTextColor="rgba(255,255,255,0.6)"
+              value={newPost}
+              onChangeText={setNewPost}
+              multiline={true}
+              maxLength={280}
+            />
+          </View>
+          <TouchableOpacity 
+            style={[styles.postButton, !newPost.trim() && styles.disabledButton]}
+            onPress={handleCreatePost}
+            disabled={!newPost.trim()}
+          >
+            <Text style={styles.postButtonText}>Post</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Posts Feed */}
+        <ScrollView style={styles.feedContainer} showsVerticalScrollIndicator={false}>
+          {getFilteredPosts().length === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>
+                No posts in {categories.find(c => c.id === activeCategory)?.name} yet
+              </Text>
+              <Text style={styles.emptyStateSubtext}>
+                Be the first to share something!
+              </Text>
+            </View>
+          ) : (
+            getFilteredPosts().map(post => (
+              <View key={post.id} style={styles.postCard}>
+                <LinearGradient
+                  colors={['rgba(139, 92, 246, 0.1)', 'rgba(168, 85, 247, 0.05)']}
+                  style={styles.postGradient}
+                >
+                  {/* Post Header */}
+                  <View style={styles.postHeader}>
+                    <View style={styles.postAuthorInfo}>
+                      {/* Profile Avatar */}
+                      <View style={styles.postAvatar}>
+                        {getUserAvatar(post.authorId) ? (
+                          <img 
+                            src={getUserAvatar(post.authorId)!} 
+                            alt="Profile" 
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              borderRadius: '50%',
+                              objectFit: 'cover'
+                            }}
+                          />
+                        ) : (
+                          <Text style={styles.postAvatarText}>
+                            {getUserInitials(post.author)}
+                          </Text>
+                        )}
+                      </View>
+                      
+                      <View style={styles.postAuthorDetails}>
+                        <Text style={styles.postAuthor}>{post.author}</Text>
+                        <Text style={styles.postTime}>{getRelativeTime(post.timestamp)}</Text>
+                      </View>
+                    </View>
+                    
+                    {/* Delete button - only show for own posts */}
+                    {post.authorId === (user?.id || user?.email) && (
+                      <TouchableOpacity 
+                        style={styles.deleteButton}
+                        onPress={() => handleDeletePost(post.id)}
+                      >
+                        <Ionicons name="ellipsis-horizontal" size={20} color="rgba(255,255,255,0.7)" />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+
+                  {/* Post Content */}
+                  <Text style={styles.postContent}>{post.content}</Text>
+
+                  {/* Post Actions - Twitter Style */}
+                  <View style={styles.postActions}>
+                    <TouchableOpacity 
+                      style={styles.actionButton}
+                      onPress={() => handleReply(post)}
+                    >
+                      <Ionicons name="chatbubble-outline" size={18} color="rgba(255,255,255,0.7)" />
+                      <Text style={styles.actionText}>{post.replies}</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                      style={styles.actionButton}
+                      onPress={() => handleShare(post.id)}
+                    >
+                      <Ionicons name="repeat-outline" size={18} color="rgba(255,255,255,0.7)" />
+                      <Text style={styles.actionText}>{post.shares}</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                      style={styles.actionButton}
+                      onPress={() => handleLike(post.id)}
+                    >
+                      <Ionicons 
+                        name={post.userLiked ? "heart" : "heart-outline"} 
+                        size={18} 
+                        color={post.userLiked ? "#EC4899" : "rgba(255,255,255,0.7)"} 
+                      />
+                      <Text style={[
+                        styles.actionText,
+                        post.userLiked && { color: '#EC4899' }
+                      ]}>
+                        {post.likes}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </LinearGradient>
+              </View>
+            ))
+          )}
+        </ScrollView>
+
+        {/* Reply Modal - Simple Twitter Style */}
+        {showReplyModal && selectedPost && (
+          <View style={styles.modalOverlay}>
+            <View style={styles.replyModal}>
+              <LinearGradient
+                colors={['rgba(139, 92, 246, 0.95)', 'rgba(168, 85, 247, 0.95)']}
+                style={styles.replyModalGradient}
+              >
+                <View style={styles.replyHeader}>
+                  <View style={styles.replyHeaderInfo}>
+                    {/* User's avatar in reply modal */}
+                    <View style={styles.replyAvatar}>
+                      {profileImage ? (
+                        <img 
+                          src={profileImage} 
+                          alt="Your Profile" 
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: '50%',
+                            objectFit: 'cover'
+                          }}
+                        />
+                      ) : (
+                        <Text style={styles.replyAvatarText}>
+                          {getUserInitials(user?.name || 'You')}
+                        </Text>
+                      )}
+                    </View>
+                    
+                    <Text style={styles.replyTitle}>Reply to {selectedPost.author}</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => setShowReplyModal(false)}>
+                    <Ionicons name="close" size={24} color="white" />
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={styles.originalPost}>{selectedPost.content}</Text>
+
+                <TextInput
+                  style={styles.replyInput}
+                  placeholder="Post your reply..."
+                  placeholderTextColor="rgba(255,255,255,0.6)"
+                  value={replyText}
+                  onChangeText={setReplyText}
+                  multiline={true}
+                  maxLength={280}
+                />
+
+                <View style={styles.replyActions}>
+                  <TouchableOpacity 
+                    style={styles.cancelButton}
+                    onPress={() => setShowReplyModal(false)}
+                  >
+                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[styles.replyButton, !replyText.trim() && styles.disabledButton]}
+                    onPress={handleSubmitReply}
+                    disabled={!replyText.trim()}
+                  >
+                    <Text style={styles.replyButtonText}>Reply</Text>
+                  </TouchableOpacity>
+                </View>
+              </LinearGradient>
+            </View>
+          </View>
+        )}
+      </LinearGradient>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  gradient: {
+    flex: 1,
+  },
+  header: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',color: 'white',
+    textAlign: 'center',
+  },
+  categoriesContainer: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    maxHeight: 50,
+  },
+  categoryButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginRight: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.5)',
+  },
+  activeCategoryButton: {
+    backgroundColor: 'rgba(139, 92, 246, 0.3)',
+    borderColor: '#8B5CF6',
+  },
+  categoryText: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  activeCategoryText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  postCreationContainer: {
+    flexDirection: 'row',
+    padding: 20,
+    alignItems: 'flex-end',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(139, 92, 246, 0.2)',
+  },
+  postInputContainer: {
+    flex: 1,
+    marginRight: 15,
+  },
+  postInput: {
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    borderRadius: 15,
+    padding: 15,
+    color: 'white',
+    fontSize: 16,
+    minHeight: 50,
+    maxHeight: 100,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  postButton: {
+    backgroundColor: '#8B5CF6',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+  disabledButton: {
+    backgroundColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  postButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  feedContainer: {
+    flex: 1,
+    paddingHorizontal: 15,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyStateText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  emptyStateSubtext: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 16,
+  },
+  postCard: {
+    marginVertical: 8,
+    borderRadius: 15,
+    overflow: 'hidden',
+  },
+  postGradient: {
+    padding: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.2)',
+    borderRadius: 15,
+  },
+  postHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  deleteButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  postAuthorInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  postAuthor: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  postTime: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 14,
+  },
+  postContent: {
+    color: 'white',
+    fontSize: 16,
+    lineHeight: 24,
+    marginBottom: 15,
+  },
+  postActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(139, 92, 246, 0.2)',
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+  },
+  actionText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 14,
+    marginLeft: 6,
+  },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  replyModal: {
+    width: '90%',
+    maxWidth: 400,
+    borderRadius: 15,
+    overflow: 'hidden',
+  },
+  replyModalGradient: {
+    padding: 20,
+  },
+  replyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  replyTitle: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  replyHeaderInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  replyAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(139, 92, 246, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(139, 92, 246, 0.5)',
+  },
+  replyAvatarText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  originalPost: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 14,
+    fontStyle: 'italic',
+    marginBottom: 15,
+    padding: 10,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 10,
+  },
+  replyInput: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 10,
+    padding: 15,
+    color: 'white',
+    fontSize: 16,
+    minHeight: 80,
+    maxHeight: 120,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  replyActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  cancelButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginRight: 10,
+  },
+  cancelButtonText: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 16,
+  },
+  replyButton: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  replyButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  postAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(139, 92, 246, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(139, 92, 246, 0.5)',
+  },
+  postAvatarText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  postAuthorDetails: {
+    flex: 1,
+  },
+});
