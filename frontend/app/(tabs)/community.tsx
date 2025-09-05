@@ -685,7 +685,7 @@ export default function CommunityScreen() {
                     maxLength={500}
                     onSubmitEditing={() => {
                       if (newComment.trim()) {
-                        addComment(selectedPost.id, newComment);
+                        handleSend(selectedPost.id, newComment);
                       }
                     }}
                     blurOnSubmit={false}
@@ -693,7 +693,7 @@ export default function CommunityScreen() {
                   />
                   <TouchableOpacity 
                     style={[styles.commentSubmitBtn, { opacity: newComment.trim() ? 1 : 0.5 }]}
-                    onPress={() => addComment(selectedPost.id, newComment)}
+                    onPress={() => handleSend(selectedPost.id, newComment)}
                     disabled={!newComment.trim()}
                   >
                     <Ionicons name="send" size={16} color="#8B5CF6" />
