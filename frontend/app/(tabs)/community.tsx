@@ -737,6 +737,12 @@ export default function CommunityScreen() {
               <Text style={{color: 'yellow', fontSize: 10}}>
                 DEBUG: User comments: {safeToArray(comments[selectedPost.id]).length}, Mock: {safeToArray(getCommentsForPost(selectedPost.id)).length}
               </Text>
+              <Text style={{color: 'cyan', fontSize: 9}}>
+                Comments State Keys: {Object.keys(comments).join(', ')} | Selected Post ID: {selectedPost.id}
+              </Text>
+              <Text style={{color: 'orange', fontSize: 9}}>
+                Comments for this post: {JSON.stringify(comments[selectedPost.id] || 'undefined')}
+              </Text>
               
               {/* Show user comments for this post first, then mock comments */}
               {safeToArray(comments[selectedPost.id]).map((comment) => (
