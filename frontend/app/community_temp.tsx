@@ -768,6 +768,10 @@ const styles = StyleSheet.create({
   postContentContainer: {
     marginBottom: 15,
   },
+  hashtag: {
+    color: '#8B5CF6',
+    fontWeight: 'bold',
+  },
   postActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
