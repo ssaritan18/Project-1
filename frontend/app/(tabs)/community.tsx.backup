@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   View, 
   Text, 
@@ -8,12 +8,15 @@ import {
   Alert,
   Modal,
   TextInput,
-  Keyboard
+  Keyboard,
+  Platform
 } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from "../../src/context/AuthContext";
 import { MockAdBanner } from "../../src/components/MockAdBanner";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface CommunityPost {
   id: string;
@@ -48,6 +51,7 @@ interface Comment {
 
 export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
+  const { user } = useAuth(); // Get user info for comments
   const [selectedPost, setSelectedPost] = useState<CommunityPost | null>(null);
   const [showPostModal, setShowPostModal] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'all' | 'trending' | 'recent' | 'research'>('trending');
@@ -163,8 +167,154 @@ export default function CommunityScreen() {
 
   const [posts, setPosts] = useState<CommunityPost[]>(communityPosts); // Make posts state manageable
   const [newComment, setNewComment] = useState(''); // For comment input
-  const [comments, setComments] = useState<Comment[]>([]); // Store actual comments per post
+  const [comments, setComments] = useState<Record<string, Comment[]>>({}); // Store comments per post ID
   const commentInputRef = useRef<TextInput>(null); // Reference for comment input
+  const modalScrollRef = useRef<ScrollView>(null); // Reference for modal scroll
+
+  // Storage keys for persistence
+  const COMMENTS_STORAGE_KEY = '@adhd_community_comments';
+
+  // Load comments from storage and backend on mount
+  useEffect(() => {
+    loadCommentsFromStorage();
+    loadCommentsFromBackend(); // Also load from backend
+    
+    // TEMPORARY: Set auth token for offline testing
+    const setTestToken = async () => {
+      const testToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NTU5MmQ4YS0xOWVjLTQ4MmEtODU3ZS1mMTJhMGNjNTRhNzYiLCJlbWFpbCI6InNzYXJpdGFuQGV4YW1wbGUuY29tIiwiZXhwIjoxNzU3Njc1Nzk5LCJpYXQiOjE3NTcwNzA5OTl9.q56z3bbqsQ6K0npfzK7SSR81GC5BeTz_jkGDgLsd7KI";
+      await AsyncStorage.setItem('@auth_token', testToken);
+      console.log('✅ Test auth token set for offline mode');
+    };
+    setTestToken();
+    
+    // Simple comment loading on mount for each post
+    const loadInitialComments = async () => {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      
+      for (const post of communityPosts) {
+        try {
+          const response = await fetch(`${backendUrl}/api/comments/${post.id}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.comments) {
+              const formattedComments = data.comments.map((c: any) => ({
+                id: c.id || c._id,
+                author: c.author_name,
+                content: c.content,
+                timeAgo: getTimeAgo(c.created_at),
+                likes: c.likes || 0,
+                userLiked: c.user_liked || false
+              }));
+              
+              setComments(prev => ({
+                ...prev,
+                [post.id]: formattedComments
+              }));
+            }
+          }
+        } catch (error) {
+          console.log(`Error loading comments for post ${post.id}:`, error);
+        }
+      }
+    };
+    
+    loadInitialComments();
+  }, []);
+
+  // Load persisted comments from local storage
+  const loadCommentsFromStorage = async () => {
+    try {
+      const storedComments = await AsyncStorage.getItem(COMMENTS_STORAGE_KEY);
+      if (storedComments) {
+        const parsedComments = JSON.parse(storedComments);
+        setComments(parsedComments);
+        console.log('📱 Loaded comments from storage:', Object.keys(parsedComments).length, 'posts');
+      }
+    } catch (error) {
+      console.error('❌ Failed to load comments from storage:', error);
+    }
+  };
+
+  // Load comments from backend for all posts
+  const loadCommentsFromBackend = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const backendComments: Record<string, Comment[]> = {};
+      
+      // Load comments for each post
+      for (const post of communityPosts) {
+        try {
+          const response = await fetch(`${backendUrl}/api/comments/${post.id}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.comments) {
+              // Convert backend comment format to frontend format
+              const formattedComments = data.comments.map((comment: any) => ({
+                id: comment.id || comment._id,
+                author: comment.author_name,
+                content: comment.content,
+                timeAgo: getTimeAgo(comment.created_at),
+                likes: comment.likes || 0,
+                userLiked: comment.user_liked || false
+              }));
+              backendComments[post.id] = formattedComments;
+              console.log(`📥 Loaded ${formattedComments.length} comments for post ${post.id} from backend`);
+            }
+          }
+        } catch (error) {
+          console.log(`⚠️ Failed to load comments for post ${post.id}:`, error);
+        }
+      }
+      
+      // Merge backend comments with local storage comments
+      if (Object.keys(backendComments).length > 0) {
+        setComments(prevComments => ({
+          ...prevComments,
+          ...backendComments
+        }));
+        console.log('📥 Backend comments loaded for', Object.keys(backendComments).length, 'posts');
+      }
+    } catch (error) {
+      console.log('⚠️ Backend comment loading failed:', error);
+    }
+  };
+
+  // Helper function to format time ago
+  const getTimeAgo = (dateString: string): string => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMinutes / 60);
+      const diffDays = Math.floor(diffHours / 24);
+      
+      if (diffMinutes < 1) return 'just now';
+      if (diffMinutes < 60) return `${diffMinutes} min ago`;
+      if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+      if (diffDays < 30) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+      return date.toLocaleDateString();
+    } catch (error) {
+      return 'recently';
+    }
+  };
+
+  // Save comments to storage
+  const saveCommentsToStorage = async (commentsToSave: Record<string, Comment[]>) => {
+    try {
+      await AsyncStorage.setItem(COMMENTS_STORAGE_KEY, JSON.stringify(commentsToSave));
+      console.log('💾 Saved comments to storage');
+    } catch (error) {
+      console.error('❌ Failed to save comments to storage:', error);
+    }
+  };
+
+  // Safe array helper to prevent .map errors
+  const safeToArray = (value: any): any[] => {
+    if (Array.isArray(value)) return value;
+    if (value === null || value === undefined) return [];
+    return [];
+  };
 
   // Mock comments for posts
   const getCommentsForPost = (postId: string): Comment[] => {
@@ -280,23 +430,8 @@ export default function CommunityScreen() {
     Alert.alert('TEST', `Like clicked for post ${postId}!`, [{ text: 'OK' }]); // DEBUG: Temporary test alert
   };
 
-  const addComment = (postId: string, commentText: string) => {
-    if (!commentText.trim()) return;
-    
-    // Create new comment object
-    const newCommentObj: Comment = {
-      id: `c_${Date.now()}`,
-      author: 'You',
-      content: commentText.trim(),
-      timeAgo: 'just now',
-      likes: 0,
-      userLiked: false
-    };
-    
-    // Add comment to local state for immediate display
-    setComments(prevComments => [...prevComments, newCommentObj]);
-    
-    // Update comment count in post
+  const handleShare = (postId: string, postTitle: string) => {
+    // Update share count in posts
     setPosts(prevPosts => 
       prevPosts.map(post => {
         if (post.id === postId) {
@@ -304,7 +439,7 @@ export default function CommunityScreen() {
             ...post,
             engagement: {
               ...post.engagement,
-              comments: post.engagement.comments + 1
+              shares: post.engagement.shares + 1
             }
           };
           
@@ -319,13 +454,114 @@ export default function CommunityScreen() {
       })
     );
     
-    // Clear input and dismiss keyboard
-    setNewComment('');
-    Keyboard.dismiss();
-    
     // Show success feedback
-    Alert.alert('💬 Comment Added!', 'Your comment has been posted successfully.', [{ text: 'OK' }]);
-    console.log(`💬 Comment added to post ${postId}: "${commentText.slice(0, 30)}..."`);
+    if (Platform.OS === 'web') {
+      // Web için visible alert
+      alert(`🔗 Shared Successfully!\n"${postTitle}" has been shared to your network.`);
+    } else {
+      // Mobile için Alert.alert
+      Alert.alert(
+        '🔗 Shared Successfully!', 
+        `"${postTitle}" has been shared to your network.`, 
+        [
+          { 
+            text: 'OK',
+            style: 'default'
+          }
+        ]
+      );
+    }
+    console.log(`🔗 Post shared: ${postId} - "${postTitle}"`);
+  };
+
+  const toggleCommentLike = (commentId: string, postId: string) => {
+    // First try to update user comments
+    let foundInUserComments = false;
+    setComments(prevComments => {
+      const updatedComments = { ...prevComments };
+      if (updatedComments[postId]) {
+        updatedComments[postId] = updatedComments[postId].map(comment => {
+          if (comment.id === commentId) {
+            foundInUserComments = true;
+            const newLikedState = !comment.userLiked;
+            return {
+              ...comment,
+              likes: newLikedState ? comment.likes + 1 : comment.likes - 1,
+              userLiked: newLikedState
+            };
+          }
+          return comment;
+        });
+      }
+      return updatedComments;
+    });
+    
+    // If not found in user comments, it must be a mock comment - show visual feedback
+    if (!foundInUserComments) {
+      if (Platform.OS === 'web') {
+        alert(`❤️ Liked comment! (Mock comments don't persist)`);
+      } else {
+        Alert.alert('❤️ Liked!', 'Comment liked! (Mock comments don\'t persist)', [{ text: 'OK' }]);
+      }
+    }
+    
+    console.log(`❤️ Comment like toggled: ${commentId} in post ${postId}, found in user comments: ${foundInUserComments}`);
+  };
+
+  const handleSend = async (postId: string, commentText: string) => {
+    if (!commentText.trim()) return;
+    
+    try {
+      // Get auth token from storage
+      const authToken = await AsyncStorage.getItem('@auth_token');
+      
+      if (!authToken) {
+        console.log('⚠️ No auth token found, cannot save to backend');
+        Alert.alert('Authentication Required', 'Please log in to save comments.');
+        return;
+      }
+      
+      // Save to backend
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      await fetch(`${backendUrl}/api/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          post_id: postId,
+          content: commentText.trim(),
+          likes: 0,
+          user_liked: false
+        })
+      });
+      
+      // Immediately update UI by appending new comment to list
+      const newComment = {
+        id: `c_${Date.now()}`,
+        author: user?.name || 'You',
+        content: commentText.trim(),
+        timeAgo: 'just now',
+        likes: 0,
+        userLiked: false
+      };
+      
+      setComments(prev => ({
+        ...prev,
+        [postId]: [...(prev[postId] || []), newComment]
+      }));
+      
+      // Clear input
+      setNewComment('');
+      Keyboard.dismiss();
+      
+      console.log('✅ Comment saved and added to UI');
+      
+    } catch (err) {
+      console.error('Comment send error:', err);
+      Alert.alert('Error', 'Failed to save comment. Please try again.');
+    }
   };
 
   const renderPostModal = () => {
@@ -356,7 +592,7 @@ export default function CommunityScreen() {
             <View style={styles.headerSpacer} />
           </View>
 
-          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+          <ScrollView ref={modalScrollRef} style={styles.modalContent} showsVerticalScrollIndicator={false}>
             {/* Post Content */}
             <View style={styles.fullPostContainer}>
               <View style={styles.postHeader}>
@@ -413,9 +649,7 @@ export default function CommunityScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity 
                   style={styles.engagementButton}
-                  onPress={() => {
-                    Alert.alert('🔗 Shared!', 'Post shared successfully!', [{ text: 'OK' }]);
-                  }}
+                  onPress={() => handleShare(selectedPost.id, selectedPost.title)}
                 >
                   <Ionicons name="share-outline" size={20} color="#E5E7EB" />
                   <Text style={styles.engagementText}>{selectedPost.engagement.shares}</Text>
@@ -424,17 +658,48 @@ export default function CommunityScreen() {
             </View>
 
             {/* Comments Section */}
-            <View style={styles.commentsSection}>
-              <Text style={styles.commentsTitle}>💬 Comments ({comments.length})</Text>
+            <View key={`comments-${selectedPost.id}-${safeToArray(comments[selectedPost.id]).length}`} style={styles.commentsSection}>
+              <Text style={styles.commentsTitle}>💬 Comments ({selectedPost.engagement.comments})</Text>
               
-              {comments.map((comment) => (
+              {/* DEBUG INFO */}
+              <Text style={{color: 'yellow', fontSize: 10}}>
+                DEBUG: User comments: {safeToArray(comments[selectedPost.id]).length}, Mock: {safeToArray(getCommentsForPost(selectedPost.id)).length}
+              </Text>
+              
+              {/* Show user comments for this post first, then mock comments */}
+              {safeToArray(comments[selectedPost.id]).map((comment) => (
                 <View key={comment.id} style={styles.commentItem}>
                   <View style={styles.commentHeader}>
                     <Text style={styles.commentAuthor}>{comment.author}</Text>
                     <Text style={styles.commentTime}>{comment.timeAgo}</Text>
                   </View>
                   <Text style={styles.commentContent}>{comment.content}</Text>
-                  <TouchableOpacity style={styles.commentLike}>
+                  <TouchableOpacity 
+                    style={styles.commentLike}
+                    onPress={() => toggleCommentLike(comment.id, selectedPost.id)}
+                  >
+                    <Ionicons 
+                      name={comment.userLiked ? "heart" : "heart-outline"} 
+                      size={16} 
+                      color={comment.userLiked ? "#EC4899" : "#9CA3AF"} 
+                    />
+                    <Text style={styles.commentLikeText}>{comment.likes}</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+              
+              {/* Then show mock comments */}
+              {safeToArray(getCommentsForPost(selectedPost.id)).map((comment) => (
+                <View key={comment.id} style={styles.commentItem}>
+                  <View style={styles.commentHeader}>
+                    <Text style={styles.commentAuthor}>{comment.author}</Text>
+                    <Text style={styles.commentTime}>{comment.timeAgo}</Text>
+                  </View>
+                  <Text style={styles.commentContent}>{comment.content}</Text>
+                  <TouchableOpacity 
+                    style={styles.commentLike}
+                    onPress={() => toggleCommentLike(comment.id, selectedPost.id)}
+                  >
                     <Ionicons 
                       name={comment.userLiked ? "heart" : "heart-outline"} 
                       size={16} 
@@ -445,11 +710,9 @@ export default function CommunityScreen() {
                 </View>
               ))}
 
-              {comments.length === 0 && (
+              {safeToArray(comments[selectedPost.id]).length === 0 && getCommentsForPost(selectedPost.id).length === 0 && (
                 <Text style={styles.noComments}>No comments yet. Be the first to share your thoughts!</Text>
-              )}
-              
-              {/* Comment Input Section */}
+              )}                            {/* Comment Input Section */}
               <View style={styles.commentInputSection}>
                 <View style={styles.commentInputContainer}>
                   <TextInput
@@ -463,7 +726,7 @@ export default function CommunityScreen() {
                     maxLength={500}
                     onSubmitEditing={() => {
                       if (newComment.trim()) {
-                        addComment(selectedPost.id, newComment);
+                        handleSend(selectedPost.id, newComment);
                       }
                     }}
                     blurOnSubmit={false}
@@ -471,7 +734,7 @@ export default function CommunityScreen() {
                   />
                   <TouchableOpacity 
                     style={[styles.commentSubmitBtn, { opacity: newComment.trim() ? 1 : 0.5 }]}
-                    onPress={() => addComment(selectedPost.id, newComment)}
+                    onPress={() => handleSend(selectedPost.id, newComment)}
                     disabled={!newComment.trim()}
                   >
                     <Ionicons name="send" size={16} color="#8B5CF6" />
@@ -619,7 +882,7 @@ export default function CommunityScreen() {
                         </TouchableOpacity>
                         <TouchableOpacity 
                           style={styles.engagementStatItem}
-                          onPress={() => Alert.alert('🔗 Shared!', `Post "${post.title}" shared!`, [{ text: 'OK' }])}
+                          onPress={() => handleShare(post.id, post.title)}
                         >
                           <Ionicons name="share-outline" size={16} color="#9CA3AF" />
                           <Text style={styles.statText}>{post.engagement.shares}</Text>
