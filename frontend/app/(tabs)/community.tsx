@@ -459,6 +459,21 @@ export default function CommunityScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>ADHDers Social Club</Text>
+          
+          {/* Notification Bell */}
+          <TouchableOpacity 
+            style={styles.notificationBell}
+            onPress={() => setShowNotifications(true)}
+          >
+            <Ionicons name="notifications" size={24} color="white" />
+            {getUnreadCount() > 0 && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationBadgeText}>
+                  {getUnreadCount() > 99 ? '99+' : getUnreadCount()}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
 
         {/* Categories */}
