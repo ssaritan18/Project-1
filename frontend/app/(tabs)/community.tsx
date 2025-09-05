@@ -763,7 +763,7 @@ export default function CommunityScreen() {
                 </View>
               ))}
               
-              {/* Then show mock comments */}
+              {/* DISABLE MOCK COMMENTS - THEY ARE OVERRIDING REAL COMMENTS */}
               {safeToArray(getCommentsForPost(selectedPost.id)).map((comment) => (
                 <View key={comment.id} style={styles.commentItem}>
                   <View style={styles.commentHeader}>
