@@ -596,20 +596,45 @@ export default function CommunityScreen() {
         <View style={styles.header}>
           <Text style={styles.headerTitle}>ADHDers Social Club</Text>
           
-          {/* Notification Bell */}
-          <TouchableOpacity 
-            style={styles.notificationBell}
-            onPress={() => setShowNotifications(true)}
-          >
-            <Ionicons name="notifications" size={24} color="white" />
-            {getUnreadCount() > 0 && (
-              <View style={styles.notificationBadge}>
-                <Text style={styles.notificationBadgeText}>
-                  {getUnreadCount() > 99 ? '99+' : getUnreadCount()}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            {/* Production Mode Toggle */}
+            <TouchableOpacity 
+              style={[
+                styles.productionToggle, 
+                isProductionMode && styles.productionToggleActive
+              ]}
+              onPress={() => {
+                setIsProductionMode(!isProductionMode);
+                showToast(
+                  `${!isProductionMode ? 'Production' : 'Test'} mode enabled`,
+                  'info'
+                );
+                console.log(`🔄 Switched to ${!isProductionMode ? 'production' : 'test'} mode`);
+              }}
+            >
+              <Text style={[
+                styles.productionToggleText,
+                isProductionMode && styles.productionToggleTextActive
+              ]}>
+                {isProductionMode ? 'LIVE' : 'TEST'}
+              </Text>
+            </TouchableOpacity>
+            
+            {/* Notification Bell */}
+            <TouchableOpacity 
+              style={styles.notificationBell}
+              onPress={() => setShowNotifications(true)}
+            >
+              <Ionicons name="notifications" size={24} color="white" />
+              {getUnreadCount() > 0 && (
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.notificationBadgeText}>
+                    {getUnreadCount() > 99 ? '99+' : getUnreadCount()}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Categories */}
