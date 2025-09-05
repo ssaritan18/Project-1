@@ -47,6 +47,11 @@ export default function CommunityScreen() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [replyText, setReplyText] = useState('');
   
+  // Search & Hashtag state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedHashtag, setSelectedHashtag] = useState<string | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
+  
   // Profile image state - sync with Profile tab
   const [profileImage, setProfileImage] = useState<string | null>(null);
   
