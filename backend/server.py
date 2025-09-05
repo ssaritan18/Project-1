@@ -316,7 +316,7 @@ async def get_user_profile(user_id: str):
 async def get_voice_file(filename: str):
     """Serve voice message files"""
     try:
-        file_path = f"/app/backend/uploads/voices/{filename}"
+        file_path = f"{os.getenv('UPLOAD_DIR', './uploads')}/voices/{filename}"
         
         if not os.path.exists(file_path):
             raise HTTPException(status_code=404, detail="Voice file not found")
