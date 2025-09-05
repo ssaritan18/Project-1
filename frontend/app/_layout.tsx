@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { PaperProvider, MD3LightTheme } from "react-native-paper";
+import { Platform } from "react-native";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { RuntimeConfigProvider } from "../src/context/RuntimeConfigContext";
 import { TasksProvider } from "../src/context/TasksContext";
@@ -13,7 +14,16 @@ import { ErrorBoundary } from "../src/components/ErrorBoundary";
 import { CommunityProvider } from "../src/context/CommunityContext";
 import { MoodProvider } from "../src/context/MoodContext";
 import { SubscriptionProvider } from "../src/context/SubscriptionContext";
-import mobileAds from 'react-native-google-mobile-ads';
+
+// Platform-specific imports
+let mobileAds: any = null;
+if (Platform.OS !== 'web') {
+  try {
+    mobileAds = require('react-native-google-mobile-ads').default;
+  } catch (error) {
+    console.log('AdMob not available on this platform');
+  }
+}
 // import { adMobService } from "../src/services/AdMobService"; // Disabled for development
 
 const theme = {
