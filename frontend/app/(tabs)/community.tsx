@@ -341,6 +341,65 @@ export default function CommunityScreen() {
           ))}
         </ScrollView>
 
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchBar}>
+            <Ionicons name="search" size={20} color="rgba(255,255,255,0.6)" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search posts or hashtags..."
+              placeholderTextColor="rgba(255,255,255,0.6)"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              onFocus={() => setShowSearch(true)}
+            />
+            {(searchQuery || selectedHashtag) && (
+              <TouchableOpacity onPress={clearFilters} style={styles.clearButton}>
+                <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.6)" />
+              </TouchableOpacity>
+            )}
+          </View>
+          
+          {/* Active filters display */}
+          {selectedHashtag && (
+            <View style={styles.activeFilters}>
+              <View style={styles.filterTag}>
+                <Text style={styles.filterTagText}>{selectedHashtag}</Text>
+                <TouchableOpacity onPress={() => setSelectedHashtag(null)}>
+                  <Ionicons name="close" size={16} color="white" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* Trending Hashtags */}
+        {getTrendingHashtags().length > 0 && (
+          <View style={styles.trendingContainer}>
+            <Text style={styles.trendingTitle}>🔥 Trending in {categories.find(c => c.id === activeCategory)?.name}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.trendingScroll}>
+              {getTrendingHashtags().map((hashtag, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.trendingTag,
+                    selectedHashtag === hashtag && styles.selectedTrendingTag
+                  ]}
+                  onPress={() => handleHashtagClick(hashtag)}
+                >
+                  <Text style={[
+                    styles.trendingTagText,
+                    selectedHashtag === hashtag && styles.selectedTrendingTagText
+                  ]}>
+                    {hashtag}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+        </ScrollView>
+
         {/* Post Creation - Twitter Style */}
         <View style={styles.postCreationContainer}>
           <View style={styles.postInputContainer}>
