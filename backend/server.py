@@ -1458,7 +1458,7 @@ async def upload_profile_picture(payload: ProfilePictureUpload, user=Depends(get
         filename = f"profile_{user['_id'][:8]}_{uuid.uuid4().hex[:8]}.{file_extension}"
         
         # Create uploads directory if not exists
-        upload_dir = "/app/backend/uploads/profiles"
+        upload_dir = os.getenv('UPLOAD_DIR', './uploads/profiles')
         os.makedirs(upload_dir, exist_ok=True)
         
         # Save file
