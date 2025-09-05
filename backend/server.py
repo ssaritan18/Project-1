@@ -2518,19 +2518,19 @@ logger = logging.getLogger(__name__)
 
 # Comment API endpoints
 @app.post("/api/comments")
-async def create_comment(comment: Comment, current_user = Depends(get_current_user)):
+async def create_comment(comment_data: CommentCreateNew, current_user = Depends(get_current_user)):
     """Create a new comment for a post with proper authentication"""
     try:
-        comment_dict = comment.dict()
-        comment_dict['author_id'] = current_user['id']
+        comment_dict = comment_data.dict()
+        comment_dict['id'] = str(uuid.uuid4())
+        comment_dict['author_id'] = current_user['_id']  # Fixed: use _id instead of id
         comment_dict['author_name'] = current_user['name']
         comment_dict['created_at'] = datetime.now(timezone.utc)
         
         result = await db.comments.insert_one(comment_dict)
         comment_dict['_id'] = str(result.inserted_id)
-        comment_dict['id'] = str(result.inserted_id)  # Add id field for frontend compatibility
         
-        logger.info(f"✅ Comment created for post {comment.post_id} by {current_user['name']}")
+        logger.info(f"✅ Comment created for post {comment_data.post_id} by {current_user['name']}")
         return {"success": True, "comment": comment_dict}
     except Exception as e:
         logger.error(f"❌ Failed to create comment: {str(e)}")
