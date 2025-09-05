@@ -7,7 +7,7 @@ import { PaperProvider, MD3LightTheme } from "react-native-paper";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { RuntimeConfigProvider } from "../src/context/RuntimeConfigContext";
 import { TasksProvider } from "../src/context/TasksContext";
-import { FriendsProvider } from "../src/context/FriendsProvider";
+import { FriendsProvider } from "../src/context/FriendsContext";
 import { ChatProvider } from "../src/context/ChatContext";
 import { ErrorBoundary } from "../src/components/ErrorBoundary";
 import { CommunityProvider } from "../src/context/CommunityContext";
