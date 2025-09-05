@@ -15,16 +15,7 @@ import { CommunityProvider } from "../src/context/CommunityContext";
 import { MoodProvider } from "../src/context/MoodContext";
 import { SubscriptionProvider } from "../src/context/SubscriptionContext";
 
-// Platform-specific imports
-let mobileAds: any = null;
-if (Platform.OS !== 'web') {
-  try {
-    mobileAds = require('react-native-google-mobile-ads').default;
-  } catch (error) {
-    console.log('AdMob not available on this platform');
-  }
-}
-// import { adMobService } from "../src/services/AdMobService"; // Disabled for development
+// import { adMobService } from "../src/services/AdMobService"; // Will be enabled for mobile builds
 
 const theme = {
   ...MD3LightTheme,
