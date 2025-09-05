@@ -461,8 +461,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
+    fontWeight: 'bold',color: 'white',
     textAlign: 'center',
   },
   categoriesContainer: {
@@ -577,7 +576,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-    
   },
   postTime: {
     color: 'rgba(255,255,255,0.6)',
