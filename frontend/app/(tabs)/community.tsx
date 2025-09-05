@@ -405,7 +405,29 @@ export default function CommunityScreen() {
                 style={styles.replyModalGradient}
               >
                 <View style={styles.replyHeader}>
-                  <Text style={styles.replyTitle}>Reply to {selectedPost.author}</Text>
+                  <View style={styles.replyHeaderInfo}>
+                    {/* User's avatar in reply modal */}
+                    <View style={styles.replyAvatar}>
+                      {profileImage ? (
+                        <img 
+                          src={profileImage} 
+                          alt="Your Profile" 
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: '50%',
+                            objectFit: 'cover'
+                          }}
+                        />
+                      ) : (
+                        <Text style={styles.replyAvatarText}>
+                          {getUserInitials(user?.name || 'You')}
+                        </Text>
+                      )}
+                    </View>
+                    
+                    <Text style={styles.replyTitle}>Reply to {selectedPost.author}</Text>
+                  </View>
                   <TouchableOpacity onPress={() => setShowReplyModal(false)}>
                     <Ionicons name="close" size={24} color="white" />
                   </TouchableOpacity>
