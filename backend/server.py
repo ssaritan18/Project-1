@@ -345,7 +345,7 @@ async def get_voice_file(filename: str):
 async def get_profile_picture(filename: str):
     """Serve profile picture files"""
     try:
-        file_path = f"/app/backend/uploads/profiles/{filename}"
+        file_path = f"{os.getenv('UPLOAD_DIR', './uploads')}/profiles/{filename}"
         
         if not os.path.exists(file_path):
             raise HTTPException(status_code=404, detail="Profile picture not found")
