@@ -28,6 +28,24 @@ interface Post {
   userLiked: boolean;
 }
 
+interface Notification {
+  id: string;
+  type: 'like' | 'reply' | 'share';
+  message: string;
+  fromUser: string;
+  postId: string;
+  postPreview: string;
+  timestamp: Date;
+  read: boolean;
+}
+
+interface ToastNotification {
+  id: string;
+  message: string;
+  type: 'success' | 'info' | 'warning';
+  visible: boolean;
+}
+
 const categories = [
   { id: 'general', name: '🏠 General', icon: '🏠' },
   { id: 'tips', name: '💡 Tips & Tricks', icon: '💡' },
