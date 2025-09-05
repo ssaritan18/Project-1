@@ -78,25 +78,38 @@ export default function CommunityScreen() {
 
   // Handle delete post
   const handleDeletePost = (postId: string) => {
-    Alert.alert(
-      'Delete Post',
-      'Are you sure you want to delete this post?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            setPosts(prev => prev.filter(post => post.id !== postId));
-            console.log('✅ Post deleted:', postId);
-            Alert.alert('Success', 'Post deleted successfully!');
+    console.log('🔴 DELETE BUTTON CLICKED for post:', postId);
+    
+    if (Platform.OS === 'web') {
+      // Web fallback - use confirm instead of Alert.alert
+      const confirmed = window.confirm('Are you sure you want to delete this post?');
+      if (confirmed) {
+        setPosts(prev => prev.filter(post => post.id !== postId));
+        console.log('✅ Post deleted:', postId);
+        alert('Post deleted successfully!');
+      }
+    } else {
+      // Mobile Alert.alert
+      Alert.alert(
+        'Delete Post',
+        'Are you sure you want to delete this post?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
           },
-        },
-      ]
-    );
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: () => {
+              setPosts(prev => prev.filter(post => post.id !== postId));
+              console.log('✅ Post deleted:', postId);
+              Alert.alert('Success', 'Post deleted successfully!');
+            },
+          },
+        ]
+      );
+    }
   };
 
   // Handle like
