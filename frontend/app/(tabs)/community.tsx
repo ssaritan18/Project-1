@@ -611,6 +611,11 @@ export default function CommunityScreen() {
       setNewComment('');
       Keyboard.dismiss();
       
+      // Scroll to bottom to show new comment  
+      setTimeout(() => {
+        modalScrollRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+      
       console.log('✅ Comment saved and added to UI');
       console.log(`📝 New comment count for post ${postId}: ${(comments[postId] || []).length + 1}`);
       Alert.alert('Success', 'Comment posted successfully!');
