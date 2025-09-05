@@ -7,7 +7,8 @@ import {
   ScrollView,
   TextInput,
   Alert,
-  Platform
+  Platform,
+  Modal
 } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
