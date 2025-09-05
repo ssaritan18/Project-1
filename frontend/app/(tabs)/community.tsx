@@ -398,7 +398,6 @@ export default function CommunityScreen() {
             </ScrollView>
           </View>
         )}
-        </ScrollView>
 
         {/* Post Creation - Twitter Style */}
         <View style={styles.postCreationContainer}>
