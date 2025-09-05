@@ -736,6 +736,20 @@ export default function CommunityScreen() {
               {/* SINGLE COMMENT TITLE WITH COUNT */}
               <Text style={styles.commentsTitle}>💬 Comments ({selectedPost.engagement.comments})</Text>
               
+              {/* SUPER DETAILED DEBUG */}
+              <Text style={{color: 'red', fontSize: 12}}>
+                🔴 selectedPost.id = "{selectedPost.id}" (type: {typeof selectedPost.id})
+              </Text>
+              <Text style={{color: 'yellow', fontSize: 12}}>
+                🔑 Comments state keys: [{Object.keys(comments).join(', ')}]
+              </Text>
+              <Text style={{color: 'cyan', fontSize: 12}}>
+                🎯 Exact match test: comments["{selectedPost.id}"] = {JSON.stringify(comments[selectedPost.id])}
+              </Text>
+              <Text style={{color: 'green', fontSize: 12}}>
+                📊 All comments state: {JSON.stringify(Object.keys(comments).reduce((acc, key) => ({ ...acc, [key]: comments[key]?.length }), {}))}
+              </Text>
+              
               {/* CHAT-STYLE COMMENT RENDERING - EXACTLY LIKE MESSAGES */}
               {Array.isArray(comments[selectedPost.id]) && comments[selectedPost.id].map((comment, index) => {
                 console.log('🔴 RENDERING COMMENT:', index, comment);
@@ -753,8 +767,7 @@ export default function CommunityScreen() {
               {/* Show count for debugging */}
               <Text style={{color: 'yellow', fontSize: 12}}>
                 DEBUG: Total comments in state: {Array.isArray(comments[selectedPost.id]) ? comments[selectedPost.id].length : 'Not array'}
-              </Text>
-              
+              </Text>              
               {/* Show if no comments */}
               {(!Array.isArray(comments[selectedPost.id]) || comments[selectedPost.id].length === 0) && (
                 <Text style={styles.noComments}>No comments yet. Be the first!</Text>
