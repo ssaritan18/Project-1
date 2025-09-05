@@ -18,7 +18,7 @@ import { EnhancedCelebration } from "../../src/components/EnhancedCelebration";
 import { AchievementBadge } from "../../src/components/AchievementBadge";
 import { StreakVisualization } from "../../src/components/StreakVisualization";
 import { MoodTracker } from "../../src/components/MoodTracker";
-import { MockAdBanner } from "../../src/components/MockAdBanner";
+import SafeBannerAd from "../../src/components/SafeBannerAd";
 import { useChallenges } from "../../src/hooks/useChallenges";
 import { useFocusSession } from "../../src/hooks/useFocusSession";
 import { usePoints } from "../../src/hooks/usePoints";
