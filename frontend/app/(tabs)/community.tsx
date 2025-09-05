@@ -372,15 +372,22 @@ export default function CommunityScreen() {
   const handleShare = (postId: string) => {
     setPosts(prev => prev.map(post => {
       if (post.id === postId) {
-        return {
+        const updatedPost = {
           ...post,
           shares: post.shares + 1
         };
+        
+        // Create notification for post author (if not own post)
+        if (post.authorId !== (user?.id || user?.email)) {
+          createNotification('share', user?.name || 'Someone', postId, post.content);
+        }
+        
+        return updatedPost;
       }
       return post;
     }));
     
-    Alert.alert('Shared!', 'Post shared successfully');
+    showToast('Post shared!', 'success');
   };
 
   // Submit reply
