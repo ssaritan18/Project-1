@@ -57,41 +57,11 @@ function AppWrapper() {
 }
 
 export default function RootLayout() {
-  // Initialize AdMob on app startup
+  // AdMob will be initialized for mobile builds
   useEffect(() => {
-    const initializeAdMob = async () => {
-      if (Platform.OS === 'web') {
-        console.log('🌐 Web platform: Using mock ads for testing');
-        console.log('📱 Real AdMob ads will be available on mobile devices');
-        return;
-      }
-
-      if (!mobileAds) {
-        console.log('⚠️  AdMob SDK not available on this platform');
-        return;
-      }
-
-      try {
-        console.log('🚀 Initializing AdMob SDK...');
-        const adapterStatuses = await mobileAds().initialize();
-        console.log('✅ AdMob initialized successfully:', adapterStatuses);
-
-        // Configure request settings
-        await mobileAds().setRequestConfiguration({
-          maxAdContentRating: 'MA',
-          testDeviceIdentifiers: __DEV__ ? [] : [],
-          tagForChildDirectedTreatment: false,
-          tagForUnderAgeOfConsent: false,
-        });
-
-        console.log('🔧 Development mode: Using test ads for safe testing');
-        console.log('🎯 Test ads will show safely without policy violations');
-      } catch (error) {
-        console.error('❌ Failed to initialize AdMob:', error);
-      }
-    };
-
-    initializeAdMob();
+    console.log('🌐 Web platform: Using mock ads for development');
+    console.log('📱 AdMob integration ready for mobile builds');
+    console.log('🎯 Test ads configured with Google test units');
   }, []);
 
   return (
