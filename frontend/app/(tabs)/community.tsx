@@ -508,6 +508,22 @@ export default function CommunityScreen() {
     console.log(`❤️ Comment like toggled: ${commentId} in post ${postId}, found in user comments: ${foundInUserComments}`);
   };
 
+  // Get backend URL with environment detection
+  const getBackendUrl = () => {
+    // For web preview environment, use the preview URL
+    if (typeof window !== 'undefined' && window.location.hostname.includes('preview.emergentagent.com')) {
+      return 'https://adhdglow.preview.emergentagent.com';
+    }
+    
+    // For React Native Android emulator
+    if (Platform.OS === 'android') {
+      return process.env.REACT_APP_BACKEND_URL?.replace('localhost', '10.0.2.2') || 'http://10.0.2.2:8001';
+    }
+    
+    // For other environments (iOS simulator, physical device, web dev)
+    return process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+  };
+
   const handleSend = async (postId: string, commentText: string) => {
     if (!commentText.trim()) return;
     
@@ -521,9 +537,11 @@ export default function CommunityScreen() {
         return;
       }
       
-      // Save to backend
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-      await fetch(`${backendUrl}/api/comments`, {
+      // Save to backend with proper URL
+      const backendUrl = getBackendUrl();
+      console.log('🔗 Using backend URL:', backendUrl);
+      
+      const response = await fetch(`${backendUrl}/api/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -536,6 +554,10 @@ export default function CommunityScreen() {
           user_liked: false
         })
       });
+      
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+      }
       
       // Immediately update UI by appending new comment to list
       const newComment = {
@@ -557,10 +579,21 @@ export default function CommunityScreen() {
       Keyboard.dismiss();
       
       console.log('✅ Comment saved and added to UI');
+      Alert.alert('Success', 'Comment posted successfully!');
       
     } catch (err) {
       console.error('Comment send error:', err);
-      Alert.alert('Error', 'Failed to save comment. Please try again.');
+      
+      // Improved error handling
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        Alert.alert('Connection Error', 'Server not reachable. Please check your internet connection.');
+      } else if (err.message.includes('401')) {
+        Alert.alert('Authentication Error', 'Please log in again.');
+      } else if (err.message.includes('500')) {
+        Alert.alert('Server Error', 'Server is having issues. Please try again later.');
+      } else {
+        Alert.alert('Error', 'Failed to save comment. Please try again.');
+      }
     }
   };
 
