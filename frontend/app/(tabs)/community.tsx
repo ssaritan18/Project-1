@@ -866,7 +866,7 @@ export default function CommunityScreen() {
       {/* Post Detail Modal */}
       {renderPostModal()}
       {/* Banner Ad for Free Users */}
-      <MockAdBanner />
+      <SafeBannerAd />
     </LinearGradient>
   );
 }
