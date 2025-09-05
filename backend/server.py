@@ -2670,6 +2670,196 @@ async def get_message_reactions(message_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get reactions: {str(e)}")
 
+# Community Posts API endpoints
+@app.post("/api/community/posts")
+async def create_community_post(post: CommunityPostCreate, current_user = Depends(get_current_user)):
+    """Create a new community post"""
+    try:
+        post_dict = {
+            "id": str(uuid.uuid4()),
+            "content": post.content,
+            "author": current_user['name'],
+            "author_id": current_user['id'],
+            "category": post.category,
+            "timestamp": datetime.now(timezone.utc),
+            "likes": 0,
+            "replies": 0,
+            "shares": 0,
+            "user_liked": False
+        }
+        
+        result = await db.community_posts.insert_one(post_dict)
+        post_dict['_id'] = str(result.inserted_id)
+        
+        logger.info(f"✅ Community post created: {post_dict['id']} by {current_user['name']}")
+        return {"success": True, "post": post_dict}
+    except Exception as e:
+        logger.error(f"❌ Failed to create community post: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to create post: {str(e)}")
+
+@app.get("/api/community/posts")
+async def get_community_posts(category: Optional[str] = None, limit: int = 50):
+    """Get community posts, optionally filtered by category"""
+    try:
+        query = {}
+        if category:
+            query["category"] = category
+            
+        posts = await db.community_posts.find(query).sort("timestamp", -1).limit(limit).to_list(length=None)
+        
+        # Convert ObjectId to string and format for frontend
+        for post in posts:
+            post['id'] = post.get('id', str(post['_id']))
+            if '_id' in post:
+                del post['_id']
+                
+        logger.info(f"📥 Retrieved {len(posts)} community posts for category: {category or 'all'}")
+        return {"success": True, "posts": posts}
+    except Exception as e:
+        logger.error(f"❌ Failed to get community posts: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get posts: {str(e)}")
+
+@app.post("/api/community/posts/{post_id}/like")
+async def like_community_post(post_id: str, current_user = Depends(get_current_user)):
+    """Toggle like on a community post"""
+    try:
+        # Check if user already liked this post
+        user_like = await db.community_likes.find_one({
+            "post_id": post_id,
+            "user_id": current_user['id']
+        })
+        
+        if user_like:
+            # Unlike: Remove like and decrement count
+            await db.community_likes.delete_one({"_id": user_like["_id"]})
+            await db.community_posts.update_one(
+                {"id": post_id},
+                {"$inc": {"likes": -1}}
+            )
+            liked = False
+        else:
+            # Like: Add like and increment count
+            like_doc = {
+                "id": str(uuid.uuid4()),
+                "post_id": post_id,
+                "user_id": current_user['id'],
+                "user_name": current_user['name'],
+                "timestamp": datetime.now(timezone.utc)
+            }
+            await db.community_likes.insert_one(like_doc)
+            await db.community_posts.update_one(
+                {"id": post_id},
+                {"$inc": {"likes": 1}}
+            )
+            liked = True
+            
+        logger.info(f"✅ Community post {post_id} {'liked' if liked else 'unliked'} by {current_user['name']}")
+        return {"success": True, "liked": liked}
+    except Exception as e:
+        logger.error(f"❌ Failed to toggle like: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to toggle like: {str(e)}")
+
+@app.post("/api/community/posts/{post_id}/share")
+async def share_community_post(post_id: str, current_user = Depends(get_current_user)):
+    """Share a community post"""
+    try:
+        # Increment share count
+        result = await db.community_posts.update_one(
+            {"id": post_id},
+            {"$inc": {"shares": 1}}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        # Log the share action
+        share_doc = {
+            "id": str(uuid.uuid4()),
+            "post_id": post_id,
+            "user_id": current_user['id'],
+            "user_name": current_user['name'],
+            "timestamp": datetime.now(timezone.utc)
+        }
+        await db.community_shares.insert_one(share_doc)
+        
+        logger.info(f"✅ Community post {post_id} shared by {current_user['name']}")
+        return {"success": True, "shared": True}
+    except Exception as e:
+        logger.error(f"❌ Failed to share post: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to share post: {str(e)}")
+
+@app.post("/api/community/posts/{post_id}/reply")
+async def reply_to_community_post(post_id: str, reply: CommunityReplyCreate, current_user = Depends(get_current_user)):
+    """Create a reply to a community post"""
+    try:
+        reply_dict = {
+            "id": str(uuid.uuid4()),
+            "post_id": post_id,
+            "author": current_user['name'],
+            "author_id": current_user['id'],
+            "content": reply.content,
+            "timestamp": datetime.now(timezone.utc)
+        }
+        
+        result = await db.community_replies.insert_one(reply_dict)
+        reply_dict['_id'] = str(result.inserted_id)
+        
+        # Increment reply count on original post
+        await db.community_posts.update_one(
+            {"id": post_id},
+            {"$inc": {"replies": 1}}
+        )
+        
+        logger.info(f"✅ Reply created for post {post_id} by {current_user['name']}")
+        return {"success": True, "reply": reply_dict}
+    except Exception as e:
+        logger.error(f"❌ Failed to create reply: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to create reply: {str(e)}")
+
+@app.get("/api/community/posts/{post_id}/replies")
+async def get_community_post_replies(post_id: str):
+    """Get all replies for a community post"""
+    try:
+        replies = await db.community_replies.find({"post_id": post_id}).sort("timestamp", 1).to_list(length=None)
+        
+        # Convert ObjectId to string
+        for reply in replies:
+            reply['id'] = reply.get('id', str(reply['_id']))
+            if '_id' in reply:
+                del reply['_id']
+                
+        logger.info(f"📥 Retrieved {len(replies)} replies for post {post_id}")
+        return {"success": True, "replies": replies}
+    except Exception as e:
+        logger.error(f"❌ Failed to get replies: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get replies: {str(e)}")
+
+@app.delete("/api/community/posts/{post_id}")
+async def delete_community_post(post_id: str, current_user = Depends(get_current_user)):
+    """Delete a community post (only by author)"""
+    try:
+        # Check if post exists and user is the author
+        post = await db.community_posts.find_one({"id": post_id})
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+            
+        if post['author_id'] != current_user['id']:
+            raise HTTPException(status_code=403, detail="Not authorized to delete this post")
+        
+        # Delete the post
+        await db.community_posts.delete_one({"id": post_id})
+        
+        # Delete associated likes and replies
+        await db.community_likes.delete_many({"post_id": post_id})
+        await db.community_replies.delete_many({"post_id": post_id})
+        await db.community_shares.delete_many({"post_id": post_id})
+        
+        logger.info(f"✅ Community post {post_id} deleted by {current_user['name']}")
+        return {"success": True, "deleted": True}
+    except Exception as e:
+        logger.error(f"❌ Failed to delete post: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete post: {str(e)}")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
