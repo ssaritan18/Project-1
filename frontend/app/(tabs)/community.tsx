@@ -595,17 +595,7 @@ export default function CommunityScreen() {
         Alert.alert('Error', 'Failed to save comment. Please try again.');
       }
     }
-  };      setNewComment('');
-      Keyboard.dismiss();
-      
-      console.log('✅ Comment saved and added to UI');
-      
-    } catch (err) {
-      console.error('Comment send error:', err);
-      Alert.alert('Error', 'Failed to save comment. Please try again.');
-    }
   };
-
   const renderPostModal = () => {
     if (!selectedPost) return null;
 
