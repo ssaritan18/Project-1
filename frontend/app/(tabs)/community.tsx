@@ -733,10 +733,8 @@ export default function CommunityScreen() {
 
             {/* Comments Section */}
             <View key={`comments-${selectedPost.id}-${safeToArray(comments[selectedPost.id]).length}-${Date.now()}`} style={styles.commentsSection}>
+              {/* SINGLE COMMENT TITLE WITH COUNT */}
               <Text style={styles.commentsTitle}>💬 Comments ({selectedPost.engagement.comments})</Text>
-              
-              {/* SIMPLE COMMENTS - FIX ALL ISSUES */}
-              <Text style={styles.commentsTitle}>💬 Comments</Text>
               
               {/* FIX: Proper array check before map */}
               {Array.isArray(comments[selectedPost.id]) && comments[selectedPost.id].map((comment, index) => (
