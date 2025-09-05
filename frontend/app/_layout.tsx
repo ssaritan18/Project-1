@@ -7,12 +7,13 @@ import { PaperProvider, MD3LightTheme } from "react-native-paper";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { RuntimeConfigProvider } from "../src/context/RuntimeConfigContext";
 import { TasksProvider } from "../src/context/TasksContext";
-import { FriendsProvider } from "../src/context/FriendsContext";
+import { FriendsProvider } from "../src/context/FriendsProvider";
 import { ChatProvider } from "../src/context/ChatContext";
 import { ErrorBoundary } from "../src/components/ErrorBoundary";
 import { CommunityProvider } from "../src/context/CommunityContext";
 import { MoodProvider } from "../src/context/MoodContext";
 import { SubscriptionProvider } from "../src/context/SubscriptionContext";
+import mobileAds from 'react-native-google-mobile-ads';
 // import { adMobService } from "../src/services/AdMobService"; // Disabled for development
 
 const theme = {
