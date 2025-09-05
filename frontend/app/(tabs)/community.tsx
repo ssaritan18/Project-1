@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-    marginRight: 8,
+    
   },
   postTime: {
     color: 'rgba(255,255,255,0.6)',
