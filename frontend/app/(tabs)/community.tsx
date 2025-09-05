@@ -580,11 +580,39 @@ export default function CommunityScreen() {
         [postId]: [...(prev[postId] || []), newComment]
       }));
       
+      // Update comment count in selectedPost AND posts state
+      if (selectedPost && selectedPost.id === postId) {
+        setSelectedPost(prevSelected => ({
+          ...prevSelected!,
+          engagement: {
+            ...prevSelected!.engagement,
+            comments: prevSelected!.engagement.comments + 1
+          }
+        }));
+      }
+      
+      // Also update the main posts state
+      setPosts(prevPosts => 
+        prevPosts.map(post => {
+          if (post.id === postId) {
+            return {
+              ...post,
+              engagement: {
+                ...post.engagement,
+                comments: post.engagement.comments + 1
+              }
+            };
+          }
+          return post;
+        })
+      );
+      
       // Clear input
       setNewComment('');
       Keyboard.dismiss();
       
       console.log('✅ Comment saved and added to UI');
+      console.log(`📝 New comment count for post ${postId}: ${(comments[postId] || []).length + 1}`);
       Alert.alert('Success', 'Comment posted successfully!');
       
     } catch (err) {
