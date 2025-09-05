@@ -171,6 +171,20 @@
         -working: true
         -agent: "testing"
         -comment: "✅ PASSED: File upload and storage system comprehensive testing completed successfully. Voice files properly stored in /app/backend/uploads/voices/ with unique UUID filenames (format: voice_[32-char-hex].[ext]). Base64 audio decoding working for all formats (.wav, .m4a, .ogg, .webm). File serving endpoints working: GET /api/uploads/voices/{filename} serves audio files with correct MIME types (audio/mpeg, audio/mp4, audio/ogg, audio/webm), GET /api/uploads/profiles/{filename} serves profile pictures with image/* MIME types. Security measures working: path traversal blocked (../../../etc/passwd rejected with 502), file existence validation (404 for non-existent files). File storage verified with actual file sizes (8044+ bytes for test files). Directory creation automatic (/app/backend/uploads/voices/ and /app/backend/uploads/profiles/)."
+  - task: "Comment System Backend API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Restored authentication requirement in POST /api/comments endpoint (line 2515). Updated to use current_user = Depends(get_current_user). Enhanced error handling and logging. Added proper JWT token validation."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ COMMENT SYSTEM INTEGRATION TEST COMPLETED SUCCESSFULLY: Executed comprehensive comment system integration testing after frontend changes as specifically requested in review. ALL 5 TEST PHASES PASSED: 1) Authentication Setup - JWT tokens obtained and validated for 2 test users (CommentTester1, CommentTester2), 2) Test Posts Creation - Created 3 test posts for comment testing, 3) Comment Creation API - POST /api/comments working with proper authentication, created 3 comments successfully with all required fields (id, post_id, author_id, author_name, content, likes, user_liked, created_at), 4) Comment Retrieval API - GET /api/comments/{post_id} working correctly, retrieved all comments with proper structure, 5) Authentication Flow - JWT validation working, unauthenticated requests properly rejected with 401, invalid tokens properly rejected with 401. BACKEND DETAILS VERIFIED: ✅ Server running on port 8001, ✅ Comments API endpoints working: POST /api/comments and GET /api/comments/{post_id}, ✅ Authentication uses JWT tokens with Depends(get_current_user), ✅ MongoDB collection: comments, ✅ Comment model includes all required fields: id, post_id, author_id, author_name, content, likes, user_liked, created_at. DATA PERSISTENCE CONFIRMED: Comments saved to MongoDB and retrievable correctly. Error handling working for authentication failures and invalid requests. RECENT CHANGES IMPLEMENTED SUCCESSFULLY: Authentication requirement restored in POST /api/comments endpoint, current_user = Depends(get_current_user) working correctly, enhanced error handling and logging functional, proper JWT token validation implemented. CONCLUSION: Comment system backend is production-ready and working correctly with proper authentication, data persistence, and error handling."
 ## frontend:
   - task: "Friend Request JavaScript Error Fix"
     implemented: true
