@@ -575,10 +575,18 @@ export default function CommunityScreen() {
         userLiked: false
       };
       
-      setComments(prev => ({
-        ...prev,
-        [postId]: [...(prev[postId] || []), newComment]
-      }));
+      console.log('🔴 BEFORE UPDATE - comments state:', JSON.stringify(comments));
+      console.log('🔴 Adding comment to post:', postId);
+      console.log('🔴 New comment:', JSON.stringify(newComment));
+      
+      setComments(prev => {
+        const updated = {
+          ...prev,
+          [postId]: [...(prev[postId] || []), newComment]
+        };
+        console.log('🔴 AFTER UPDATE - comments state:', JSON.stringify(updated));
+        return updated;
+      });
       
       // Update comment count in selectedPost AND posts state
       if (selectedPost && selectedPost.id === postId) {
