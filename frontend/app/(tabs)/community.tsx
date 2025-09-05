@@ -187,18 +187,18 @@ export default function CommunityScreen() {
       if (storedComments) {
         const parsedComments = JSON.parse(storedComments);
         setComments(parsedComments);
-        console.log("📱 Loaded comments from storage:", Object.keys(parsedComments).length, "posts");
+        console.log('📱 Loaded comments from storage:', Object.keys(parsedComments).length, 'posts');
       }
     } catch (error) {
-      console.error("❌ Failed to load comments from storage:", error);
+      console.error('❌ Failed to load comments from storage:', error);
     }
   };
 
   // Load comments from backend for all posts
   const loadCommentsFromBackend = async () => {
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8001";
-      const backendComments: Record<string, Comment[]> = ./frontend/app/(tabs)/community.tsx;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const backendComments: Record<string, Comment[]> = {};
       
       // Load comments for each post
       for (const post of communityPosts) {
@@ -231,10 +231,10 @@ export default function CommunityScreen() {
           ...prevComments,
           ...backendComments
         }));
-        console.log("📥 Backend comments loaded for", Object.keys(backendComments).length, "posts");
+        console.log('📥 Backend comments loaded for', Object.keys(backendComments).length, 'posts');
       }
     } catch (error) {
-      console.log("⚠️ Backend comment loading failed:", error);
+      console.log('⚠️ Backend comment loading failed:', error);
     }
   };
 
@@ -248,13 +248,13 @@ export default function CommunityScreen() {
       const diffHours = Math.floor(diffMinutes / 60);
       const diffDays = Math.floor(diffHours / 24);
       
-      if (diffMinutes < 1) return "just now";
+      if (diffMinutes < 1) return 'just now';
       if (diffMinutes < 60) return `${diffMinutes} min ago`;
-      if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
-      if (diffDays < 30) return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
+      if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+      if (diffDays < 30) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
       return date.toLocaleDateString();
     } catch (error) {
-      return "recently";
+      return 'recently';
     }
   };
 
