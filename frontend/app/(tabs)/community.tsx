@@ -753,11 +753,100 @@ export default function CommunityScreen() {
             </View>
           </View>
         )}
+
+        {/* Toast Notification */}
+        {toastNotification && (
+          <View style={[
+            styles.toastContainer,
+            toastNotification.type === 'success' && styles.toastSuccess,
+            toastNotification.type === 'info' && styles.toastInfo,
+            toastNotification.type === 'warning' && styles.toastWarning
+          ]}>
+            <Text style={styles.toastText}>{toastNotification.message}</Text>
+          </View>
+        )}
+
+        {/* Notifications Modal */}
+        <Modal
+          visible={showNotifications}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowNotifications(false)}
+        >
+          <View style={styles.notificationModalOverlay}>
+            <View style={styles.notificationModal}>
+              <LinearGradient
+                colors={['rgba(139, 92, 246, 0.95)', 'rgba(168, 85, 247, 0.95)']}
+                style={styles.notificationModalGradient}
+              >
+                {/* Modal Header */}
+                <View style={styles.notificationModalHeader}>
+                  <Text style={styles.notificationModalTitle}>Notifications</Text>
+                  <View style={styles.notificationModalActions}>
+                    {notifications.length > 0 && (
+                      <TouchableOpacity onPress={markAllAsRead} style={styles.markAllButton}>
+                        <Text style={styles.markAllButtonText}>Mark all read</Text>
+                      </TouchableOpacity>
+                    )}
+                    <TouchableOpacity onPress={() => setShowNotifications(false)}>
+                      <Ionicons name="close" size={24} color="white" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Notifications List */}
+                <ScrollView style={styles.notificationsList} showsVerticalScrollIndicator={false}>
+                  {notifications.length === 0 ? (
+                    <View style={styles.emptyNotifications}>
+                      <Ionicons name="notifications-off" size={48} color="rgba(255,255,255,0.5)" />
+                      <Text style={styles.emptyNotificationsText}>No notifications yet</Text>
+                      <Text style={styles.emptyNotificationsSubtext}>
+                        You'll see notifications when people interact with your posts
+                      </Text>
+                    </View>
+                  ) : (
+                    notifications.map(notification => (
+                      <TouchableOpacity
+                        key={notification.id}
+                        style={[
+                          styles.notificationItem,
+                          !notification.read && styles.unreadNotification
+                        ]}
+                        onPress={() => markAsRead(notification.id)}
+                      >
+                        <View style={styles.notificationIcon}>
+                          <Ionicons 
+                            name={
+                              notification.type === 'like' ? 'heart' :
+                              notification.type === 'reply' ? 'chatbubble' : 'repeat'
+                            }
+                            size={20} 
+                            color={
+                              notification.type === 'like' ? '#EC4899' :
+                              notification.type === 'reply' ? '#3B82F6' : '#10B981'
+                            }
+                          />
+                        </View>
+                        <View style={styles.notificationContent}>
+                          <Text style={styles.notificationMessage}>{notification.message}</Text>
+                          <Text style={styles.notificationPreview}>"{notification.postPreview}"</Text>
+                          <Text style={styles.notificationTime}>
+                            {getRelativeTime(notification.timestamp)}
+                          </Text>
+                        </View>
+                        {!notification.read && <View style={styles.unreadDot} />}
+                      </TouchableOpacity>
+                    ))
+                  )}
+                </ScrollView>
+              </LinearGradient>
+            </View>
+          </View>
+        </Modal>
       </LinearGradient>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
