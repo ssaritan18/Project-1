@@ -97,6 +97,95 @@ export default function CommunityScreen() {
     }
   }, []);
   
+  // Load posts from backend when production mode is enabled
+  useEffect(() => {
+    if (isProductionMode) {
+      loadPostsFromBackend();
+    }
+  }, [activeCategory, isProductionMode]);
+  
+  // Backend integration functions
+  const getBackendUrl = () => {
+    return process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+  };
+  
+  const getAuthToken = async () => {
+    if (Platform.OS === 'web') {
+      return localStorage.getItem('@auth_token');
+    }
+    // For mobile, we'd use AsyncStorage here
+    return null;
+  };
+  
+  const loadPostsFromBackend = async () => {
+    if (!isProductionMode) return;
+    
+    try {
+      setIsLoading(true);
+      const backendUrl = getBackendUrl();
+      const response = await fetch(`${backendUrl}/api/community/posts?category=${activeCategory}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.posts) {
+          // Convert backend posts to frontend format
+          const formattedPosts = data.posts.map((post: any) => ({
+            ...post,
+            timestamp: new Date(post.timestamp),
+            userLiked: false // We'd need to check if current user liked this post
+          }));
+          
+          setPosts(formattedPosts);
+          console.log(`✅ Loaded ${formattedPosts.length} posts from backend for category: ${activeCategory}`);
+        }
+      } else {
+        console.error('❌ Failed to load posts from backend:', response.status);
+        showToast('Failed to load posts from server', 'warning');
+      }
+    } catch (error) {
+      console.error('❌ Error loading posts:', error);
+      showToast('Network error loading posts', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const savePostToBackend = async (post: Omit<Post, 'id' | 'timestamp' | 'likes' | 'replies' | 'shares' | 'userLiked'>) => {
+    if (!isProductionMode) return null;
+    
+    try {
+      const authToken = await getAuthToken();
+      if (!authToken) {
+        throw new Error('No authentication token');
+      }
+      
+      const backendUrl = getBackendUrl();
+      const response = await fetch(`${backendUrl}/api/community/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          content: post.content,
+          category: post.category
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Post saved to backend:', data.post);
+        return data.post;
+      } else {
+        throw new Error(`Backend responded with ${response.status}`);
+      }
+    } catch (error) {
+      console.error('❌ Failed to save post to backend:', error);
+      showToast('Failed to save post to server', 'warning');
+      return null;
+    }
+  };
+  
   // Get user avatar for posts
   const getUserAvatar = (authorId: string) => {
     // Return profile image if it's current user's post
