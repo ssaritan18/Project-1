@@ -566,7 +566,8 @@
   run_ui: false
 ## test_plan:
   current_focus:
-    - "Comment System Format Mismatch Fix"
+    - "Community Backend API Testing"
+    - "Production Mode Integration Testing"
   stuck_tasks:
     - "Comment System Backend API"
   test_all: false
