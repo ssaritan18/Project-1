@@ -71,6 +71,11 @@ export default function CommunityScreen() {
   const [selectedHashtag, setSelectedHashtag] = useState<string | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   
+  // Notification state
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [toastNotification, setToastNotification] = useState<ToastNotification | null>(null);
+  
   // Profile image state - sync with Profile tab
   const [profileImage, setProfileImage] = useState<string | null>(null);
   
