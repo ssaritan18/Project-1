@@ -1,7 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
+import { View, Text, StyleSheet, ActivityIndicator, Platform } from 'react-native';
 import AdHelper from '../services/AdHelper';
+
+// Platform-specific imports
+let BannerAd: any = null;
+let BannerAdSize: any = null;
+
+if (Platform.OS !== 'web') {
+  try {
+    const AdModule = require('react-native-google-mobile-ads');
+    BannerAd = AdModule.BannerAd;
+    BannerAdSize = AdModule.BannerAdSize;
+  } catch (error) {
+    console.log('AdMob not available on this platform');
+  }
+}
 
 interface SafeBannerAdProps {
   size?: any;
@@ -10,7 +23,7 @@ interface SafeBannerAdProps {
 }
 
 const SafeBannerAd: React.FC<SafeBannerAdProps> = ({ 
-  size = BannerAdSize.BANNER, 
+  size, 
   style,
   showFallback = true 
 }) => {
@@ -21,8 +34,30 @@ const SafeBannerAd: React.FC<SafeBannerAdProps> = ({
     retryCount: 0
   });
 
-  const adUnitId = AdHelper.getBannerAdUnitId();
   const maxRetries = 2;
+
+  // Web fallback - show placeholder
+  if (Platform.OS === 'web') {
+    return (
+      <View style={[styles.fallbackContainer, style]}>
+        <Text style={styles.fallbackText}>🌟 Advertisement Space 🌟</Text>
+        <Text style={styles.fallbackSubtext}>Real ads will show on mobile devices</Text>
+      </View>
+    );
+  }
+
+  // Native platforms - check if AdMob is available
+  if (!BannerAd || !BannerAdSize) {
+    return showFallback ? (
+      <View style={[styles.fallbackContainer, style]}>
+        <Text style={styles.fallbackText}>✨ Advertisement ✨</Text>
+        <Text style={styles.fallbackSubtext}>AdMob not available</Text>
+      </View>
+    ) : null;
+  }
+
+  const adUnitId = AdHelper.getBannerAdUnitId();
+  const adSize = size || BannerAdSize.BANNER;
 
   const handleAdLoaded = () => {
     setAdState({ 
@@ -79,7 +114,7 @@ const SafeBannerAd: React.FC<SafeBannerAdProps> = ({
         <View style={[styles.bannerContainer, style]}>
           <BannerAd
             unitId={adUnitId}
-            size={size}
+            size={adSize}
             requestOptions={{
               requestNonPersonalizedAdsOnly: false,
               keywords: ['adhd', 'focus', 'productivity', 'wellness'],
