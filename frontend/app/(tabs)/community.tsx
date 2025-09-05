@@ -746,9 +746,9 @@ export default function CommunityScreen() {
               
               {/* Show user comments for this post first, then mock comments */}
               {safeToArray(comments[selectedPost.id]).map((comment) => (
-                <View key={comment.id} style={styles.commentItem}>
+                <View key={comment.id} style={[styles.commentItem, {backgroundColor: 'rgba(0, 255, 0, 0.1)', borderLeft: '3px solid green'}]}>
                   <View style={styles.commentHeader}>
-                    <Text style={styles.commentAuthor}>{comment.author}</Text>
+                    <Text style={[styles.commentAuthor, {color: '#00FF00'}]}>{comment.author} (USER COMMENT)</Text>
                     <Text style={styles.commentTime}>{comment.timeAgo}</Text>
                   </View>
                   <Text style={styles.commentContent}>{comment.content}</Text>
@@ -766,8 +766,8 @@ export default function CommunityScreen() {
                 </View>
               ))}
               
-              {/* Then show mock comments */}
-              {safeToArray(getCommentsForPost(selectedPost.id)).map((comment) => (
+              {/* TEMPORARILY DISABLE MOCK COMMENTS FOR DEBUGGING */}
+              {false && safeToArray(getCommentsForPost(selectedPost.id)).map((comment) => (
                 <View key={comment.id} style={styles.commentItem}>
                   <View style={styles.commentHeader}>
                     <Text style={styles.commentAuthor}>{comment.author}</Text>
