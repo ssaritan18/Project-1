@@ -507,7 +507,9 @@ export default function CommunityScreen() {
                   </View>
 
                   {/* Post Content */}
-                  <Text style={styles.postContent}>{post.content}</Text>
+                  <View style={styles.postContentContainer}>
+                    {renderPostContent(post.content)}
+                  </View>
 
                   {/* Post Actions - Twitter Style */}
                   <View style={styles.postActions}>
