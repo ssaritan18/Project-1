@@ -58,6 +58,9 @@ export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   
+  // Production mode toggle - set to false for testing, true for production
+  const [isProductionMode, setIsProductionMode] = useState(false);
+  
   // State
   const [activeCategory, setActiveCategory] = useState('general');
   const [posts, setPosts] = useState<Post[]>([]);
@@ -75,6 +78,9 @@ export default function CommunityScreen() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [toastNotification, setToastNotification] = useState<ToastNotification | null>(null);
+  
+  // Loading state
+  const [isLoading, setIsLoading] = useState(false);
   
   // Profile image state - sync with Profile tab
   const [profileImage, setProfileImage] = useState<string | null>(null);
