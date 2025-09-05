@@ -149,6 +149,33 @@ export default function CommunityScreen() {
     setSelectedHashtag(null);
     setShowSearch(false);
   };
+  
+  // Render post content with clickable hashtags
+  const renderPostContent = (content: string) => {
+    const parts = content.split(/(#\w+)/g);
+    
+    return parts.map((part, index) => {
+      if (part.match(/#\w+/)) {
+        // This is a hashtag
+        return (
+          <Text
+            key={index}
+            style={styles.hashtag}
+            onPress={() => handleHashtagClick(part.toLowerCase())}
+          >
+            {part}
+          </Text>
+        );
+      } else {
+        // Regular text
+        return (
+          <Text key={index} style={styles.postContent}>
+            {part}
+          </Text>
+        );
+      }
+    });
+  };
 
   // Create new post - Twitter style
   const handleCreatePost = () => {
