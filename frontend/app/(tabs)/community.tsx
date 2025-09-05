@@ -736,23 +736,42 @@ export default function CommunityScreen() {
             <View key={`comments-${selectedPost.id}-${safeToArray(comments[selectedPost.id]).length}-${Date.now()}`} style={styles.commentsSection}>
               <Text style={styles.commentsTitle}>💬 Comments ({selectedPost.engagement.comments})</Text>
               
-              {/* TWITTER-STYLE COMMENTS - SIMPLE AND DIRECT */}
+              {/* SUPER SIMPLE DEBUG - SHOW ALL COMMENTS FOR ALL POSTS */}
+              <Text style={styles.commentsTitle}>💬 Comments DEBUG</Text>
               
-              {/* Show ALL comments for this post - no filtering, no complexity */}
+              <Text style={{color: 'red', fontSize: 12}}>
+                🔴 DEBUGGING: Selected Post ID = "{selectedPost.id}"
+              </Text>
+              
+              <Text style={{color: 'yellow', fontSize: 10}}>
+                State Keys: {Object.keys(comments).join(', ')}
+              </Text>
+              
+              {/* SHOW COMMENTS FOR CURRENT POST DIRECTLY */}
+              <Text style={{color: 'cyan', fontSize: 10}}>
+                Comments for "{selectedPost.id}": {(comments[selectedPost.id] || []).length} items
+              </Text>
+              
+              {/* RENDER COMMENTS SUPER SIMPLE */}
               {(comments[selectedPost.id] || []).map((comment, index) => (
-                <View key={`comment-${index}-${comment.id}`} style={styles.commentItem}>
-                  <View style={styles.commentHeader}>
-                    <Text style={styles.commentAuthor}>{comment.author}</Text>
-                    <Text style={styles.commentTime}>{comment.timeAgo}</Text>
-                  </View>
-                  <Text style={styles.commentContent}>{comment.content}</Text>
+                <View key={index} style={{backgroundColor: 'rgba(0,255,0,0.2)', padding: 10, margin: 5}}>
+                  <Text style={{color: 'white', fontSize: 14}}>{comment.author}: {comment.content}</Text>
+                  <Text style={{color: 'gray', fontSize: 10}}>{comment.timeAgo}</Text>
                 </View>
               ))}
               
-              {/* Show message if no comments */}
-              {(!comments[selectedPost.id] || comments[selectedPost.id].length === 0) && (
-                <Text style={styles.noComments}>No comments yet. Be the first!</Text>
-              )}
+              {/* FALLBACK: SHOW ALL COMMENTS FROM STATE */}
+              <Text style={{color: 'orange', fontSize: 12}}>🔶 ALL COMMENTS IN STATE:</Text>
+              {Object.keys(comments).map(postId => (
+                <View key={postId} style={{margin: 5}}>
+                  <Text style={{color: 'white', fontSize: 12}}>Post {postId}: {(comments[postId] || []).length} comments</Text>
+                  {(comments[postId] || []).slice(0, 2).map((comment, idx) => (
+                    <Text key={idx} style={{color: 'lightgray', fontSize: 10}}>
+                      - {comment.author}: {comment.content}
+                    </Text>
+                  ))}
+                </View>
+              ))}
 
               {/* TWITTER-STYLE COMMENT INPUT - SIMPLE */}
               <View style={styles.commentInputSection}>
