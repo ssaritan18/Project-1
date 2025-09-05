@@ -200,6 +200,76 @@ export default function CommunityScreen() {
       }
     });
   };
+  
+  // Show toast notification
+  const showToast = (message: string, type: 'success' | 'info' | 'warning' = 'success') => {
+    const toast: ToastNotification = {
+      id: `toast_${Date.now()}`,
+      message,
+      type,
+      visible: true
+    };
+    
+    setToastNotification(toast);
+    
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+      setToastNotification(null);
+    }, 3000);
+  };
+  
+  // Create notification
+  const createNotification = (
+    type: 'like' | 'reply' | 'share',
+    fromUser: string,
+    postId: string,
+    postContent: string
+  ) => {
+    const messages = {
+      like: `${fromUser} liked your post`,
+      reply: `${fromUser} replied to your post`,
+      share: `${fromUser} shared your post`
+    };
+    
+    const notification: Notification = {
+      id: `notif_${Date.now()}`,
+      type,
+      message: messages[type],
+      fromUser,
+      postId,
+      postPreview: postContent.slice(0, 50) + (postContent.length > 50 ? '...' : ''),
+      timestamp: new Date(),
+      read: false
+    };
+    
+    setNotifications(prev => [notification, ...prev]);
+    
+    // Show toast
+    showToast(notification.message, 'info');
+    
+    console.log('🔔 Notification created:', notification);
+  };
+  
+  // Get unread notification count
+  const getUnreadCount = (): number => {
+    return notifications.filter(n => !n.read).length;
+  };
+  
+  // Mark notification as read
+  const markAsRead = (notificationId: string) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === notificationId ? { ...notif, read: true } : notif
+      )
+    );
+  };
+  
+  // Mark all notifications as read
+  const markAllAsRead = () => {
+    setNotifications(prev => 
+      prev.map(notif => ({ ...notif, read: true }))
+    );
+  };
 
   // Create new post - Twitter style
   const handleCreatePost = () => {
