@@ -341,14 +341,24 @@ export default function CommunityScreen() {
     setPosts(prev => prev.map(post => {
       if (post.id === postId) {
         const newLiked = !post.userLiked;
-        return {
+        const updatedPost = {
           ...post,
           userLiked: newLiked,
           likes: newLiked ? post.likes + 1 : post.likes - 1
         };
+        
+        // Create notification for post author (if not own post)
+        if (newLiked && post.authorId !== (user?.id || user?.email)) {
+          createNotification('like', user?.name || 'Someone', postId, post.content);
+        }
+        
+        return updatedPost;
       }
       return post;
     }));
+    
+    // Show success toast
+    showToast('Post liked!', 'success');
   };
 
   // Handle reply
