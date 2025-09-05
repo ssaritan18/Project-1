@@ -1046,6 +1046,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  productionToggle: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    marginRight: 12,
+  },
+  productionToggleActive: {
+    backgroundColor: '#22C55E',
+    borderColor: '#22C55E',
+  },
+  productionToggleText: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  productionToggleTextActive: {
+    color: 'white',
+  },
   categoriesContainer: {
     paddingHorizontal: 15,
     paddingVertical: 10,
