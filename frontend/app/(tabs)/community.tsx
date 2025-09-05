@@ -712,7 +712,8 @@ export default function CommunityScreen() {
 
               {safeToArray(comments[selectedPost.id]).length === 0 && getCommentsForPost(selectedPost.id).length === 0 && (
                 <Text style={styles.noComments}>No comments yet. Be the first to share your thoughts!</Text>
-              )}                            {/* Comment Input Section */}
+              })
+              {/* Comment Input Section */}
               <View style={styles.commentInputSection}>
                 <View style={styles.commentInputContainer}>
                   <TextInput
