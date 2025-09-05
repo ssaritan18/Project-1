@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
-    "build": "expo build:web",
-    "build:web": "expo build:web",
+    "build": "npx expo export -p web",
+    "build:web": "npx expo export -p web",
     "export": "expo export",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
