@@ -574,6 +574,12 @@ class CommentCreate(BaseModel):
     text: str
     post_id: str
 
+class CommentCreateNew(BaseModel):
+    post_id: str
+    content: str
+    likes: int = 0
+    user_liked: bool = False
+
 # Profile Management Models
 class ProfileUpdate(BaseModel):
     name: Optional[str] = None
