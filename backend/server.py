@@ -1536,7 +1536,7 @@ async def send_voice_message(chat_id: str, payload: VoiceMessageCreate, user=Dep
         filename = f"voice_{uuid.uuid4().hex}.{file_extension}"
         
         # Create uploads directory
-        upload_dir = "/app/backend/uploads/voices"
+        upload_dir = os.getenv('UPLOAD_DIR', './uploads/voices')
         os.makedirs(upload_dir, exist_ok=True)
         
         # Save audio file
