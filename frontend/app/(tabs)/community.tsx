@@ -682,4 +682,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  postAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(139, 92, 246, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(139, 92, 246, 0.5)',
+  },
+  postAvatarText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  postAuthorDetails: {
+    flex: 1,
+  },
 });
