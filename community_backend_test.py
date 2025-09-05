@@ -98,7 +98,7 @@ class CommunityAPITester:
         try:
             url = f"{self.base_url}/posts/{post_id}/comments"
             headers = {"Authorization": f"Bearer {token}"}
-            payload = {"content": content}
+            payload = {"text": content, "post_id": post_id}
             response = self.session.post(url, json=payload, headers=headers)
             
             if response.status_code == 200:
