@@ -174,10 +174,43 @@ export default function CommunityScreen() {
   // Storage keys for persistence
   const COMMENTS_STORAGE_KEY = '@adhd_community_comments';
 
-  // Load comments from storage on mount
+  // Load comments from storage and backend on mount
   useEffect(() => {
     loadCommentsFromStorage();
     loadCommentsFromBackend(); // Also load from backend
+    
+    // Simple comment loading on mount for each post
+    const loadInitialComments = async () => {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      
+      for (const post of communityPosts) {
+        try {
+          const response = await fetch(`${backendUrl}/api/comments/${post.id}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.comments) {
+              const formattedComments = data.comments.map((c: any) => ({
+                id: c.id || c._id,
+                author: c.author_name,
+                content: c.content,
+                timeAgo: getTimeAgo(c.created_at),
+                likes: c.likes || 0,
+                userLiked: c.user_liked || false
+              }));
+              
+              setComments(prev => ({
+                ...prev,
+                [post.id]: formattedComments
+              }));
+            }
+          }
+        } catch (error) {
+          console.log(`Error loading comments for post ${post.id}:`, error);
+        }
+      }
+    };
+    
+    loadInitialComments();
   }, []);
 
   // Load persisted comments from local storage
