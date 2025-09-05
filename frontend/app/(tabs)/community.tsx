@@ -1033,11 +1033,18 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(139, 92, 246, 0.3)',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',color: 'white',
-    textAlign: 'center',
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   categoriesContainer: {
     paddingHorizontal: 15,
