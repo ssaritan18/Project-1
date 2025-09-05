@@ -744,7 +744,16 @@ export default function CommunityScreen() {
 
         {/* Posts Feed */}
         <ScrollView style={styles.feedContainer} showsVerticalScrollIndicator={false}>
-          {getFilteredPosts().length === 0 ? (
+          {/* Loading Indicator */}
+          {isLoading && (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>
+                {isProductionMode ? 'Saving to server...' : 'Creating post...'}
+              </Text>
+            </View>
+          )}
+          
+          {getFilteredPosts().length === 0 && !isLoading ? (
             <View style={styles.emptyState}>
               <Text style={styles.emptyStateText}>
                 No posts in {categories.find(c => c.id === activeCategory)?.name} yet
@@ -752,6 +761,11 @@ export default function CommunityScreen() {
               <Text style={styles.emptyStateSubtext}>
                 Be the first to share something!
               </Text>
+              {!isProductionMode && (
+                <Text style={styles.testModeNote}>
+                  🧪 Test mode - posts won't be saved to server
+                </Text>
+              )}
             </View>
           ) : (
             getFilteredPosts().map(post => (
