@@ -115,6 +115,17 @@ export default function ProfileScreen() {
       router.push('/profile/settings');
   };
 
+
+  const navigateToAdminPanel = () => {
+      console.log("🔒 navigateToAdminPanel called - attempting to navigate to /admin/reports");
+      try {
+          router.push("/admin/reports");
+          console.log("✅ Admin Panel navigation successful");
+      } catch (error) {
+          console.error("❌ Admin Panel navigation failed:", error);
+          Alert.alert("Navigation Error", "Could not navigate to Admin Panel. Please try again.");
+      }
+  };
   const onBackup = async () => { try { await makeBackup(); } catch { Alert.alert("Backup failed", "Could not create backup file."); } };
   const onRestore = async () => {
     try {
