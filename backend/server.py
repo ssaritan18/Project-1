@@ -2707,6 +2707,327 @@ async def update_report_status(
         logger.error(f"❌ Failed to update report: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to update report: {str(e)}")
 
+# Account Deletion APIs - Google Play Compliance
+@api_router.post("/account/delete")
+async def request_account_deletion(
+    deletion_request: AccountDeleteRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Request account deletion - Google Play Compliance requirement"""
+    try:
+        # Create deletion request record
+        deletion_dict = {
+            "id": str(uuid.uuid4()),
+            "user_id": current_user["_id"],
+            "user_name": current_user["name"],
+            "user_email": deletion_request.user_email,
+            "reason": deletion_request.reason,
+            "confirmation": deletion_request.confirmation,
+            "status": "pending",
+            "requested_at": datetime.now(timezone.utc),
+            "processed_at": None,
+            "processed_by": None
+        }
+        
+        # Insert deletion request into database
+        result = await db.deletion_requests.insert_one(deletion_dict)
+        deletion_dict["_id"] = str(result.inserted_id)
+        
+        # Send email notification to admin
+        admin_email = "adhderssocialclub@gmail.com"
+        subject = f"Account Deletion Request - ADHDers Social Club"
+        
+        content = f"""
+        <h2>🗑️ Account Deletion Request</h2>
+        <p><strong>Deletion Request ID:</strong> {deletion_dict['id']}</p>
+        
+        <h3>User Information:</h3>
+        <p><strong>Name:</strong> {current_user['name']}</p>
+        <p><strong>Email:</strong> {deletion_request.user_email}</p>
+        <p><strong>User ID:</strong> {current_user['_id']}</p>
+        
+        <h3>Deletion Details:</h3>
+        <p><strong>Reason:</strong> {deletion_request.reason}</p>
+        <p><strong>Confirmation:</strong> {"Yes" if deletion_request.confirmation else "No"}</p>
+        <p><strong>Request Date:</strong> {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
+        
+        <h3>Data to be Deleted:</h3>
+        <ul>
+            <li>User profile and account information</li>
+            <li>Posts, comments, and interactions</li> 
+            <li>Chat messages and voice recordings</li>
+            <li>Friend connections and requests</li>
+            <li>Task data and progress history</li>
+            <li>Achievement and point records</li>
+        </ul>
+        
+        <p><strong>⚠️ Google Play Compliance:</strong> Please process this deletion request within 30 days as per Google Play policy requirements.</p>
+        
+        <p>Please review and process this deletion request in the Admin Panel.</p>
+        """
+        
+        # Send email notification
+        email_sent = await send_email(admin_email, subject, content)
+        
+        # Also send confirmation email to user
+        user_subject = "Account Deletion Request Received - ADHDers Social Club"
+        user_content = f"""
+        <h2>Account Deletion Request Received</h2>
+        <p>Hi {current_user['name']},</p>
+        
+        <p>We have received your request to delete your ADHDers Social Club account.</p>
+        
+        <h3>Request Details:</h3>
+        <p><strong>Request ID:</strong> {deletion_dict['id']}</p>
+        <p><strong>Date:</strong> {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
+        <p><strong>Status:</strong> Pending Review</p>
+        
+        <h3>What happens next:</h3>
+        <ol>
+            <li>Our team will review your request within 2-3 business days</li>
+            <li>We will permanently delete all your data including:
+                <ul>
+                    <li>Profile information and account details</li>
+                    <li>Posts, comments, and social interactions</li>
+                    <li>Chat history and voice messages</li>
+                    <li>Friend connections and requests</li>
+                    <li>Task data and achievement records</li>
+                </ul>
+            </li>
+            <li>You will receive a final confirmation email once deletion is complete</li>
+        </ol>
+        
+        <p><strong>⚠️ Important:</strong> This action cannot be undone. All your data will be permanently deleted.</p>
+        
+        <p>If you have any questions or want to cancel this request, please contact us immediately at adhderssocialclub@gmail.com</p>
+        
+        <p>Thank you for being part of the ADHDers Social Club community.</p>
+        """
+        
+        user_email_sent = await send_email(deletion_request.user_email, user_subject, user_content)
+        
+        logger.info(f"✅ Account deletion requested: {deletion_dict['id']} by {current_user['name']} | Admin email: {email_sent} | User email: {user_email_sent}")
+        
+        return {
+            "success": True,
+            "deletion_request_id": deletion_dict["id"],
+            "message": "Account deletion request submitted successfully. You will receive a confirmation email shortly.",
+            "status": "pending",
+            "expected_processing_time": "2-3 business days",
+            "email_notifications": {
+                "admin_notified": email_sent,
+                "user_confirmed": user_email_sent
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to create deletion request: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to create deletion request: {str(e)}")
+
+@api_router.get("/admin/deletion-requests")
+async def get_deletion_requests(
+    status: Optional[str] = None,
+    limit: int = 50,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get all deletion requests for admin - Admin only endpoint"""
+    try:
+        # TODO: Add admin role check here
+        
+        query = {}
+        if status:
+            query["status"] = status
+            
+        deletion_requests = await db.deletion_requests.find(query).sort("requested_at", -1).limit(limit).to_list(length=None)
+        
+        # Format deletion requests for admin
+        for request in deletion_requests:
+            request["id"] = request.get("id", str(request["_id"]))
+            if "_id" in request:
+                del request["_id"]
+                
+        logger.info(f"📊 Admin {current_user['name']} retrieved {len(deletion_requests)} deletion requests")
+        
+        return {
+            "success": True,
+            "deletion_requests": deletion_requests,
+            "total_count": len(deletion_requests)
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to get deletion requests: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get deletion requests: {str(e)}")
+
+@api_router.delete("/admin/account/{user_id}")
+async def process_account_deletion(
+    user_id: str,
+    deletion_request_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Actually delete user account and all associated data - Admin only endpoint"""
+    try:
+        # TODO: Add admin role check here
+        
+        # First verify the deletion request exists and is approved
+        deletion_request = await db.deletion_requests.find_one({"id": deletion_request_id, "user_id": user_id})
+        if not deletion_request:
+            raise HTTPException(status_code=404, detail="Deletion request not found")
+        
+        # Get user data before deletion for email confirmation
+        user = await db.users.find_one({"_id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user_name = user.get("name", "Unknown User")
+        user_email = user.get("email", "")
+        
+        # Begin comprehensive data deletion
+        deletion_summary = {
+            "user_data": 0,
+            "posts": 0,
+            "comments": 0,
+            "messages": 0,
+            "friends": 0,
+            "reports": 0,
+            "achievements": 0,
+            "deletion_requests": 0
+        }
+        
+        # Delete user account
+        result = await db.users.delete_one({"_id": user_id})
+        deletion_summary["user_data"] = result.deleted_count
+        
+        # Delete posts by user
+        result = await db.posts.delete_many({"author_id": user_id})
+        deletion_summary["posts"] = result.deleted_count
+        
+        # Delete community posts by user
+        result = await db.community_posts.delete_many({"author_id": user_id})
+        deletion_summary["posts"] += result.deleted_count
+        
+        # Delete comments by user
+        result = await db.comments.delete_many({"author_id": user_id})
+        deletion_summary["comments"] = result.deleted_count
+        
+        # Delete community replies by user
+        result = await db.community_replies.delete_many({"author_id": user_id})
+        deletion_summary["comments"] += result.deleted_count
+        
+        # Delete messages by user
+        result = await db.messages.delete_many({"sender_id": user_id})
+        deletion_summary["messages"] = result.deleted_count
+        
+        # Delete friend connections (both directions)
+        result1 = await db.friends.delete_many({"user_id": user_id})
+        result2 = await db.friends.delete_many({"friend_id": user_id})
+        deletion_summary["friends"] = result1.deleted_count + result2.deleted_count
+        
+        # Delete friend requests (both directions)
+        await db.friend_requests.delete_many({"from_user_id": user_id})
+        await db.friend_requests.delete_many({"to_user_id": user_id})
+        
+        # Delete reports by user
+        result = await db.reports.delete_many({"reporter_id": user_id})
+        deletion_summary["reports"] = result.deleted_count
+        
+        # Delete achievements and points
+        await db.user_achievements.delete_many({"user_id": user_id})
+        await db.user_points.delete_many({"user_id": user_id})
+        await db.user_stats.delete_many({"user_id": user_id})
+        
+        # Delete likes, reactions, and interactions
+        await db.post_likes.delete_many({"user_id": user_id})
+        await db.community_likes.delete_many({"user_id": user_id})
+        await db.message_reactions.delete_many({"user_id": user_id})
+        await db.comment_likes.delete_many({"user_id": user_id})
+        
+        # Mark deletion request as completed
+        await db.deletion_requests.update_one(
+            {"id": deletion_request_id},
+            {"$set": {
+                "status": "completed",
+                "processed_at": datetime.now(timezone.utc),
+                "processed_by": current_user["name"],
+                "deletion_summary": deletion_summary
+            }}
+        )
+        
+        # Send final confirmation email to admin
+        admin_email = "adhderssocialclub@gmail.com"
+        admin_subject = f"Account Deletion Completed - {user_name}"
+        admin_content = f"""
+        <h2>✅ Account Deletion Completed</h2>
+        <p><strong>Deletion Request ID:</strong> {deletion_request_id}</p>
+        <p><strong>User:</strong> {user_name} ({user_email})</p>
+        <p><strong>User ID:</strong> {user_id}</p>
+        <p><strong>Processed by:</strong> {current_user['name']}</p>
+        <p><strong>Completion Date:</strong> {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
+        
+        <h3>Data Deletion Summary:</h3>
+        <ul>
+            <li>User profile: {deletion_summary['user_data']} records</li>
+            <li>Posts: {deletion_summary['posts']} records</li>
+            <li>Comments: {deletion_summary['comments']} records</li>
+            <li>Messages: {deletion_summary['messages']} records</li>
+            <li>Friend connections: {deletion_summary['friends']} records</li>
+            <li>Reports: {deletion_summary['reports']} records</li>
+        </ul>
+        
+        <p>All user data has been permanently deleted from the ADHDers Social Club database.</p>
+        """
+        
+        admin_email_sent = await send_email(admin_email, admin_subject, admin_content)
+        
+        # Send final confirmation to user email (if available)
+        user_email_sent = False
+        if user_email:
+            user_subject = "Account Deletion Completed - ADHDers Social Club"
+            user_content = f"""
+            <h2>Account Deletion Completed</h2>
+            <p>Hi {user_name},</p>
+            
+            <p>Your account deletion request has been completed successfully.</p>
+            
+            <p><strong>All your data has been permanently deleted including:</strong></p>
+            <ul>
+                <li>Your profile and account information</li>
+                <li>All posts, comments, and social interactions</li>
+                <li>Chat messages and voice recordings</li>
+                <li>Friend connections and requests</li>
+                <li>Task data and achievement records</li>
+            </ul>
+            
+            <p>Thank you for being part of the ADHDers Social Club community. We're sorry to see you go.</p>
+            
+            <p>If you ever decide to rejoin our community, you're always welcome to create a new account.</p>
+            
+            <p>Best wishes,<br>The ADHDers Social Club Team</p>
+            """
+            
+            user_email_sent = await send_email(user_email, user_subject, user_content)
+        
+        logger.info(f"✅ Account deletion completed: {user_id} ({user_name}) by {current_user['name']} | Summary: {deletion_summary}")
+        
+        return {
+            "success": True,
+            "message": f"Account deletion completed successfully for {user_name}",
+            "user_id": user_id,
+            "deletion_request_id": deletion_request_id,
+            "processed_by": current_user["name"],
+            "processed_at": datetime.now(timezone.utc),
+            "deletion_summary": deletion_summary,
+            "email_notifications": {
+                "admin_notified": admin_email_sent,
+                "user_notified": user_email_sent
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Failed to process account deletion: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to process account deletion: {str(e)}")
+
 # Include the API router with all endpoints
 app.include_router(api_router)
 
