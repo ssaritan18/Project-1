@@ -266,10 +266,24 @@ def run_report_system_comprehensive_test():
     print("=" * 60)
     
     for user in test_users:
+        # Try to login first, if it fails, register the user
         login_result = tester.test_auth_login(user["email"], user["password"])
         if not login_result["success"]:
-            print(f"❌ CRITICAL: Authentication failed for {user['email']}: {login_result.get('error', 'Unknown error')}")
-            return False
+            print(f"⚠️ User {user['email']} doesn't exist, registering...")
+            
+            # Register the user
+            register_result = tester.test_auth_register(user["name"], user["email"], user["password"])
+            if not register_result["success"]:
+                print(f"❌ CRITICAL: Registration failed for {user['email']}: {register_result.get('error', 'Unknown error')}")
+                return False
+            
+            print(f"✅ User {user['name']} registered successfully")
+            
+            # Now try to login again
+            login_result = tester.test_auth_login(user["email"], user["password"])
+            if not login_result["success"]:
+                print(f"❌ CRITICAL: Login failed after registration for {user['email']}: {login_result.get('error', 'Unknown error')}")
+                return False
         
         tokens[user["email"]] = login_result["token"]
         tester.users[user["email"]] = user
