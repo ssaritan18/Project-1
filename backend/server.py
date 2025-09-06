@@ -2701,6 +2701,8 @@ async def update_report_status(
             "updated_at": update_data["reviewed_at"]
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"❌ Failed to update report: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to update report: {str(e)}")
