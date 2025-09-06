@@ -498,6 +498,12 @@ export default function ProfileScreen() {
                     <Text style={styles.modernActionText}>Settings</Text>
                   </LinearGradient>
                 </TouchableOpacity>
+                <TouchableOpacity onPress={navigateToAdminPanel}>
+                  <LinearGradient colors={["#EF4444", "#DC2626"]} style={styles.modernActionBtn}>
+                    <Text style={styles.modernActionEmoji}>🔒</Text>
+                    <Text style={styles.modernActionText}>Admin Panel</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
             </LinearGradient>
 
