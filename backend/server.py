@@ -2532,9 +2532,6 @@ def get_next_focus_suggestion(rating: int, interruptions: int) -> str:
     else:
         return "Solid work! Keep building that focus muscle! 🎯"
 
-# Include the router in the main app
-app.include_router(api_router)
-
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
