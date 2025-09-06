@@ -252,10 +252,10 @@ def run_report_system_comprehensive_test():
     print("🎯 REPORT SYSTEM API COMPREHENSIVE TEST")
     print("=" * 80)
     
-    # Test users - using existing test accounts
+    # Test users - using unique emails for this test
     test_users = [
-        {"name": "ReportTester1", "email": "ssaritan@example.com", "password": "Passw0rd!"},
-        {"name": "ReportTester2", "email": "ssaritan2@example.com", "password": "Passw0rd!"}
+        {"name": "ReportTester1", "email": "reporttester1@example.com", "password": "TestPass123!"},
+        {"name": "ReportTester2", "email": "reporttester2@example.com", "password": "TestPass123!"}
     ]
     
     tokens = {}
