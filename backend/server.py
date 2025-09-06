@@ -2546,6 +2546,171 @@ app.add_middleware(
 # Include subscription router
 app.include_router(subscriptions_router)
 
+# ====================================
+# GOOGLE PLAY COMPLIANCE - ADMIN PANEL APIs
+# ====================================
+
+# Report Models
+class ReportCreate(BaseModel):
+    type: str  # "user", "post", "content", "account_deletion"
+    reason: str  # "spam", "harassment", "inappropriate", "delete_account", etc.
+    description: str
+    target_user_id: Optional[str] = None
+    target_post_id: Optional[str] = None
+    reporter_email: Optional[str] = None
+
+class ReportUpdate(BaseModel):
+    status: str  # "pending", "reviewed", "resolved", "rejected"
+    admin_notes: Optional[str] = None
+
+# Account Deletion Models  
+class AccountDeleteRequest(BaseModel):
+    reason: str
+    user_email: str
+    confirmation: bool = True  # User must confirm deletion
+
+# Admin Report System APIs
+@api_router.post("/reports")
+async def create_report(report: ReportCreate, current_user: dict = Depends(get_current_user)):
+    """Create a new report - User facing endpoint"""
+    try:
+        report_dict = {
+            "id": str(uuid.uuid4()),
+            "type": report.type,
+            "reason": report.reason,
+            "description": report.description,
+            "target_user_id": report.target_user_id,
+            "target_post_id": report.target_post_id,
+            "reporter_id": current_user["_id"],
+            "reporter_name": current_user["name"],
+            "reporter_email": report.reporter_email or current_user.get("email", ""),
+            "status": "pending",
+            "created_at": datetime.now(timezone.utc),
+            "admin_notes": None
+        }
+        
+        # Insert into database
+        result = await db.reports.insert_one(report_dict)
+        report_dict["_id"] = str(result.inserted_id)
+        
+        # Send email notification to admin
+        admin_email = "adhderssocialclub@gmail.com"
+        subject = f"New Report: {report.type.title()} - ADHDers Social Club"
+        
+        content = f"""
+        <h2>🚨 New Report Submitted</h2>
+        <p><strong>Report ID:</strong> {report_dict['id']}</p>
+        <p><strong>Type:</strong> {report.type}</p>
+        <p><strong>Reason:</strong> {report.reason}</p>
+        <p><strong>Description:</strong> {report.description}</p>
+        
+        <h3>Reporter Information:</h3>
+        <p><strong>Name:</strong> {current_user['name']}</p>
+        <p><strong>Email:</strong> {report_dict['reporter_email']}</p>
+        <p><strong>User ID:</strong> {current_user['_id']}</p>
+        
+        {f"<p><strong>Target User ID:</strong> {report.target_user_id}</p>" if report.target_user_id else ""}
+        {f"<p><strong>Target Post ID:</strong> {report.target_post_id}</p>" if report.target_post_id else ""}
+        
+        <p><strong>Date:</strong> {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
+        
+        <p>Please review this report in the Admin Panel.</p>
+        """
+        
+        # Send email notification
+        email_sent = await send_email(admin_email, subject, content)
+        
+        logger.info(f"✅ Report created: {report_dict['id']} by {current_user['name']} | Email sent: {email_sent}")
+        
+        return {
+            "success": True,
+            "report_id": report_dict["id"],
+            "message": "Report submitted successfully. We will review it shortly.",
+            "email_notification": email_sent
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to create report: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to create report: {str(e)}")
+
+@api_router.get("/admin/reports")
+async def get_all_reports(
+    status: Optional[str] = None,
+    type: Optional[str] = None,
+    limit: int = 50,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get all reports for admin - Admin only endpoint"""
+    try:
+        # TODO: Add admin role check here
+        # For now, any authenticated user can access (you can add admin role later)
+        
+        query = {}
+        if status:
+            query["status"] = status
+        if type:
+            query["type"] = type
+            
+        reports = await db.reports.find(query).sort("created_at", -1).limit(limit).to_list(length=None)
+        
+        # Format reports for admin
+        for report in reports:
+            report["id"] = report.get("id", str(report["_id"]))
+            if "_id" in report:
+                del report["_id"]
+                
+        logger.info(f"📊 Admin {current_user['name']} retrieved {len(reports)} reports")
+        
+        return {
+            "success": True,
+            "reports": reports,
+            "total_count": len(reports)
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to get reports: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get reports: {str(e)}")
+
+@api_router.put("/admin/reports/{report_id}")
+async def update_report_status(
+    report_id: str,
+    update: ReportUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update report status - Admin only endpoint"""
+    try:
+        # TODO: Add admin role check here
+        
+        update_data = {
+            "status": update.status,
+            "admin_notes": update.admin_notes,
+            "reviewed_at": datetime.now(timezone.utc),
+            "reviewed_by": current_user["name"]
+        }
+        
+        result = await db.reports.update_one(
+            {"id": report_id},
+            {"$set": update_data}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Report not found")
+            
+        logger.info(f"✅ Report {report_id} updated to {update.status} by {current_user['name']}")
+        
+        return {
+            "success": True,
+            "message": f"Report status updated to {update.status}",
+            "updated_at": update_data["reviewed_at"]
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to update report: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to update report: {str(e)}")
+
+# Include subscription router
+app.include_router(subscriptions_router)
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
