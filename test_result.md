@@ -580,8 +580,8 @@
   run_ui: false
 ## test_plan:
   current_focus:
-    - "Community Backend API Testing"
-    - "Production Mode Integration Testing"
+    - "Report System Backend API Testing - COMPLETED"
+    - "Google Play Compliance Features - COMPLETED"
   stuck_tasks:
     - "Comment System Backend API"
   test_all: false
