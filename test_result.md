@@ -594,7 +594,7 @@
   run_ui: false
 ## test_plan:
   current_focus:
-    - "Report System Backend API Testing - COMPLETED"
+    - "Account Deletion API Backend System - Google Play Compliance - COMPLETED"
     - "Google Play Compliance Features - COMPLETED"
   stuck_tasks:
     - "Comment System Backend API"
