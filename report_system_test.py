@@ -39,6 +39,26 @@ class ReportSystemTester:
         timestamp = datetime.now().strftime("%H:%M:%S")
         print(f"[{timestamp}] [{level}] {message}")
         
+    def test_auth_register(self, name: str, email: str, password: str) -> Dict:
+        """Test user registration"""
+        url = f"{self.base_url}/auth/register"
+        payload = {
+            "name": name,
+            "email": email,
+            "password": password
+        }
+        
+        self.log(f"Testing registration for {email}")
+        response = self.session.post(url, json=payload)
+        
+        if response.status_code == 200:
+            data = response.json()
+            self.log(f"✅ Registration successful for {email}")
+            return {"success": True, "data": data}
+        else:
+            self.log(f"❌ Registration failed for {email}: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
     def test_auth_login(self, email: str, password: str) -> Dict:
         """Test user login and get JWT token"""
         url = f"{self.base_url}/auth/login"
