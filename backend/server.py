@@ -2708,6 +2708,9 @@ async def update_report_status(
         logger.error(f"❌ Failed to update report: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to update report: {str(e)}")
 
+# Include the API router with all endpoints
+app.include_router(api_router)
+
 # Include subscription router
 app.include_router(subscriptions_router)
 
