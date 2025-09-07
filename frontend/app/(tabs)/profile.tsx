@@ -733,7 +733,7 @@ export default function ProfileScreen() {
             onPress={async () => {
               console.log('🗑️ Delete Account clicked from Legal section');
               try {
-                const url = 'http://localhost:3000/delete-account.html';
+                const url = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('/api', '') || 'http://localhost:3000'}/delete-account.html`;
                 
                 // Platform detection fix for external URLs - Google Play Compliance
                 if (Platform.OS === 'web' || typeof window !== 'undefined') {
