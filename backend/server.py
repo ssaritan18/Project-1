@@ -3028,6 +3028,167 @@ async def process_account_deletion(
         logger.error(f"❌ Failed to process account deletion: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to process account deletion: {str(e)}")
 
+# Block/Unblock Users APIs - Google Play Compliance
+@api_router.post("/users/{user_id}/block")
+async def block_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    """Block a user to prevent interactions"""
+    try:
+        blocker_id = current_user["_id"]
+        
+        # Validate user exists
+        blocked_user = await db.users.find_one({"_id": user_id})
+        if not blocked_user:
+            raise HTTPException(status_code=404, detail="User not found")
+            
+        # Check if already blocked
+        existing_block = await db.blocked_users.find_one({
+            "blocker_id": blocker_id,
+            "blocked_id": user_id
+        })
+        
+        if existing_block:
+            return {
+                "success": True,
+                "message": "User is already blocked",
+                "already_blocked": True
+            }
+        
+        # Create block record
+        block_record = {
+            "id": str(uuid.uuid4()),
+            "blocker_id": blocker_id,
+            "blocker_name": current_user["name"],
+            "blocked_id": user_id,
+            "blocked_name": blocked_user["name"],
+            "blocked_at": datetime.now(timezone.utc),
+            "reason": "user_initiated_block"
+        }
+        
+        await db.blocked_users.insert_one(block_record)
+        
+        # Remove any existing friend connections
+        await db.friends.delete_many({
+            "$or": [
+                {"user_id": blocker_id, "friend_id": user_id},
+                {"user_id": user_id, "friend_id": blocker_id}
+            ]
+        })
+        
+        # Remove pending friend requests
+        await db.friend_requests.delete_many({
+            "$or": [
+                {"from_user_id": blocker_id, "to_user_id": user_id},
+                {"from_user_id": user_id, "to_user_id": blocker_id}
+            ]
+        })
+        
+        logger.info(f"✅ User blocked: {blocker_id} blocked {user_id}")
+        
+        return {
+            "success": True,
+            "message": f"Successfully blocked {blocked_user['name']}",
+            "blocked_user": {
+                "id": user_id,
+                "name": blocked_user["name"]
+            },
+            "blocked_at": block_record["blocked_at"]
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Failed to block user: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to block user: {str(e)}")
+
+@api_router.delete("/users/{user_id}/block")
+async def unblock_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    """Unblock a previously blocked user"""
+    try:
+        blocker_id = current_user["_id"]
+        
+        # Find and remove block record
+        result = await db.blocked_users.delete_one({
+            "blocker_id": blocker_id,
+            "blocked_id": user_id
+        })
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Block record not found")
+            
+        # Get blocked user info for response
+        blocked_user = await db.users.find_one({"_id": user_id})
+        blocked_user_name = blocked_user["name"] if blocked_user else "Unknown User"
+        
+        logger.info(f"✅ User unblocked: {blocker_id} unblocked {user_id}")
+        
+        return {
+            "success": True,
+            "message": f"Successfully unblocked {blocked_user_name}",
+            "unblocked_user": {
+                "id": user_id,
+                "name": blocked_user_name
+            },
+            "unblocked_at": datetime.now(timezone.utc)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Failed to unblock user: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to unblock user: {str(e)}")
+
+@api_router.get("/users/blocked")
+async def get_blocked_users(current_user: dict = Depends(get_current_user)):
+    """Get list of users blocked by current user"""
+    try:
+        blocked_records = await db.blocked_users.find({
+            "blocker_id": current_user["_id"]
+        }).sort("blocked_at", -1).to_list(length=None)
+        
+        # Format response
+        blocked_users = []
+        for record in blocked_records:
+            blocked_users.append({
+                "id": record["blocked_id"],
+                "name": record["blocked_name"],
+                "blocked_at": record["blocked_at"],
+                "block_id": record.get("id", str(record["_id"]))
+            })
+            
+        logger.info(f"📊 User {current_user['name']} retrieved {len(blocked_users)} blocked users")
+        
+        return {
+            "success": True,
+            "blocked_users": blocked_users,
+            "total_count": len(blocked_users)
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to get blocked users: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get blocked users: {str(e)}")
+
+@api_router.get("/users/{user_id}/is-blocked")
+async def check_if_user_blocked(user_id: str, current_user: dict = Depends(get_current_user)):
+    """Check if a specific user is blocked by current user"""
+    try:
+        block_record = await db.blocked_users.find_one({
+            "blocker_id": current_user["_id"],
+            "blocked_id": user_id
+        })
+        
+        is_blocked = block_record is not None
+        
+        return {
+            "success": True,
+            "user_id": user_id,
+            "is_blocked": is_blocked,
+            "blocked_at": block_record["blocked_at"] if is_blocked else None
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to check block status: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to check block status: {str(e)}")
+
 # Include the API router with all endpoints
 app.include_router(api_router)
 
