@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
-    "build": "npx expo export -p web --output-dir build && cp -r build ../",
-    "build:web": "npx expo export -p web --output-dir build && cp -r build ../",
+    "build": "npx expo export -p web --output-dir build && cp -r public/* build/ && cp -r build ../",
+    "build:web": "npx expo export -p web --output-dir build && cp -r public/* build/ && cp -r build ../",
     "export": "expo export",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
