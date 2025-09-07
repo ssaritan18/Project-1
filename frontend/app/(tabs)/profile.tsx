@@ -542,12 +542,6 @@ export default function ProfileScreen() {
                   </LinearGradient>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={navigateToPrivacyPolicy}>
-                  <LinearGradient colors={["#059669", "#047857"]} style={styles.modernActionBtn}>
-                    <Text style={styles.modernActionEmoji}>📋</Text>
-                    <Text style={styles.modernActionText}>Privacy Policy</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
               </View>
             </LinearGradient>
 
