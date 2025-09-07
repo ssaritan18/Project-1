@@ -686,10 +686,17 @@ export default function ProfileScreen() {
           }}>⚖️ Legal & Privacy</Text>
           
           <TouchableOpacity 
-            onPress={() => {
+            onPress={async () => {
               console.log('📋 Privacy Policy clicked from Legal section');
               try {
-                router.push('/privacy-policy');
+                const url = 'https://www.termsfeed.com/live/ff0b3892-d10c-4a4a-b614-4a9b608105bd';
+                const supported = await Linking.canOpenURL(url);
+                if (supported) {
+                  await Linking.openURL(url);
+                } else {
+                  // Fallback: Navigate to in-app privacy policy
+                  router.push('/privacy-policy');
+                }
               } catch (error) {
                 console.error('Navigation error:', error);
                 Alert.alert("Navigation Error", "Could not open Privacy Policy. Please try again.");
