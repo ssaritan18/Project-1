@@ -538,7 +538,7 @@ export default function ProfileScreen() {
                   </LinearGradient>
                 </TouchableOpacity>
 
-              </View></TouchableOpacity>
+              </View>
             </LinearGradient>
 
             {/* Modern Advanced Controls */}
