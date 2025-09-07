@@ -21,7 +21,9 @@ import { ProfileCompletionGuide } from "../../src/components/ProfileCompletionGu
 import NeurodivergencyContent from "../../src/components/NeurodivergencyContent";
 import { useAchievements } from "../../src/hooks/useAchievements";
 import { useSubscription, getSubscriptionStatusDisplay } from "../../src/context/SubscriptionContext";
+import AssessmentFollowupContent from "../../src/components/AssessmentFollowupContent";
 import { DevTools } from "../../src/components/DevTools";
+import { MockRewardedAdButton } from "../../src/components/MockRewardedAdButton";
 import ProfileEditModal from "../../src/components/ProfileEditModal";
 
 const PRESETS = [
@@ -41,7 +43,7 @@ export default function ProfileScreen() {
   const { achievements, getCompletionStats, getAchievementsByCategory } = useAchievements();
   
   // UI State
-  const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'stats' | 'completion' | 'neurodivergency'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'stats' | 'completion' | 'neurodivergency' | 'journey'>('overview');
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [currentUserProfile, setCurrentUserProfile] = useState(user);
   
@@ -111,6 +113,29 @@ export default function ProfileScreen() {
 
   const navigateToSettings = () => {
       router.push('/profile/settings');
+  };
+
+
+  const navigateToAdminPanel = () => {
+      console.log("🔒 navigateToAdminPanel called - attempting to navigate to /admin/reports");
+      try {
+          router.push("/admin/reports");
+          console.log("✅ Admin Panel navigation successful");
+      } catch (error) {
+          console.error("❌ Admin Panel navigation failed:", error);
+          Alert.alert("Navigation Error", "Could not navigate to Admin Panel. Please try again.");
+      }
+  };
+
+  const navigateToDeleteAccount = () => {
+      console.log('🗑️ navigateToDeleteAccount called - attempting to navigate to /delete-account');
+      try {
+          router.push('/delete-account');
+          console.log('✅ Delete Account navigation successful');
+      } catch (error) {
+          console.error('❌ Delete Account navigation failed:', error);
+          Alert.alert("Navigation Error", "Could not navigate to Delete Account page. Please try again.");
+      }
   };
 
   const onBackup = async () => { try { await makeBackup(); } catch { Alert.alert("Backup failed", "Could not create backup file."); } };
@@ -319,6 +344,17 @@ export default function ProfileScreen() {
                   achievementsUnlocked: completionStats.unlocked
                 }}
               />
+              
+              {/* Rewarded Ad for Extra Points */}
+              <MockRewardedAdButton
+                onRewardEarned={(amount, type) => {
+                  console.log(`🎁 User earned ${amount} ${type} from ad!`);
+                  // Here you could add points to user's account
+                }}
+                rewardDescription="Watch ad to earn 50 bonus points!"
+                buttonText="🎁 Watch Ad for 50 Points"
+                style={{ marginTop: 20 }}
+              />
             </LinearGradient>
           </View>
         );
@@ -357,6 +393,35 @@ export default function ProfileScreen() {
             </LinearGradient>
           </View>
         );
+      case 'journey':
+        // Mock assessment result for now - in real app this would come from user data
+        const mockAssessmentResult = {
+          overall_score: 75,
+          categories: {
+            attention: 82,
+            hyperactivity: 45,
+            organization: 78,
+            emotional: 65,
+            social: 58,
+          },
+          recommendations: [
+            "🎯 Try the Pomodoro technique for better focus",
+            "📱 Use our Focus Mode features during work sessions",
+            "📋 Use our task management system daily",
+            "💚 Practice emotional regulation techniques",
+            "🏆 Use our achievement system to build positive habits",
+          ],
+          adhd_type: 'combined' as const,
+        };
+
+        return (
+          <View style={styles.modernTabContent}>
+            <AssessmentFollowupContent
+              assessmentResult={mockAssessmentResult}
+              language="en"
+            />
+          </View>
+        );
       default:
         return (
           <View style={styles.modernTabContent}>
@@ -380,13 +445,17 @@ export default function ProfileScreen() {
             >
               <Text style={styles.modernSectionTitle}>🎉 Recent Achievements</Text>
               {recentAchievements.length > 0 ? (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.achievementScrollContainer}
+                >
                   <View style={styles.achievementRow}>
                     {recentAchievements.map((achievement) => (
                       <AchievementBadge
                         key={achievement.id}
                         achievement={achievement}
-                        size="small"
+                        size="medium"
                         showUnlockAnimation={false}
                       />
                     ))}
@@ -439,6 +508,12 @@ export default function ProfileScreen() {
                   <LinearGradient colors={['#EC4899', '#F97316']} style={styles.modernActionBtn}>
                     <Text style={styles.modernActionEmoji}>⚙️</Text>
                     <Text style={styles.modernActionText}>Settings</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={navigateToAdminPanel}>
+                  <LinearGradient colors={["#EF4444", "#DC2626"]} style={styles.modernActionBtn}>
+                    <Text style={styles.modernActionEmoji}>🔒</Text>
+                    <Text style={styles.modernActionText}>Admin Panel</Text>
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
@@ -559,6 +634,7 @@ export default function ProfileScreen() {
           { key: 'stats', label: '📊', title: 'Stats' },
           { key: 'completion', label: '🎯', title: 'Tasks' },
           { key: 'neurodivergency', label: '🧠', title: 'Learn' },
+          { key: 'journey', label: '🗺️', title: 'Journey' },
         ].map(tab => (
           <TouchableOpacity
             key={tab.key}
@@ -592,12 +668,20 @@ export default function ProfileScreen() {
             colors={['#8B5CF6', '#EC4899', '#F97316']}
             style={styles.upgradeButtonGradient}
           >
-            <Text style={styles.upgradeButtonEmoji}>👑</Text>
+            <Text style={styles.upgradeButtonEmoji}>
+              {subscription.tier === 'premium' ? '👑' : '👑'}
+            </Text>
             <View style={styles.upgradeButtonContent}>
-              <Text style={styles.upgradeButtonTitle}>Upgrade to Premium</Text>
-              <Text style={styles.upgradeButtonSubtitle}>Unlock all features • .99/month</Text>
-            </View>
-            <Ionicons name="arrow-forward" size={20} color="#fff" />
+              <Text style={styles.upgradeButtonTitle}>
+                {subscription.tier === 'premium' ? 'Manage Subscription' : 'Upgrade to Premium'}
+              </Text>
+              <Text style={styles.upgradeButtonSubtitle}>
+                {subscription.tier === 'premium' 
+                  ? 'View plans & manage billing' 
+                  : 'Unlock all features • $4.99/month'
+                }
+              </Text>
+            </View>            <Ionicons name="arrow-forward" size={20} color="#fff" />
           </LinearGradient>
         </TouchableOpacity>
         
@@ -650,6 +734,9 @@ export default function ProfileScreen() {
             <Text style={styles.modernSignOutText}>🚪 Sign Out</Text>
           </LinearGradient>
         </TouchableOpacity>
+      
+      {/* Dev Tools */}
+      <DevTools />
       </ScrollView>
     </LinearGradient>
   );
@@ -710,7 +797,8 @@ const styles = StyleSheet.create({
   tab: {
     flex: 1,
     paddingVertical: 8,
-    paddingHorizontal: 4,
+    paddingVertical: 8,
+    minHeight: 100,  // Ensure enough space for medium badges
     alignItems: 'center',
     borderRadius: 8,
   },
@@ -739,7 +827,7 @@ const styles = StyleSheet.create({
   achievementGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    alignItems: 'center',
     marginBottom: 16,
   },
   achievementSummary: {
@@ -752,8 +840,13 @@ const styles = StyleSheet.create({
   },
   achievementRow: {
     flexDirection: 'row',
-    gap: 12,
-    paddingHorizontal: 4,
+    alignItems: 'center',
+    paddingVertical: 8,
+    minHeight: 100,  // Ensure enough space for medium badges
+  },
+  achievementScrollContainer: {
+    paddingVertical: 8,
+    minHeight: 100,  // Ensure enough space for medium badges
   },
   emptyText: {
     color: '#bdbdbd',
@@ -765,7 +858,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 24,
-    gap: 12,
+    alignItems: 'center',
   },
   statCard: {
     flex: 1,
@@ -793,7 +886,7 @@ const styles = StyleSheet.create({
   },
   actionGrid: {
     flexDirection: 'row',
-    gap: 12,
+    alignItems: 'center',
   },
   actionBtn: {
     flex: 1,
@@ -1022,7 +1115,7 @@ const styles = StyleSheet.create({
   modernQuickStats: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 12,
+    alignItems: 'center',
   },
   modernStatCard: {
     flex: 1,
@@ -1055,7 +1148,7 @@ const styles = StyleSheet.create({
   // Modern Action Grid Styles
   modernActionGrid: {
     flexDirection: "row",
-    gap: 12,
+    alignItems: 'center',
   },
   modernActionBtn: {
     flex: 1,
