@@ -126,6 +126,18 @@ export default function ProfileScreen() {
           Alert.alert("Navigation Error", "Could not navigate to Admin Panel. Please try again.");
       }
   };
+
+  const navigateToDeleteAccount = () => {
+      console.log('🗑️ navigateToDeleteAccount called - attempting to navigate to /delete-account');
+      try {
+          router.push('/delete-account');
+          console.log('✅ Delete Account navigation successful');
+      } catch (error) {
+          console.error('❌ Delete Account navigation failed:', error);
+          Alert.alert("Navigation Error", "Could not navigate to Delete Account page. Please try again.");
+      }
+  };
+
   const onBackup = async () => { try { await makeBackup(); } catch { Alert.alert("Backup failed", "Could not create backup file."); } };
   const onRestore = async () => {
     try {
