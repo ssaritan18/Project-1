@@ -721,10 +721,17 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity 
-            onPress={() => {
+            onPress={async () => {
               console.log('🗑️ Delete Account clicked from Legal section');
               try {
-                router.push('/delete-account');
+                const url = 'http://localhost:3000/delete-account.html';
+                const supported = await Linking.canOpenURL(url);
+                if (supported) {
+                  await Linking.openURL(url);
+                } else {
+                  // Fallback: Navigate to in-app delete account page
+                  router.push('/delete-account');
+                }
               } catch (error) {
                 console.error('Navigation error:', error);
                 Alert.alert("Navigation Error", "Could not open Delete Account page. Please try again.");
