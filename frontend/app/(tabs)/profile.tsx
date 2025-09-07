@@ -692,7 +692,7 @@ export default function ProfileScreen() {
                 const url = 'https://www.termsfeed.com/live/ff0b3892-d10c-4a4a-b614-4a9b608105bd';
                 
                 // Platform detection fix for external URLs - Google Play Compliance
-                if (Platform.OS === 'web') {
+                if (Platform.OS === 'web' || typeof window !== 'undefined') {
                   // Use window.open for web to open in new tab
                   window.open(url, '_blank');
                   console.log('✅ Privacy Policy opened in new tab via window.open()');
@@ -736,7 +736,7 @@ export default function ProfileScreen() {
                 const url = 'https://pull-status-check.preview.emergentagent.com/delete-account.html';
                 
                 // Platform detection fix for external URLs - Google Play Compliance
-                if (Platform.OS === 'web') {
+                if (Platform.OS === 'web' || typeof window !== 'undefined') {
                   // Use window.open for web to open in new tab
                   window.open(url, '_blank');
                   console.log('✅ Delete Account opened in new tab via window.open()');
