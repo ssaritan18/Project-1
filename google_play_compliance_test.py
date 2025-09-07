@@ -210,7 +210,7 @@ class GooglePlayComplianceTest:
                 if len(blocked_list) >= 1:
                     self.log(f"✅ Retrieved blocked users list: {len(blocked_list)} users")
                     # Verify the blocked user is in the list
-                    found_blocked = any(user.get("blocked_id") == target1["user_id"] for user in blocked_list)
+                    found_blocked = any(user.get("id") == target1["user_id"] for user in blocked_list)
                     if found_blocked:
                         self.log("✅ Blocked user found in list")
                         test_results.append(True)
