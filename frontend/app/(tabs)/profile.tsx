@@ -140,6 +140,7 @@ export default function ProfileScreen() {
 
   const navigateToPrivacyPolicy = () => {
       console.log('📋 navigateToPrivacyPolicy called - attempting to navigate to /privacy-policy');
+      alert('Privacy Policy button clicked!'); // Debug alert
       try {
           router.push('/privacy-policy');
           console.log('✅ Privacy Policy navigation successful');
