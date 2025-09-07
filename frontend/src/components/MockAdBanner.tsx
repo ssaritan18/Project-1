@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSubscription } from '../context/SubscriptionContext';
+import { adsAPI } from '../lib/api';
 
 interface MockAdBannerProps {
   style?: any;
