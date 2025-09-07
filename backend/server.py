@@ -2573,10 +2573,16 @@ def get_next_focus_suggestion(rating: int, interruptions: int) -> str:
     else:
         return "Solid work! Keep building that focus muscle! 🎯"
 
+# CORS configuration for production deployment
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=[
+        "https://pull-status-check.preview.emergentagent.com",
+        "http://localhost:3000",  # For development
+        "http://localhost:19006", # For Expo web
+        "exp://localhost:19000"   # For Expo mobile
+    ],
     allow_credentials=True,
-    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
