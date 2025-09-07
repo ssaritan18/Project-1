@@ -686,10 +686,26 @@ export default function ProfileScreen() {
           }}>⚖️ Legal & Privacy</Text>
           
           <TouchableOpacity 
-            onPress={() => {
+            onPress={async () => {
               console.log('📋 Privacy Policy clicked from Legal section');
               try {
-                router.push('/privacy-policy');
+                const url = 'https://www.termsfeed.com/live/ff0b3892-d10c-4a4a-b614-4a9b608105bd';
+                
+                // Platform detection fix for external URLs - Google Play Compliance
+                if (Platform.OS === 'web') {
+                  // Use window.open for web to open in new tab
+                  window.open(url, '_blank');
+                  console.log('✅ Privacy Policy opened in new tab via window.open()');
+                } else {
+                  // Use Linking.openURL for mobile platforms
+                  const supported = await Linking.canOpenURL(url);
+                  if (supported) {
+                    await Linking.openURL(url);
+                  } else {
+                    // Fallback: Navigate to in-app privacy policy
+                    router.push('/privacy-policy');
+                  }
+                }
               } catch (error) {
                 console.error('Navigation error:', error);
                 Alert.alert("Navigation Error", "Could not open Privacy Policy. Please try again.");
@@ -714,10 +730,26 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity 
-            onPress={() => {
+            onPress={async () => {
               console.log('🗑️ Delete Account clicked from Legal section');
               try {
-                router.push('/delete-account');
+                const url = 'http://localhost:3000/delete-account.html';
+                
+                // Platform detection fix for external URLs - Google Play Compliance
+                if (Platform.OS === 'web') {
+                  // Use window.open for web to open in new tab
+                  window.open(url, '_blank');
+                  console.log('✅ Delete Account opened in new tab via window.open()');
+                } else {
+                  // Use Linking.openURL for mobile platforms
+                  const supported = await Linking.canOpenURL(url);
+                  if (supported) {
+                    await Linking.openURL(url);
+                  } else {
+                    // Fallback: Navigate to in-app delete account page
+                    router.push('/delete-account');
+                  }
+                }
               } catch (error) {
                 console.error('Navigation error:', error);
                 Alert.alert("Navigation Error", "Could not open Delete Account page. Please try again.");
