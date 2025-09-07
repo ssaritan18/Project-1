@@ -523,7 +523,6 @@ export default function ProfileScreen() {
                     <Text style={styles.modernActionText}>Privacy Policy</Text>
                   </LinearGradient>
                 </TouchableOpacity>
-                </TouchableOpacity>
 
                 <TouchableOpacity onPress={navigateToSettings}>
                   <LinearGradient colors={['#EC4899', '#F97316']} style={styles.modernActionBtn}>
