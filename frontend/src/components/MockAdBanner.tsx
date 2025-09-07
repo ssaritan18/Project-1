@@ -10,9 +10,34 @@ interface MockAdBannerProps {
 
 export function MockAdBanner({ style }: MockAdBannerProps) {
   const { subscription } = useSubscription();
+  const [adsConfig, setAdsConfig] = useState({
+    show_ads: false,
+    ads_type: 'mock',
+    enabled_for_free: true
+  });
 
-  // Don't show ads for premium users
-  if (subscription.tier === 'premium') {
+  // Fetch ads configuration from backend
+  useEffect(() => {
+    const fetchAdsConfig = async () => {
+      try {
+        const config = await adsAPI.getConfig();
+        setAdsConfig(config);
+      } catch (error) {
+        console.log('Failed to fetch ads config:', error);
+        // Keep default config (no ads)
+      }
+    };
+
+    fetchAdsConfig();
+  }, []);
+
+  // Don't show ads for premium users (if enabled_for_free is true)
+  if (subscription.tier === 'premium' && adsConfig.enabled_for_free) {
+    return null;
+  }
+
+  // Don't show ads if disabled by backend config
+  if (!adsConfig.show_ads) {
     return null;
   }
 
