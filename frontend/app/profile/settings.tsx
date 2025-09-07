@@ -365,6 +365,36 @@ export default function SettingsScreen() {
           />
         </SettingSection>
 
+        {/* Admin Panel */}
+        <SettingSection title="🔒 Admin Panel" icon="shield-outline">
+          <View style={styles.settingColumn}>
+            <TouchableOpacity
+              style={styles.settingRow}
+              onPress={() => {
+                console.log("🔒 Admin Panel navigation from Settings");
+                try {
+                  router.push("/admin/reports");
+                  console.log("✅ Admin Panel navigation successful from Settings");
+                } catch (error) {
+                  console.error("❌ Admin Panel navigation failed:", error);
+                  Alert.alert("Navigation Error", "Could not navigate to Admin Panel. Please try again.");
+                }
+              }}
+            >
+              <View style={styles.settingInfo}>
+                <View style={styles.settingTitleRow}>
+                  <Text style={styles.settingIcon}>🔒</Text>
+                  <Text style={styles.settingTitle}>Access Admin Panel</Text>
+                </View>
+                <Text style={styles.settingDescription}>
+                  Manage user reports, account deletion requests, and content moderation for Google Play compliance.
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#8B5CF6" />
+            </TouchableOpacity>
+          </View>
+        </SettingSection>
+
         {/* Footer */}
         <View style={styles.footerSection}>
           <LinearGradient
