@@ -395,6 +395,61 @@ export default function SettingsScreen() {
           </View>
         </SettingSection>
 
+        {/* Legal & Privacy - Google Play Compliance */}
+        <SettingSection title="⚖️ Legal & Privacy" icon="document-text-outline">
+          <View style={styles.settingColumn}>
+            <TouchableOpacity
+              style={styles.settingRow}
+              onPress={() => {
+                console.log("📋 Privacy Policy navigation from Settings");
+                try {
+                  router.push("/privacy-policy");
+                  console.log("✅ Privacy Policy navigation successful from Settings");
+                } catch (error) {
+                  console.error("❌ Privacy Policy navigation failed:", error);
+                  Alert.alert("Navigation Error", "Could not navigate to Privacy Policy. Please try again.");
+                }
+              }}
+            >
+              <View style={styles.settingInfo}>
+                <View style={styles.settingTitleRow}>
+                  <Text style={styles.settingIcon}>📋</Text>
+                  <Text style={styles.settingTitle}>Privacy Policy</Text>
+                </View>
+                <Text style={styles.settingDescription}>
+                  Learn how we collect, use, and protect your personal data in our app.
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#10B981" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.settingRow}
+              onPress={() => {
+                console.log("🗑️ Delete Account navigation from Settings");
+                try {
+                  router.push("/delete-account");
+                  console.log("✅ Delete Account navigation successful from Settings");
+                } catch (error) {
+                  console.error("❌ Delete Account navigation failed:", error);
+                  Alert.alert("Navigation Error", "Could not navigate to Delete Account. Please try again.");
+                }
+              }}
+            >
+              <View style={styles.settingInfo}>
+                <View style={styles.settingTitleRow}>
+                  <Text style={styles.settingIcon}>🗑️</Text>
+                  <Text style={styles.settingTitle}>Delete Account</Text>
+                </View>
+                <Text style={styles.settingDescription}>
+                  Permanently remove your account and all associated data from our systems.
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#EF4444" />
+            </TouchableOpacity>
+          </View>
+        </SettingSection>
+
         {/* Footer */}
         <View style={styles.footerSection}>
           <LinearGradient
