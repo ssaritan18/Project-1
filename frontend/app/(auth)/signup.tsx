@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, TextInput, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, TextInput, Alert, Linking } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from "../../src/context/AuthContext";
 import { router, useLocalSearchParams } from "expo-router";
@@ -12,6 +12,7 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   useEffect(() => {
     if (params?.email && typeof params.email === 'string') setEmail(params.email);
@@ -20,16 +21,52 @@ export default function SignUp() {
   const valid = useMemo(() => 
     emailRegex.test(email.trim()) && 
     name.trim().length >= 2 && 
-    password.trim().length >= 4, 
-  [email, name, password]);
+    password.trim().length >= 4 &&
+    acceptedTerms, 
+  [email, name, password, acceptedTerms]);
 
   const submit = async () => {
     if (!valid) {
-      Alert.alert("Invalid Input", "Please fill all fields:\n• Valid email\n• Name (min 2 chars)\n• PIN/Password (min 4 chars)");
+      if (!acceptedTerms) {
+        Alert.alert("Terms Required", "Please accept the Terms of Service and Privacy Policy to continue.");
+        return;
+      }
+      Alert.alert("Invalid Input", "Please fill all fields:\n• Valid email\n• Name (min 2 chars)\n• PIN/Password (min 4 chars)\n• Accept Terms & Privacy Policy");
       return;
     }
     await register(name.trim(), email.trim(), password.trim());
     router.replace("/(tabs)");
+  };
+
+  const openPrivacyPolicy = async () => {
+    try {
+      const url = 'http://localhost:3000/privacy-policy.html';
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        // Fallback: Navigate to in-app privacy policy
+        router.push('/privacy-policy');
+      }
+    } catch (error) {
+      console.error('Error opening Privacy Policy:', error);
+      Alert.alert('Error', 'Could not open Privacy Policy. Please try again.');
+    }
+  };
+
+  const openTermsOfService = async () => {
+    try {
+      const url = 'http://localhost:3000/privacy-policy.html'; // Same as privacy policy for now
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        router.push('/privacy-policy');
+      }
+    } catch (error) {
+      console.error('Error opening Terms of Service:', error);
+      Alert.alert('Error', 'Could not open Terms of Service. Please try again.');
+    }
   };
 
   return (
@@ -53,6 +90,26 @@ export default function SignUp() {
           <Text style={styles.glowLabel}>PIN/Password</Text>
           <TextInput style={styles.glowInput} placeholder="••••" placeholderTextColor="#B9B9B9" secureTextEntry value={password} onChangeText={setPassword} returnKeyType="done" onSubmitEditing={submit} />
         </View>
+
+        {/* Terms and Privacy Policy Checkbox */}
+        <TouchableOpacity 
+          style={styles.checkboxContainer} 
+          onPress={() => setAcceptedTerms(!acceptedTerms)}
+        >
+          <View style={[styles.checkbox, acceptedTerms && styles.checkboxChecked]}>
+            {acceptedTerms && <Text style={styles.checkmark}>✓</Text>}
+          </View>
+          <View style={styles.termsTextContainer}>
+            <Text style={styles.termsText}>I agree to the </Text>
+            <TouchableOpacity onPress={openTermsOfService}>
+              <Text style={styles.termsLink}>Terms of Service</Text>
+            </TouchableOpacity>
+            <Text style={styles.termsText}> and </Text>
+            <TouchableOpacity onPress={openPrivacyPolicy}>
+              <Text style={styles.termsLink}>Privacy Policy</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
 
         <TouchableOpacity onPress={submit} disabled={!valid}>
           <LinearGradient colors={!valid ? ['#666', '#555'] : ['#EC4899', '#F97316']} style={styles.glowBtn}>
@@ -111,6 +168,52 @@ const styles = StyleSheet.create({
     borderWidth: 1, 
     borderColor: "rgba(139, 92, 246, 0.3)",
     fontSize: 16,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 24,
+    paddingHorizontal: 16,
+    maxWidth: 360,
+    width: '100%',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: 'rgba(139, 92, 246, 0.5)',
+    borderRadius: 4,
+    marginRight: 12,
+    marginTop: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: '#8B5CF6',
+    borderColor: '#8B5CF6',
+  },
+  checkmark: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  termsTextContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
+  termsText: {
+    color: '#E5E7EB',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  termsLink: {
+    color: '#8B5CF6',
+    fontSize: 14,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+    lineHeight: 20,
   },
   glowBtn: { 
     paddingVertical: 16, 
