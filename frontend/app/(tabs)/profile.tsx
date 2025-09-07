@@ -138,6 +138,17 @@ export default function ProfileScreen() {
       }
   };
 
+  const navigateToPrivacyPolicy = () => {
+      console.log('📋 navigateToPrivacyPolicy called - attempting to navigate to /privacy-policy');
+      try {
+          router.push('/privacy-policy');
+          console.log('✅ Privacy Policy navigation successful');
+      } catch (error) {
+          console.error('❌ Privacy Policy navigation failed:', error);
+          Alert.alert("Navigation Error", "Could not navigate to Privacy Policy page. Please try again.");
+      }
+  };
+
   const onBackup = async () => { try { await makeBackup(); } catch { Alert.alert("Backup failed", "Could not create backup file."); } };
   const onRestore = async () => {
     try {
