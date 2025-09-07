@@ -587,6 +587,20 @@
         -working: true
         -agent: "main"
         -comment: "Updated app.json with proper app name 'ADHDers Social Club' and slug 'adhders-social-club' instead of generic focus-buddy-app. Added custom scheme 'adhders' for deep linking."
+  - task: "Google Play Compliance Public Pages - Account Deletion & Privacy Policy"
+    implemented: true
+    working: false
+    file: "/app/frontend/app/delete-account.tsx, /app/frontend/app/privacy-policy.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Google Play Store compliance requires two essential public pages: 1) Account deletion page accessible via direct URL /delete-account with 3-step deletion process, 2) Privacy policy page accessible via direct URL /privacy-policy with comprehensive privacy content and account deletion button integration."
+        -working: false
+        -agent: "testing"
+        -comment: "❌ CRITICAL GOOGLE PLAY COMPLIANCE FAILURE: Comprehensive testing of Google Play Store required public pages completed with CRITICAL FAILURES. TESTING RESULTS: Both essential compliance pages return 404 errors when accessed via direct URLs. ACCOUNT DELETION PAGE (/delete-account): ❌ Direct URL access returns 'Error code: 404 - File not found', ❌ Page not publicly accessible as required by Google Play Store, ❌ 3-step deletion process cannot be tested due to 404 error. PRIVACY POLICY PAGE (/privacy-policy): ❌ Direct URL access returns 'Error code: 404 - File not found', ❌ Page not publicly accessible as required by Google Play Store, ❌ Privacy policy content not accessible to users. MOBILE TESTING: ✅ Tested on iPhone 12/13/14 viewport (390x844) as required, ✅ Homepage loads correctly with ADHDers Social Club branding. GOOGLE PLAY STORE VIOLATIONS: 🚨 Account deletion URL requirement NOT MET - Google Play requires publicly accessible account deletion page, 🚨 Privacy policy URL requirement NOT MET - Google Play requires publicly accessible privacy policy page, 🚨 Both pages must be accessible without authentication, 🚨 Direct URL access is mandatory for app store submission. ROOT CAUSE: URL routing configuration issue - pages exist in codebase (/app/frontend/app/delete-account.tsx, /app/frontend/app/privacy-policy.tsx) but are not properly served as public routes. IMPACT: App cannot be submitted to Google Play Store until these compliance pages are accessible via direct URLs. REQUIRED FIXES: 1) Configure proper URL routing for /delete-account and /privacy-policy, 2) Ensure both pages are served as static/public routes, 3) Test direct URL access before Google Play submission, 4) Verify mobile responsiveness and public accessibility."
 ## metadata:
   created_by: "main_agent"
   version: "2.0"
