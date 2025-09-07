@@ -1174,9 +1174,13 @@ const styles = StyleSheet.create({
   // Modern Action Grid Styles
   modernActionGrid: {
     flexDirection: "row",
+    flexWrap: "wrap",
     alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
   },
   modernActionBtn: {
+    width: '48%', // 2 buttons per row with gap
     flex: 1,
     padding: 16,
     borderRadius: 16,
