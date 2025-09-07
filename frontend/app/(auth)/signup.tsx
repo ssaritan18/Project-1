@@ -56,7 +56,7 @@ export default function SignUp() {
 
   const openTermsOfService = async () => {
     try {
-      const url = 'https://termify.io/terms-and-conditions/CxQOmpYFyR'; // Same as privacy policy for now
+      const url = 'https://termify.io/terms-and-conditions/CxQOmpYFyR';
       const supported = await Linking.canOpenURL(url);
       if (supported) {
         await Linking.openURL(url);
