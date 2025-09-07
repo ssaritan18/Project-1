@@ -628,50 +628,16 @@ export default function CommunityScreen() {
         colors={['#1a1a2e', '#16213e', '#0f3460']}
         style={styles.gradient}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>ADHDers Social Club</Text>
-          
-          <View style={styles.headerActions}>
-            {/* Production Mode Toggle */}
-            <TouchableOpacity 
-              style={[
-                styles.productionToggle, 
-                isProductionMode && styles.productionToggleActive
-              ]}
-              onPress={() => {
-                setIsProductionMode(!isProductionMode);
-                showToast(
-                  `${!isProductionMode ? 'Production' : 'Test'} mode enabled`,
-                  'info'
-                );
-                console.log(`🔄 Switched to ${!isProductionMode ? 'production' : 'test'} mode`);
-              }}
-            >
-              <Text style={[
-                styles.productionToggleText,
-                isProductionMode && styles.productionToggleTextActive
-              ]}>
-                {isProductionMode ? 'LIVE' : 'TEST'}
-              </Text>
-            </TouchableOpacity>
-            
-            {/* Notification Bell */}
-            <TouchableOpacity 
-              style={styles.notificationBell}
-              onPress={() => setShowNotifications(true)}
-            >
-              <Ionicons name="notifications" size={24} color="white" />
-              {getUnreadCount() > 0 && (
-                <View style={styles.notificationBadge}>
-                  <Text style={styles.notificationBadgeText}>
-                    {getUnreadCount() > 99 ? '99+' : getUnreadCount()}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
+        {/* Header - Updated to match other pages style */}
+        <LinearGradient
+          colors={['#8B5CF6', '#EC4899', '#F97316']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.glowHeader}
+        >
+          <Text style={styles.glowHeaderTitle}>🌟 Community Hub</Text>
+          <Text style={styles.glowHeaderSubtitle}>Share experiences with your ADHD community</Text>
+        </LinearGradient>
 
         {/* Categories */}
         <ScrollView 
@@ -1065,22 +1031,30 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
   },
-  header: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(139, 92, 246, 0.3)',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  glowHeader: {
+    padding: 25,
+    paddingTop: 30,
+    paddingBottom: 30,
     alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
-  headerTitle: {
-    fontSize: 24,
+  glowHeaderTitle: {
+    fontSize: 28,
     fontWeight: 'bold',
     color: 'white',
+    textAlign: 'center',
+    marginBottom: 8,
+    textShadowColor: 'rgba(255, 255, 255, 0.3)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  glowHeaderSubtitle: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
+    textAlign: 'center',
+    fontWeight: '500',
   },
   productionToggle: {
     paddingHorizontal: 12,
