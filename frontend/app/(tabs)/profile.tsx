@@ -517,7 +517,7 @@ export default function ProfileScreen() {
                   </LinearGradient>
                 </TouchableOpacity>
 
-                <View style={{backgroundColor: "#059669", padding: 16, borderRadius: 16, width: "48%", alignItems: "center", minHeight: 80, justifyContent: "center"}} onPress={() => {alert("Privacy Policy CLICKED!"); router.push("/privacy-policy")}}>
+                <TouchableOpacity onPress={() => {alert("Privacy Policy CLICKED!"); try{router.push("/privacy-policy");}catch(e){console.error(e);}}}><View style={{backgroundColor: "#059669", padding: 16, borderRadius: 16, width: "48%", alignItems: "center", minHeight: 80, justifyContent: "center"}} onPress={() => {alert("Privacy Policy CLICKED!"); router.push("/privacy-policy")}}>
                   <LinearGradient colors={["#059669", "#047857"]} style={styles.modernActionBtn}>
                     <Text style={styles.modernActionEmoji}>📋</Text>
                     <Text style={styles.modernActionText}>Privacy Policy</Text>
