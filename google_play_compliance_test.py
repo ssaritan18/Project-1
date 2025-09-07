@@ -416,7 +416,8 @@ class GooglePlayComplianceTest:
             return False
         
         # Create a user specifically for deletion testing
-        deletion_user = self.create_test_user("DeletionTester", "deletiontester@example.com")
+        timestamp = int(time.time())
+        deletion_user = self.create_test_user("DeletionTester", f"deletiontester{timestamp}@example.com")
         if not deletion_user:
             self.log("❌ Failed to create deletion test user", "ERROR")
             return False
