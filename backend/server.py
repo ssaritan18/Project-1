@@ -29,10 +29,27 @@ from app.routers.subscriptions import router as subscriptions_router
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# MongoDB connection with production-ready error handling
+mongo_url = os.environ.get('MONGO_URL')
+if not mongo_url:
+    raise ValueError("MONGO_URL environment variable is required")
+
+# Support both local MongoDB and Atlas
+try:
+    client = AsyncIOMotorClient(mongo_url, 
+                              serverSelectionTimeoutMS=5000,
+                              connectTimeoutMS=5000,
+                              socketTimeoutMS=5000)
+    # Test the connection
+    client.admin.command('ping')
+    print(f"✅ Successfully connected to MongoDB")
+except Exception as e:
+    print(f"❌ Failed to connect to MongoDB: {str(e)}")
+    raise
+
+db_name = os.environ.get('DB_NAME', 'adhders_social_club')
+db = client[db_name]
+print(f"✅ Using database: {db_name}")
 
 # Security
 JWT_SECRET = os.getenv("JWT_SECRET")
