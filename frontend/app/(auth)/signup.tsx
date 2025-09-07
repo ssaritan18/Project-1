@@ -204,14 +204,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   termsText: {
-    color: '#E5E7EB',
+    color: '#FFFFFF',  // Pure white for better contrast
     fontSize: 14,
     lineHeight: 20,
+    fontWeight: '500',  // Slightly bolder for readability
   },
   termsLink: {
-    color: '#8B5CF6',
+    color: '#FFD700',  // Gold color for better visibility on purple
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',  // Bold for emphasis
     textDecorationLine: 'underline',
     lineHeight: 20,
   },
