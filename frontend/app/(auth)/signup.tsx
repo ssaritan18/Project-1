@@ -40,7 +40,7 @@ export default function SignUp() {
 
   const openPrivacyPolicy = async () => {
     try {
-      const url = 'https://termify.io/terms-and-conditions/CxQOmpYFyR';
+      const url = 'https://www.termsfeed.com/live/ff0b3892-d10c-4a4a-b614-4a9b608105bd';
       const supported = await Linking.canOpenURL(url);
       if (supported) {
         await Linking.openURL(url);
