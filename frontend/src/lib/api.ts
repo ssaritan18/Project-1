@@ -20,6 +20,14 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Ads Configuration API
+export const adsAPI = {
+  getConfig: async () => {
+    const response = await api.get("/config/ads");
+    return response.data;
+  }
+};
+
 // Chat API functions
 export const chatAPI = {
   // Create new GROUP chat (with invite code)
