@@ -280,7 +280,7 @@
     implemented: true
     working: false
     file: "/app/frontend/app/(auth)/signup.tsx"
-    stuck_count: 3
+    stuck_count: 4
     priority: "high"
     needs_retesting: false
     status_history:
