@@ -244,6 +244,17 @@
         -comment: "USER REPORTED: Friend request via mail redirects to error page showing 'Cannot read properties of undefined (reading 'length')' JavaScript error"
         -working: true
         -agent: "main"
+  - task: "Google Play Compliance - Privacy Policy Button Visibility Fix"
+    implemented: false
+    working: false
+    file: "/app/frontend/app/(tabs)/profile.tsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "❌ CRITICAL GOOGLE PLAY COMPLIANCE FAILURE: Comprehensive testing of Privacy Policy Button Visibility Fix completed with CRITICAL ISSUES FOUND. TESTING RESULTS: Successfully accessed Profile page and found Quick Actions section in DOM, but PRIVACY POLICY BUTTON IS MISSING from the 2x2 grid layout. CURRENT STATE ANALYSIS: ✅ Quick Actions section exists and is accessible, ✅ Admin Panel correctly removed from Quick Actions (found 0 admin buttons in main profile), ❌ Privacy Policy button NOT FOUND in Quick Actions grid, ❌ Only 4 buttons detected but Privacy Policy missing from the expected set (Edit Profile, Privacy Policy, Settings, Delete Account). CODE ANALYSIS CONFIRMS: Profile.tsx shows Privacy Policy button implementation with navigateToPrivacyPolicy function and proper TouchableOpacity with green gradient colors ['#059669', '#047857'], but button is not rendering as clickable element in the UI. GOOGLE PLAY COMPLIANCE STATUS: ❌ FAILED - Privacy Policy NOT accessible from main Profile screen as required for Google Play Store submission. CRITICAL IMPACT: This violates Google Play Store requirements for privacy policy accessibility. Users cannot access Privacy Policy from the main profile screen, which is mandatory for app store compliance. REQUIRED FIX: Main agent must debug why Privacy Policy button is not rendering as clickable element despite being implemented in code. Check for conditional rendering, styling issues, or component mounting problems that prevent the Privacy Policy button from appearing in the Quick Actions 2x2 grid."
   - task: "Frontend Comment Integration"
     implemented: true
     working: true
