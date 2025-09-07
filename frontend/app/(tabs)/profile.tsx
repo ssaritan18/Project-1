@@ -517,27 +517,12 @@ export default function ProfileScreen() {
                   </LinearGradient>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{backgroundColor: "#059669", padding: 16, borderRadius: 16, width: "48%", alignItems: "center", minHeight: 80, justifyContent: "center"}} onPress={() => {alert("Privacy Policy WORKS!"); router.push("/privacy-policy")}}>
-                  <LinearGradient colors={["#059669", "#047857"]} style={styles.modernActionBtn}>
-                    <Text style={styles.modernActionEmoji}>📋</Text>
-                    <Text style={styles.modernActionText}>Privacy Policy</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-
                 <TouchableOpacity onPress={navigateToSettings}>
                   <LinearGradient colors={['#EC4899', '#F97316']} style={styles.modernActionBtn}>
                     <Text style={styles.modernActionEmoji}>⚙️</Text>
                     <Text style={styles.modernActionText}>Settings</Text>
                   </LinearGradient>
                 </TouchableOpacity>
-
-                <TouchableOpacity onPress={navigateToDeleteAccount}>
-                  <LinearGradient colors={["#B91C1C", "#991B1B"]} style={styles.modernActionBtn}>
-                    <Text style={styles.modernActionEmoji}>🗑️</Text>
-                    <Text style={styles.modernActionText}>Delete Account</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-
               </View>
             </LinearGradient>
 
