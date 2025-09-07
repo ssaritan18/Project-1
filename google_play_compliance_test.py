@@ -38,7 +38,35 @@ class GooglePlayComplianceTest:
     def create_test_user(self, name, email, password="TestPass123!"):
         """Create a test user for testing"""
         try:
-            # Register user
+            # Try to login first in case user already exists
+            login_data = {"email": email, "password": password}
+            login_response = requests.post(f"{self.base_url}/auth/login", 
+                                         json=login_data, headers=self.headers)
+            
+            if login_response.status_code == 200:
+                self.log(f"✅ User already exists, logging in: {email}")
+                token_data = login_response.json()
+                token = token_data["access_token"]
+                
+                # Get user info
+                auth_headers = self.headers.copy()
+                auth_headers["Authorization"] = f"Bearer {token}"
+                
+                me_response = requests.get(f"{self.base_url}/me", headers=auth_headers)
+                if me_response.status_code == 200:
+                    user_data = me_response.json()
+                    user_info = {
+                        "name": name,
+                        "email": email,
+                        "user_id": user_data["_id"],
+                        "token": token,
+                        "headers": auth_headers
+                    }
+                    self.test_users.append(user_info)
+                    self.log(f"✅ User authenticated: {email} (ID: {user_data['_id'][:8]})")
+                    return user_info
+            
+            # If login failed, try to register
             register_data = {
                 "name": name,
                 "email": email,
