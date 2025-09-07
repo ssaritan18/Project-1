@@ -229,6 +229,18 @@ async def health_check():
             "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
+# Ads Configuration Endpoint (Feature Flag for Ad Display)
+@app.get("/api/config/ads")
+async def get_ads_config():
+    """Get ads configuration for frontend"""
+    return {
+        "show_ads": False,          # Currently disabled (will enable after store release)
+        "ads_type": "mock",         # "mock" | "real"
+        "enabled_for_free": True,   # Show ads only for free users
+        "banner_enabled": True,
+        "rewarded_enabled": True
+    }
+
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
