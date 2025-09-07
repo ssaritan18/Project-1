@@ -1175,7 +1175,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   modernActionBtn: {
-    width: '48%', // 2 buttons per row with gap
+    width: '48%', // 2 buttons per row - perfect for 4 buttons total
     padding: 16,
     borderRadius: 16,
     alignItems: "center",
