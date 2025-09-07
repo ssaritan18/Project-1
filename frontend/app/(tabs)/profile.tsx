@@ -686,32 +686,13 @@ export default function ProfileScreen() {
           }}>⚖️ Legal & Privacy</Text>
           
           <TouchableOpacity 
-          <TouchableOpacity 
-            onPress={async () => {
+            onPress={() => {
               console.log('📋 Privacy Policy clicked from Legal section');
               try {
-                const url = 'https://www.termsfeed.com/live/ff0b3892-d10c-4a4a-b614-4a9b608105bd';
-                
-                // Platform detection fix for external URLs - Google Play Compliance
-                if (Platform.OS === 'web') {
-                  // Use window.open for web to open in new tab
-                  window.open(url, '_blank');
-                  console.log('✅ Privacy Policy opened in new tab via window.open()');
-                } else {
-                  // Use Linking.openURL for mobile platforms
-                  const supported = await Linking.canOpenURL(url);
-                  if (supported) {
-                    await Linking.openURL(url);
-                  } else {
-                    // Fallback: Navigate to in-app privacy policy
-                    router.push('/privacy-policy');
-                  }
-                }
+                router.push('/privacy-policy');
               } catch (error) {
                 console.error('Navigation error:', error);
                 Alert.alert("Navigation Error", "Could not open Privacy Policy. Please try again.");
-              }
-            }
               }
             }}
             style={{
@@ -722,40 +703,21 @@ export default function ProfileScreen() {
               backgroundColor: 'rgba(5, 150, 105, 0.2)',
               borderRadius: 12,
               marginBottom: 8,
+            }}
+          >
+            <Text style={{ fontSize: 20, marginRight: 12 }}>📋</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '600' }}>Privacy Policy</Text>
+              <Text style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: 12 }}>How we collect, use, and protect your data</Text>
+            </View>
+            <Text style={{ color: '#10B981', fontSize: 18 }}>→</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity 
-            onPress={async () => {
+            onPress={() => {
               console.log('🗑️ Delete Account clicked from Legal section');
               try {
-                const url = 'http://localhost:3000/delete-account.html';
-                
-                // Platform detection fix for external URLs - Google Play Compliance
-                if (Platform.OS === 'web') {
-                  // Use window.open for web to open in new tab
-                  window.open(url, '_blank');
-                  console.log('✅ Delete Account opened in new tab via window.open()');
-                } else {
-                  // Use Linking.openURL for mobile platforms
-                  const supported = await Linking.canOpenURL(url);
-                  if (supported) {
-                    await Linking.openURL(url);
-                  } else {
-                    // Fallback: Navigate to in-app delete account page
-                    router.push('/delete-account');
-                  }
-                }
-              } catch (error) {
-                console.error('Navigation error:', error);
-                Alert.alert("Navigation Error", "Could not open Delete Account page. Please try again.");
-              }
-            }
-                const url = 'http://localhost:3000/delete-account.html';
-                const supported = await Linking.canOpenURL(url);
-                if (supported) {
-                  await Linking.openURL(url);
-                } else {
-                  // Fallback: Navigate to in-app delete account page
-                  router.push('/delete-account');
-                }
+                router.push('/delete-account');
               } catch (error) {
                 console.error('Navigation error:', error);
                 Alert.alert("Navigation Error", "Could not open Delete Account page. Please try again.");
