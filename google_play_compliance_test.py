@@ -419,7 +419,8 @@ class GooglePlayComplianceTest:
         try:
             deletion_data = {
                 "reason": "privacy_concerns",
-                "additional_info": "Testing Google Play compliance deletion"
+                "user_email": deletion_user['email'],
+                "confirmation": True
             }
             
             response = requests.post(
