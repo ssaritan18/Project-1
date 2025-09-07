@@ -516,6 +516,13 @@ export default function ProfileScreen() {
                     <Text style={styles.modernActionText}>Admin Panel</Text>
                   </LinearGradient>
                 </TouchableOpacity>
+
+                <TouchableOpacity onPress={navigateToDeleteAccount}>
+                  <LinearGradient colors={["#B91C1C", "#991B1B"]} style={styles.modernActionBtn}>
+                    <Text style={styles.modernActionEmoji}>🗑️</Text>
+                    <Text style={styles.modernActionText}>Delete Account</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
             </LinearGradient>
 
