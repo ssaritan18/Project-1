@@ -733,7 +733,7 @@ export default function ProfileScreen() {
             onPress={async () => {
               console.log('🗑️ Delete Account clicked from Legal section');
               try {
-                const url = 'http://localhost:3000/delete-account.html';
+                const url = 'https://pull-status-check.preview.emergentagent.com/delete-account.html';
                 
                 // Platform detection fix for external URLs - Google Play Compliance
                 if (Platform.OS === 'web') {
