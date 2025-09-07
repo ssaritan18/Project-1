@@ -332,12 +332,12 @@ export default function ProfileScreen() {
                     onPress={() => Alert.alert(achievement.name, achievement.description)}
                   />
                 ))}
-              </View></TouchableOpacity>
+              </View>
               <Text style={styles.modernAchievementSummary}>
                 🎯 {completionStats.unlocked}/{completionStats.total} unlocked • {totalPoints.toLocaleString()} points earned
               </Text>
             </LinearGradient>
-          </View></TouchableOpacity>
+          </View>
         );
       case 'stats':
         return (
@@ -368,7 +368,7 @@ export default function ProfileScreen() {
                 style={{ marginTop: 20 }}
               />
             </LinearGradient>
-          </View></TouchableOpacity>
+          </View>
         );
       case 'completion':
         return (
@@ -389,7 +389,7 @@ export default function ProfileScreen() {
                 showAnimation={false}
               />
             </LinearGradient>
-          </View></TouchableOpacity>
+          </View>
         );
       case 'neurodivergency':
         return (
@@ -403,7 +403,7 @@ export default function ProfileScreen() {
                 onPress={() => Alert.alert('Neurodivergency Hub', 'Educational content coming soon!')}
               />
             </LinearGradient>
-          </View></TouchableOpacity>
+          </View>
         );
       case 'journey':
         // Mock assessment result for now - in real app this would come from user data
@@ -432,7 +432,7 @@ export default function ProfileScreen() {
               assessmentResult={mockAssessmentResult}
               language="en"
             />
-          </View></TouchableOpacity>
+          </View>
         );
       default:
         return (
@@ -471,7 +471,7 @@ export default function ProfileScreen() {
                         showUnlockAnimation={false}
                       />
                     ))}
-                  </View></TouchableOpacity>
+                  </View>
                 </ScrollView>
               ) : (
                 <Text style={styles.modernEmptyText}>Complete tasks to unlock achievements! 🎯</Text>
@@ -500,7 +500,7 @@ export default function ProfileScreen() {
                   <Text style={styles.modernStatValue}>{totalPoints}</Text>
                   <Text style={styles.modernStatLabel}>Points</Text>
                 </LinearGradient>
-              </View></TouchableOpacity>
+              </View>
             </LinearGradient>
 
             {/* Glow Quick Actions */}
@@ -517,7 +517,7 @@ export default function ProfileScreen() {
                   </LinearGradient>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => {alert("Privacy Policy CLICKED!"); try{router.push("/privacy-policy");}catch(e){console.error(e);}}}><View style={{backgroundColor: "#059669", padding: 16, borderRadius: 16, width: "48%", alignItems: "center", minHeight: 80, justifyContent: "center"}} onPress={() => {alert("Privacy Policy CLICKED!"); router.push("/privacy-policy")}}>
+                <View style={{backgroundColor: "#059669", padding: 16, borderRadius: 16, width: "48%", alignItems: "center", minHeight: 80, justifyContent: "center"}} onTouchStart={() => {alert("Privacy Policy CLICKED!"); router.push("/privacy-policy")}}>
                   <LinearGradient colors={["#059669", "#047857"]} style={styles.modernActionBtn}>
                     <Text style={styles.modernActionEmoji}>📋</Text>
                     <Text style={styles.modernActionText}>Privacy Policy</Text>
@@ -538,7 +538,7 @@ export default function ProfileScreen() {
                   </LinearGradient>
                 </TouchableOpacity>
 
-              </View></TouchableOpacity>
+              </View>
             </LinearGradient>
 
             {/* Modern Advanced Controls */}
@@ -550,13 +550,13 @@ export default function ProfileScreen() {
               <View style={styles.modernSyncRow}>
                 <Text style={styles.modernSyncLabel}>Sync: {syncEnabled ? 'Online' : 'Local'}</Text>
                 <Switch value={syncEnabled} onValueChange={onToggleSync} />
-              </View></TouchableOpacity>
+              </View>
               <View style={styles.modernSyncRow}>
                 <Text style={styles.modernSyncLabel}>WebSocket: {wsEnabled ? 'On' : 'Off'}</Text>
                 <Switch value={wsEnabled} onValueChange={setWsEnabled} />
-              </View></TouchableOpacity>
+              </View>
             </LinearGradient>
-          </View></TouchableOpacity>
+          </View>
         );    }
   };
 
@@ -598,9 +598,9 @@ export default function ProfileScreen() {
                       {(profileData.name || "You").charAt(0).toUpperCase()}
                     </Text>
                   )}
-                </View></TouchableOpacity>
+                </View>
               </LinearGradient>
-            </View></TouchableOpacity>
+            </View>
             
             {/* User Info with Modern Typography */}
             <View style={styles.headerInfo}>
@@ -624,28 +624,28 @@ export default function ProfileScreen() {
                     {subscription.tier === 'premium' ? 'Premium' : 'Free Plan'}
                   </Text>
                 </LinearGradient>
-              </View></TouchableOpacity>
-            </View></TouchableOpacity>
-          </View></TouchableOpacity>
+              </View>
+            </View>
+          </View>
 
           {/* Stats Row - Behance Style */}
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{totalPoints}</Text>
               <Text style={styles.statLabel}>Points</Text>
-            </View></TouchableOpacity>
+            </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{completionStats.unlocked}</Text>
               <Text style={styles.statLabel}>Badges</Text>
-            </View></TouchableOpacity>
+            </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{currentStreak}</Text>
               <Text style={styles.statLabel}>Streak</Text>
-            </View></TouchableOpacity>
-          </View></TouchableOpacity>
-        </View></TouchableOpacity>
+            </View>
+          </View>
+        </View>
       </LinearGradient>
 
       {/* Modern Tab Navigation - Behance Style */}
@@ -669,7 +669,7 @@ export default function ProfileScreen() {
             </Text>
           </TouchableOpacity>
         ))}
-      </View></TouchableOpacity>
+      </View>
 
       {/* Tab Content with Modern Cards */}
       <ScrollView 
@@ -679,7 +679,7 @@ export default function ProfileScreen() {
       >
         <View style={styles.modernContentContainer}>
           {renderTabContent()}
-        </View></TouchableOpacity>
+        </View>
         
         {/* Premium Upgrade Button */}
         <TouchableOpacity 
