@@ -1181,7 +1181,6 @@ const styles = StyleSheet.create({
   },
   modernActionBtn: {
     width: '48%', // 2 buttons per row with gap
-    flex: 1,
     padding: 16,
     borderRadius: 16,
     alignItems: "center",
