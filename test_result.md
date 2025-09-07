@@ -639,11 +639,10 @@
   run_ui: false
 ## test_plan:
   current_focus:
-    - "Google Play Compliance Block Users API System - COMPLETED"
-    - "Account Deletion API Backend System - Google Play Compliance - COMPLETED"
-    - "Google Play Compliance Features - COMPLETED"
+    - "Privacy Policy Button in Quick Actions - Google Play Compliance Fix"
   stuck_tasks:
-    - "Comment System Backend API"
+    - "Theme Preference Fix"
+    - "Homepage Test Button Removal"
   test_all: false
   test_priority: "high_first"
 ## agent_communication:
