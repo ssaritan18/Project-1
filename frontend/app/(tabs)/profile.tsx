@@ -332,12 +332,12 @@ export default function ProfileScreen() {
                     onPress={() => Alert.alert(achievement.name, achievement.description)}
                   />
                 ))}
-              </View>
+              </View></TouchableOpacity>
               <Text style={styles.modernAchievementSummary}>
                 🎯 {completionStats.unlocked}/{completionStats.total} unlocked • {totalPoints.toLocaleString()} points earned
               </Text>
             </LinearGradient>
-          </View>
+          </View></TouchableOpacity>
         );
       case 'stats':
         return (
@@ -368,7 +368,7 @@ export default function ProfileScreen() {
                 style={{ marginTop: 20 }}
               />
             </LinearGradient>
-          </View>
+          </View></TouchableOpacity>
         );
       case 'completion':
         return (
@@ -389,7 +389,7 @@ export default function ProfileScreen() {
                 showAnimation={false}
               />
             </LinearGradient>
-          </View>
+          </View></TouchableOpacity>
         );
       case 'neurodivergency':
         return (
@@ -403,7 +403,7 @@ export default function ProfileScreen() {
                 onPress={() => Alert.alert('Neurodivergency Hub', 'Educational content coming soon!')}
               />
             </LinearGradient>
-          </View>
+          </View></TouchableOpacity>
         );
       case 'journey':
         // Mock assessment result for now - in real app this would come from user data
@@ -432,7 +432,7 @@ export default function ProfileScreen() {
               assessmentResult={mockAssessmentResult}
               language="en"
             />
-          </View>
+          </View></TouchableOpacity>
         );
       default:
         return (
@@ -471,7 +471,7 @@ export default function ProfileScreen() {
                         showUnlockAnimation={false}
                       />
                     ))}
-                  </View>
+                  </View></TouchableOpacity>
                 </ScrollView>
               ) : (
                 <Text style={styles.modernEmptyText}>Complete tasks to unlock achievements! 🎯</Text>
@@ -500,7 +500,7 @@ export default function ProfileScreen() {
                   <Text style={styles.modernStatValue}>{totalPoints}</Text>
                   <Text style={styles.modernStatLabel}>Points</Text>
                 </LinearGradient>
-              </View>
+              </View></TouchableOpacity>
             </LinearGradient>
 
             {/* Glow Quick Actions */}
@@ -538,7 +538,7 @@ export default function ProfileScreen() {
                   </LinearGradient>
                 </TouchableOpacity>
 
-              </View>
+              </View></TouchableOpacity>
             </LinearGradient>
 
             {/* Modern Advanced Controls */}
@@ -550,13 +550,13 @@ export default function ProfileScreen() {
               <View style={styles.modernSyncRow}>
                 <Text style={styles.modernSyncLabel}>Sync: {syncEnabled ? 'Online' : 'Local'}</Text>
                 <Switch value={syncEnabled} onValueChange={onToggleSync} />
-              </View>
+              </View></TouchableOpacity>
               <View style={styles.modernSyncRow}>
                 <Text style={styles.modernSyncLabel}>WebSocket: {wsEnabled ? 'On' : 'Off'}</Text>
                 <Switch value={wsEnabled} onValueChange={setWsEnabled} />
-              </View>
+              </View></TouchableOpacity>
             </LinearGradient>
-          </View>
+          </View></TouchableOpacity>
         );    }
   };
 
@@ -598,9 +598,9 @@ export default function ProfileScreen() {
                       {(profileData.name || "You").charAt(0).toUpperCase()}
                     </Text>
                   )}
-                </View>
+                </View></TouchableOpacity>
               </LinearGradient>
-            </View>
+            </View></TouchableOpacity>
             
             {/* User Info with Modern Typography */}
             <View style={styles.headerInfo}>
@@ -624,28 +624,28 @@ export default function ProfileScreen() {
                     {subscription.tier === 'premium' ? 'Premium' : 'Free Plan'}
                   </Text>
                 </LinearGradient>
-              </View>
-            </View>
-          </View>
+              </View></TouchableOpacity>
+            </View></TouchableOpacity>
+          </View></TouchableOpacity>
 
           {/* Stats Row - Behance Style */}
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{totalPoints}</Text>
               <Text style={styles.statLabel}>Points</Text>
-            </View>
+            </View></TouchableOpacity>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{completionStats.unlocked}</Text>
               <Text style={styles.statLabel}>Badges</Text>
-            </View>
+            </View></TouchableOpacity>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{currentStreak}</Text>
               <Text style={styles.statLabel}>Streak</Text>
-            </View>
-          </View>
-        </View>
+            </View></TouchableOpacity>
+          </View></TouchableOpacity>
+        </View></TouchableOpacity>
       </LinearGradient>
 
       {/* Modern Tab Navigation - Behance Style */}
@@ -669,7 +669,7 @@ export default function ProfileScreen() {
             </Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </View></TouchableOpacity>
 
       {/* Tab Content with Modern Cards */}
       <ScrollView 
@@ -679,7 +679,7 @@ export default function ProfileScreen() {
       >
         <View style={styles.modernContentContainer}>
           {renderTabContent()}
-        </View>
+        </View></TouchableOpacity>
         
         {/* Premium Upgrade Button */}
         <TouchableOpacity 
