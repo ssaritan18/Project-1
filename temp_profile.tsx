@@ -523,3 +523,761 @@ export default function ProfileScreen() {
                     <Text style={styles.modernActionText}>Privacy Policy</Text>
                   </LinearGradient>
                 </TouchableOpacity>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={navigateToSettings}>
+                  <LinearGradient colors={['#EC4899', '#F97316']} style={styles.modernActionBtn}>
+                    <Text style={styles.modernActionEmoji}>⚙️</Text>
+                    <Text style={styles.modernActionText}>Settings</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={navigateToDeleteAccount}>
+                  <LinearGradient colors={["#B91C1C", "#991B1B"]} style={styles.modernActionBtn}>
+                    <Text style={styles.modernActionEmoji}>🗑️</Text>
+                    <Text style={styles.modernActionText}>Delete Account</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+
+              </View></TouchableOpacity>
+            </LinearGradient>
+
+            {/* Modern Advanced Controls */}
+            <LinearGradient
+              colors={['rgba(255, 255, 255, 0.05)', 'rgba(255, 255, 255, 0.02)']}
+              style={[styles.modernCard, { marginTop: 16 }]}
+            >
+              <Text style={styles.modernSectionTitle}>🔧 Advanced</Text>
+              <View style={styles.modernSyncRow}>
+                <Text style={styles.modernSyncLabel}>Sync: {syncEnabled ? 'Online' : 'Local'}</Text>
+                <Switch value={syncEnabled} onValueChange={onToggleSync} />
+              </View></TouchableOpacity>
+              <View style={styles.modernSyncRow}>
+                <Text style={styles.modernSyncLabel}>WebSocket: {wsEnabled ? 'On' : 'Off'}</Text>
+                <Switch value={wsEnabled} onValueChange={setWsEnabled} />
+              </View></TouchableOpacity>
+            </LinearGradient>
+          </View></TouchableOpacity>
+        );    }
+  };
+
+  return (
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#0f172a']}
+      style={[styles.container]}
+    >
+      {/* Glow-Inspired Gradient Header */}
+      <LinearGradient
+        colors={['#8B5CF6', '#A855F7', '#EC4899', '#F97316']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.glowHeader, { paddingTop: insets.top + 20 }]}
+      >
+        {/* Profile Header with Modern Card Design */}
+        <View style={styles.modernProfileCard}>
+          <View style={styles.profileHeader}>
+            {/* Avatar with Gradient Border */}
+            <View style={styles.avatarContainer}>
+              <LinearGradient
+                colors={['#F97316', '#EC4899', '#8B5CF6']}
+                style={styles.avatarGradientBorder}
+              >
+                <View style={styles.avatar}>
+                  {profileData.profile_image ? (
+                    <img 
+                      src={profileData.profile_image} 
+                      alt="Profile" 
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '50%',
+                        objectFit: 'cover'
+                      }}
+                    />
+                  ) : (
+                    <Text style={styles.avatarText}>
+                      {(profileData.name || "You").charAt(0).toUpperCase()}
+                    </Text>
+                  )}
+                </View></TouchableOpacity>
+              </LinearGradient>
+            </View></TouchableOpacity>
+            
+            {/* User Info with Modern Typography */}
+            <View style={styles.headerInfo}>
+              <Text style={styles.modernTitle}>{profileData.name || "You"}</Text>
+              <Text style={styles.modernSubtitle}>ADHD Champion • Level {currentLevel}</Text>
+              <Text style={styles.modernID}>ID: #{Math.random().toString(36).substr(2, 8).toUpperCase()}</Text>
+              
+              {/* Subscription Status Badge */}
+              <View style={styles.subscriptionBadge}>
+                <LinearGradient
+                  colors={subscription.tier === 'premium' 
+                    ? ['#8B5CF6', '#EC4899'] 
+                    : ['#6B7280', '#9CA3AF']
+                  }
+                  style={styles.subscriptionBadgeGradient}
+                >
+                  <Text style={styles.subscriptionBadgeEmoji}>
+                    {subscription.tier === 'premium' ? '👑' : '🆓'}
+                  </Text>
+                  <Text style={styles.subscriptionBadgeText}>
+                    {subscription.tier === 'premium' ? 'Premium' : 'Free Plan'}
+                  </Text>
+                </LinearGradient>
+              </View></TouchableOpacity>
+            </View></TouchableOpacity>
+          </View></TouchableOpacity>
+
+          {/* Stats Row - Behance Style */}
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{totalPoints}</Text>
+              <Text style={styles.statLabel}>Points</Text>
+            </View></TouchableOpacity>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{completionStats.unlocked}</Text>
+              <Text style={styles.statLabel}>Badges</Text>
+            </View></TouchableOpacity>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{currentStreak}</Text>
+              <Text style={styles.statLabel}>Streak</Text>
+            </View></TouchableOpacity>
+          </View></TouchableOpacity>
+        </View></TouchableOpacity>
+      </LinearGradient>
+
+      {/* Modern Tab Navigation - Behance Style */}
+      <View style={styles.modernTabNav}>
+        {[
+          { key: 'overview', label: '🏠', title: 'Overview' },
+          { key: 'achievements', label: '🏆', title: 'Badges' },
+          { key: 'stats', label: '📊', title: 'Stats' },
+          { key: 'completion', label: '🎯', title: 'Tasks' },
+          { key: 'neurodivergency', label: '🧠', title: 'Learn' },
+          { key: 'journey', label: '🗺️', title: 'Journey' },
+        ].map(tab => (
+          <TouchableOpacity
+            key={tab.key}
+            style={[styles.modernTab, activeTab === tab.key && styles.modernActiveTab]}
+            onPress={() => setActiveTab(tab.key as any)}
+          >
+            <Text style={styles.tabEmoji}>{tab.label}</Text>
+            <Text style={[styles.modernTabLabel, activeTab === tab.key && styles.modernActiveTabLabel]}>
+              {tab.title}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View></TouchableOpacity>
+
+      {/* Tab Content with Modern Cards */}
+      <ScrollView 
+        style={styles.content}
+        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 120) }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.modernContentContainer}>
+          {renderTabContent()}
+        </View></TouchableOpacity>
+        
+        {/* Premium Upgrade Button */}
+        <TouchableOpacity 
+          onPress={() => router.push('/subscription')}
+          style={styles.upgradeButton}
+        >
+          <LinearGradient
+            colors={['#8B5CF6', '#EC4899', '#F97316']}
+            style={styles.upgradeButtonGradient}
+          >
+            <Text style={styles.upgradeButtonEmoji}>
+              {subscription.tier === 'premium' ? '👑' : '👑'}
+            </Text>
+            <View style={styles.upgradeButtonContent}>
+              <Text style={styles.upgradeButtonTitle}>
+                {subscription.tier === 'premium' ? 'Manage Subscription' : 'Upgrade to Premium'}
+              </Text>
+              <Text style={styles.upgradeButtonSubtitle}>
+                {subscription.tier === 'premium' 
+                  ? 'View plans & manage billing' 
+                  : 'Unlock all features • $4.99/month'
+                }
+              </Text>
+            </View>            <Ionicons name="arrow-forward" size={20} color="#fff" />
+          </LinearGradient>
+        </TouchableOpacity>
+        
+        {/* Modern Sign Out Button */}
+        <TouchableOpacity 
+          onPress={async () => {
+            console.log("🚨 SIGN OUT BUTTON CLICKED!");
+            
+            // Use web-compatible confirmation
+            const confirmed = Platform.OS === 'web' 
+              ? window.confirm("Are you sure you want to sign out?")
+              : await new Promise((resolve) => {
+                  Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+                    { text: "Cancel", style: "cancel", onPress: () => resolve(false) },
+                    { text: "Sign Out", style: "destructive", onPress: () => resolve(true) }
+                  ]);
+                });
+            
+            if (confirmed) {
+              try {
+                console.log("🚪 Starting sign out process...");
+                
+                // Call signOut and wait for it to complete
+                await signOut();
+                console.log("✅ SignOut completed, redirecting...");
+                
+                // Small delay to ensure state is updated
+                setTimeout(() => {
+                  router.replace("/(auth)/welcome");
+                }, 100);
+                
+              } catch (error) {
+                console.error("❌ Error during sign out:", error);
+                if (Platform.OS === 'web') {
+                  window.alert("Failed to sign out. Please try again.");
+                } else {
+                  Alert.alert("Error", "Failed to sign out. Please try again.");
+                }
+              }
+            }
+          }}
+          style={styles.modernSignOutBtn}
+        >
+          <LinearGradient
+            colors={['#EC4899', '#F97316']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.signOutGradient}
+          >
+            <Text style={styles.modernSignOutText}>🚪 Sign Out</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      
+      {/* Dev Tools */}
+      <DevTools />
+      </ScrollView>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#0c0c0c" },
+  title: { color: "#fff", fontSize: 22, fontWeight: "700" },
+  subtitle: { color: "#bdbdbd", fontSize: 14, marginTop: 2 },
+  meta: { color: "#bdbdbd", marginTop: 6 },
+  sectionTitle: { color: "#fff", fontSize: 18, fontWeight: "700", marginBottom: 10 },
+  paletteRow: { flexDirection: "row", justifyContent: "space-between" },
+  paletteItem: { backgroundColor: "#111", padding: 10, borderRadius: 12, flexDirection: "row", gap: 8 },
+  swatch: { width: 20, height: 20, borderRadius: 6 },
+  btn: { paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
+  btnTextDark: { color: '#0c0c0c', fontWeight: '800' },
+  btnTextLight: { color: '#fff', fontWeight: '800' },
+  signOutBtn: { marginTop: 24, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
+  signOutText: { color: '#0c0c0c', fontWeight: '700' },
+  syncRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  
+  // New styles for enhanced UI
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#4A90E2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  avatarText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  headerInfo: {
+    flex: 1,
+  },
+  tabNav: {
+    flexDirection: 'row',
+    backgroundColor: '#111',
+    marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 12,
+    padding: 4,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingVertical: 8,
+    minHeight: 100,  // Ensure enough space for medium badges
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  activeTab: {
+    backgroundColor: '#333',
+  },
+  tabEmoji: {
+    fontSize: 16,
+    marginBottom: 2,
+  },
+  tabLabel: {
+    color: '#bdbdbd',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  activeTabLabel: {
+    color: '#fff',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  tabContent: {
+    paddingTop: 16,
+  },
+  achievementGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  achievementSummary: {
+    color: '#bdbdbd',
+    textAlign: 'center',
+    fontSize: 14,
+  },
+  recentAchievements: {
+    marginBottom: 24,
+  },
+  achievementRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    minHeight: 100,  // Ensure enough space for medium badges
+  },
+  achievementScrollContainer: {
+    paddingVertical: 8,
+    minHeight: 100,  // Ensure enough space for medium badges
+  },
+  emptyText: {
+    color: '#bdbdbd',
+    textAlign: 'center',
+    fontStyle: 'italic',
+    paddingVertical: 20,
+  },
+  quickStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    alignItems: 'center',
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: '#111',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  statEmoji: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  statValue: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  statLabel: {
+    color: '#bdbdbd',
+    fontSize: 12,
+  },
+  quickActions: {
+    marginBottom: 24,
+  },
+  actionGrid: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionBtn: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  actionEmoji: {
+    fontSize: 20,
+    marginBottom: 8,
+  },
+  actionText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  advancedSection: {
+    backgroundColor: '#111',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 24,
+  },
+  
+  // Glow-Inspired Gradient Header Styles
+  glowHeader: {
+    paddingHorizontal: 20,
+    paddingBottom: 30,
+  },
+  modernProfileCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 20,
+    padding: 20,
+    backdropFilter: 'blur(10px)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  avatarContainer: {
+    marginRight: 16,
+  },
+  avatarGradientBorder: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    padding: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modernTitle: {
+    color: '#fff',
+    fontSize: 28,
+    fontWeight: '800',
+    marginBottom: 4,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  modernSubtitle: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  modernID: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 12,
+    fontWeight: '500',
+    letterSpacing: 1,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 20,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statNumber: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: '800',
+    marginBottom: 4,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  statDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    marginHorizontal: 10,
+  },
+  
+  // Modern Tab Navigation Styles
+  modernTabNav: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginHorizontal: 20,
+    marginVertical: 16,
+    borderRadius: 16,
+    padding: 6,
+    backdropFilter: 'blur(10px)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  modernTab: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    borderRadius: 12,
+    transition: 'all 0.3s ease',
+  },
+  modernActiveTab: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  modernTabLabel: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  modernActiveTabLabel: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+  
+  // Modern Content Container
+  modernContentContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 20,
+    padding: 16,
+    marginHorizontal: 4,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  
+  // Modern Sign Out Button Styles
+  modernSignOutBtn: {
+    marginTop: 32,
+    marginHorizontal: 20,
+    borderRadius: 25,
+    overflow: 'hidden',
+    shadowColor: '#EC4899',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  signOutGradient: {
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 56,
+  },
+  modernSignOutText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  
+  // Missing stat styles
+  statLabel: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  
+  // Modern Achievement Tab Styles
+  modernTabContent: {
+    paddingTop: 16,
+  },
+  modernCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  modernSectionTitle: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: '800',
+    marginBottom: 16,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  modernAchievementSummary: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 16,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  // Modern Empty Text Style
+  modernEmptyText: {
+    color: "rgba(255, 255, 255, 0.7)",
+    textAlign: "center",
+    fontStyle: "italic",
+    paddingVertical: 20,
+    fontSize: 16,
+  },
+  
+  // Modern Quick Stats Styles
+  modernQuickStats: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: 'center',
+  },
+  modernStatCard: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 16,
+    alignItems: "center",
+    minHeight: 80,
+    justifyContent: "center",
+  },
+  modernStatEmoji: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  modernStatValue: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "800",
+    marginBottom: 4,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  modernStatLabel: {
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 12,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  
+  // Modern Action Grid Styles
+  modernActionGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  modernActionBtn: {
+    width: '48%', // 2 buttons per row - perfect for 4 buttons total
+    padding: 16,
+    borderRadius: 16,
+    alignItems: "center",
+    minHeight: 80,
+    justifyContent: "center",
+  },
+  modernActionEmoji: {
+    fontSize: 20,
+    marginBottom: 8,
+  },
+  modernActionText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 14,
+    textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  
+  // Modern Sync Row Styles
+  modernSyncRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+  },
+  modernSyncLabel: {
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  
+  // Premium Upgrade Button Styles
+  upgradeButton: {
+    marginTop: 16,
+    marginHorizontal: 20,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  upgradeButtonGradient: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 70,
+  },
+  upgradeButtonEmoji: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  upgradeButtonContent: {
+    flex: 1,
+    marginRight: 12,
+  },
+  upgradeButtonTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 2,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  upgradeButtonSubtitle: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  
+  // Subscription Badge Styles
+  subscriptionBadge: {
+    marginTop: 8,
+    alignSelf: 'flex-start',
+  },
+  subscriptionBadgeGradient: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  subscriptionBadgeEmoji: {
+    fontSize: 14,
+  },
+  subscriptionBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+});
