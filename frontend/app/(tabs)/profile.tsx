@@ -681,6 +681,81 @@ export default function ProfileScreen() {
           {renderTabContent()}
         </View>
         
+        {/* Legal & Privacy Section - Google Play Compliance */}
+        <LinearGradient
+          colors={['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.05)']}
+          style={{
+            marginHorizontal: 20,
+            marginBottom: 20,
+            borderRadius: 16,
+            padding: 20,
+            borderWidth: 1,
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+          }}
+        >
+          <Text style={{
+            fontSize: 16,
+            fontWeight: 'bold',
+            color: '#FFFFFF',
+            marginBottom: 15,
+          }}>⚖️ Legal & Privacy</Text>
+          
+          <TouchableOpacity 
+            onPress={() => {
+              console.log('📋 Privacy Policy clicked from Legal section');
+              try {
+                router.push('/privacy-policy');
+              } catch (error) {
+                console.error('Navigation error:', error);
+                Alert.alert("Navigation Error", "Could not open Privacy Policy. Please try again.");
+              }
+            }}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingVertical: 12,
+              paddingHorizontal: 16,
+              backgroundColor: 'rgba(5, 150, 105, 0.2)',
+              borderRadius: 12,
+              marginBottom: 8,
+            }}
+          >
+            <Text style={{ fontSize: 20, marginRight: 12 }}>📋</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '600' }}>Privacy Policy</Text>
+              <Text style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: 12 }}>How we collect, use, and protect your data</Text>
+            </View>
+            <Text style={{ color: '#10B981', fontSize: 18 }}>→</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            onPress={() => {
+              console.log('🗑️ Delete Account clicked from Legal section');
+              try {
+                router.push('/delete-account');
+              } catch (error) {
+                console.error('Navigation error:', error);
+                Alert.alert("Navigation Error", "Could not open Delete Account page. Please try again.");
+              }
+            }}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingVertical: 12,
+              paddingHorizontal: 16,
+              backgroundColor: 'rgba(239, 68, 68, 0.2)',
+              borderRadius: 12,
+            }}
+          >
+            <Text style={{ fontSize: 20, marginRight: 12 }}>🗑️</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '600' }}>Delete Account</Text>
+              <Text style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: 12 }}>Permanently remove your account and data</Text>
+            </View>
+            <Text style={{ color: '#EF4444', fontSize: 18 }}>→</Text>
+          </TouchableOpacity>
+        </LinearGradient>
+        
         {/* Premium Upgrade Button */}
         <TouchableOpacity 
           onPress={() => router.push('/subscription')}
