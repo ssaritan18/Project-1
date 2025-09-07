@@ -203,7 +203,31 @@ def check_rate_limit(user_id: str) -> bool:
     return True
 
 # Create the main app without a prefix
-app = FastAPI(title="ADHDers API", version="0.3.1")
+app = FastAPI(title="ADHDers Social Club API", version="1.0.0")
+
+# Health check endpoint for deployment
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for deployment verification"""
+    try:
+        # Test database connection
+        await client.admin.command('ping')
+        return {
+            "status": "healthy",
+            "service": "ADHDers Social Club API",
+            "version": "1.0.0",
+            "database": "connected",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "service": "ADHDers Social Club API", 
+            "version": "1.0.0",
+            "database": "disconnected",
+            "error": str(e),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
