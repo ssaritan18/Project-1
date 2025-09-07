@@ -515,6 +515,13 @@ export default function ProfileScreen() {
                     <Text style={styles.modernActionText}>Edit Profile</Text>
                   </LinearGradient>
                 </TouchableOpacity>
+
+                <TouchableOpacity onPress={navigateToPrivacyPolicy}>
+                  <LinearGradient colors={["#059669", "#047857"]} style={styles.modernActionBtn}>
+                    <Text style={styles.modernActionEmoji}>📋</Text>
+                    <Text style={styles.modernActionText}>Privacy Policy</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={navigateToSettings}>
                   <LinearGradient colors={['#EC4899', '#F97316']} style={styles.modernActionBtn}>
                     <Text style={styles.modernActionEmoji}>⚙️</Text>
@@ -532,6 +539,13 @@ export default function ProfileScreen() {
                   <LinearGradient colors={["#B91C1C", "#991B1B"]} style={styles.modernActionBtn}>
                     <Text style={styles.modernActionEmoji}>🗑️</Text>
                     <Text style={styles.modernActionText}>Delete Account</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={navigateToPrivacyPolicy}>
+                  <LinearGradient colors={["#059669", "#047857"]} style={styles.modernActionBtn}>
+                    <Text style={styles.modernActionEmoji}>📋</Text>
+                    <Text style={styles.modernActionText}>Privacy Policy</Text>
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
