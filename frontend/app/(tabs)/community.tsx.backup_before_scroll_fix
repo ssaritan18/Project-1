@@ -518,7 +518,7 @@ export default function CommunityScreen() {
   const getBackendUrl = () => {
     // For web preview environment, use the preview URL
     if (typeof window !== 'undefined' && window.location.hostname.includes('preview.emergentagent.com')) {
-      return 'https://pull-status-check.preview.emergentagent.com';
+      return 'https://play-compliant.preview.emergentagent.com';
     }
     
     // For React Native Android emulator
