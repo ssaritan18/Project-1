@@ -142,7 +142,7 @@ export default function CommunityScreen() {
   
   // Backend integration functions
   const getBackendUrl = () => {
-    return process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+    return process.env.EXPO_PUBLIC_BACKEND_URL?.replace('/api', ''') || 'http://localhost:8001';
   };
   
   const getAuthToken = async () => {
