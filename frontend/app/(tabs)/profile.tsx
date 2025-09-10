@@ -371,6 +371,23 @@ export default function ProfileScreen() {
             </LinearGradient>
           </View>
         );
+      case 'store':
+        return (
+          <View style={styles.modernTabContent}>
+            <LinearGradient
+              colors={['rgba(34, 197, 94, 0.1)', 'rgba(59, 130, 246, 0.1)']}
+              style={styles.modernCard}
+            >
+              <PointsStore
+                userPoints={totalPoints}
+                onPurchase={(item) => {
+                  console.log(`🛒 User wants to purchase: ${item.name}`);
+                  Alert.alert("Purchase", `Would you like to buy ${item.name}?`);
+                }}
+              />
+            </LinearGradient>
+          </View>
+        );
       case 'completion':
         return (
           <View style={styles.modernTabContent}>
