@@ -27,29 +27,29 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Dashboard",
-          tabBarIcon: ({ color, size }) => <Ionicons name="analytics" color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="daily-tools"
-        options={{
-          title: "Daily Tools",
-          tabBarIcon: ({ color, size }) => <Ionicons name="construct" color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="self-check"
-        options={{
-          title: "Self-Check",
-          tabBarIcon: ({ color, size }) => <Ionicons name="pulse" color={color} size={size} />,
+          title: "Home",
+          tabBarIcon: ({ color, size }) => <Ionicons name="home" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="community"
         options={{
-          title: "Social",
+          title: "Community",
           tabBarIcon: ({ color, size }) => <Ionicons name="people" color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="chat"
+        options={{
+          title: "Chats",
+          tabBarIcon: ({ color, size }) => <Ionicons name="chatbubbles" color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="friends"
+        options={{
+          title: "Friends",
+          tabBarIcon: ({ color, size }) => <Ionicons name="heart" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
