@@ -313,13 +313,7 @@ export default function HomeScreen() {
                   <Text style={styles.emptyTasksTitle}>No tasks yet!</Text>
                   <Text style={styles.emptyTasksDescription}>
                     Add your first task to start building productive habits.
-                  style={styles.taskInput}
-                  placeholder="What needs to be done?"
-                  placeholderTextColor="#B9B9B9"
-                  value={newTask}
-                  onChangeText={setNewTask}
-                  maxLength={100}
-                />
+                  </Text>
                 <TouchableOpacity onPress={handleAddTask} disabled={!newTask.trim()}>
                   <LinearGradient 
                     colors={newTask.trim() ? ['#8B5CF6', '#A855F7'] : ['#666', '#555']} 
