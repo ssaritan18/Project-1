@@ -430,16 +430,14 @@ export default function ProfileScreen() {
           </View>
         );
       case 'journey':
-        // Get assessment result from localStorage (saved after signup)
+        // Get assessment result from AsyncStorage (saved after signup)
         let assessmentResult = null;
         try {
-          if (typeof window !== 'undefined') {
-            const storedResult = localStorage.getItem('pending_assessment_result');
-            if (storedResult) {
-              assessmentResult = JSON.parse(storedResult);
-              // Clear from localStorage after using it once
-              localStorage.removeItem('pending_assessment_result');
-            }
+          const storedResult = await AsyncStorage.getItem('pending_assessment_result');
+          if (storedResult) {
+            assessmentResult = JSON.parse(storedResult);
+            // Clear from AsyncStorage after using it once
+            await AsyncStorage.removeItem('pending_assessment_result');
           }
         } catch (error) {
           console.log('Error loading assessment result:', error);
