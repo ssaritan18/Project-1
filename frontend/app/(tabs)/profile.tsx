@@ -205,6 +205,7 @@ export default function ProfileScreen() {
   const [backendStats, setBackendStats] = useState<any>(null);
   const [streakData, setStreakData] = useState<any>(null);
   const [pointsData, setPointsData] = useState<any>(null);
+  const [assessmentResult, setAssessmentResult] = useState<any>(null);
 
   // Fetch backend data
   useEffect(() => {
