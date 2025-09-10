@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { ADHDOnboarding } from '../src/components/ADHDOnboarding';
-import { OnboardingResults } from '../src/components/OnboardingResults';
+import { OnboardingSignupPrompt } from '../src/components/OnboardingSignupPrompt';
 
 type OnboardingResult = {
   overall_score: number;
