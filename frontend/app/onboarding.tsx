@@ -44,9 +44,9 @@ export default function OnboardingScreen() {
       style={styles.container}
     >
       {showResults && results ? (
-        <OnboardingResults 
+        <OnboardingSignupPrompt 
           result={results}
-          onContinue={handleContinue}
+          onBackToWelcome={handleBackToWelcome}
         />
       ) : (
         <ADHDOnboarding 
