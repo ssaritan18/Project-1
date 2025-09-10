@@ -206,6 +206,11 @@ export default function HomeScreen() {
                 </View>
               </View>
 
+              {/* Rewarded Ad Section */}
+              <View style={styles.rewardedAdSection}>
+                <RewardedAdBanner />
+              </View>
+
               {/* Add New Task Section */}
               <View style={styles.addTaskSection}>
                 <View style={styles.addTaskHeader}>
