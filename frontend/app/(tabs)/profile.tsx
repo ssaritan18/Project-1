@@ -40,6 +40,7 @@ export default function ProfileScreen() {
   // Debug: Log platform and Text component usage
   console.log('📱 Platform:', Platform.OS);
   console.log('📝 React Native Text import available:', !!Text);
+  console.log('🔧 Active tab:', activeTab);
   const { user, signOut, palette, setPalette, token } = useAuth();
   const { syncEnabled, setSyncEnabled, wsEnabled, setWsEnabled } = useRuntimeConfig();
   const { subscription } = useSubscription();
