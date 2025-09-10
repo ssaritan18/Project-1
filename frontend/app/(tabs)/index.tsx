@@ -266,10 +266,15 @@ export default function HomeScreen() {
                     <Text style={styles.statNumber}>{currentStreak}</Text>
                     <Text style={styles.statLabel}>Day Streak</Text>
                   </LinearGradient>
-                  <LinearGradient colors={['#F97316', '#FBBF24']} style={styles.statCard}>
-                    <Text style={styles.statNumber}>{totalPoints}</Text>
-                    <Text style={styles.statLabel}>Points</Text>
-                  </LinearGradient>
+                  <TouchableOpacity
+                    onPress={() => router.push('/(tabs)/profile?tab=store')}
+                  >
+                    <LinearGradient colors={['#F97316', '#FBBF24']} style={styles.statCard}>
+                      <Text style={styles.statNumber}>{totalPoints}</Text>
+                      <Text style={styles.statLabel}>Points</Text>
+                      <Text style={styles.statSubLabel}>Tap to spend</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
                 </View>
               </View>
 
