@@ -33,10 +33,9 @@ export default function OnboardingScreen() {
     router.replace('/(tabs)/');
   };
 
-  const handleContinue = () => {
-    console.log('🚀 Continuing to main app');
-    // Could save results to storage/backend here
-    router.replace('/(tabs)/');
+  const handleBackToWelcome = () => {
+    console.log('🔙 Back to welcome page');
+    router.replace('/(auth)/welcome');
   };
 
   return (
