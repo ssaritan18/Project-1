@@ -734,6 +734,37 @@ class PasswordResetConfirm(BaseModel):
     token: str
     new_password: str
 
+# Points System Models
+class PointsTransaction(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    points: int  # Positive for earning, negative for spending
+    type: str  # "task_completion", "focus_session", "mood_check", "rewarded_ad", "streak_bonus", "purchase"
+    description: str
+    metadata: Optional[Dict[str, Any]] = {}
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class PointsEarn(BaseModel):
+    type: str  # "task_completion", "focus_session", "mood_check", "rewarded_ad", "streak_bonus"
+    metadata: Optional[Dict[str, Any]] = {}
+
+class PointsSpend(BaseModel):
+    points: int
+    item_type: str  # "avatar_item", "sticker_pack", "sound_pack", "chat_invitation"
+    item_id: str
+    metadata: Optional[Dict[str, Any]] = {}
+
+class UserPoints(BaseModel):
+    user_id: str  
+    total_points: int
+    lifetime_earned: int
+    lifetime_spent: int
+    today_earned: int
+    streak_days: int
+    last_streak_date: Optional[str] = None
+    last_ad_reward: Optional[str] = None  # ISO datetime
+    updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
 # ROUTES
 @api_router.get("/")
 async def root():
