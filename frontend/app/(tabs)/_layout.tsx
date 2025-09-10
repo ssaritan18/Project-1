@@ -27,8 +27,22 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
-          tabBarIcon: ({ color, size }) => <Ionicons name="home" color={color} size={size} />,
+          title: "Dashboard",
+          tabBarIcon: ({ color, size }) => <Ionicons name="analytics" color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="daily-tools"
+        options={{
+          title: "Daily Tools",
+          tabBarIcon: ({ color, size }) => <Ionicons name="construct" color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="self-check"
+        options={{
+          title: "Self-Check",
+          tabBarIcon: ({ color, size }) => <Ionicons name="pulse" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
