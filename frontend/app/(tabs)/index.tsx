@@ -740,4 +740,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 24,
   },
+  
+  // Rewarded Ad section  
+  rewardedAdSection: {
+    paddingHorizontal: 16,
+    marginBottom: 20,
+  },
 });
