@@ -125,6 +125,25 @@ export default function HomeScreen() {
           <Text style={styles.glowHeaderSubtitle}>Welcome back, {user?.name || 'Champion'}!</Text>
         </LinearGradient>
 
+        {/* Tab Navigation */}
+        <View style={styles.tabNavigation}>
+          {[
+            { key: 'daily-tools', label: '🛠️', title: 'Daily Tools' },
+            { key: 'self-check', label: '💭', title: 'Self-Check' },
+          ].map(tab => (
+            <TouchableOpacity
+              key={tab.key}
+              style={[styles.tabButton, activeTab === tab.key && styles.activeTabButton]}
+              onPress={() => setActiveTab(tab.key as any)}
+            >
+              <Text style={styles.tabEmoji}>{tab.label}</Text>
+              <Text style={[styles.tabTitle, activeTab === tab.key && styles.activeTabTitle]}>
+                {tab.title}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
         <ScrollView 
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
