@@ -74,15 +74,19 @@ export function OnboardingSignupPrompt({ result, onBackToWelcome }: OnboardingSi
   }, []);
 
   // Navigate to signup with assessment results stored
-  const handleSignUp = () => {
-    // Store assessment results for later use
-    // This will be retrieved after signup in the Profile/Journey section
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('pending_assessment_result', JSON.stringify(result));
+  const handleSignUp = async () => {
+    try {
+      // Store assessment results for later use
+      // This will be retrieved after signup in the Profile/Journey section
+      await AsyncStorage.setItem('pending_assessment_result', JSON.stringify(result));
+      
+      // Navigate to signup
+      router.push('/(auth)/signup');
+    } catch (error) {
+      console.error('Error storing assessment result:', error);
+      // Navigate anyway
+      router.push('/(auth)/signup');
     }
-    
-    // Navigate to signup
-    router.push('/(auth)/signup');
   };
 
   // Get assessment summary for teaser
