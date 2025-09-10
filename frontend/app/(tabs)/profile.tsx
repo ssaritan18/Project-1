@@ -431,20 +431,7 @@ export default function ProfileScreen() {
           </View>
         );
       case 'journey':
-        // Get assessment result from AsyncStorage (saved after signup)
-        let assessmentResult = null;
-        try {
-          const storedResult = await AsyncStorage.getItem('pending_assessment_result');
-          if (storedResult) {
-            assessmentResult = JSON.parse(storedResult);
-            // Clear from AsyncStorage after using it once
-            await AsyncStorage.removeItem('pending_assessment_result');
-          }
-        } catch (error) {
-          console.log('Error loading assessment result:', error);
-        }
-
-        // Fallback to mock data if no assessment result found
+        // Use assessment result from state (loaded in useEffect)
         const finalAssessmentResult = assessmentResult || {
           overall_score: 75,
           categories: {
