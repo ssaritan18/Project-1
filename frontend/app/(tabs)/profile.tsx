@@ -544,18 +544,28 @@ export default function ProfileScreen() {
               </View>
             </LinearGradient>
 
-            {/* Modern Advanced Controls */}
+            {/* Modern App Status Controls */}
             <LinearGradient
               colors={['rgba(255, 255, 255, 0.05)', 'rgba(255, 255, 255, 0.02)']}
               style={[styles.modernCard, { marginTop: 16 }]}
             >
-              <Text style={styles.modernSectionTitle}>🔧 Advanced</Text>
+              <Text style={styles.modernSectionTitle}>📱 App Status</Text>
               <View style={styles.modernSyncRow}>
-                <Text style={styles.modernSyncLabel}>Sync: {syncEnabled ? 'Online' : 'Local'}</Text>
+                <View style={styles.statusTextContainer}>
+                  <Text style={styles.modernSyncLabel}>☁️ Auto-backup</Text>
+                  <Text style={styles.statusDescription}>
+                    {syncEnabled ? 'Your data is safely backed up' : 'Working offline only'}
+                  </Text>
+                </View>
                 <Switch value={syncEnabled} onValueChange={onToggleSync} />
               </View>
               <View style={styles.modernSyncRow}>
-                <Text style={styles.modernSyncLabel}>WebSocket: {wsEnabled ? 'On' : 'Off'}</Text>
+                <View style={styles.statusTextContainer}>
+                  <Text style={styles.modernSyncLabel}>💬 Real-time Chat</Text>
+                  <Text style={styles.statusDescription}>
+                    {wsEnabled ? 'Messages sync instantly' : 'Messages sync when online'}
+                  </Text>
+                </View>
                 <Switch value={wsEnabled} onValueChange={setWsEnabled} />
               </View>
             </LinearGradient>
