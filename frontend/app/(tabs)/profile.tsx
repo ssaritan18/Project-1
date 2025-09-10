@@ -864,7 +864,8 @@ export default function ProfileScreen() {
                   : 'Unlock all features • $4.99/month'
                 }
               </Text>
-            </View>            <Ionicons name="arrow-forward" size={20} color="#fff" />
+            </View>
+            <Ionicons name="arrow-forward" size={20} color="#fff" />
           </LinearGradient>
         </TouchableOpacity>
         
