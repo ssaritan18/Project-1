@@ -365,7 +365,10 @@ export default function HomeScreen() {
           {activeTab === 'self-check' && (
             <View style={styles.challengesSection}>
               <Text style={styles.sectionTitle}>🏆 Weekly Challenges</Text>
-              <WeeklyChallenges challenges={challenges} onComplete={completeChallenge} />
+              <WeeklyChallenges 
+                challenges={challenges} 
+                onChallengeComplete={completeChallenge} 
+              />
             </View>
           )}
         </ScrollView>
