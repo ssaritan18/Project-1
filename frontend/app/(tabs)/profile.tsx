@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 // New ADHD-friendly components
 import { AchievementBadge } from "../../src/components/AchievementBadge";
 import { StreakVisualization } from "../../src/components/StreakVisualization";
+import { PointsStore } from "../../src/components/PointsStore";
 import { ProfileStatistics } from "../../src/components/ProfileStatistics";
 import { ProfileCompletionGuide } from "../../src/components/ProfileCompletionGuide";
 import NeurodivergencyContent from "../../src/components/NeurodivergencyContent";
