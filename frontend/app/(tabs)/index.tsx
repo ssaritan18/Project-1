@@ -314,17 +314,20 @@ export default function HomeScreen() {
                   <Text style={styles.emptyTasksDescription}>
                     Add your first task to start building productive habits.
                   </Text>
-                <TouchableOpacity onPress={handleAddTask} disabled={!newTask.trim()}>
-                  <LinearGradient 
-                    colors={newTask.trim() ? ['#8B5CF6', '#A855F7'] : ['#666', '#555']} 
-                    style={styles.quickAddBtn}
-                  >
-                    <Ionicons name="add-circle" size={20} color="#fff" />
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>
-            </LinearGradient>
-          </View>
+                </LinearGradient>
+              ) : (
+                <DraggableFlatList
+                  data={tasks}
+                  keyExtractor={(item) => item.id}
+                  renderItem={renderTaskItem}
+                  onDragEnd={({ data }) => {
+                    // Handle reordering if needed
+                  }}
+                  scrollEnabled={false}
+                />
+              )}
+            </View>
+          )}
 
           {/* Tasks List */}
           <View style={styles.tasksSection}>
