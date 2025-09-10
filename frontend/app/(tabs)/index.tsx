@@ -673,4 +673,92 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+  
+  // New styles for tab navigation and focus cards
+  tabNavigation: {
+    flexDirection: 'row',
+    marginHorizontal: 16,
+    marginBottom: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 16,
+    padding: 4,
+  },
+  tabButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  activeTabButton: {
+    backgroundColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  tabEmoji: {
+    fontSize: 18,
+  },
+  tabTitle: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  activeTabTitle: {
+    color: '#fff',
+  },
+  
+  // Focus section styles
+  focusSection: {
+    paddingHorizontal: 16,
+    marginBottom: 24,
+  },
+  sectionSubtitle: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 14,
+    marginBottom: 16,
+    marginTop: -8,
+  },
+  focusCardsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  focusCard: {
+    flex: 1,
+  },
+  focusCardGradient: {
+    padding: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    minHeight: 120,
+    justifyContent: 'center',
+  },
+  focusCardEmoji: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  focusCardTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  focusCardDuration: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  focusCardDescription: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  
+  // Challenges section
+  challengesSection: {
+    paddingHorizontal: 16,
+    marginBottom: 24,
+  },
 });
