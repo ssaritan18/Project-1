@@ -38,6 +38,9 @@ export default function HomeScreen() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showEnhancedCelebration, setShowEnhancedCelebration] = useState(false);
+  
+  // Home page navigation state
+  const [activeTab, setActiveTab] = useState<'daily-tools' | 'self-check'>('daily-tools');
 
   // Hooks for dashboard features
   const { challenges, completeChallenge } = useChallenges();
