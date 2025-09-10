@@ -216,6 +216,97 @@ export function usePoints() {
     return multipliers;
   };
 
+  // PHASE 2: Earn points from rewarded ads
+  const earnRewardedAdPoints = async () => {
+    const adPoints = 50;
+    
+    if (mode === 'sync' && user?.token) {
+      try {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/points/earn-ad`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${user.token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ points: adPoints })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          await fetchPoints(); // Refresh points
+          return { success: true, points: adPoints, message: data.message };
+        } else {
+          throw new Error(`Failed to earn ad points: ${response.status}`);
+        }
+      } catch (err) {
+        console.error('Error earning ad points:', err);
+        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
+      }
+    } else {
+      // Local mode simulation
+      if (pointsData) {
+        const newPoints = pointsData.total_points + adPoints;
+        setPointsData({
+          ...pointsData,
+          total_points: newPoints,
+          breakdown: {
+            ...pointsData.breakdown,
+            community: pointsData.breakdown.community + adPoints
+          }
+        });
+      }
+      return { success: true, points: adPoints, message: `Earned ${adPoints} points from ad!` };
+    }
+  };
+
+  // PHASE 2: Spend points on items
+  const spendPoints = async (amount: number, itemType: string, itemId: string) => {
+    if (!pointsData || pointsData.total_points < amount) {
+      return { success: false, error: 'Insufficient points' };
+    }
+
+    if (mode === 'sync' && user?.token) {
+      try {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/points/spend`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${user.token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+            points: amount, 
+            item_type: itemType, 
+            item_id: itemId 
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          await fetchPoints(); // Refresh points
+          return { success: true, message: data.message };
+        } else {
+          throw new Error(`Failed to spend points: ${response.status}`);
+        }
+      } catch (err) {
+        console.error('Error spending points:', err);
+        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
+      }
+    } else {
+      // Local mode simulation
+      const newPoints = pointsData.total_points - amount;
+      setPointsData({
+        ...pointsData,
+        total_points: newPoints
+      });
+      return { success: true, message: `Spent ${amount} points on ${itemType}!` };
+    }
+  };
+
+  // PHASE 2: Check if user can afford item
+  const canAfford = (cost: number) => {
+    return pointsData ? pointsData.total_points >= cost : false;
+  };
+
   // Refresh points
   const refreshPoints = () => {
     fetchPoints();
