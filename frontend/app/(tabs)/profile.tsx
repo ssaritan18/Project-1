@@ -36,6 +36,10 @@ const PRESETS = [
 
 export default function ProfileScreen() {
   console.log("🏠 ProfileScreen rendering with ADHD-friendly enhancements...");
+  
+  // Debug: Log platform and Text component usage
+  console.log('📱 Platform:', Platform.OS);
+  console.log('📝 React Native Text import available:', !!Text);
   const { user, signOut, palette, setPalette, token } = useAuth();
   const { syncEnabled, setSyncEnabled, wsEnabled, setWsEnabled } = useRuntimeConfig();
   const { subscription } = useSubscription();
