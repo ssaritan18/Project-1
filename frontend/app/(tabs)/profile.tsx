@@ -639,6 +639,7 @@ export default function ProfileScreen() {
           { key: 'overview', label: '🏠', title: 'Overview' },
           { key: 'achievements', label: '🏆', title: 'Badges' },
           { key: 'stats', label: '📊', title: 'Stats' },
+          { key: 'store', label: '🏪', title: 'Store' },
           { key: 'completion', label: '🎯', title: 'Tasks' },
           { key: 'neurodivergency', label: '🧠', title: 'Learn' },
           { key: 'journey', label: '🗺️', title: 'Journey' },
