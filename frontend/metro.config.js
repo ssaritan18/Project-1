@@ -26,9 +26,7 @@ config.resolver.blacklistRE = /(.*\/__tests__\/.*|.*\/node_modules\/.*\/(android
 // Reduce resolver resolution time
 config.resolver.platforms = ['web', 'native'];
 
-// Memory optimization
-config.cacheStores = [
-  require('@expo/metro-config/build/ExpoMetroCache').FileStore,
-];
+// Memory optimization - use default caching
+// config.cacheStores is handled automatically by Expo
 
 module.exports = config;
