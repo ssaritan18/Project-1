@@ -48,22 +48,8 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="community"
         options={{
-          title: "Community",
+          title: "Social",
           tabBarIcon: ({ color, size }) => <Ionicons name="people" color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="chat"
-        options={{
-          title: "Chats",
-          tabBarIcon: ({ color, size }) => <Ionicons name="chatbubbles" color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="friends"
-        options={{
-          title: "Friends",
-          tabBarIcon: ({ color, size }) => <Ionicons name="heart" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
