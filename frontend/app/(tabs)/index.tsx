@@ -19,6 +19,7 @@ import { AchievementBadge } from "../../src/components/AchievementBadge";
 import { StreakVisualization } from "../../src/components/StreakVisualization";
 import { MoodTracker } from "../../src/components/MoodTracker";
 import { MockAdBanner } from "../../src/components/MockAdBanner";
+import { RewardedAdBanner } from "../../src/components/RewardedAdBanner";
 import { useChallenges } from "../../src/hooks/useChallenges";
 import { useFocusSession } from "../../src/hooks/useFocusSession";
 import { usePoints } from "../../src/hooks/usePoints";
