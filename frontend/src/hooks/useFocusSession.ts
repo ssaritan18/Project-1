@@ -34,6 +34,7 @@ export type FocusSessionCompletion = {
 };
 
 export function useFocusSession() {
+  const { getStreakMultiplier } = useStreak(); // PHASE 2: Get streak multiplier
   const [currentSession, setCurrentSession] = useState<FocusSession | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
