@@ -478,6 +478,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 4,
   },
+  statSubLabel: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 10,
+    fontWeight: '500',
+    marginTop: 1,
+  },
   progressSection: {
     paddingHorizontal: 16,
     marginBottom: 24,
