@@ -855,9 +855,11 @@ export default function ProfileScreen() {
             colors={['#8B5CF6', '#EC4899', '#F97316']}
             style={styles.upgradeButtonGradient}
           >
-            <Text style={styles.upgradeButtonEmoji}>
-              {subscription.tier === 'premium' ? '👑' : '👑'}
-            </Text>
+            <View style={styles.upgradeButtonEmojiContainer}>
+              <Text style={styles.upgradeButtonEmoji}>
+                {subscription.tier === 'premium' ? '👑' : '⚡'}
+              </Text>
+            </View>
             <View style={styles.upgradeButtonContent}>
               <Text style={styles.upgradeButtonTitle}>
                 {subscription.tier === 'premium' ? 'Manage Subscription' : 'Upgrade to Premium'}
