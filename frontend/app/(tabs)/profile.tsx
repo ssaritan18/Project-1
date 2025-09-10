@@ -12,6 +12,7 @@ import { useRuntimeConfig } from "../../src/context/RuntimeConfigContext";
 import { api } from "../../src/lib/api";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // New ADHD-friendly components
 import { AchievementBadge } from "../../src/components/AchievementBadge";
