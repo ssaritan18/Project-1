@@ -244,6 +244,26 @@ export default function ProfileScreen() {
     fetchBackendData();
   }, [syncEnabled, token]);
 
+  // Load assessment result from AsyncStorage
+  useEffect(() => {
+    const loadAssessmentResult = async () => {
+      try {
+        const storedResult = await AsyncStorage.getItem('pending_assessment_result');
+        if (storedResult) {
+          const result = JSON.parse(storedResult);
+          setAssessmentResult(result);
+          // Clear from AsyncStorage after using it once
+          await AsyncStorage.removeItem('pending_assessment_result');
+          console.log('✅ Assessment result loaded from AsyncStorage');
+        }
+      } catch (error) {
+        console.log('❌ Error loading assessment result:', error);
+      }
+    };
+
+    loadAssessmentResult();
+  }, []);
+
   // Use backend data or fallback to mock data
   const currentStreak = streakData?.current_streak || streak;
   const bestStreak = streakData?.best_streak || Math.max(streak, 8);
