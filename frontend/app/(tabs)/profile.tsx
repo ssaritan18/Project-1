@@ -424,8 +424,23 @@ export default function ProfileScreen() {
           </View>
         );
       case 'journey':
-        // Mock assessment result for now - in real app this would come from user data
-        const mockAssessmentResult = {
+        // Get assessment result from localStorage (saved after signup)
+        let assessmentResult = null;
+        try {
+          if (typeof window !== 'undefined') {
+            const storedResult = localStorage.getItem('pending_assessment_result');
+            if (storedResult) {
+              assessmentResult = JSON.parse(storedResult);
+              // Clear from localStorage after using it once
+              localStorage.removeItem('pending_assessment_result');
+            }
+          }
+        } catch (error) {
+          console.log('Error loading assessment result:', error);
+        }
+
+        // Fallback to mock data if no assessment result found
+        const finalAssessmentResult = assessmentResult || {
           overall_score: 75,
           categories: {
             attention: 82,
