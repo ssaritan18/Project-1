@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTasks } from '../context/TasksContext';
+import { useStreak } from './useStreak';
 
 export type FocusSessionType = 'pomodoro' | 'deep_work' | 'adhd_sprint';
 
