@@ -1400,9 +1400,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     minHeight: 70,
   },
+  upgradeButtonEmojiContainer: {
+    marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   upgradeButtonEmoji: {
     fontSize: 24,
-    marginRight: 12,
   },
   upgradeButtonContent: {
     flex: 1,
