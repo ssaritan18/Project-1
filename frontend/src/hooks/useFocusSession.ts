@@ -174,13 +174,17 @@ export function useFocusSession() {
     sessionId: string,
     tasksCompleted: number,
     interruptions: number,
-    focusRating: number
+    focusRating: number,
+    streakMultiplier: number = 1.0
   ): FocusSessionCompletion => {
     const basePoints = 150;
     const taskBonus = tasksCompleted * 25;
     const focusBonus = focusRating * 10;
     const interruptionPenalty = interruptions * 10;
-    const totalPoints = Math.max(50, basePoints + taskBonus + focusBonus - interruptionPenalty);
+    
+    // PHASE 2: Apply streak multiplier
+    const subtotal = Math.max(50, basePoints + taskBonus + focusBonus - interruptionPenalty);
+    const totalPoints = Math.floor(subtotal * streakMultiplier);
 
     return {
       session_id: sessionId,
