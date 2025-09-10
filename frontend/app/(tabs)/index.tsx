@@ -329,34 +329,7 @@ export default function HomeScreen() {
             </View>
           )}
 
-          {/* Tasks List */}
-          <View style={styles.tasksSection}>
-            <Text style={styles.sectionTitle}>📝 Your Tasks ({tasks.length})</Text>
-            
-            {tasks.length === 0 ? (
-              <LinearGradient
-                colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
-                style={styles.emptyTasksCard}
-              >
-                <Text style={styles.emptyTasksIcon}>📋✨</Text>
-                <Text style={styles.emptyTasksTitle}>No tasks yet!</Text>
-                <Text style={styles.emptyTasksDescription}>
-                    Add your first task to start building productive habits.
-                  </Text>
-                </LinearGradient>
-              ) : (
-                <DraggableFlatList
-                  data={tasks}
-                  keyExtractor={(item) => item.id}
-                  renderItem={renderTaskItem}
-                  onDragEnd={({ data }) => {
-                    // Handle reordering if needed
-                  }}
-                  scrollEnabled={false}
-                />
-              )}
-            </View>
-          )}
+
 
           {/* Challenges Section - Show in Self-Check */}
           {activeTab === 'self-check' && (
