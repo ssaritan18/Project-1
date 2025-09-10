@@ -344,21 +344,30 @@ export default function HomeScreen() {
                 <Text style={styles.emptyTasksIcon}>📋✨</Text>
                 <Text style={styles.emptyTasksTitle}>No tasks yet!</Text>
                 <Text style={styles.emptyTasksDescription}>
-                  Add your first task to start building productive habits.
-                </Text>
-              </LinearGradient>
-            ) : (
-              <DraggableFlatList
-                data={tasks}
-                keyExtractor={(item) => item.id}
-                renderItem={renderTaskItem}
-                onDragEnd={({ data }) => {
-                  // Handle reordering if needed
-                }}
-                scrollEnabled={false}
-              />
-            )}
-          </View>
+                    Add your first task to start building productive habits.
+                  </Text>
+                </LinearGradient>
+              ) : (
+                <DraggableFlatList
+                  data={tasks}
+                  keyExtractor={(item) => item.id}
+                  renderItem={renderTaskItem}
+                  onDragEnd={({ data }) => {
+                    // Handle reordering if needed
+                  }}
+                  scrollEnabled={false}
+                />
+              )}
+            </View>
+          )}
+
+          {/* Challenges Section - Show in Self-Check */}
+          {activeTab === 'self-check' && (
+            <View style={styles.challengesSection}>
+              <Text style={styles.sectionTitle}>🏆 Weekly Challenges</Text>
+              <WeeklyChallenges challenges={challenges} onComplete={completeChallenge} />
+            </View>
+          )}
         </ScrollView>
 
         {/* Add Task Modal */}
