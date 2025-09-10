@@ -321,5 +321,9 @@ export function usePoints() {
     getCategorizedPoints,
     getActiveMultipliers,
     refreshPoints,
+    // PHASE 2: New methods
+    earnRewardedAdPoints,
+    spendPoints,
+    canAfford,
   };
 }
