@@ -1400,4 +1400,16 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
+  
+  // User-friendly status styles
+  statusTextContainer: {
+    flex: 1,
+    marginRight: 12,
+  },
+  statusDescription: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 12,
+    marginTop: 2,
+    lineHeight: 16,
+  },
 });
