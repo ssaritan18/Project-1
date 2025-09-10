@@ -461,8 +461,21 @@ export default function ProfileScreen() {
 
         return (
           <View style={styles.modernTabContent}>
+            {/* Show welcome message if this is from recent signup */}
+            {assessmentResult && (
+              <LinearGradient
+                colors={['rgba(34, 197, 94, 0.1)', 'rgba(139, 92, 246, 0.1)']}
+                style={[styles.modernCard, { marginBottom: 16 }]}
+              >
+                <Text style={styles.modernSectionTitle}>🎉 Your Assessment Results</Text>
+                <Text style={styles.modernCardDescription}>
+                  Welcome! Here are your personalized insights from the ADHD assessment.
+                </Text>
+              </LinearGradient>
+            )}
+            
             <AssessmentFollowupContent
-              assessmentResult={mockAssessmentResult}
+              assessmentResult={finalAssessmentResult}
               language="en"
             />
           </View>
