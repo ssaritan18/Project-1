@@ -338,7 +338,20 @@
         -working: true
         -agent: "main"
         -comment: "✅ FIXED: Updated Recent Achievements section with mobile-optimized styling. Changed AchievementBadge size from 'small' to 'medium', added achievementScrollContainer with proper padding, updated achievementRow with alignItems: 'center' and minHeight: 100px for sufficient badge space. Mobile responsive design improvements implemented."
-  - task: "Community Topics Layout iOS Fix"
+  - task: "Chat Emoji Picker iOS Overlapping Fix"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/(tabs)/chat/[id].tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "USER REPORTED: Chat Emoji Picker'da iOS arayüzünde görüntüler iç içe geçmiş - emoji butonları düzgün görünmüyor"
+        -working: true
+        -agent: "main"
+        -comment: "✅ FIXED: iOS Chat Emoji Picker overlapping problemi çözüldü. Düzeltmeler: 1) emojiPickerContainer'a zIndex: 1000, shadow properties ve elevation eklendi, 2) emojiGrid gap: 8 → justifyContent: 'space-between' değiştirildi, 3) emojiButton boyutu 40px → 36px küçültüldü, marginBottom ve marginHorizontal eklendi, 4) Tüm buton boyutları iOS için optimize edildi. Emoji picker artık doğru şekilde layering yapıyor ve butonlar iç içe geçmiyor."
     implemented: true
     working: true
     file: "/app/frontend/app/(tabs)/community.tsx"
