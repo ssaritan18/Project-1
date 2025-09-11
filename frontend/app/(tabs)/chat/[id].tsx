@@ -592,7 +592,7 @@ const styles = StyleSheet.create({
   reactionBar: {
     flexDirection: 'row',
     marginTop: 4,
-    gap: 8,
+    justifyContent: 'space-between', // iOS için düzgün dağılım
   },
   reactionBtn: {
     flexDirection: 'row',
@@ -772,7 +772,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     padding: 16,
-    gap: 8,
+    justifyContent: 'space-between', // iOS için düzgün dağılım
   },
   emojiButton: {
     width: 40,
