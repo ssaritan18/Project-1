@@ -783,6 +783,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(139, 92, 246, 0.2)',
+    marginBottom: 8, // iOS için margin eklendi
+    marginHorizontal: 2, // iOS için horizontal margin
   },
   emojiText: {
     fontSize: 20,
