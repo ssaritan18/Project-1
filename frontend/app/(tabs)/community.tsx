@@ -643,6 +643,7 @@ export default function CommunityScreen() {
           horizontal 
           showsHorizontalScrollIndicator={false}
           style={styles.categoriesContainer}
+          contentContainerStyle={styles.categoriesContent}
         >
           {categories.map(category => (
             <TouchableOpacity
