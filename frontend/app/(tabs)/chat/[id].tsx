@@ -161,7 +161,7 @@ export default function ChatDetail() {
                 const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/chats/${id}/upload`, {
                   method: 'POST',
                   headers: {
-                    'Authorization': `Bearer ${await AsyncStorage.getItem('token')}`
+                    'Authorization': `Bearer ${await AsyncStorage.getItem('token')}`,
                   },
                   body: formData
                 });
@@ -227,7 +227,7 @@ export default function ChatDetail() {
           const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/chats/${id}/upload`, {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${await AsyncStorage.getItem('token')}`
+              'Authorization': `Bearer ${await AsyncStorage.getItem('token')}`,
               // iOS'ta Content-Type header'ını FormData otomatik set eder
             },
             body: formData
