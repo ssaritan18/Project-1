@@ -1081,6 +1081,11 @@ const styles = StyleSheet.create({
     paddingVertical: 15, // iOS için artırıldı
     marginBottom: 5, // Alt boşluk eklendi
   },
+  categoriesContent: {
+    paddingRight: 15, // Son item için sağ padding
+    alignItems: 'center', // Center alignment
+    minHeight: 50, // Minimum yükseklik garantisi
+  },
   categoryButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
