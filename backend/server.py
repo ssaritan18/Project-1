@@ -424,6 +424,44 @@ async def get_profile_picture(filename: str):
         logger.error(f"❌ Failed to serve profile picture {filename}: {e}")
         raise HTTPException(status_code=500, detail="Failed to serve profile picture")
 
+@api_router.get("/uploads/chat/{filename}")
+async def get_chat_media(filename: str):
+    """Serve chat media files"""
+    try:
+        file_path = f"{os.getenv('UPLOAD_DIR', './uploads')}/chat/{filename}"
+        
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="Media file not found")
+        
+        # Determine media type based on file extension
+        file_ext = filename.lower().split('.')[-1]
+        if file_ext in ['jpg', 'jpeg']:
+            media_type = "image/jpeg"
+        elif file_ext == 'png':
+            media_type = "image/png"
+        elif file_ext == 'webp':
+            media_type = "image/webp"
+        elif file_ext == 'gif':
+            media_type = "image/gif"
+        elif file_ext == 'mp4':
+            media_type = "video/mp4"
+        elif file_ext == 'webm':
+            media_type = "video/webm"
+        elif file_ext == 'mov':
+            media_type = "video/quicktime"
+        else:
+            media_type = "application/octet-stream"
+        
+        return FileResponse(
+            path=file_path,
+            media_type=media_type,
+            filename=filename
+        )
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to serve chat media {filename}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to serve chat media")
+
 # --- WebSocket connection store ---
 CONNECTIONS: Dict[str, Set[WebSocket]] = {}
 ONLINE: Set[str] = set()
