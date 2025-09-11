@@ -148,7 +148,7 @@ export default function ChatDetail() {
           const file = event.target.files[0];
           if (file) {
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = async (e) => {
               const dataUrl = e.target.result;
               console.log('File selected for upload:', file.name, file.type);
               Alert.alert("Upload Ready", `Selected: ${file.name}\nSize: ${(file.size/1024/1024).toFixed(2)}MB\n\nNote: This is a demo - actual upload functionality coming soon!`);
