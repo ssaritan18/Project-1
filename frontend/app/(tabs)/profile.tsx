@@ -811,19 +811,20 @@ export default function ProfileScreen() {
                 const url = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('/api', '') || 'http://localhost:3000'}/delete-account.html`;
                 
                 // Platform detection fix for external URLs - Google Play Compliance
-                if (Platform.OS === 'web' || typeof window !== 'undefined') {
-                  // Use window.open for web to open in new tab
-                  window.open(url, '_blank');
-                  console.log('✅ Delete Account opened in new tab via window.open()');
-                } else {
-                  // Use Linking.openURL for mobile platforms
-                  const supported = await Linking.canOpenURL(url);
-                  if (supported) {
-                    await Linking.openURL(url);
+                if (Platform.OS === 'web') {
+                  // Check if window exists for web platform
+                  if (typeof window !== 'undefined' && window.open) {
+                    window.open(url, '_blank');
+                    console.log('✅ Delete Account opened in new tab via window.open()');
                   } else {
-                    // Fallback: Navigate to in-app delete account page
-                    router.push('/delete-account');
+                    // Fallback for web environments without window.open
+                    await Linking.openURL(url);
+                    console.log('⚠️ Fallback: Delete Account opened via Linking.openURL()');
                   }
+                } else {
+                  // Use Linking.openURL for mobile platforms (iOS/Android)
+                  await Linking.openURL(url);
+                  console.log('✅ Delete Account opened in browser via Linking.openURL()');
                 }
               } catch (error) {
                 console.error('Navigation error:', error);
