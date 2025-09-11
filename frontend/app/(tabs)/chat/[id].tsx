@@ -213,6 +213,17 @@ export default function ChatDetail() {
 
         // Upload the file
         try {
+          console.log('🔍 Starting upload process...');
+          
+          // Debug: Check token first
+          const token = await AsyncStorage.getItem('token');
+          console.log('🔑 Token from AsyncStorage:', token ? 'Found' : 'Not found');
+          
+          if (!token) {
+            Alert.alert("Upload Error", "Please login first to upload media");
+            return;
+          }
+          
           const formData = new FormData();
           
           // Create file object for React Native
@@ -222,38 +233,39 @@ export default function ChatDetail() {
             name: asset.fileName || `media_${Date.now()}.${asset.type === 'image' ? 'jpg' : 'mp4'}`
           } as any;
           
+          console.log('📄 File object:', fileObj);
           formData.append('file', fileObj);
           
-          const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/chats/${id}/upload`, {
+          const uploadUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL}/chats/${id}/upload`;
+          console.log('🌐 Upload URL:', uploadUrl);
+          
+          const response = await fetch(uploadUrl, {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${await AsyncStorage.getItem('token')}`,
+              'Authorization': `Bearer ${token}`,
               // iOS'ta Content-Type header'ını FormData otomatik set eder
             },
             body: formData
           });
           
+          console.log('📡 Response status:', response.status);
+          console.log('📡 Response headers:', response.headers);
+          
           if (response.ok) {
             const result = await response.json();
-            console.log('Upload successful:', result);
+            console.log('✅ Upload successful:', result);
             
             // Send message with media
-            const messageData = {
-              content: `📎 ${fileObj.name}`,
-              type: result.file_type.startsWith('image/') ? 'image' : 'video',
-              media_url: result.media_url,
-              media_type: result.file_type
-            };
-            
             await sendText(id, `📎 ${fileObj.name} - ${result.media_url}`);
             Alert.alert("Success", "Media uploaded and sent successfully!");
           } else {
-            const error = await response.json();
-            Alert.alert("Upload Failed", error.detail || "Failed to upload media");
+            const errorText = await response.text();
+            console.log('❌ Upload failed:', response.status, errorText);
+            Alert.alert("Upload Failed", `Server error: ${response.status}\n${errorText}`);
           }
         } catch (error) {
-          console.error('Upload error:', error);
-          Alert.alert("Upload Error", "Failed to upload media. Please try again.");
+          console.error('💥 Upload error details:', error);
+          Alert.alert("Upload Error", `Network error: ${error.message}`);
         }
       }
     } catch (error) {
