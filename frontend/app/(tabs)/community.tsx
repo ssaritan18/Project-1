@@ -1020,7 +1020,7 @@ export default function CommunityScreen() {
           </View>
         </Modal>
       </LinearGradient>
-    </View>
+    </LinearGradient>
   );
 }
 const styles = StyleSheet.create({
