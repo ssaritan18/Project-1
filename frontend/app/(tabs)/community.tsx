@@ -1079,7 +1079,7 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     paddingHorizontal: 15,
     paddingVertical: 15, // iOS için artırıldı
-    maxHeight: 50,
+    marginBottom: 5, // Alt boşluk eklendi
   },
   categoryButton: {
     paddingHorizontal: 16,
