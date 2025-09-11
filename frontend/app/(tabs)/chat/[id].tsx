@@ -151,7 +151,45 @@ export default function ChatDetail() {
             reader.onload = async (e) => {
               const dataUrl = e.target.result;
               console.log('File selected for upload:', file.name, file.type);
-              Alert.alert("Upload Ready", `Selected: ${file.name}\nSize: ${(file.size/1024/1024).toFixed(2)}MB\n\nNote: This is a demo - actual upload functionality coming soon!`);
+              
+              // Upload the file
+              setIsUploadingMedia(true);
+              try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/chats/${id}/upload`, {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${await AsyncStorage.getItem('token')}`
+                  },
+                  body: formData
+                });
+                
+                if (response.ok) {
+                  const result = await response.json();
+                  console.log('Upload successful:', result);
+                  
+                  // Send message with media
+                  const messageData = {
+                    content: `📎 ${file.name}`,
+                    type: result.file_type.startsWith('image/') ? 'image' : 'video',
+                    media_url: result.media_url,
+                    media_type: result.file_type
+                  };
+                  
+                  await sendText(id, `📎 ${file.name} - ${result.media_url}`);
+                  Alert.alert("Success", "Media uploaded and sent successfully!");
+                } else {
+                  const error = await response.json();
+                  Alert.alert("Upload Failed", error.detail || "Failed to upload media");
+                }
+              } catch (error) {
+                console.error('Upload error:', error);
+                Alert.alert("Upload Error", "Failed to upload media. Please try again.");
+              } finally {
+                setIsUploadingMedia(false);
+              }
             };
             reader.readAsDataURL(file);
           }
