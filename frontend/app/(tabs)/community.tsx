@@ -1093,6 +1093,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(139, 92, 246, 0.5)',
+    minHeight: 36, // Minimum buton yüksekliği
+    justifyContent: 'center', // İçeriği ortala
+    alignItems: 'center', // Text'i center'la
   },
   activeCategoryButton: {
     backgroundColor: 'rgba(139, 92, 246, 0.3)',
@@ -1274,6 +1277,9 @@ const styles = StyleSheet.create({
     marginRight: 12,
     borderWidth: 2,
     borderColor: 'rgba(139, 92, 246, 0.5)',
+    minHeight: 36, // Minimum buton yüksekliği
+    justifyContent: 'center', // İçeriği ortala
+    alignItems: 'center', // Text'i center'la
   },
   replyAvatarText: {
     color: 'white',
@@ -1335,6 +1341,9 @@ const styles = StyleSheet.create({
     marginRight: 12,
     borderWidth: 2,
     borderColor: 'rgba(139, 92, 246, 0.5)',
+    minHeight: 36, // Minimum buton yüksekliği
+    justifyContent: 'center', // İçeriği ortala
+    alignItems: 'center', // Text'i center'la
   },
   postAvatarText: {
     color: 'white',
