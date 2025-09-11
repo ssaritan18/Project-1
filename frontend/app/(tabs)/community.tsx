@@ -623,11 +623,10 @@ export default function CommunityScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
-        style={styles.gradient}
-      >
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#0f3460']}
+      style={[styles.container, { paddingTop: insets.top }]}
+    >
         {/* Header - Updated to match other pages style */}
         <LinearGradient
           colors={['#8B5CF6', '#EC4899', '#F97316']}
