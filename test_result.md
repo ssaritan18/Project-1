@@ -338,7 +338,20 @@
         -working: true
         -agent: "main"
         -comment: "✅ FIXED: Updated Recent Achievements section with mobile-optimized styling. Changed AchievementBadge size from 'small' to 'medium', added achievementScrollContainer with proper padding, updated achievementRow with alignItems: 'center' and minHeight: 100px for sufficient badge space. Mobile responsive design improvements implemented."
-  - task: "Community Page JSX Syntax Error Fix"
+  - task: "Community Topics Layout iOS Fix"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/(tabs)/community.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "USER REPORTED: Community topics/categories görsel olarak kesik çıkıyor iOS'ta - category butonları düzgün görünmüyor"
+        -working: true
+        -agent: "main"
+        -comment: "✅ FIXED: iOS Community Topics Layout problemi çözüldü. Düzeltmeler: 1) categoriesContainer paddingVertical 10→15, marginBottom eklendi, 2) categoriesContent stili eklendi (paddingRight, alignItems center, minHeight), 3) categoryButton paddingVertical 8→10, minHeight: 36, justifyContent ve alignItems center eklendi. Test edildi: iPhone 375x812 boyutunda, horizontal scrolling çalışıyor, tüm category butonları düzgün render oluyor."
     implemented: true
     working: true
     file: "/app/frontend/app/(tabs)/community.tsx"
