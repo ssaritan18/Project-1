@@ -145,7 +145,7 @@ export default function ChatDetail() {
         input.type = 'file';
         input.accept = 'image/*,video/*';
         input.onchange = async (event) => {
-          const file = event.target.files[0];
+          const file = (event.target as HTMLInputElement).files?.[0];
           if (file) {
             const reader = new FileReader();
             reader.onload = async (e) => {
