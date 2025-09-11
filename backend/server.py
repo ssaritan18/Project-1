@@ -2050,6 +2050,74 @@ async def react_chat_message(chat_id: str, message_id: str, payload: MessageReac
     
     return updated_msg
 
+@api_router.post("/chats/{chat_id}/upload")
+async def upload_chat_media(
+    chat_id: str, 
+    file: UploadFile = File(...),
+    user=Depends(get_current_user)
+):
+    """Upload media file for chat messages"""
+    logger.info(f"📤 Processing media upload for chat {chat_id} from user {user['_id']}")
+    
+    try:
+        # Verify user has access to the chat
+        chat = await db.chats.find_one({"_id": chat_id, "members": user["_id"]})
+        if not chat:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        
+        # Validate file type
+        allowed_types = {
+            'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
+            'video/mp4', 'video/webm', 'video/quicktime'
+        }
+        
+        if file.content_type not in allowed_types:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Unsupported file type: {file.content_type}. Allowed: images and videos"
+            )
+        
+        # Check file size (10MB limit)
+        max_size = 10 * 1024 * 1024  # 10MB
+        file_content = await file.read()
+        if len(file_content) > max_size:
+            raise HTTPException(
+                status_code=400, 
+                detail="File too large. Maximum size is 10MB"
+            )
+        
+        # Create uploads directory
+        upload_dir = Path(os.getenv('UPLOAD_DIR', './uploads/chat'))
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Generate unique filename
+        file_extension = Path(file.filename).suffix.lower()
+        unique_filename = f"{chat_id}_{user['_id']}_{int(time.time())}{file_extension}"
+        file_path = upload_dir / unique_filename
+        
+        # Write file
+        async with aio_open(file_path, 'wb') as f:
+            await f.write(file_content)
+        
+        # Create media URL (relative path)
+        media_url = f"/uploads/chat/{unique_filename}"
+        
+        logger.info(f"✅ Media uploaded successfully: {media_url}")
+        
+        return {
+            "success": True,
+            "media_url": media_url,
+            "file_type": file.content_type,
+            "file_size": len(file_content),
+            "filename": file.filename
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Media upload error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to upload media")
+
 # Phase 3: Enhanced Achievement System APIs for ADHD-friendly gamification
 @api_router.get("/achievements")
 async def get_all_achievements():
