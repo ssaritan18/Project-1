@@ -158,7 +158,7 @@ export default function ChatDetail() {
                 const formData = new FormData();
                 formData.append('file', file);
                 
-                const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/chats/${id}/upload`, {
+                const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/chats/${id}/upload`, {
                   method: 'POST',
                   headers: {
                     'Authorization': `Bearer ${await AsyncStorage.getItem('token')}`
@@ -224,7 +224,7 @@ export default function ChatDetail() {
           
           formData.append('file', fileObj);
           
-          const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/chats/${id}/upload`, {
+          const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/chats/${id}/upload`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${await AsyncStorage.getItem('token')}`,
