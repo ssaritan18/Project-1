@@ -747,6 +747,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(139, 92, 246, 0.3)',
     maxHeight: 300,
+    // iOS için z-index ve shadow eklendi
+    zIndex: 1000,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8, // Android için
   },
   emojiPickerHeader: {
     flexDirection: 'row',
