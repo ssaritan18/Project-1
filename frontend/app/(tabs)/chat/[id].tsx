@@ -211,7 +211,50 @@ export default function ChatDetail() {
         const asset = pickerResult.assets[0];
         console.log('Selected media asset:', asset);
 
-        Alert.alert("Upload Ready", `Selected: ${asset.type}\nSize: ${asset.fileSize ? (asset.fileSize/1024/1024).toFixed(2) + 'MB' : 'Unknown'}\n\nNote: This is a demo - actual upload functionality coming soon!`);
+        // Upload the file
+        try {
+          const formData = new FormData();
+          
+          // Create file object for React Native
+          const fileObj = {
+            uri: asset.uri,
+            type: asset.type === 'image' ? 'image/jpeg' : 'video/mp4',
+            name: asset.fileName || `media_${Date.now()}.${asset.type === 'image' ? 'jpg' : 'mp4'}`
+          } as any;
+          
+          formData.append('file', fileObj);
+          
+          const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/chats/${id}/upload`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${await AsyncStorage.getItem('token')}`,
+              'Content-Type': 'multipart/form-data'
+            },
+            body: formData
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            console.log('Upload successful:', result);
+            
+            // Send message with media
+            const messageData = {
+              content: `📎 ${fileObj.name}`,
+              type: result.file_type.startsWith('image/') ? 'image' : 'video',
+              media_url: result.media_url,
+              media_type: result.file_type
+            };
+            
+            await sendText(id, `📎 ${fileObj.name} - ${result.media_url}`);
+            Alert.alert("Success", "Media uploaded and sent successfully!");
+          } else {
+            const error = await response.json();
+            Alert.alert("Upload Failed", error.detail || "Failed to upload media");
+          }
+        } catch (error) {
+          console.error('Upload error:', error);
+          Alert.alert("Upload Error", "Failed to upload media. Please try again.");
+        }
       }
     } catch (error) {
       console.error('Error selecting media:', error);
