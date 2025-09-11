@@ -1078,7 +1078,7 @@ const styles = StyleSheet.create({
   },
   categoriesContainer: {
     paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingVertical: 15, // iOS için artırıldı
     maxHeight: 50,
   },
   categoryButton: {
@@ -1302,7 +1302,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 15, // iOS için artırıldı
     marginRight: 10,
   },
   cancelButtonText: {
@@ -1312,7 +1312,7 @@ const styles = StyleSheet.create({
   replyButton: {
     backgroundColor: 'rgba(255,255,255,0.2)',
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 15, // iOS için artırıldı
     borderRadius: 20,
   },
   replyButtonText: {
