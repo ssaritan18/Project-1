@@ -338,7 +338,20 @@
         -working: true
         -agent: "main"
         -comment: "✅ FIXED: Updated Recent Achievements section with mobile-optimized styling. Changed AchievementBadge size from 'small' to 'medium', added achievementScrollContainer with proper padding, updated achievementRow with alignItems: 'center' and minHeight: 100px for sufficient badge space. Mobile responsive design improvements implemented."
-  - task: "ADHD Assessment Medical Disclaimer"
+  - task: "Community Page JSX Syntax Error Fix"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/(tabs)/community.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "USER REPORTED: Adjacent JSX elements must be wrapped in an enclosing tag error in Community page preventing proper rendering"
+        -working: true
+        -agent: "main"
+        -comment: "✅ FIXED: Successfully resolved JSX syntax error by removing extra </LinearGradient> closing tag on line 1023. Community page now loads without compilation errors and displays proper gradient background."
     implemented: true
     working: true
     file: "/app/frontend/src/components/ADHDOnboarding.tsx"
