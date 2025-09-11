@@ -627,7 +627,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   mediaBtnGradient: {
-    width: 40,
+    width: 36, // iOS için boyut küçültüldü
     height: 40,
     borderRadius: 12,
     alignItems: 'center',
@@ -650,7 +650,7 @@ const styles = StyleSheet.create({
     
   },
   sendBtnGradient: {
-    width: 40,
+    width: 36, // iOS için boyut küçültüldü
     height: 40,
     borderRadius: 12,
     alignItems: 'center',
@@ -660,7 +660,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   emojiBtnGradient: {
-    width: 40,
+    width: 36, // iOS için boyut küçültüldü
     height: 40,
     borderRadius: 12,
     alignItems: 'center',
@@ -775,7 +775,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', // iOS için düzgün dağılım
   },
   emojiButton: {
-    width: 40,
+    width: 36, // iOS için boyut küçültüldü
     height: 40,
     borderRadius: 8,
     backgroundColor: 'rgba(139, 92, 246, 0.1)',
