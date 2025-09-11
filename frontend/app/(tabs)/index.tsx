@@ -145,204 +145,266 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        <ScrollView 
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
-        >
-          {activeTab === 'daily-tools' && (
-            <>
-              {/* Focus Mode Section */}
-              <View style={styles.focusSection}>
-                <Text style={styles.sectionTitle}>🧠 Focus Mode</Text>
-                <Text style={styles.sectionSubtitle}>Choose your focus session duration</Text>
-                
-                <View style={styles.focusCardsRow}>
-                  {/* Pomodoro Card */}
-                  <TouchableOpacity 
-                    style={styles.focusCard}
-                    onPress={() => router.push('/focus-timer?mode=Pomodoro&duration=25')}
-                  >
-                    <LinearGradient
-                      colors={['#8B5CF6', '#A855F7']}
-                      style={styles.focusCardGradient}
+        {/* Use DraggableFlatList as main container with ListHeaderComponent */}
+        {activeTab === 'daily-tools' && tasks.length > 0 ? (
+          <DraggableFlatList
+            data={tasks}
+            keyExtractor={(item) => item.id}
+            renderItem={renderTaskItem}
+            onDragEnd={({ data }) => {
+              // Handle reordering if needed
+            }}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+            ListHeaderComponent={() => (
+              <View>
+                {/* Focus Mode Section */}
+                <View style={styles.focusSection}>
+                  <Text style={styles.sectionTitle}>🧠 Focus Mode</Text>
+                  <Text style={styles.sectionSubtitle}>Choose your focus session duration</Text>
+                  
+                  <View style={styles.focusCardsRow}>
+                    {/* Focus Cards */}
+                    <TouchableOpacity 
+                      style={styles.focusCard}
+                      onPress={() => router.push('/focus-timer?mode=Pomodoro&duration=25')}
                     >
-                      <Text style={styles.focusCardEmoji}>🍅</Text>
-                      <Text style={styles.focusCardTitle}>Pomodoro</Text>
-                      <Text style={styles.focusCardDuration}>25 min</Text>
-                      <Text style={styles.focusCardDescription}>Classic technique</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
+                      <LinearGradient colors={['#8B5CF6', '#A855F7']} style={styles.focusCardGradient}>
+                        <Text style={styles.focusCardEmoji}>🍅</Text>
+                        <Text style={styles.focusCardTitle}>Pomodoro</Text>
+                        <Text style={styles.focusCardDuration}>25 min</Text>
+                        <Text style={styles.focusCardDescription}>Classic technique</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
 
-                  {/* Deep Work Card */}
-                  <TouchableOpacity 
-                    style={styles.focusCard}
-                    onPress={() => router.push('/focus-timer?mode=Deep Work&duration=50')}
-                  >
-                    <LinearGradient
-                      colors={['#EC4899', '#F97316']}
-                      style={styles.focusCardGradient}
+                    <TouchableOpacity 
+                      style={styles.focusCard}
+                      onPress={() => router.push('/focus-timer?mode=Deep Work&duration=50')}
                     >
-                      <Text style={styles.focusCardEmoji}>🧠</Text>
-                      <Text style={styles.focusCardTitle}>Deep Work</Text>
-                      <Text style={styles.focusCardDuration}>50 min</Text>
-                      <Text style={styles.focusCardDescription}>Extended focus</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
+                      <LinearGradient colors={['#EC4899', '#F97316']} style={styles.focusCardGradient}>
+                        <Text style={styles.focusCardEmoji}>🧠</Text>
+                        <Text style={styles.focusCardTitle}>Deep Work</Text>
+                        <Text style={styles.focusCardDuration}>50 min</Text>
+                        <Text style={styles.focusCardDescription}>Extended focus</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
 
-                  {/* ADHD Sprint Card */}
-                  <TouchableOpacity 
-                    style={styles.focusCard}
-                    onPress={() => router.push('/focus-timer?mode=ADHD Sprint&duration=15')}
-                  >
-                    <LinearGradient
-                      colors={['#F97316', '#FBBF24']}
-                      style={styles.focusCardGradient}
+                    <TouchableOpacity 
+                      style={styles.focusCard}
+                      onPress={() => router.push('/focus-timer?mode=ADHD Sprint&duration=15')}
                     >
-                      <Text style={styles.focusCardEmoji}>⚡</Text>
-                      <Text style={styles.focusCardTitle}>ADHD Sprint</Text>
-                      <Text style={styles.focusCardDuration}>15 min</Text>
-                      <Text style={styles.focusCardDescription}>Quick burst</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Rewarded Ad Section */}
-              <View style={styles.rewardedAdSection}>
-                <RewardedAdBanner />
-              </View>
-
-              {/* Add New Task Section */}
-              <View style={styles.addTaskSection}>
-                <View style={styles.addTaskHeader}>
-                  <Text style={styles.sectionTitle}>➕ Add New Task</Text>
-                  <TouchableOpacity onPress={() => setShowModal(true)}>
-                    <LinearGradient colors={['#8B5CF6', '#EC4899']} style={styles.addTaskBtn}>
-                      <Ionicons name="add" size={20} color="#fff" />
-                      <Text style={styles.addTaskBtnText}>New Task</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-                
-                <LinearGradient
-                  colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
-                  style={styles.addTaskCard}
-                >
-                  <Text style={styles.addTaskTitle}>🌟 Quick Add</Text>
-                  <View style={styles.addTaskRow}>
-                    <TextInput
-                      style={styles.taskInput}
-                      placeholder="What needs to be done?"
-                      placeholderTextColor="#B9B9B9"
-                      value={newTask}
-                      onChangeText={setNewTask}
-                      maxLength={100}
-                    />
-                    <TouchableOpacity onPress={handleAddTask} disabled={!newTask.trim()}>
-                      <LinearGradient 
-                        colors={newTask.trim() ? ['#8B5CF6', '#A855F7'] : ['#666', '#555']} 
-                        style={styles.quickAddBtn}
-                      >
-                        <Ionicons name="add-circle" size={20} color="#fff" />
+                      <LinearGradient colors={['#F97316', '#FBBF24']} style={styles.focusCardGradient}>
+                        <Text style={styles.focusCardEmoji}>⚡</Text>
+                        <Text style={styles.focusCardTitle}>ADHD Sprint</Text>
+                        <Text style={styles.focusCardDuration}>15 min</Text>
+                        <Text style={styles.focusCardDescription}>Quick burst</Text>
                       </LinearGradient>
                     </TouchableOpacity>
                   </View>
-                </LinearGradient>
-              </View>
-            </>
-          )}
+                </View>
 
-          {activeTab === 'self-check' && (
-            <>
-              {/* Quick Stats Row */}
-              <View style={styles.quickStatsSection}>
-                <Text style={styles.sectionTitle}>📊 Today's Overview</Text>
-                <View style={styles.statsRow}>
-                  <LinearGradient colors={['#8B5CF6', '#A855F7']} style={styles.statCard}>
-                    <Text style={styles.statNumber}>{stats.completed}</Text>
-                    <Text style={styles.statLabel}>Completed</Text>
-                  </LinearGradient>
-                  <LinearGradient colors={['#EC4899', '#F97316']} style={styles.statCard}>
-                    <Text style={styles.statNumber}>{currentStreak}</Text>
-                    <Text style={styles.statLabel}>Day Streak</Text>
-                  </LinearGradient>
-                  <TouchableOpacity
-                    onPress={() => router.push('/(tabs)/profile?tab=store')}
+                {/* Rewarded Ad Section */}
+                <View style={styles.rewardedAdSection}>
+                  <RewardedAdBanner />
+                </View>
+
+                {/* Add New Task Section */}
+                <View style={styles.addTaskSection}>
+                  <View style={styles.addTaskHeader}>
+                    <Text style={styles.sectionTitle}>➕ Add New Task</Text>
+                    <TouchableOpacity onPress={() => setShowModal(true)}>
+                      <LinearGradient colors={['#8B5CF6', '#EC4899']} style={styles.addTaskBtn}>
+                        <Ionicons name="add" size={20} color="#fff" />
+                        <Text style={styles.addTaskBtnText}>New Task</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  </View>
+                  
+                  <LinearGradient
+                    colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
+                    style={styles.addTaskCard}
                   >
-                    <LinearGradient colors={['#F97316', '#FBBF24']} style={styles.statCard}>
-                      <Text style={styles.statNumber}>{totalPoints}</Text>
-                      <Text style={styles.statLabel}>Points</Text>
-                      <Text style={styles.statSubLabel}>Tap to spend</Text>
+                    <Text style={styles.addTaskTitle}>🌟 Quick Add</Text>
+                    <View style={styles.addTaskRow}>
+                      <TextInput
+                        style={styles.taskInput}
+                        placeholder="What needs to be done?"
+                        placeholderTextColor="#B9B9B9"
+                        value={newTask}
+                        onChangeText={setNewTask}
+                        maxLength={100}
+                      />
+                      <TouchableOpacity onPress={handleAddTask} disabled={!newTask.trim()}>
+                        <LinearGradient 
+                          colors={newTask.trim() ? ['#8B5CF6', '#A855F7'] : ['#666', '#555']} 
+                          style={styles.quickAddBtn}
+                        >
+                          <Ionicons name="add-circle" size={20} color="#fff" />
+                        </LinearGradient>
+                      </TouchableOpacity>
+                    </View>
+                  </LinearGradient>
+                </View>
+
+                <Text style={styles.sectionTitle}>📝 Your Tasks ({tasks.length})</Text>
+              </View>
+            )}
+          />
+        ) : activeTab === 'daily-tools' ? (
+          <ScrollView 
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+          >
+            {/* Same content but for when no tasks */}
+            <View style={styles.focusSection}>
+              <Text style={styles.sectionTitle}>🧠 Focus Mode</Text>
+              <Text style={styles.sectionSubtitle}>Choose your focus session duration</Text>
+              
+              <View style={styles.focusCardsRow}>
+                <TouchableOpacity 
+                  style={styles.focusCard}
+                  onPress={() => router.push('/focus-timer?mode=Pomodoro&duration=25')}
+                >
+                  <LinearGradient colors={['#8B5CF6', '#A855F7']} style={styles.focusCardGradient}>
+                    <Text style={styles.focusCardEmoji}>🍅</Text>
+                    <Text style={styles.focusCardTitle}>Pomodoro</Text>
+                    <Text style={styles.focusCardDuration}>25 min</Text>
+                    <Text style={styles.focusCardDescription}>Classic technique</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.focusCard}
+                  onPress={() => router.push('/focus-timer?mode=Deep Work&duration=50')}
+                >
+                  <LinearGradient colors={['#EC4899', '#F97316']} style={styles.focusCardGradient}>
+                    <Text style={styles.focusCardEmoji}>🧠</Text>
+                    <Text style={styles.focusCardTitle}>Deep Work</Text>
+                    <Text style={styles.focusCardDuration}>50 min</Text>
+                    <Text style={styles.focusCardDescription}>Extended focus</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.focusCard}
+                  onPress={() => router.push('/focus-timer?mode=ADHD Sprint&duration=15')}
+                >
+                  <LinearGradient colors={['#F97316', '#FBBF24']} style={styles.focusCardGradient}>
+                    <Text style={styles.focusCardEmoji}>⚡</Text>
+                    <Text style={styles.focusCardTitle}>ADHD Sprint</Text>
+                    <Text style={styles.focusCardDuration}>15 min</Text>
+                    <Text style={styles.focusCardDescription}>Quick burst</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.rewardedAdSection}>
+              <RewardedAdBanner />
+            </View>
+
+            <View style={styles.addTaskSection}>
+              <View style={styles.addTaskHeader}>
+                <Text style={styles.sectionTitle}>➕ Add New Task</Text>
+                <TouchableOpacity onPress={() => setShowModal(true)}>
+                  <LinearGradient colors={['#8B5CF6', '#EC4899']} style={styles.addTaskBtn}>
+                    <Ionicons name="add" size={20} color="#fff" />
+                    <Text style={styles.addTaskBtnText}>New Task</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+              
+              <LinearGradient
+                colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
+                style={styles.addTaskCard}
+              >
+                <Text style={styles.addTaskTitle}>🌟 Quick Add</Text>
+                <View style={styles.addTaskRow}>
+                  <TextInput
+                    style={styles.taskInput}
+                    placeholder="What needs to be done?"
+                    placeholderTextColor="#B9B9B9"
+                    value={newTask}
+                    onChangeText={setNewTask}
+                    maxLength={100}
+                  />
+                  <TouchableOpacity onPress={handleAddTask} disabled={!newTask.trim()}>
+                    <LinearGradient 
+                      colors={newTask.trim() ? ['#8B5CF6', '#A855F7'] : ['#666', '#555']} 
+                      style={styles.quickAddBtn}
+                    >
+                      <Ionicons name="add-circle" size={20} color="#fff" />
                     </LinearGradient>
                   </TouchableOpacity>
                 </View>
-              </View>
-
-              {/* Progress Section */}
-              <View style={styles.progressSection}>
-                <Text style={styles.sectionTitle}>🎯 Progress Tracker</Text>
-                <LinearGradient
-                  colors={['rgba(139, 92, 246, 0.1)', 'rgba(168, 85, 247, 0.1)']}
-                  style={styles.progressCard}
-                >
-                  <View style={styles.progressHeader}>
-                    <Text style={styles.progressTitle}>Daily Completion</Text>
-                    <Text style={styles.progressPercentage}>{stats.completionRate}%</Text>
-                  </View>
-                  <ProgressBar 
-                    progress={stats.completionRate} 
-                    color="#8B5CF6"
-                    backgroundColor="rgba(139, 92, 246, 0.2)"
-                    height={12}
-                    style={styles.progressBar}
-                  />
-                  <Text style={styles.progressSubtitle}>
-                    {stats.completed} of {stats.total} tasks completed today
-                  </Text>
-                </LinearGradient>
-              </View>
-
-              {/* Mood Tracker */}
-              <View style={styles.moodSection}>
-                <Text style={styles.sectionTitle}>💭 Mood Tracker</Text>
-                <MoodTracker />
-              </View>
-            </>
-          )}
-
-          {/* Tasks List - Show in Daily Tools */}
-          {activeTab === 'daily-tools' && (
-            <View style={styles.tasksSection}>
-              <Text style={styles.sectionTitle}>📝 Your Tasks ({tasks.length})</Text>
-              
-              {tasks.length === 0 ? (
-                <LinearGradient
-                  colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
-                  style={styles.emptyTasksCard}
-                >
-                  <Text style={styles.emptyTasksIcon}>📋✨</Text>
-                  <Text style={styles.emptyTasksTitle}>No tasks yet!</Text>
-                  <Text style={styles.emptyTasksDescription}>
-                    Add your first task to start building productive habits.
-                  </Text>
-                </LinearGradient>
-              ) : (
-{/* Use View instead of DraggableFlatList to avoid ScrollView nesting */}
-                <View>
-                  {tasks.map((item, index) => (
-                    <View key={item.id}>
-                      {renderTaskItem({ item, drag: () => {}, isActive: false })}
-                    </View>
-                  ))}
-                </View>
-              )}
+              </LinearGradient>
             </View>
-          )}
 
+            <LinearGradient
+              colors={['rgba(139, 92, 246, 0.1)', 'rgba(236, 72, 153, 0.1)']}
+              style={styles.emptyTasksCard}
+            >
+              <Text style={styles.emptyTasksIcon}>📋✨</Text>
+              <Text style={styles.emptyTasksTitle}>No tasks yet!</Text>
+              <Text style={styles.emptyTasksDescription}>
+                Add your first task to start building productive habits.
+              </Text>
+            </LinearGradient>
+          </ScrollView>
+        ) : (
+          <ScrollView 
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+          >
+            {/* Self-Check content */}
+            <View style={styles.quickStatsSection}>
+              <Text style={styles.sectionTitle}>📊 Today's Overview</Text>
+              <View style={styles.statsRow}>
+                <LinearGradient colors={['#8B5CF6', '#A855F7']} style={styles.statCard}>
+                  <Text style={styles.statNumber}>{stats.completed}</Text>
+                  <Text style={styles.statLabel}>Completed</Text>
+                </LinearGradient>
+                <LinearGradient colors={['#EC4899', '#F97316']} style={styles.statCard}>
+                  <Text style={styles.statNumber}>{currentStreak}</Text>
+                  <Text style={styles.statLabel}>Day Streak</Text>
+                </LinearGradient>
+                <TouchableOpacity onPress={() => router.push('/(tabs)/profile?tab=store')}>
+                  <LinearGradient colors={['#F97316', '#FBBF24']} style={styles.statCard}>
+                    <Text style={styles.statNumber}>{totalPoints}</Text>
+                    <Text style={styles.statLabel}>Points</Text>
+                    <Text style={styles.statSubLabel}>Tap to spend</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </View>
 
+            <View style={styles.progressSection}>
+              <Text style={styles.sectionTitle}>🎯 Progress Tracker</Text>
+              <LinearGradient
+                colors={['rgba(139, 92, 246, 0.1)', 'rgba(168, 85, 247, 0.1)']}
+                style={styles.progressCard}
+              >
+                <View style={styles.progressHeader}>
+                  <Text style={styles.progressTitle}>Daily Completion</Text>
+                  <Text style={styles.progressPercentage}>{stats.completionRate}%</Text>
+                </View>
+                <ProgressBar 
+                  progress={stats.completionRate} 
+                  color="#8B5CF6"
+                  backgroundColor="rgba(139, 92, 246, 0.2)"
+                  height={12}
+                  style={styles.progressBar}
+                />
+                <Text style={styles.progressSubtitle}>
+                  {stats.completed} of {stats.total} tasks completed today
+                </Text>
+              </LinearGradient>
+            </View>
 
-          {/* Challenges Section - Show in Self-Check */}
-          {activeTab === 'self-check' && (
+            <View style={styles.moodSection}>
+              <Text style={styles.sectionTitle}>💭 Mood Tracker</Text>
+              <MoodTracker />
+            </View>
+
             <View style={styles.challengesSection}>
               <Text style={styles.sectionTitle}>🏆 Weekly Challenges</Text>
               <WeeklyChallenges 
@@ -350,8 +412,8 @@ export default function HomeScreen() {
                 onChallengeComplete={completeChallenge} 
               />
             </View>
-          )}
-        </ScrollView>
+          </ScrollView>
+        )}
 
         {/* Add Task Modal */}
         <Modal visible={showModal} transparent animationType="slide">
