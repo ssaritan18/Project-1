@@ -1088,7 +1088,7 @@ const styles = StyleSheet.create({
   },
   categoryButton: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10, // iOS için yeterli padding
     marginRight: 10,
     borderRadius: 20,
     borderWidth: 1,
@@ -1222,7 +1222,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 15,
-    paddingVertical: 8,
+    paddingVertical: 10, // iOS için yeterli padding
   },
   actionText: {
     color: 'rgba(255,255,255,0.7)',
