@@ -766,19 +766,20 @@ export default function ProfileScreen() {
                 const url = 'https://www.termsfeed.com/live/ff0b3892-d10c-4a4a-b614-4a9b608105bd';
                 
                 // Platform detection fix for external URLs - Google Play Compliance
-                if (Platform.OS === 'web' || typeof window !== 'undefined') {
-                  // Use window.open for web to open in new tab
-                  window.open(url, '_blank');
-                  console.log('✅ Privacy Policy opened in new tab via window.open()');
-                } else {
-                  // Use Linking.openURL for mobile platforms
-                  const supported = await Linking.canOpenURL(url);
-                  if (supported) {
-                    await Linking.openURL(url);
+                if (Platform.OS === 'web') {
+                  // Check if window exists for web platform
+                  if (typeof window !== 'undefined' && window.open) {
+                    window.open(url, '_blank');
+                    console.log('✅ Privacy Policy opened in new tab via window.open()');
                   } else {
-                    // Fallback: Navigate to in-app privacy policy
-                    router.push('/privacy-policy');
+                    // Fallback for web environments without window.open
+                    await Linking.openURL(url);
+                    console.log('⚠️ Fallback: Privacy Policy opened via Linking.openURL()');
                   }
+                } else {
+                  // Use Linking.openURL for mobile platforms (iOS/Android)
+                  await Linking.openURL(url);
+                  console.log('✅ Privacy Policy opened in browser via Linking.openURL()');
                 }
               } catch (error) {
                 console.error('Navigation error:', error);
