@@ -22,6 +22,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import jinja2
 import random
+from aiofiles import open as aio_open
 
 # Import subscription router
 from app.routers.subscriptions import router as subscriptions_router
