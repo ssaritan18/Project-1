@@ -327,15 +327,14 @@ export default function HomeScreen() {
                   </Text>
                 </LinearGradient>
               ) : (
-                <DraggableFlatList
-                  data={tasks}
-                  keyExtractor={(item) => item.id}
-                  renderItem={renderTaskItem}
-                  onDragEnd={({ data }) => {
-                    // Handle reordering if needed
-                  }}
-                  scrollEnabled={false}
-                />
+{/* Use View instead of DraggableFlatList to avoid ScrollView nesting */}
+                <View>
+                  {tasks.map((item, index) => (
+                    <View key={item.id}>
+                      {renderTaskItem({ item, drag: () => {}, isActive: false })}
+                    </View>
+                  ))}
+                </View>
               )}
             </View>
           )}
