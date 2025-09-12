@@ -17,6 +17,7 @@ export default function ChatDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { chats, messagesByChat, sendText, markRead, reactMessage } = useChat();
   const { mode } = useRuntimeConfig();
+  const { token } = useAuth();
   const insets = useSafeAreaInsets();
   const [text, setText] = React.useState("");
   const [isUploadingMedia, setIsUploadingMedia] = React.useState(false);
