@@ -13,7 +13,7 @@ import { router } from "expo-router";
 export default function FriendsScreen() {
   const { friends, requests, presence, wsConnectionStatus, sendRequest, acceptRequest, rejectRequest, refresh } = useFriends();
   const { syncEnabled } = useRuntimeConfig();
-  const { palette } = useAuth();
+  const { palette, token } = useAuth();
   const { openDirectChat } = useChat();
   const insets = useSafeAreaInsets();
   const [friendQuery, setFriendQuery] = React.useState("");
