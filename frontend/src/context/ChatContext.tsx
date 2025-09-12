@@ -95,9 +95,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [backendChats, setBackendChats] = useState<Chat[]>([]);
   const [backendMessages, setBackendMessages] = useState<Record<string, Message[]>>({});
 
-  // Use local or backend data based on mode
-  const chats = mode === "sync" ? backendChats : localChats;
-  const messagesByChat = mode === "sync" ? backendMessages : localMessages;
+  // Use local or backend data based on mode (merge both for hybrid support)
+  const chats = mode === "sync" ? [...backendChats, ...localChats] : localChats;
+  const messagesByChat = mode === "sync" ? {...backendMessages, ...localMessages} : localMessages;
   
   console.log("🔍 CHAT CONTEXT RENDER:", {
     mode,
