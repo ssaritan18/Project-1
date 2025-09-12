@@ -656,7 +656,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     },
 
     sendVoice: async (chatId: string, audioUri: string, duration: number) => {
-      if (mode === "sync" && isAuthenticated) {
+      if (mode === "sync" && token) {
         try {
           console.log("🎙️ Sending voice message:", { chatId, duration });
           
