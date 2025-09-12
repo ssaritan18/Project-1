@@ -231,7 +231,7 @@ export default function ChatDetail() {
           console.log('🔍 Starting upload process...');
           
           // Debug: Check token first
-          const token = await AsyncStorage.getItem('token');
+          const token = await AsyncStorage.getItem('adhders_token_v1');
           console.log('🔑 Token from AsyncStorage:', token ? 'Found' : 'Not found');
           
           if (!token) {
