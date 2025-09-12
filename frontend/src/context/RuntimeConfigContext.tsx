@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getStoredToken } from "../utils/tokenHelper";
 
 const KEY_SYNC = "adhders_sync_enabled";
 const KEY_WS = "adhders_ws_enabled";
