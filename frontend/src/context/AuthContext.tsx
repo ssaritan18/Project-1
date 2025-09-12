@@ -229,13 +229,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     console.log("🔄 State cleared, removing from storage...");
     
-    if (PERSIST_ENABLED) { 
+    if (PERSIST_ENABLED) {
       try {
-        // Clear all auth-related items from storage
+        // Clear user data from storage
         await AsyncStorage.removeItem(KEYS.user); 
-        await AsyncStorage.removeItem(KEYS.token);
-        // Also clear any other auth-related items
-        await AsyncStorage.multiRemove([KEYS.user, KEYS.token]);
+        await saveJSON(KEYS.user, null);
         console.log("✅ SignOut completed - storage cleared");
       } catch (error) {
         console.error("❌ Error clearing storage during signOut:", error);
