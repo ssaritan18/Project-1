@@ -1,18 +1,14 @@
 import { Alert } from "react-native";
 import { router } from "expo-router";
+import { getStoredToken } from "../utils/tokenHelper";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
-export const uploadImage = async (contextToken: string | null, chatId: string, file: File | any) => {
-  // Always get fresh token from localStorage (bypass context issues)
-  const token = localStorage.getItem('adhders_token_v1');
-  console.log("🔑 Upload helper token check:", {
-    contextToken: contextToken ? 'Available' : 'Missing',
-    localStorageToken: token ? 'Available' : 'Missing',
-    usingToken: token ? 'localStorage' : 'none'
-  });
-
+export const uploadImage = async (chatId: string, file: File | any) => {
+  const token = getStoredToken();
+  
   if (!token) {
+    console.error("❌ No token available, cannot upload");
     Alert.alert(
       "Authentication Required",
       "Please login to upload media.",
@@ -23,6 +19,12 @@ export const uploadImage = async (contextToken: string | null, chatId: string, f
     );
     return null;
   }
+
+  console.log("🔍 About to call uploadImage with:", {
+    token: "Available",
+    chatId,
+    fileSize: file.size || "unknown"
+  });
 
   const formData = new FormData();
   formData.append("file", file);
