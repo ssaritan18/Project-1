@@ -136,7 +136,11 @@ export default function FriendsScreen() {
               </View>
               <View style={styles.friendActions}>
                 <TouchableOpacity 
-                  onPress={() => startChat(friend.id, friend.name || friend.email)}
+                  onPress={() => {
+                    console.log('🖱️ Chat button pressed!');
+                    console.log('🔍 Friend data:', { id: friend.id, name: friend.name, email: friend.email });
+                    startChat(friend.id, friend.name || friend.email);
+                  }}
                   style={styles.actionBtn}
                 >
                   <LinearGradient colors={['#8B5CF6', '#A855F7']} style={styles.actionBtnGradient}>
