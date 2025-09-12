@@ -181,8 +181,15 @@ export default function ChatDetail() {
                   await sendText(id, `📎 ${file.name} - ${result.media_url}`);
                   Alert.alert("Success", "Media uploaded and sent successfully!");
                 } else {
-                  const error = await response.json();
-                  Alert.alert("Upload Failed", error.detail || "Failed to upload media");
+                  let errorMessage = "Failed to upload media";
+                  try {
+                    const error = await response.json();
+                    errorMessage = error.detail || error.message || "Failed to upload media";
+                  } catch (parseError) {
+                    // If response is not JSON, use status text
+                    errorMessage = `Upload failed (${response.status}): ${response.statusText || 'Server error'}`;
+                  }
+                  Alert.alert("Upload Failed", errorMessage);
                 }
               } catch (error) {
                 console.error('Upload error:', error);
