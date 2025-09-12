@@ -149,16 +149,8 @@ export default function ChatDetail() {
   const handleMediaUpload = async () => {
     setIsUploadingMedia(true);
     
-    // Get fresh token from localStorage
-    const freshToken = localStorage.getItem('adhders_token_v1');
-    console.log("🔑 Chat upload token check:", {
-      contextToken: token ? 'Available' : 'Missing',
-      localStorageToken: freshToken ? 'Available' : 'Missing',
-      usingToken: freshToken ? 'localStorage' : 'none'
-    });
-    
     try {
-      await pickImageAndUpload(freshToken, id, (result) => {
+      await pickImageAndUpload(id, (result) => {
         console.log("🎯 Upload callback triggered with result:", result);
         if (result) {
           console.log("📨 About to send message with media URL:", result.media_url);
