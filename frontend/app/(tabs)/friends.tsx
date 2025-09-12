@@ -111,6 +111,7 @@ export default function FriendsScreen() {
 
   const renderFriendItem = (friend: any) => {
     const isOnline = presence[friend.id]?.status === 'online';
+    console.log('🎨 Rendering friend item:', { friend, isOnline });
     return (
       <View key={friend.id} style={styles.friendItem}>
         <LinearGradient
