@@ -40,7 +40,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [palette, setPaletteState] = useState<Palette>({ primary: "#A3C9FF", secondary: "#FFCFE1", accent: "#B8F1D9" });
-  const [token, setToken] = useState<string | null>(null);
+  const [token, _setToken] = useState<string | null>(() => {
+    // Initialize token from localStorage on web, AsyncStorage on mobile
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(KEYS.token);
+    }
+    return null;
+  });
+
+  const setToken = (t: string | null) => {
+    _setToken(t);
+    if (t) {
+      // Persist token to storage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(KEYS.token, t);
+        console.log('💾 Token saved to localStorage with key:', KEYS.token);
+      }
+      setAuthToken(t);
+      saveJSON(KEYS.token, t); // Also save via saveJSON for mobile compatibility
+    } else {
+      // Clear token from storage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(KEYS.token);
+        console.log('🗑️ Token cleared from localStorage');
+      }
+      setAuthToken(null);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -49,16 +75,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (storedPalette) setPaletteState(storedPalette);
         const storedUser = await loadJSON<User | null>(KEYS.user, null);
         if (storedUser) { setUser(storedUser); setAuthed(true); }
-        if (true) {
+        
+        // Load token from storage if not already loaded
+        if (!token) {
           const t = await loadJSON<string | null>(KEYS.token, null);
           if (t) {
-            setToken(t); setAuthToken(t);
+            setToken(t);
             try {
               const me = await api.get("/me");
               const u: User = { name: me.data.name, email: me.data.email, photoBase64: me.data.photo_base64 };
               setUser(u); setAuthed(true);
               if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
-            } catch {}
+            } catch (error) {
+              console.warn('⚠️ Token validation failed:', error);
+              setToken(null); // Clear invalid token
+            }
           }
         }
       }
