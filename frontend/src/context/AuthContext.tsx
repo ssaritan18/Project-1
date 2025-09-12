@@ -158,6 +158,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const token = res.data.access_token;
           setToken(token); // This will handle persistence to both memory and localStorage
           
+          // Also ensure localStorage is set for SimpleAuthContext
+          if (typeof window !== 'undefined') {
+            localStorage.setItem("adhders_token_v1", token);
+            console.log('🔐 Main AuthContext: Token set in localStorage');
+          }
+          
           // Try to get user profile
           try {
             const profileRes = await api.get("/auth/me");
