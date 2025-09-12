@@ -133,7 +133,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
     };
 
     // Connect if sync is enabled and we have a token
-    if (syncEnabled && token) {
+    if (syncEnabled && getStoredToken()) {
       console.log('🚀 RuntimeConfig: Initiating WebSocket connection...');
       connectWebSocket();
     } else {
