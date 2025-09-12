@@ -143,10 +143,14 @@ export default function ChatDetail() {
     
     try {
       await pickImageAndUpload(token, id, (result) => {
+        console.log("🎯 Upload callback triggered with result:", result);
         if (result) {
+          console.log("📨 About to send message with media URL:", result.media_url);
           // Send message with media
           sendText(id, `📎 Media uploaded - ${result.media_url}`);
           Alert.alert("Success", "Media uploaded and sent successfully!");
+        } else {
+          console.log("❌ No result in callback");
         }
       });
     } catch (error) {
