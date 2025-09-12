@@ -362,9 +362,9 @@ def run_direct_chat_upload_test():
     
     print(f"✅ File serving successful - Content-Type: {serve_result['content_type']}, Size: {serve_result['size']} bytes")
     
-    # PHASE 6: Test Upload from Second User
+    # PHASE 7: Test Upload from Second User
     print("\n" + "=" * 60)
-    print("PHASE 6: TEST UPLOAD FROM SECOND USER")
+    print("PHASE 7: TEST UPLOAD FROM SECOND USER")
     print("=" * 60)
     
     # Test upload from user2 to the same direct chat
