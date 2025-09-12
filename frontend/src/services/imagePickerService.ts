@@ -28,7 +28,7 @@ export const pickImageAndUpload = async (chatId: string, onSuccess?: (result: an
         const file = (event.target as HTMLInputElement).files?.[0];
         if (file) {
           console.log("📁 File selected:", file.name, file.type);
-          console.log("🔍 About to call uploadImage with:", { token: token ? 'Available' : 'Missing', chatId, fileSize: file.size });
+          console.log("🔍 About to call uploadImage with:", { chatId, fileSize: file.size });
           
           const result = await uploadImage(chatId, file);
           console.log("📡 Upload result:", result);
