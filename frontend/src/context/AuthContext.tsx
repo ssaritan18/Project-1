@@ -128,6 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setToken(token);
           setAuthToken(token);
           await saveJSON(KEYS.token, token);
+          console.log('🔐 Token saved to storage with key:', KEYS.token);
           
           // Try to get user profile
           try {
