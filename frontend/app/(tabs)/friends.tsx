@@ -70,13 +70,19 @@ export default function FriendsScreen() {
   };
 
   const startChat = async (friendId: string, friendName: string) => {
+    console.log(`🚀 startChat function called with:`, { friendId, friendName });
+    console.log(`🔍 Current friends list:`, safeFriends);
+    console.log(`🔍 openDirectChat function:`, typeof openDirectChat);
+    
     try {
       console.log(`💬 Starting chat with ${friendName} (${friendId})`);
       console.log('🔍 Current authentication state:', { 
         token: token ? 'Available' : 'Missing',
+        tokenValue: token?.substring(0, 10) + '...',
         syncEnabled 
       });
       
+      console.log('📞 Calling openDirectChat...');
       const chatId = await openDirectChat(friendId);
       console.log(`✅ Chat opened with ID: ${chatId}`);
       
@@ -85,10 +91,20 @@ export default function FriendsScreen() {
       console.log(`🔄 Attempting navigation to: ${chatPath}`);
       
       // Use replace instead of push to avoid navigation stack issues
+      console.log('🚁 About to call router.replace...');
       router.replace(chatPath);
       console.log(`✅ Navigation completed to: ${chatPath}`);
+      
+      // Show success message
+      Alert.alert("Success", `Chat started with ${friendName}!`);
+      
     } catch (error) {
       console.error("❌ Failed to start chat:", error);
+      console.error("❌ Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
       Alert.alert("❌ Error", `Failed to start chat: ${error.message || 'Unknown error'}`);
     }
   };
