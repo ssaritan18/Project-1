@@ -811,24 +811,29 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           console.log("✅ Chat: Opened direct chat successfully:", convertedChat.id);
           return convertedChat.id;
         } catch (error) {
-          console.error("❌ Chat: Failed to open direct chat:", error);
-          throw error;
+          console.error("❌ Chat: Backend failed, falling back to local mode:", error);
+          // FALLBACK TO LOCAL MODE
         }
-      } else {
-        console.log("📱 Local mode - creating local direct chat");
-        // Local mode fallback
-        const id = `direct_${friendId}`;
-        const newChat = { id, title: "Direct Chat", members: ["You", "Friend"], unread: 0, inviteCode: "" };
-        
-        setLocalChats(prev => {
-          const existing = prev.find(c => c.id === id);
-          if (existing) return prev;
-          return [newChat, ...prev];
-        });
-        setLocalMessages(prev => ({ ...prev, [id]: [] }));
-        
-        return id;
       }
+      
+      // Local mode or fallback
+      console.log("📱 Local mode - creating local direct chat");
+      const id = `direct_${friendId}`;
+      const newChat = { id, title: "Direct Chat", members: ["You", "Friend"], unread: 0, inviteCode: "" };
+      
+      setLocalChats(prev => {
+        const existing = prev.find(c => c.id === id);
+        if (existing) {
+          console.log("📝 Local chat already exists");
+          return prev;
+        }
+        console.log("➕ Adding new local chat");
+        return [newChat, ...prev];
+      });
+      setLocalMessages(prev => ({ ...prev, [id]: [] }));
+      
+      console.log("✅ Local chat created:", id);
+      return id;
     },
     
     joinByCode: async (code: string) => {
