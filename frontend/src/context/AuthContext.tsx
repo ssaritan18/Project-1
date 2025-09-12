@@ -156,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (res.data?.access_token) {
           const token = res.data.access_token;
-          setToken(token); // This will handle all persistence automatically
+          setToken(token); // This will handle persistence to both memory and localStorage
           
           // Try to get user profile
           try {
