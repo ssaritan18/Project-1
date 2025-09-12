@@ -152,7 +152,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
         setWsEnabled(false);
       }
     };
-  }, [syncEnabled, token]);
+  }, [syncEnabled]);
 
   const setSyncEnabled = async (v: boolean) => {
     setSyncEnabledState(v);
