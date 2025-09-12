@@ -308,7 +308,7 @@ def run_direct_chat_upload_test():
     
     # PHASE 4: Direct Chat Creation Testing
     print("\n" + "=" * 60)
-    print("PHASE 3: DIRECT CHAT CREATION TESTING")
+    print("PHASE 4: DIRECT CHAT CREATION TESTING")
     print("=" * 60)
     
     # Test creating direct chat with user2
