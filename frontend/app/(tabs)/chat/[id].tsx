@@ -158,10 +158,13 @@ export default function ChatDetail() {
                 const formData = new FormData();
                 formData.append('file', file);
                 
+                const token = await AsyncStorage.getItem('token');
+                console.log('🔑 Token for upload:', token ? 'Found' : 'Not found');
+                
                 const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/chats/${id}/upload`, {
                   method: 'POST',
                   headers: {
-                    'Authorization': `Bearer ${await AsyncStorage.getItem('token')}`,
+                    'Authorization': `Bearer ${token}`,
                   },
                   body: formData
                 });
