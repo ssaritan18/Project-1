@@ -248,12 +248,18 @@ export default function ChatDetail() {
         try {
           console.log('🔍 Starting upload process...');
           
-          // Debug: Check token first
-          const token = await AsyncStorage.getItem('adhders_token_v1');
-          console.log('🔑 Token from AsyncStorage:', token ? 'Found' : 'Not found');
+          // Use token from AuthContext (already available in scope)
+          console.log('🔑 Using token from AuthContext:', token ? 'Available' : 'Missing');
           
           if (!token) {
-            Alert.alert("Upload Error", "Please login first to upload media");
+            Alert.alert(
+              "Authentication Required", 
+              "Please login to upload media.", 
+              [
+                { text: "Cancel", style: "cancel" },
+                { text: "Login", onPress: () => router.push("/(auth)/login") }
+              ]
+            );
             return;
           }
           
