@@ -832,7 +832,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     },
     
     joinByCode: async (code: string) => {
-      if (mode === "sync" && isAuthenticated) {
+      if (mode === "sync" && token) {
         try {
           console.log("🔑 Attempting to join GROUP chat with code:", code);
           const joinedChat = await chatAPI.joinGroupChat(code);
