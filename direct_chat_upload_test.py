@@ -326,9 +326,9 @@ def run_direct_chat_upload_test():
     chat_format = direct_chat_result.get("format", "unknown")
     print(f"✅ Direct chat created/accessed: {direct_chat_id} (format: {chat_format})")
     
-    # PHASE 4: Direct Chat Media Upload Testing
+    # PHASE 5: Direct Chat Media Upload Testing
     print("\n" + "=" * 60)
-    print("PHASE 4: DIRECT CHAT MEDIA UPLOAD TESTING")
+    print("PHASE 5: DIRECT CHAT MEDIA UPLOAD TESTING")
     print("=" * 60)
     
     # Generate test image
