@@ -24,9 +24,16 @@ export const pickImageAndUpload = async (token: string | null, chatId: string, o
         const file = (event.target as HTMLInputElement).files?.[0];
         if (file) {
           console.log("📁 File selected:", file.name, file.type);
+          console.log("🔍 About to call uploadImage with:", { token: token ? 'Available' : 'Missing', chatId, fileSize: file.size });
+          
           const result = await uploadImage(token, chatId, file);
+          console.log("📡 Upload result:", result);
+          
           if (result && onSuccess) {
+            console.log("✅ Calling onSuccess callback");
             onSuccess(result);
+          } else {
+            console.log("❌ No result or no callback");
           }
         }
       };
