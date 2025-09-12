@@ -45,11 +45,60 @@ export function hasValidToken(): boolean {
   return !!token;
 }
 
-export function clearStoredToken(): void {
+export function setStoredToken(token: string): void {
+  const TOKEN_KEY = "adhders_token_v1";
+  
+  // Try localStorage first
   try {
-    localStorage.removeItem("adhders_token_v1");
+    localStorage.setItem(TOKEN_KEY, token);
+    console.log("💾 Token saved to localStorage");
+  } catch (err) {
+    console.warn("⚠️ localStorage save failed:", err);
+  }
+  
+  // Also save to sessionStorage
+  try {
+    sessionStorage.setItem(TOKEN_KEY, token);
+    console.log("💾 Token saved to sessionStorage");
+  } catch (err) {
+    console.warn("⚠️ sessionStorage save failed:", err);
+  }
+  
+  // Also save to cookie (30 days expiry)
+  try {
+    const expires = new Date();
+    expires.setDate(expires.getDate() + 30);
+    document.cookie = `${TOKEN_KEY}=${token}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+    console.log("💾 Token saved to cookie");
+  } catch (err) {
+    console.warn("⚠️ cookie save failed:", err);
+  }
+}
+
+export function clearStoredToken(): void {
+  const TOKEN_KEY = "adhders_token_v1";
+  
+  // Clear from localStorage
+  try {
+    localStorage.removeItem(TOKEN_KEY);
     console.log("🗑️ Token cleared from localStorage");
   } catch (err) {
-    console.error("❌ Error clearing token:", err);
+    console.warn("⚠️ localStorage clear failed:", err);
+  }
+  
+  // Clear from sessionStorage
+  try {
+    sessionStorage.removeItem(TOKEN_KEY);
+    console.log("🗑️ Token cleared from sessionStorage");
+  } catch (err) {
+    console.warn("⚠️ sessionStorage clear failed:", err);
+  }
+  
+  // Clear from cookie
+  try {
+    document.cookie = `${TOKEN_KEY}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    console.log("🗑️ Token cleared from cookie");
+  } catch (err) {
+    console.warn("⚠️ cookie clear failed:", err);
   }
 }
