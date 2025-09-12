@@ -18,7 +18,12 @@ const Ctx = createContext<RuntimeConfig | undefined>(undefined);
 
 export function RuntimeConfigProvider({ children, token }: { children: React.ReactNode; token?: string }) {
   const [hydrated, setHydrated] = useState(false);
-  const [syncEnabled, setSyncEnabledState] = useState(false);
+  // Force sync/online mode in production, allow local mode only for development/demo
+  const [syncEnabled, setSyncEnabledState] = useState(() => {
+    // Check if this is production build
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.EXPO_PUBLIC_BACKEND_URL?.includes('preview.emergentagent.com');
+    return isProduction; // Force online mode in production
+  });
   const [wsEnabled, setWsEnabledState] = useState(true);
   const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
 
