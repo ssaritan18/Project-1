@@ -3,6 +3,11 @@ import { Platform, Alert } from "react-native";
 import { uploadImage } from "./chatService";
 
 export const pickImageAndUpload = async (token: string | null, chatId: string, onSuccess?: (result: any) => void) => {
+  console.log("🎯 pickImageAndUpload called with:", {
+    tokenReceived: token ? 'Available' : 'Missing',
+    chatId,
+    hasCallback: !!onSuccess
+  });
   try {
     // İzin kontrolü
     if (Platform.OS !== 'web') {
