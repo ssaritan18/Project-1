@@ -140,6 +140,21 @@ export default function ChatDetail() {
   const handleMediaUpload = async () => {
     try {
       setIsUploadingMedia(true);
+      
+      // Check token first
+      if (!token) {
+        Alert.alert(
+          "Authentication Required", 
+          "Please login to upload media.", 
+          [
+            { text: "Cancel", style: "cancel" },
+            { text: "Login", onPress: () => router.push("/(auth)/login") }
+          ]
+        );
+        setIsUploadingMedia(false);
+        return;
+      }
+
       let pickerResult;
 
       if (Platform.OS === 'web') {
@@ -160,8 +175,7 @@ export default function ChatDetail() {
                 const formData = new FormData();
                 formData.append('file', file);
                 
-                const token = await AsyncStorage.getItem('adhders_token_v1');
-                console.log('🔑 Token for upload:', token ? 'Found' : 'Not found');
+                console.log('🔑 Using token for upload:', token ? 'Available' : 'Missing');
                 
                 const uploadUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/chats/${id}/upload`;
                 console.log('🌐 Upload URL:', uploadUrl);
@@ -178,18 +192,20 @@ export default function ChatDetail() {
                 
                 if (response.ok) {
                   const result = await response.json();
-                  console.log('Upload successful:', result);
+                  console.log('✅ Upload successful:', result);
                   
                   // Send message with media
-                  const messageData = {
-                    content: `📎 ${file.name}`,
-                    type: result.file_type.startsWith('image/') ? 'image' : 'video',
-                    media_url: result.media_url,
-                    media_type: result.file_type
-                  };
-                  
                   await sendText(id, `📎 ${file.name} - ${result.media_url}`);
                   Alert.alert("Success", "Media uploaded and sent successfully!");
+                } else if (response.status === 401) {
+                  Alert.alert(
+                    "Session Expired", 
+                    "Please login again.", 
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      { text: "Login", onPress: () => router.push("/(auth)/login") }
+                    ]
+                  );
                 } else {
                   let errorMessage = "Failed to upload media";
                   try {
@@ -202,8 +218,8 @@ export default function ChatDetail() {
                   Alert.alert("Upload Failed", errorMessage);
                 }
               } catch (error) {
-                console.error('Upload error:', error);
-                Alert.alert("Upload Error", "Failed to upload media. Please try again.");
+                console.error('💥 Upload error:', error);
+                Alert.alert("Network Error", "Failed to upload media. Please check your connection and try again.");
               } finally {
                 setIsUploadingMedia(false);
               }
