@@ -513,7 +513,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       
       const trimmedText = text.trim();
       
-      if (mode === "sync" && isAuthenticated) {
+      if (mode === "sync" && token) {
         try {
           console.log("📤 Sending message to WhatsApp-style backend API...");
           
