@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Upload</title>
+</head>
+<body>
+    <h1>Test Media Upload</h1>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" accept="image/*,video/*">
+        <button type="submit">Upload</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                // Test backend URL
+                const backendUrl = 'https://focus-social.preview.emergentagent.com';
+                console.log('Testing backend URL:', backendUrl);
+                
+                // First test if backend is accessible
+                const testResponse = await fetch(`${backendUrl}/api/`);
+                console.log('Backend test response:', testResponse.status);
+                document.getElementById('result').innerHTML = `Backend test: ${testResponse.status}<br>`;
+                
+                // Try upload (this will fail without auth, but we can see the error)
+                const uploadResponse = await fetch(`${backendUrl}/api/chats/test123/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                console.log('Upload response:', uploadResponse.status);
+                const responseText = await uploadResponse.text();
+                console.log('Upload response text:', responseText);
+                document.getElementById('result').innerHTML += `Upload test: ${uploadResponse.status} - ${responseText}`;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML += `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
