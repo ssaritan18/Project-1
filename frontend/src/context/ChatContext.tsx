@@ -880,7 +880,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     },
     
     reactMessage: async (chatId: string, messageId: string, type: ReactionType) => {
-      if (mode === "sync" && isAuthenticated) {
+      if (mode === "sync" && token) {
         try {
           await chatAPI.reactToMessage(chatId, messageId, type);
           console.log("✅ Chat: Added reaction:", type);
