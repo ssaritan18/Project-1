@@ -179,16 +179,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               };
               setUser(userData);
               await saveJSON(KEYS.user, userData);
-              setAuthed(true);
-              console.log("✅ Login successful, user profile loaded:", userData.name);
+              console.log('✅ User profile set and authenticated');
             }
           } catch (profileError) {
             console.warn("⚠️ Profile fetch failed, using email as name:", profileError);
             const userData = { name: email, email };
             setUser(userData);
             await saveJSON(KEYS.user, userData);
-            setAuthed(true);
+            console.log('✅ Fallback user profile set and authenticated');
           }
+          
+          // Broadcast authentication success
+          window.dispatchEvent(new CustomEvent('authStateChanged', { 
+            detail: { isAuthenticated: true, token } 
+          }));
         } else {
           throw new Error("No access token received");
         }
