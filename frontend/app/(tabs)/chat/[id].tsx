@@ -161,7 +161,12 @@ export default function ChatDetail() {
                 const token = await AsyncStorage.getItem('token');
                 console.log('🔑 Token for upload:', token ? 'Found' : 'Not found');
                 
-                const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/chats/${id}/upload`, {
+                const uploadUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/chats/${id}/upload`;
+                console.log('🌐 Upload URL:', uploadUrl);
+                console.log('📋 Chat ID:', id);
+                console.log('📤 Request method: POST');
+                
+                const response = await fetch(uploadUrl, {
                   method: 'POST',
                   headers: {
                     'Authorization': `Bearer ${token}`,
