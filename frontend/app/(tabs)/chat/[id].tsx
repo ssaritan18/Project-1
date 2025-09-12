@@ -19,6 +19,14 @@ export default function ChatDetail() {
   const { chats, messagesByChat, sendText, markRead, reactMessage } = useChat();
   const { mode } = useRuntimeConfig();
   const { token } = useAuth();
+  
+  // Debug token state
+  React.useEffect(() => {
+    console.log('🔐 Chat page token state:', {
+      token: token ? `Found (${token.substring(0, 20)}...)` : 'Missing',
+      localStorage: localStorage.getItem('adhders_token_v1') ? 'Found' : 'Missing'
+    });
+  }, [token]);
   const insets = useSafeAreaInsets();
   const [text, setText] = React.useState("");
   const [isUploadingMedia, setIsUploadingMedia] = React.useState(false);
