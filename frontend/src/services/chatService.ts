@@ -20,15 +20,20 @@ export const uploadImage = async (token: string | null, chatId: string, file: Fi
   formData.append("file", file);
 
   try {
-    console.log("📤 Starting upload to:", `${BACKEND_URL}/api/chats/${chatId}/upload`);
+    const uploadUrl = `${BACKEND_URL}/api/chats/${chatId}/upload`;
+    console.log("📤 Starting upload to:", uploadUrl);
+    console.log("🔍 Upload details:", { chatId, fileName: file.name, fileSize: file.size, tokenAvailable: !!token });
     
-    const res = await fetch(`${BACKEND_URL}/api/chats/${chatId}/upload`, {
+    const res = await fetch(uploadUrl, {
       method: "POST",
       headers: { 
         Authorization: `Bearer ${token}` 
       },
       body: formData,
     });
+    
+    console.log("📡 Upload response status:", res.status);
+    console.log("📡 Upload response headers:", [...res.headers.entries()]);
 
     if (res.status === 401) {
       Alert.alert(
