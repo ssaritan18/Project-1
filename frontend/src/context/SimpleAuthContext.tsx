@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
+import { getStoredToken, setStoredToken, clearStoredToken } from "../utils/tokenHelper";
 
 interface AuthContextType {
   token: string | null;
@@ -15,19 +16,19 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, _setToken] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem("adhders_token_v1");
+      const stored = getStoredToken();
       console.log('🔐 SimpleAuthContext init token:', stored ? 'Found' : 'Missing');
       return stored;
     }
     return null;
   });
 
-  // Check for token changes in localStorage
+  // Check for token changes with robust storage
   React.useEffect(() => {
     const checkToken = () => {
-      const stored = localStorage.getItem("adhders_token_v1");
+      const stored = getStoredToken();
       if (stored && stored !== token) {
-        console.log('🔄 Token updated from localStorage');
+        console.log('🔄 Token updated from robust storage');
         _setToken(stored);
       }
     };
@@ -40,11 +41,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const setToken = (t: string | null) => {
     _setToken(t);
     if (t) {
-      localStorage.setItem("adhders_token_v1", t);
-      console.log("💾 Token saved to storage with key: adhders_token_v1");
+      setStoredToken(t);
+      console.log("💾 Token saved with robust storage");
     } else {
-      localStorage.removeItem("adhders_token_v1");
-      console.log("🗑️ Token cleared from storage");
+      clearStoredToken();
+      console.log("🗑️ Token cleared with robust storage");
     }
   };
 
