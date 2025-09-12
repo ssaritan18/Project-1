@@ -45,6 +45,19 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
     const storedToken = getStoredToken();
     console.log("🔌 RuntimeConfig: WebSocket effect triggered", { syncEnabled, token: !!storedToken });
     
+    // Listen for auth state changes
+    const handleAuthStateChange = (event: any) => {
+      console.log('🔄 WebSocket: Auth state change detected, reconnecting...');
+      // Trigger reconnection after a short delay to allow token to be stored
+      setTimeout(() => {
+        if (syncEnabled && getStoredToken()) {
+          connectWebSocket();
+        }
+      }, 1000);
+    };
+    
+    window.addEventListener('authStateChanged', handleAuthStateChange);
+    
     let ws: WebSocket | null = null;
     let reconnectTimer: NodeJS.Timeout | null = null;
     let heartbeatTimer: NodeJS.Timeout | null = null;
