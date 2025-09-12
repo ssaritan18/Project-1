@@ -297,10 +297,26 @@ export default function ChatDetail() {
             // Send message with media
             await sendText(id, `📎 ${fileObj.name} - ${result.media_url}`);
             Alert.alert("Success", "Media uploaded and sent successfully!");
+          } else if (response.status === 401) {
+            Alert.alert(
+              "Session Expired", 
+              "Please login again.", 
+              [
+                { text: "Cancel", style: "cancel" },
+                { text: "Login", onPress: () => router.push("/(auth)/login") }
+              ]
+            );
           } else {
-            const errorText = await response.text();
-            console.log('❌ Upload failed:', response.status, errorText);
-            Alert.alert("Upload Failed", `Server error: ${response.status}\n${errorText}`);
+            let errorMessage = "Failed to upload media";
+            try {
+              const errorJson = await response.json();
+              errorMessage = errorJson.detail || errorJson.message || "Failed to upload media";
+            } catch {
+              const errorText = await response.text();
+              errorMessage = `Server error (${response.status}): ${errorText}`;
+            }
+            console.log('❌ Upload failed:', response.status, errorMessage);
+            Alert.alert("Upload Failed", errorMessage);
           }
         } catch (error) {
           console.error('💥 Upload error details:', error);
