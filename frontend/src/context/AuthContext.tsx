@@ -156,10 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (res.data?.access_token) {
           const token = res.data.access_token;
-          setToken(token);
-          setAuthToken(token);
-          await saveJSON(KEYS.token, token);
-          console.log('🔐 Token saved to storage with key:', KEYS.token);
+          setToken(token); // This will handle all persistence automatically
           
           // Try to get user profile
           try {
