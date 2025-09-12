@@ -15,10 +15,27 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, _setToken] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem("adhders_token_v1");
+      const stored = localStorage.getItem("adhders_token_v1");
+      console.log('🔐 SimpleAuthContext init token:', stored ? 'Found' : 'Missing');
+      return stored;
     }
     return null;
   });
+
+  // Check for token changes in localStorage
+  React.useEffect(() => {
+    const checkToken = () => {
+      const stored = localStorage.getItem("adhders_token_v1");
+      if (stored && stored !== token) {
+        console.log('🔄 Token updated from localStorage');
+        _setToken(stored);
+      }
+    };
+    
+    // Check every 2 seconds
+    const interval = setInterval(checkToken, 2000);
+    return () => clearInterval(interval);
+  }, [token]);
 
   const setToken = (t: string | null) => {
     _setToken(t);
