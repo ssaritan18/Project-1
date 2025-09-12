@@ -197,9 +197,9 @@ def run_direct_chat_upload_test():
     print("🎯 DIRECT CHAT UPLOAD TEST - SPECIFIC REQUEST")
     print("=" * 80)
     
-    # Test users
-    user1 = {"name": "DirectTester1", "email": "directtester1@example.com", "password": "TestPass123!"}
-    user2 = {"name": "DirectTester2", "email": "directtester2@example.com", "password": "TestPass123!"}
+    # Test users (using existing users from previous test)
+    user1 = {"name": "MediaTester1", "email": "mediatester1@example.com", "password": "TestPass123!"}
+    user2 = {"name": "MediaTester2", "email": "mediatester2@example.com", "password": "TestPass123!"}
     
     tokens = {}
     user_ids = {}
