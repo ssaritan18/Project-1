@@ -203,8 +203,10 @@ class DirectChatUploadTester:
     def test_get_uploaded_media(self, media_url: str, user_name: str) -> Dict:
         """Test retrieving uploaded media file"""
         # Extract filename from media_url
-        if media_url.startswith('/'):
-            full_url = f"{self.base_url.replace('/api', '')}{media_url}"
+        if media_url.startswith('/uploads/'):
+            full_url = f"{self.base_url}{media_url}"
+        elif media_url.startswith('/'):
+            full_url = f"{self.base_url}{media_url}"
         else:
             full_url = media_url
         
