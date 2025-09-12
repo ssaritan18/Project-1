@@ -181,7 +181,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await saveJSON(KEYS.user, userData);
             setAuthed(true);
           }
-        }
         } else {
           throw new Error("No access token received");
         }
