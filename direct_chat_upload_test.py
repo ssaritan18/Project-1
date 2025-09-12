@@ -389,9 +389,9 @@ def run_direct_chat_upload_test():
     else:
         print(f"⚠️ Second user upload failed: {upload_result2.get('error', 'Unknown error')}")
     
-    # PHASE 7: Results Summary
+    # PHASE 8: Results Summary
     print("\n" + "=" * 60)
-    print("PHASE 7: DIRECT CHAT UPLOAD TEST RESULTS")
+    print("PHASE 8: DIRECT CHAT UPLOAD TEST RESULTS")
     print("=" * 60)
     
     print(f"📊 DIRECT CHAT FUNCTIONALITY TEST RESULTS:")
