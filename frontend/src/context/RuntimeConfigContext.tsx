@@ -42,7 +42,8 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
 
   // WebSocket management
   useEffect(() => {
-    console.log("🔌 RuntimeConfig: WebSocket effect triggered", { syncEnabled, token: !!token });
+    const storedToken = getStoredToken();
+    console.log("🔌 RuntimeConfig: WebSocket effect triggered", { syncEnabled, token: !!storedToken });
     
     let ws: WebSocket | null = null;
     let reconnectTimer: NodeJS.Timeout | null = null;
