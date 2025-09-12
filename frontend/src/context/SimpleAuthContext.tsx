@@ -23,8 +23,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return null;
   });
 
-  // Check for token changes with robust storage
+  // Listen for auth state changes and check token storage
   React.useEffect(() => {
+    const handleAuthStateChange = (event: any) => {
+      console.log('🔄 Auth state change detected:', event.detail);
+      if (event.detail.isAuthenticated && event.detail.token) {
+        _setToken(event.detail.token);
+        console.log('✅ Token synchronized from auth event');
+      }
+    };
+    
     const checkToken = () => {
       const stored = getStoredToken();
       if (stored && stored !== token) {
@@ -33,9 +41,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
     
-    // Check every 2 seconds
+    // Listen for custom auth events
+    window.addEventListener('authStateChanged', handleAuthStateChange);
+    
+    // Also check storage periodically as fallback
     const interval = setInterval(checkToken, 2000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      window.removeEventListener('authStateChanged', handleAuthStateChange);
+      clearInterval(interval);
+    };
   }, [token]);
 
   const setToken = (t: string | null) => {
