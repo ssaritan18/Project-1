@@ -75,7 +75,7 @@ export const pickImageAndUpload = async (chatId: string, onSuccess?: (result: an
   }
 };
 
-export const pickCameraAndUpload = async (token: string | null, chatId: string, onSuccess?: (result: any) => void) => {
+export const pickCameraAndUpload = async (chatId: string, onSuccess?: (result: any) => void) => {
   try {
     if (Platform.OS === 'web') {
       Alert.alert("Not Supported", "Camera is not supported on web. Please use gallery.");
