@@ -30,7 +30,7 @@ export const pickImageAndUpload = async (chatId: string, onSuccess?: (result: an
           console.log("📁 File selected:", file.name, file.type);
           console.log("🔍 About to call uploadImage with:", { token: token ? 'Available' : 'Missing', chatId, fileSize: file.size });
           
-          const result = await uploadImage(token, chatId, file);
+          const result = await uploadImage(chatId, file);
           console.log("📡 Upload result:", result);
           
           if (result && onSuccess) {
