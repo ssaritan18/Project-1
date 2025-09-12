@@ -747,7 +747,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     },
     
     createGroup: async (title: string, members: string[] = []) => {
-      if (mode === "sync" && isAuthenticated) {
+      if (mode === "sync" && token) {
         try {
           const newChat = await chatAPI.createGroupChat(title);
           const convertedChat = convertBackendChat(newChat);
