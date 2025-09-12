@@ -159,6 +159,47 @@ class DirectChatUploadTester:
             self.log(f"❌ Media upload failed: {response.status_code} - {response.text}", "ERROR")
             return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
 
+    def test_friends_requests(self, token: str, user_name: str) -> Dict:
+        """Test getting pending friend requests"""
+        url = f"{self.base_url}/friends/requests"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        self.log(f"Testing friends/requests for {user_name}")
+        response = self.session.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "requests" in data:
+                self.log(f"✅ Friends requests successful for {user_name} - found {len(data['requests'])} requests")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Friends requests response missing 'requests' field", "ERROR")
+                return {"success": False, "error": "Missing 'requests' field in response"}
+        else:
+            self.log(f"❌ Friends requests failed for {user_name}: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
+    def test_friends_accept(self, token: str, request_id: str, user_name: str) -> Dict:
+        """Test accepting friend request"""
+        url = f"{self.base_url}/friends/accept"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {"request_id": request_id}
+        
+        self.log(f"Testing friend accept by {user_name} for request {request_id}")
+        response = self.session.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "accepted" in data and data["accepted"]:
+                self.log(f"✅ Friend accept successful by {user_name}")
+                return {"success": True, "data": data}
+            else:
+                self.log(f"❌ Friend accept response missing 'accepted: true'", "ERROR")
+                return {"success": False, "error": "Missing 'accepted: true' in response"}
+        else:
+            self.log(f"❌ Friend accept failed by {user_name}: {response.status_code} - {response.text}", "ERROR")
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+
     def test_get_uploaded_media(self, media_url: str, user_name: str) -> Dict:
         """Test retrieving uploaded media file"""
         # Extract filename from media_url
