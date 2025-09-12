@@ -9,7 +9,12 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs access to camera to take photos for chat messages.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to photo library to select images for chat messages.",
+        "NSMicrophoneUsageDescription": "This app needs access to microphone for voice messages."
+      }
     },
     "android": {
       "package": "com.adhders.socialclub",
