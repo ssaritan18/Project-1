@@ -105,7 +105,7 @@ export const pickCameraAndUpload = async (token: string | null, chatId: string, 
         name: `photo_${Date.now()}.jpg`
       } as any;
 
-      const result = await uploadImage(token, chatId, fileObj);
+      const result = await uploadImage(chatId, fileObj);
       if (result && onSuccess) {
         onSuccess(result);
       }
