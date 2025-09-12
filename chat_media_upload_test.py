@@ -146,9 +146,9 @@ class ChatMediaUploadTester:
 
     def test_file_serving(self, media_url: str) -> Dict:
         """Test that uploaded files can be retrieved via static file serving"""
-        # Convert relative URL to full URL
+        # Convert relative URL to full URL with API prefix
         if media_url.startswith('/'):
-            full_url = f"https://focus-social.preview.emergentagent.com{media_url}"
+            full_url = f"https://focus-social.preview.emergentagent.com/api{media_url}"
         else:
             full_url = media_url
             
