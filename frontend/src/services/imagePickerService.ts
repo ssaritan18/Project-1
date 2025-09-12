@@ -64,7 +64,7 @@ export const pickImageAndUpload = async (chatId: string, onSuccess?: (result: an
         name: asset.fileName || `media_${Date.now()}.${asset.type === 'image' ? 'jpg' : 'mp4'}`
       } as any;
 
-      const result = await uploadImage(token, chatId, fileObj);
+      const result = await uploadImage(chatId, fileObj);
       if (result && onSuccess) {
         onSuccess(result);
       }
