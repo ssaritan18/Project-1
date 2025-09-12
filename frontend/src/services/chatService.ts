@@ -3,7 +3,15 @@ import { router } from "expo-router";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
-export const uploadImage = async (token: string | null, chatId: string, file: File | any) => {
+export const uploadImage = async (contextToken: string | null, chatId: string, file: File | any) => {
+  // Always get fresh token from localStorage (bypass context issues)
+  const token = localStorage.getItem('adhders_token_v1');
+  console.log("🔑 Upload helper token check:", {
+    contextToken: contextToken ? 'Available' : 'Missing',
+    localStorageToken: token ? 'Available' : 'Missing',
+    usingToken: token ? 'localStorage' : 'none'
+  });
+
   if (!token) {
     Alert.alert(
       "Authentication Required",
