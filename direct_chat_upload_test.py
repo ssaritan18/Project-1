@@ -350,9 +350,9 @@ def run_direct_chat_upload_test():
     media_url = upload_result["data"]["media_url"]
     print(f"✅ Direct chat media upload successful: {media_url}")
     
-    # PHASE 5: File Serving Verification
+    # PHASE 6: File Serving Verification
     print("\n" + "=" * 60)
-    print("PHASE 5: FILE SERVING VERIFICATION")
+    print("PHASE 6: FILE SERVING VERIFICATION")
     print("=" * 60)
     
     serve_result = tester.test_get_uploaded_media(media_url, user1["name"])
