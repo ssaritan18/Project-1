@@ -13,7 +13,7 @@ import time
 from typing import Dict, Optional, List
 
 # Base URL from frontend .env
-BASE_URL = "https://adhd-tools-app.preview.emergentagent.com/api"
+BASE_URL = "https://focus-social.preview.emergentagent.com/api"
 WS_URL = "wss://adhd-social-chat.preview.emergentagent.com/api/ws"
 
 class APITester:
@@ -7179,7 +7179,7 @@ def run_comprehensive_community_backend_test():
     print("🔍 Testing backend readiness for production mode:")
     
     # Verify all API endpoints are accessible via the production URL
-    production_url = "https://adhd-tools-app.preview.emergentagent.com"
+    production_url = "https://focus-social.preview.emergentagent.com"
     print(f"✅ Backend accessible via production URL: {production_url}")
     
     # Test API response times and reliability
