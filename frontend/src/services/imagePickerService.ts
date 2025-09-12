@@ -2,9 +2,8 @@ import * as ImagePicker from "expo-image-picker";
 import { Platform, Alert } from "react-native";
 import { uploadImage } from "./chatService";
 
-export const pickImageAndUpload = async (token: string | null, chatId: string, onSuccess?: (result: any) => void) => {
+export const pickImageAndUpload = async (chatId: string, onSuccess?: (result: any) => void) => {
   console.log("🎯 pickImageAndUpload called with:", {
-    tokenReceived: token ? 'Available' : 'Missing',
     chatId,
     hasCallback: !!onSuccess
   });
