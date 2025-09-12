@@ -77,7 +77,15 @@ export const uploadImage = async (contextToken: string | null, chatId: string, f
   }
 };
 
-export const sendMessage = async (token: string | null, chatId: string, text: string) => {
+export const sendMessage = async (contextToken: string | null, chatId: string, text: string) => {
+  // Always get fresh token from localStorage (bypass context issues)
+  const token = localStorage.getItem('adhders_token_v1');
+  console.log("🔑 Message helper token check:", {
+    contextToken: contextToken ? 'Available' : 'Missing',
+    localStorageToken: token ? 'Available' : 'Missing',
+    usingToken: token ? 'localStorage' : 'none'
+  });
+
   if (!token) {
     Alert.alert(
       "Authentication Required",
