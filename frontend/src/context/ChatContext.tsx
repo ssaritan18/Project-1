@@ -778,7 +778,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     openDirectChat: async (friendId: string) => {
       console.log("💬 openDirectChat called with friendId:", friendId);
       
-      if (mode === "sync" && isAuthenticated) {
+      if (mode === "sync" && token) {
         try {
           console.log("📡 Making API call to open direct chat...");
           const chat = await chatAPI.openDirectChat(friendId);
