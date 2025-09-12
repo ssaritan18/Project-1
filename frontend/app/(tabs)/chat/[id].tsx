@@ -236,7 +236,7 @@ export default function ChatDetail() {
           console.log('📄 File object:', fileObj);
           formData.append('file', fileObj);
           
-          const uploadUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL}/chats/${id}/upload`;
+          const uploadUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/chats/${id}/upload`;
           console.log('🌐 Upload URL:', uploadUrl);
           
           const response = await fetch(uploadUrl, {
