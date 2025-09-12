@@ -52,13 +52,8 @@ export default function Login() {
         await AsyncStorage.removeItem(REMEMBER_EMAIL_KEY);
       }
 
-      const credentials = {
-        email: email.trim(),
-        name: name.trim() || email.trim().split('@')[0], // fallback to email username
-        password: password.trim()
-      };
-      
-      await signIn(credentials);
+      // Use login() method which handles token storage
+      await login(email.trim(), password.trim());
       router.replace("/(tabs)");
     } catch (error) {
       console.error("Login error:", error);
