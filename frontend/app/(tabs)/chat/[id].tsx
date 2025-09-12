@@ -158,7 +158,7 @@ export default function ChatDetail() {
                 const formData = new FormData();
                 formData.append('file', file);
                 
-                const token = await AsyncStorage.getItem('token');
+                const token = await AsyncStorage.getItem('adhders_token_v1');
                 console.log('🔑 Token for upload:', token ? 'Found' : 'Not found');
                 
                 const uploadUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/chats/${id}/upload`;
