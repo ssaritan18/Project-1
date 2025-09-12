@@ -158,10 +158,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const token = res.data.access_token;
           setToken(token); // This will handle persistence to both memory and localStorage
           
-          // Use robust token storage
-          const { setStoredToken } = await import('../utils/tokenHelper');
-          setStoredToken(token);
-          console.log('🔐 Main AuthContext: Token set with multi-storage fallback');
+          // Use robust token storage - import at top instead of dynamic import
+          console.log('🔐 Main AuthContext: Token will be set via SimpleAuthContext');
         }
           
           // Try to get user profile
