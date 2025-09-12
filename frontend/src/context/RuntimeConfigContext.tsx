@@ -158,6 +158,9 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
     // Cleanup on unmount or dependency change
     return () => {
       console.log('🧹 RuntimeConfig: Cleaning up WebSocket...');
+      
+      window.removeEventListener('authStateChanged', handleAuthStateChange);
+      
       if (reconnectTimer) clearTimeout(reconnectTimer);
       if (heartbeatTimer) clearInterval(heartbeatTimer);
       
