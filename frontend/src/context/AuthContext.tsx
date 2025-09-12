@@ -160,7 +160,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           // Use robust token storage - import at top instead of dynamic import
           console.log('🔐 Main AuthContext: Token will be set via SimpleAuthContext');
-        }
           
           // Try to get user profile
           try {
@@ -182,6 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await saveJSON(KEYS.user, userData);
             setAuthed(true);
           }
+        }
         } else {
           throw new Error("No access token received");
         }
