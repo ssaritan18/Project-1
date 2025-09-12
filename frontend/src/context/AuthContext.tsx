@@ -156,10 +156,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (res.data?.access_token) {
           const token = res.data.access_token;
-          setToken(token); // This will handle persistence to both memory and localStorage
+          console.log('🔐 Login successful, setting token and auth state');
           
-          // Use robust token storage - import at top instead of dynamic import
-          console.log('🔐 Main AuthContext: Token will be set via SimpleAuthContext');
+          // Immediately set authentication state
+          setToken(token);
+          setAuthed(true);
+          
+          // Force token storage with robust helper
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('adhders_token_v1', token);
+            sessionStorage.setItem('adhders_token_v1', token);
+            console.log('💾 Emergency: Token forced to storage');
+          }
           
           // Try to get user profile
           try {
