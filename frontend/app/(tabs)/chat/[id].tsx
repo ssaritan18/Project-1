@@ -8,6 +8,7 @@ import { useChat } from "../../../src/context/ChatContext";
 import { useRuntimeConfig } from "../../../src/context/RuntimeConfigContext";
 import { useAuth } from "../../../src/context/SimpleAuthContext";
 import { pickImageAndUpload, pickCameraAndUpload } from "../../../src/services/imagePickerService";
+import { hasValidToken } from "../../../src/utils/tokenHelper";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProfileAvatar } from "../../../src/components/ProfileAvatar";
