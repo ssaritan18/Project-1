@@ -52,16 +52,17 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
     const reconnectDelay = 3000; // 3 seconds
 
     const connectWebSocket = () => {
-      if (!syncEnabled || !token) {
-        console.log("🔌 RuntimeConfig: Skipping WebSocket - not ready", { syncEnabled, hasToken: !!token });
+      const storedToken = getStoredToken();
+      if (!syncEnabled || !storedToken) {
+        console.log("🔌 RuntimeConfig: Skipping WebSocket - not ready", { syncEnabled, hasToken: !!storedToken });
         setWebSocket(null);
         setWsEnabled(false);
         return;
       }
 
       try {
-        const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${token}`;
-        console.log('🔌 RuntimeConfig: Connecting WebSocket:', wsUrl.replace(token, 'TOKEN_HIDDEN'));
+        const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${storedToken}`;
+        console.log('🔌 RuntimeConfig: Connecting WebSocket:', wsUrl.replace(storedToken, 'TOKEN_HIDDEN'));
         
         ws = new WebSocket(wsUrl);
         
