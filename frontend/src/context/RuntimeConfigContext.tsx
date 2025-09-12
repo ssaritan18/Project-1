@@ -60,6 +60,8 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
         setWsEnabled(false);
         return;
       }
+      
+      console.log("🔑 WebSocket connecting with token:", storedToken ? 'Available' : 'Missing');
 
       try {
         const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${storedToken}`;
