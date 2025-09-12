@@ -267,13 +267,37 @@ def run_direct_chat_upload_test():
         user_ids[user["email"]] = me_result["data"]["_id"]
         print(f"✅ User {user['name']} authenticated successfully - ID: {user_ids[user['email']]}")
     
-    # PHASE 2: List Existing Chats
+    # PHASE 2: Friend Request Handling
     print("\n" + "=" * 60)
-    print("PHASE 2: LIST EXISTING CHATS")
+    print("PHASE 2: FRIEND REQUEST HANDLING")
     print("=" * 60)
     
     user1_email = user1["email"]
     user2_email = user2["email"]
+    
+    # Check for pending friend requests for user2 (ssaritan2)
+    requests_result = tester.test_friends_requests(tokens[user2_email], user2["name"])
+    if requests_result["success"]:
+        requests = requests_result["data"]["requests"]
+        print(f"📋 Found {len(requests)} pending friend requests for {user2['name']}")
+        
+        # Accept the first request (should be from user1)
+        if requests:
+            request_id = requests[0]["_id"]
+            accept_result = tester.test_friends_accept(tokens[user2_email], request_id, user2["name"])
+            if accept_result["success"]:
+                print(f"✅ Friend request accepted successfully")
+            else:
+                print(f"❌ Failed to accept friend request: {accept_result.get('error', 'Unknown error')}")
+        else:
+            print("⚠️ No pending friend requests found")
+    else:
+        print(f"❌ Failed to get friend requests: {requests_result.get('error', 'Unknown error')}")
+    
+    # PHASE 3: List Existing Chats
+    print("\n" + "=" * 60)
+    print("PHASE 3: LIST EXISTING CHATS")
+    print("=" * 60)
     
     chat_list_result = tester.test_list_chats(tokens[user1_email], user1["name"])
     if chat_list_result["success"]:
@@ -282,7 +306,7 @@ def run_direct_chat_upload_test():
         for chat in direct_chats:
             print(f"  - {chat.get('_id', 'unknown')} (type: {chat.get('type', 'unknown')})")
     
-    # PHASE 3: Direct Chat Creation Testing
+    # PHASE 4: Direct Chat Creation Testing
     print("\n" + "=" * 60)
     print("PHASE 3: DIRECT CHAT CREATION TESTING")
     print("=" * 60)
