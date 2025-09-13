@@ -2922,8 +2922,8 @@ async def get_friends_list(user=Depends(get_current_user)):
         logger.error(f"❌ Get friends list error: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to get friends list: {str(e)}")
 
-# WebSocket connection handler with real-time events
-@app.websocket("/api/ws")
+# WebSocket connection handler with real-time events  
+@app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket, token: str):
     """Enhanced WebSocket endpoint with real-time friend & chat events"""
     try:
