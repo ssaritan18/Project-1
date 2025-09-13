@@ -585,7 +585,9 @@ class TurkishAnalysisAPITester:
         start_time = time.time()
         
         try:
-            response = self.session.get(f"{self.base_url.replace('/api', '')}/health", timeout=10)
+            # Health endpoint is on the main app, not /api
+            health_url = self.base_url.replace('/api', '') + '/health'
+            response = self.session.get(health_url, timeout=10)
             response_time = time.time() - start_time
             
             if response.status_code == 200:
