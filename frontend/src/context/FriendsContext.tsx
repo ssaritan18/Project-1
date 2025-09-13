@@ -172,11 +172,12 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
     if (syncEnabled && token) {
       pollRef.current = setInterval(() => {
-        // If WS is off or disconnected, poll
+        // If WS is off or disconnected, poll less frequently to avoid rate limits
         if (!wsEnabled || !wsRef.current) {
+          console.log("📡 Polling friends data...");
           refresh();
         }
-      }, 6000);
+      }, 30000); // Changed from 6s to 30s to prevent rate limiting
     }
     return () => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } };
   }, [syncEnabled, token, wsEnabled]);
