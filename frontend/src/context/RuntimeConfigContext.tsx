@@ -123,8 +123,8 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
       pollForUpdates();
     };
 
-    const connectWebSocket = () => {
-      const storedToken = getAuthToken();
+    const connectWebSocket = async () => {
+      const storedToken = await getAuthToken();
       if (!syncEnabled) {
         console.log("🔌 RuntimeConfig: Sync disabled, skipping WebSocket");
         setWebSocket(null);
@@ -137,8 +137,8 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
         setWebSocket(null);
         setWsEnabled(false);
         // Retry connection after 2 seconds if no token (user might be logging in)
-        setTimeout(() => {
-          const retryToken = getAuthToken();
+        setTimeout(async () => {
+          const retryToken = await getAuthToken();
           if (retryToken) {
             console.log("🔄 Retrying WebSocket connection with token");
             connectWebSocket();
@@ -150,8 +150,10 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
       console.log("🔑 WebSocket connecting with token:", storedToken ? 'Available' : 'Missing');
 
       try {
-        const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${storedToken}`;
-        console.log('🔌 RuntimeConfig: Connecting WebSocket:', wsUrl.replace(storedToken, 'TOKEN_HIDDEN'));
+        // Clean token - remove any quotes if they exist
+        const cleanToken = storedToken.replace(/^["']|["']$/g, '');
+        const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${cleanToken}`;
+        console.log('🔌 RuntimeConfig: Connecting WebSocket:', wsUrl.replace(cleanToken, 'TOKEN_HIDDEN'));
         
         ws = new WebSocket(wsUrl);
         
