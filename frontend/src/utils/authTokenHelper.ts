@@ -35,20 +35,19 @@ async function setStoredToken(token: string): Promise<void> {
  */
 async function getStoredToken(): Promise<string | null> {
   try {
-    if (Platform.OS === 'web') {
+    // Check if we're in web environment
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       // Web platform - try localStorage first, then sessionStorage
-      if (typeof window !== 'undefined') {
-        const localToken = localStorage.getItem(TOKEN_KEY);
-        if (localToken) {
-          console.log('🔍 Token retrieved from localStorage');
-          return localToken;
-        }
-        
-        const sessionToken = sessionStorage.getItem(TOKEN_KEY);
-        if (sessionToken) {
-          console.log('🔍 Token retrieved from sessionStorage');
-          return sessionToken;
-        }
+      const localToken = localStorage.getItem(TOKEN_KEY);
+      if (localToken) {
+        console.log('🔍 Token retrieved from localStorage');
+        return localToken;
+      }
+      
+      const sessionToken = sessionStorage.getItem(TOKEN_KEY);
+      if (sessionToken) {
+        console.log('🔍 Token retrieved from sessionStorage');
+        return sessionToken;
       }
     } else {
       // Native platform - use expo-secure-store
