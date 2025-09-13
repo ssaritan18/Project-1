@@ -227,7 +227,11 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  useEffect(() => { refresh(); }, [syncEnabled, token]);
+  // Initial load only - prevent infinite refresh loop
+  useEffect(() => { 
+    console.log("🔄 FriendsContext: Initial refresh called");
+    refresh(); 
+  }, []); // Empty dependency array - only run once
 
   useEffect(() => { if (PERSIST_ENABLED && !syncEnabled && hydrated) saveJSON(KEYS.friends, friends); }, [friends, hydrated, syncEnabled]);
   useEffect(() => { if (PERSIST_ENABLED && !syncEnabled && hydrated) saveJSON(KEYS.requests, requests); }, [requests, hydrated, syncEnabled]);
