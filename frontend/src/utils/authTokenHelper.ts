@@ -71,13 +71,12 @@ async function getStoredToken(): Promise<string | null> {
  */
 async function clearStoredToken(): Promise<void> {
   try {
-    if (Platform.OS === 'web') {
+    // Check if we're in web environment
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       // Web platform
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem(TOKEN_KEY);
-        sessionStorage.removeItem(TOKEN_KEY);
-        console.log('🗑️ Token cleared from web storage');
-      }
+      localStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
+      console.log('🗑️ Token cleared from web storage');
     } else {
       // Native platform
       await SecureStore.deleteItemAsync(TOKEN_KEY);
