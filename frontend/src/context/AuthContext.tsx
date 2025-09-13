@@ -58,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('💾 Token saved to localStorage with key:', KEYS.token);
       }
       setAuthToken(t);
+      setInMemoryToken(t); // Update authTokenHelper cache
       saveJSON(KEYS.token, t); // Also save via saveJSON for mobile compatibility
     } else {
       // Clear token from storage
@@ -66,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('🗑️ Token cleared from localStorage');
       }
       setAuthToken(null);
+      setInMemoryToken(null); // Clear authTokenHelper cache
     }
   };
 
