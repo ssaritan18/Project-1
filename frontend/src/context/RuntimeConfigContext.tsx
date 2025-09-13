@@ -72,6 +72,46 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
       }, 500);
     };
 
+    const startPollingMode = () => {
+      if (pollingTimer) {
+        clearInterval(pollingTimer);
+      }
+      
+      console.log('🔄 Starting polling fallback for preview environment');
+      pollingTimer = setInterval(async () => {
+        try {
+          const token = await getAuthToken();
+          
+          if (token) {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/poll-updates`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              console.log('📡 Polling data received - friend requests:', data.updates?.friends?.new_requests || 0);
+              
+              // Broadcast polling data as WebSocket message for other contexts
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('websocketMessage', {
+                  detail: {
+                    type: 'pollingUpdate',
+                    data: data.updates
+                  }
+                }));
+              }
+            }
+          }
+        } catch (pollingError) {
+          // Silently handle polling errors to avoid console spam
+          console.log('📡 Polling temporarily unavailable');
+        }
+      }, 15000); // Poll every 15 seconds to avoid rate limits
+    };
+
     const connectWebSocket = async () => {
       if (!isMounted) return;
       
