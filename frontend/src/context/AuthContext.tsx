@@ -158,15 +158,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const token = res.data.access_token;
           console.log('🔐 Login successful, setting token and auth state');
           
-          // Immediately set authentication state
+          // Set in-memory token first (priority source)
+          const { setInMemoryToken, setStoredToken } = await import('../utils/authTokenHelper');
+          setInMemoryToken(token);
+          
+          // Set context state
           setToken(token);
           setAuthed(true);
           
-          // Force token storage with robust helper
+          // Store in persistent storage as backup
           if (typeof window !== 'undefined') {
             localStorage.setItem('adhders_token_v1', token);
             sessionStorage.setItem('adhders_token_v1', token);
-            console.log('💾 Emergency: Token forced to storage');
+            console.log('💾 Token stored in all sources: memory + storage');
           }
           
           // Try to get user profile
