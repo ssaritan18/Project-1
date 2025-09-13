@@ -77,15 +77,16 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
         clearInterval(pollingTimer);
       }
       
-      console.log('🔄 Starting polling fallback for preview environment');
+      console.log('🔄 Starting enhanced polling fallback for preview environment');
       pollingTimer = setInterval(async () => {
         try {
           const token = await getAuthToken();
           
           if (token) {
+            const cleanToken = token.replace(/^["']|["']$/g, '').trim();
             const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/poll-updates`, {
               headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${cleanToken}`,
                 'Content-Type': 'application/json'
               }
             });
@@ -96,6 +97,15 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
               
               // Broadcast polling data as WebSocket message for other contexts
               if (typeof window !== 'undefined') {
+                // Dispatch friend list updates
+                window.dispatchEvent(new CustomEvent('websocketMessage', {
+                  detail: {
+                    type: 'friendListUpdate',
+                    data: data.updates?.friends || {}
+                  }
+                }));
+                
+                // Dispatch general polling update
                 window.dispatchEvent(new CustomEvent('websocketMessage', {
                   detail: {
                     type: 'pollingUpdate',
