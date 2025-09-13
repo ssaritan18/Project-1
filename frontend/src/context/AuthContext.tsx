@@ -187,7 +187,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await saveJSON(KEYS.user, userData);
             console.log('✅ Fallback user profile set and authenticated');
           }
-      } catch (error: any) {
+        } else {
+          throw new Error("No access token received");
+        }
         console.error("❌ Login error:", error);
         
         // Handle specific error types
