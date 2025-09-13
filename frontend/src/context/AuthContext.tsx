@@ -241,12 +241,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log("🚪 signOut called");
     
     // Clear all authentication state
-    setAuthed(false); 
-    setUser(null); 
-    setToken(null); 
-    setAuthToken(null);
+    setUser(null);
+    setAuthed(false);
+    setToken(null);
     
-    console.log("🔄 State cleared, removing from storage...");
+    // Clear global auth token from all sources
+    try {
+      const { clearAuthToken } = await import('../utils/authTokenHelper');
+      clearAuthToken();
+      console.log("✅ Auth token cleared from all sources");
+    } catch (error) {
+      console.error("❌ Error clearing auth token:", error);
+    }
     
     if (PERSIST_ENABLED) {
       try {
