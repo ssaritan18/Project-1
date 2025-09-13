@@ -80,8 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!token) {
           const t = await loadJSON<string | null>(KEYS.token, null);
           if (t) {
-            setToken(t);
-            setInMemoryToken(t); // Initialize authTokenHelper cache
+            await setToken(t);
             try {
               const me = await api.get("/me");
               const u: User = { name: me.data.name, email: me.data.email, photoBase64: me.data.photo_base64 };
@@ -89,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               if (PERSIST_ENABLED) await saveJSON(KEYS.user, u);
             } catch (error) {
               console.warn('⚠️ Token validation failed:', error);
-              setToken(null); // Clear invalid token
+              await setToken(null); // Clear invalid token
             }
           }
         }
