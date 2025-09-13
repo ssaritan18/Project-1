@@ -2737,6 +2737,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Polling endpoint for preview environment fallback
+@api_router.get("/poll-updates")
+async def poll_updates(user=Depends(get_current_user)):
+    """Polling endpoint for preview environment when WebSocket fails"""
+    try:
+        # Return basic updates - can be expanded with actual poll data
+        return {
+            "status": "success",
+            "timestamp": now_iso(),
+            "updates": {
+                "friends": {"count": 0, "new_requests": 0},
+                "messages": {"unread_count": 0},
+                "notifications": {"count": 0}
+            },
+            "websocket_status": "fallback_mode"
+        }
+    except Exception as e:
+        logger.error(f"❌ Poll updates error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to poll updates")
+
 # Include subscription router
 app.include_router(subscriptions_router)
 
