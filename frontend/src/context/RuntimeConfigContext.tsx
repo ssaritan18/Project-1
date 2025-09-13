@@ -180,7 +180,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
           }
           
           // Auto-reconnect if sync mode is still enabled and we haven't exceeded attempts
-          if (syncEnabled && getStoredToken() && reconnectAttempts < maxReconnectAttempts) {
+          if (syncEnabled && getAuthToken() && reconnectAttempts < maxReconnectAttempts) {
             reconnectAttempts++;
             console.log(`🔄 RuntimeConfig: Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`);
             
