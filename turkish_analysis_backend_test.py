@@ -432,15 +432,15 @@ class TurkishAnalysisAPITester:
         
         if response.status_code == 200:
             data = response.json()
-            if data.get("accepted"):
+            if data.get("success"):
                 results["friend_request_accepted"] = True
                 self.log(f"✅ Friend request accepted by {user2_name}")
                 
-                # Check if chat_id is returned (automatic 1-to-1 chat creation)
-                if "chat_id" in data:
-                    self.log(f"✅ Automatic 1-to-1 chat created: {data['chat_id']}")
+                # Check if friendship_id is returned
+                if "friendship_id" in data:
+                    self.log(f"✅ Friendship created: {data['friendship_id']}")
             else:
-                self.log("❌ Friend request acceptance response missing 'accepted: true'", "ERROR")
+                self.log("❌ Friend request acceptance response missing 'success: true'", "ERROR")
                 return {"success": False, "results": results}
         else:
             self.log(f"❌ Friend request acceptance failed: {response.status_code} - {response.text}", "ERROR")
