@@ -115,7 +115,8 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
     const connectWebSocket = async () => {
       if (!isMounted) return;
       
-      const storedToken = await getAuthToken();
+      // Always get fresh token to avoid closure issues
+      const currentToken = await getAuthToken();
       if (!syncEnabled) {
         console.log("🔌 RuntimeConfig: Sync disabled, skipping WebSocket");
         setWebSocket(null);
@@ -123,7 +124,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
         return;
       }
       
-      if (!storedToken) {
+      if (!currentToken) {
         console.log("🔌 RuntimeConfig: No token available for WebSocket");
         setWebSocket(null);
         setWsEnabled(false);
@@ -131,9 +132,9 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
       }
       
       try {
-        const cleanToken = typeof storedToken === 'string' 
-          ? storedToken.replace(/^["']|["']$/g, '').trim()
-          : storedToken;
+        const cleanToken = typeof currentToken === 'string' 
+          ? currentToken.replace(/^["']|["']$/g, '').trim()
+          : currentToken;
         
         const encodedToken = encodeURIComponent(cleanToken);
         const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${encodedToken}`;
@@ -208,11 +209,16 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
             reconnectTimer = setTimeout(() => {
               if (isMounted) connectWebSocket();
             }, Math.min(1000 * Math.pow(2, reconnectAttempts), 30000));
+          } else {
+            // If we've exhausted reconnect attempts, start polling
+            startPollingMode();
           }
         };
         
       } catch (error) {
         console.error('❌ RuntimeConfig: WebSocket connection error:', error);
+        // Fallback to polling on any connection error
+        startPollingMode();
       }
     };
 
