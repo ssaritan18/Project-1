@@ -248,6 +248,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
       console.log('🧹 RuntimeConfig: Cleaning up WebSocket...');
       
       window.removeEventListener('authStateChanged', handleAuthStateChange);
+      window.removeEventListener('tokenRefreshed', handleTokenRefresh);
       
       if (reconnectTimer) clearTimeout(reconnectTimer);
       if (heartbeatTimer) clearInterval(heartbeatTimer);
