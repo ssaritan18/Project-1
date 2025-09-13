@@ -1814,14 +1814,20 @@ async def create_group_chat(payload: ChatCreate, user=Depends(get_current_user))
 async def open_direct_chat(friend_id: str, user=Depends(get_current_user)):
     """Open or get existing 1-to-1 chat with a friend"""
     
-    # Verify friendship
+    # Verify friend exists
     friend = await db.users.find_one({"_id": friend_id})
     if not friend:
         raise HTTPException(status_code=404, detail="User not found")
         
-    # Check if they are friends
-    user_friends = user.get("friends", [])
-    if friend_id not in user_friends:
+    # Check if they are friends using friendships collection
+    friendship = await db.friendships.find_one({
+        "$or": [
+            {"user1_id": user["_id"], "user2_id": friend_id},
+            {"user1_id": friend_id, "user2_id": user["_id"]}
+        ]
+    })
+    
+    if not friendship:
         raise HTTPException(status_code=403, detail="You must be friends to start a chat")
     
     # Generate consistent chat ID
