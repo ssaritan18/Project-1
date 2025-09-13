@@ -227,8 +227,23 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
               return;
             }
             
-            // Handle other WebSocket messages
+            // Handle connection establishment
+            if (data.type === 'connectionEstablished') {
+              console.log('✅ RuntimeConfig: WebSocket connection established');
+              setWsEnabled(true);
+              reconnectAttempts = 0; // Reset reconnect attempts on successful connection
+            }
+            
+            // Broadcast WebSocket events to other contexts
             console.log('📨 RuntimeConfig: WebSocket message received:', data.type);
+            
+            // Dispatch custom event for other components to listen
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('websocketMessage', {
+                detail: data
+              }));
+            }
+            
           } catch (error) {
             console.error('❌ RuntimeConfig: WebSocket message parsing error:', error);
           }
