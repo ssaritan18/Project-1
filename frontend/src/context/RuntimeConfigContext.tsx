@@ -53,7 +53,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
         setTimeout(async () => {
           const newToken = await getAuthToken();
           if (syncEnabled && newToken) {
-            connectWebSocket();
+            await connectWebSocket();
           }
         }, 1000);
       };
