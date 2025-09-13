@@ -67,8 +67,8 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
         if (ws) {
           ws.close();
         }
-        setTimeout(() => {
-          connectWebSocket();
+        setTimeout(async () => {
+          await connectWebSocket();
         }, 500);
       }
     };
