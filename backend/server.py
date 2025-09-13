@@ -2749,19 +2749,365 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# =====================================================
+# REAL-TIME FRIEND REQUEST & CHAT EVENT SYSTEM
+# =====================================================
+
+# In-memory storage for WebSocket connections (user_id -> connection)
+websocket_connections: Dict[str, WebSocket] = {}
+
+async def broadcast_to_user(user_id: str, event_data: dict):
+    """Send real-time event to specific user via WebSocket"""
+    if user_id in websocket_connections:
+        ws = websocket_connections[user_id]
+        try:
+            await ws.send_text(json.dumps(event_data))
+            logger.info(f"📡 Event sent to user {user_id}: {event_data['type']}")
+        except Exception as e:
+            logger.error(f"❌ Failed to send event to user {user_id}: {e}")
+            # Remove dead connection
+            websocket_connections.pop(user_id, None)
+
+@api_router.post("/friends/request")
+async def send_friend_request(request: dict, user=Depends(get_current_user)):
+    """Send friend request with real-time notification"""
+    try:
+        recipient_email = request.get('email')
+        if not recipient_email:
+            raise HTTPException(status_code=400, detail="Email required")
+        
+        # Find recipient user
+        recipient = await db.users.find_one({"email": recipient_email})
+        if not recipient:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        if recipient["_id"] == user["_id"]:
+            raise HTTPException(status_code=400, detail="Cannot send friend request to yourself")
+        
+        # Check if request already exists
+        existing_request = await db.friend_requests.find_one({
+            "sender_id": user["_id"],
+            "recipient_id": recipient["_id"],
+            "status": "pending"
+        })
+        
+        if existing_request:
+            raise HTTPException(status_code=400, detail="Friend request already sent")
+        
+        # Check if already friends
+        existing_friendship = await db.friendships.find_one({
+            "$or": [
+                {"user1_id": user["_id"], "user2_id": recipient["_id"]},
+                {"user1_id": recipient["_id"], "user2_id": user["_id"]}
+            ]
+        })
+        
+        if existing_friendship:
+            raise HTTPException(status_code=400, detail="Already friends")
+        
+        # Create friend request
+        request_id = str(uuid.uuid4())
+        friend_request = {
+            "_id": request_id,
+            "sender_id": user["_id"],
+            "recipient_id": recipient["_id"],
+            "sender_name": user.get("name", user["email"]),
+            "sender_email": user["email"],
+            "status": "pending",
+            "created_at": now_iso()
+        }
+        
+        await db.friend_requests.insert_one(friend_request)
+        
+        # Send real-time notification to recipient
+        event_data = {
+            "type": "friendRequestReceived",
+            "data": {
+                "request_id": request_id,
+                "sender_id": user["_id"],
+                "sender_name": user.get("name", user["email"]),
+                "sender_email": user["email"],
+                "timestamp": now_iso()
+            }
+        }
+        
+        await broadcast_to_user(recipient["_id"], event_data)
+        
+        logger.info(f"👫 Friend request sent from {user['name']} to {recipient_email}")
+        return {
+            "success": True,
+            "message": "Friend request sent successfully",
+            "request_id": request_id
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Friend request error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to send friend request: {str(e)}")
+
+@api_router.post("/friends/accept/{request_id}")
+async def accept_friend_request(request_id: str, user=Depends(get_current_user)):
+    """Accept friend request with real-time updates"""
+    try:
+        # Find pending request
+        friend_request = await db.friend_requests.find_one({
+            "_id": request_id,
+            "recipient_id": user["_id"],
+            "status": "pending"
+        })
+        
+        if not friend_request:
+            raise HTTPException(status_code=404, detail="Friend request not found")
+        
+        # Update request status
+        await db.friend_requests.update_one(
+            {"_id": request_id},
+            {"$set": {"status": "accepted", "accepted_at": now_iso()}}
+        )
+        
+        # Create friendship
+        friendship_id = str(uuid.uuid4())
+        friendship = {
+            "_id": friendship_id,
+            "user1_id": friend_request["sender_id"],
+            "user2_id": user["_id"],
+            "created_at": now_iso()
+        }
+        
+        await db.friendships.insert_one(friendship)
+        
+        # Get sender info for notifications
+        sender = await db.users.find_one({"_id": friend_request["sender_id"]})
+        
+        # Send real-time updates to both users
+        friend_data = {
+            "friend_id": user["_id"],
+            "friend_name": user.get("name", user["email"]),
+            "friend_email": user["email"],
+            "friendship_id": friendship_id,
+            "timestamp": now_iso()
+        }
+        
+        # Notify sender that request was accepted
+        await broadcast_to_user(friend_request["sender_id"], {
+            "type": "friendRequestAccepted",
+            "data": friend_data
+        })
+        
+        # Update recipient's friend list
+        recipient_friend_data = {
+            "friend_id": friend_request["sender_id"],
+            "friend_name": sender.get("name", sender["email"]),
+            "friend_email": sender["email"],
+            "friendship_id": friendship_id,
+            "timestamp": now_iso()
+        }
+        
+        await broadcast_to_user(user["_id"], {
+            "type": "friendListUpdate",
+            "data": recipient_friend_data
+        })
+        
+        logger.info(f"✅ Friend request accepted: {sender.get('name')} ↔ {user.get('name')}")
+        return {
+            "success": True,
+            "message": "Friend request accepted",
+            "friendship_id": friendship_id
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Accept friend request error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to accept friend request: {str(e)}")
+
+@api_router.get("/friends/requests")
+async def get_friend_requests(user=Depends(get_current_user)):
+    """Get pending friend requests for current user"""
+    try:
+        requests = await db.friend_requests.find({
+            "recipient_id": user["_id"],
+            "status": "pending"
+        }).sort("created_at", -1).to_list(length=None)
+        
+        return {
+            "success": True,
+            "requests": requests
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Get friend requests error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get friend requests: {str(e)}")
+
+@api_router.get("/friends/list")
+async def get_friends_list(user=Depends(get_current_user)):
+    """Get friends list for current user"""
+    try:
+        # Get friendships where user is either user1 or user2
+        friendships = await db.friendships.find({
+            "$or": [
+                {"user1_id": user["_id"]},
+                {"user2_id": user["_id"]}
+            ]
+        }).to_list(length=None)
+        
+        friends = []
+        for friendship in friendships:
+            # Get the other user's ID
+            friend_id = friendship["user2_id"] if friendship["user1_id"] == user["_id"] else friendship["user1_id"]
+            
+            # Get friend's details
+            friend = await db.users.find_one({"_id": friend_id})
+            if friend:
+                friends.append({
+                    "friend_id": friend_id,
+                    "friend_name": friend.get("name", friend["email"]),
+                    "friend_email": friend["email"],
+                    "friendship_id": friendship["_id"],
+                    "friendship_created": friendship["created_at"]
+                })
+        
+        return {
+            "success": True,
+            "friends": friends
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Get friends list error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get friends list: {str(e)}")
+
+# WebSocket connection handler with real-time events
+@app.websocket("/api/ws")
+async def websocket_endpoint(websocket: WebSocket, token: str):
+    """Enhanced WebSocket endpoint with real-time friend & chat events"""
+    try:
+        # Authenticate user from token
+        user = await get_user_from_token(token)
+        if not user:
+            await websocket.close(code=4001, reason="Invalid token")
+            return
+        
+        user_id = user["_id"]
+        
+        # Accept connection and store it
+        await websocket.accept()
+        websocket_connections[user_id] = websocket
+        logger.info(f"🔌 WebSocket connected for user: {user.get('name', user_id)}")
+        
+        # Send initial connection confirmation
+        await websocket.send_text(json.dumps({
+            "type": "connectionEstablished",
+            "data": {
+                "user_id": user_id,
+                "timestamp": now_iso()
+            }
+        }))
+        
+        try:
+            while True:
+                # Listen for incoming messages
+                data = await websocket.receive_text()
+                message = json.loads(data)
+                
+                if message.get("type") == "ping":
+                    # Respond to heartbeat
+                    await websocket.send_text(json.dumps({"type": "pong"}))
+                    
+                elif message.get("type") == "chatMessage":
+                    # Handle real-time chat message
+                    await handle_real_time_message(user_id, message.get("data", {}))
+                    
+        except WebSocketDisconnect:
+            logger.info(f"🔌 WebSocket disconnected for user: {user.get('name', user_id)}")
+        except Exception as e:
+            logger.error(f"❌ WebSocket error for user {user_id}: {e}")
+            
+    except Exception as e:
+        logger.error(f"❌ WebSocket connection error: {e}")
+        await websocket.close(code=4000, reason="Connection error")
+    finally:
+        # Clean up connection
+        if user_id in websocket_connections:
+            websocket_connections.pop(user_id, None)
+
+async def handle_real_time_message(sender_id: str, message_data: dict):
+    """Handle real-time chat message sending"""
+    try:
+        chat_id = message_data.get("chat_id")
+        content = message_data.get("content")
+        
+        if not chat_id or not content:
+            return
+        
+        # Get chat participants
+        chat = await db.chats.find_one({"_id": chat_id})
+        if not chat:
+            return
+        
+        # Create message
+        message_id = str(uuid.uuid4())
+        message = {
+            "_id": message_id,
+            "chat_id": chat_id,
+            "sender_id": sender_id,
+            "content": content,
+            "timestamp": now_iso(),
+            "message_type": "text"
+        }
+        
+        await db.messages.insert_one(message)
+        
+        # Get sender info
+        sender = await db.users.find_one({"_id": sender_id})
+        
+        # Broadcast to all chat members
+        event_data = {
+            "type": "messageReceived",
+            "data": {
+                "message_id": message_id,
+                "chat_id": chat_id,
+                "sender_id": sender_id,
+                "sender_name": sender.get("name", sender["email"]),
+                "content": content,
+                "timestamp": now_iso()
+            }
+        }
+        
+        for member_id in chat.get("members", []):
+            if member_id != sender_id:  # Don't send back to sender
+                await broadcast_to_user(member_id, event_data)
+                
+    except Exception as e:
+        logger.error(f"❌ Real-time message error: {e}")
+
+# =====================================================
+# END REAL-TIME SYSTEM
+# =====================================================
+
 # Polling endpoint for preview environment fallback
 @api_router.get("/poll-updates")
 async def poll_updates(user=Depends(get_current_user)):
     """Polling endpoint for preview environment when WebSocket fails"""
     try:
-        # Return basic updates - can be expanded with actual poll data
+        # Get pending friend requests count
+        friend_requests_count = await db.friend_requests.count_documents({
+            "recipient_id": user["_id"],
+            "status": "pending"
+        })
+        
+        # Get unread messages count (simplified)
+        unread_messages = await db.messages.count_documents({
+            "chat_id": {"$in": []},  # Would need to get user's chats first
+            "read_by": {"$ne": user["_id"]}
+        })
+        
         return {
             "status": "success",
             "timestamp": now_iso(),
             "updates": {
-                "friends": {"count": 0, "new_requests": 0},
-                "messages": {"unread_count": 0},
-                "notifications": {"count": 0}
+                "friends": {
+                    "count": 0,  # Would get actual friends count
+                    "new_requests": friend_requests_count
+                },
+                "messages": {"unread_count": unread_messages},
+                "notifications": {"count": friend_requests_count}
             },
             "websocket_status": "fallback_mode"
         }
