@@ -1195,34 +1195,6 @@ async def friends_find(q: str = Query(..., min_length=1), user=Depends(get_curre
     u = items[0]
     return {"user": {"_id": u["_id"], "name": u.get("name"), "email": u.get("email")}}
 
-@api_router.post("/friends/request")
-async def create_friend_request(payload: FriendRequestReq, user=Depends(get_current_user)):
-    to = await db.users.find_one({"email": payload.to_email.lower()})
-    if not to:
-        raise HTTPException(status_code=404, detail="User not found")
-    if to["_id"] == user["_id"]:
-        raise HTTPException(status_code=400, detail="Cannot add yourself")
-    existing = await db.friend_requests.find_one({"from_user_id": user["_id"], "to_user_id": to["_id"], "status": "pending"})
-    if existing:
-        return existing
-    fr = {
-        "_id": str(uuid.uuid4()),
-        "from_user_id": user["_id"],
-        "to_user_id": to["_id"],
-        "status": "pending",
-        "created_at": now_iso(),
-    }
-    await db.friend_requests.insert_one(fr)
-    logger.info(f"📤 Friend request created: {user['_id']} -> {to['_id']} (request_id: {fr['_id']})")
-    
-    fu = await db.users.find_one({"_id": user["_id"]})
-    payload_data = {"type": "friend_request:incoming", "request_id": fr["_id"], "from": {"id": user["_id"], "name": fu.get("name"), "email": fu.get("email")}}
-    logger.info(f"📡 About to broadcast friend request to user {to['_id']}: {payload_data}")
-    await ws_broadcast_to_user(to["_id"], payload_data)
-    logger.info(f"✅ Friend request broadcast completed for user {to['_id']}")
-    
-    return fr
-
 @api_router.post("/friends/accept")
 async def accept_friend_request(payload: FriendAcceptReq, user=Depends(get_current_user)):
     fr = await db.friend_requests.find_one({"_id": payload.request_id})
