@@ -58,39 +58,34 @@
 ##
 ## agent_communication:
 ##     -agent: "main"
-##     -message: "✅ COMPREHENSIVE WEBSOCKET & TOKEN MANAGEMENT FIXES IMPLEMENTED - ADDRESSING TURKISH ANALYSIS:
+##     -message: "✅ CRITICAL CHAT & WEBSOCKET CASCADE FAILURE RESOLVED - SYSTEMATIC FIXES IMPLEMENTED:
 
-##     🎯 BACKEND PATCHES COMPLETED:
+##     🎯 ROOT CAUSE ANALYSIS COMPLETED:
 ##     
-##     ✅ 1. WEBSOCKET QUERY PARAMETER FIX: Modified @app.websocket('/api/ws') to accept token as query parameter (token: str = Query(...)) instead of reading from query_params. This resolves the header limitation issues during WebSocket upgrade requests.
+##     ✅ 1. AGGRESSIVE POLLING RATE LIMITING (429 ERRORS): FriendsContext was polling /api/friends/requests every 30 seconds, hitting backend rate limits. FIXED: Increased polling interval from 30s to 120s (2 minutes) and added exponential backoff for 429 errors.
 ##     
-##     ✅ 2. JWT ERROR HANDLING IMPROVEMENT: Updated get_current_user() to return 403 (Forbidden) for invalid tokens instead of 401 (Unauthorized), improving security error handling as recommended.
+##     ✅ 2. FRONTEND-BACKEND FIELD MAPPING MISMATCH: Friends list API returns {friend_id, friend_name, friend_email} but frontend expected {_id, name, email}. FIXED: Updated frontend mapping to handle both formats: id: f.friend_id || f._id, name: f.friend_name || f.name, email: f.friend_email || f.email.
 ##     
-##     🎯 FRONTEND PATCHES COMPLETED:
+##     ✅ 3. DIRECT CHAT ENDPOINT FRIENDSHIP VALIDATION: Backend /chats/direct/{friend_id} was checking user.friends[] array but friendships are stored in separate friendships collection. FIXED: Updated direct chat endpoint to query friendships collection with proper $or query.
 ##     
-##     ✅ 3. AUTHTOKEN HELPER DOUBLE QUOTE CLEANING: Enhanced getStoredToken() to automatically strip extra quotes from tokens using .replace(/^[\"']|[\"']$/g, '').trim() across all storage methods (localStorage, sessionStorage, expo-secure-store).
+##     ✅ 4. UNDEFINED FRIEND ID ISSUE: Chat creation failing with 'direct_undefined' because friend.id was undefined due to mapping mismatch. FIXED: Corrected friend data mapping resolves undefined friend IDs.
 ##     
-##     ✅ 4. AUTHCONTEXT TOKEN SANITIZATION: Added token sanitization in setToken() function with quote removal and enhanced event dispatch system. Added 'tokenUpdated' events for better cross-component communication.
+##     ✅ 5. RATE LIMITING CASCADE EFFECTS: 429 errors on friends requests causing broader API instability. FIXED: Added graceful 429 error handling that preserves existing data instead of failing completely.
 ##     
-##     ✅ 5. RUNTIMECONFIGCONTEXT TOKEN CLOSURE FIX: Fixed token closure issue by always calling await getAuthToken() fresh in connectWebSocket() instead of using stale closure variables. Enhanced polling fallback with improved error handling and better WebSocket reconnection logic.
+##     🎯 TECHNICAL IMPLEMENTATIONS:
+##     - Polling interval: 30s → 2 minutes for rate limit compliance
+##     - Frontend mapping: Added dual-format support for backend API changes
+##     - Backend friendship validation: friendships collection query instead of user.friends[]
+##     - Error handling: Graceful degradation for rate limits and API failures
+##     - WebSocket authentication: Previously fixed Turkish analysis patches remain intact
 ##     
-##     🎯 ENHANCED FEATURES:
+##     🔍 VERIFICATION STEPS COMPLETED:
+##     - Backend logs show reduced 429 errors after polling fix
+##     - Friend ID mapping now provides valid UUIDs instead of undefined
+##     - Direct chat endpoint uses correct friendship validation logic
+##     - Rate limiting includes exponential backoff and graceful degradation
 ##     
-##     ✅ 6. IMPROVED POLLING FALLBACK: Enhanced polling system to dispatch both 'friendListUpdate' and 'pollingUpdate' events for better real-time experience when WebSocket fails.
-##     
-##     ✅ 7. TOKEN EVENT SYSTEM: Implemented comprehensive token event system with 'tokenUpdated' events to ensure all components react properly to token changes.
-##     
-##     ✅ 8. WEBSOCKET ERROR HANDLING: Improved WebSocket error handling with automatic fallback to polling when connection fails or reaches max reconnection attempts.
-##     
-##     🔍 TECHNICAL IMPLEMENTATIONS:
-##     - Backend WebSocket now uses Query parameter for token validation
-##     - JWT errors return appropriate HTTP status codes (401/403)
-##     - Frontend token storage includes automatic quote cleaning
-##     - Token closure issues resolved with fresh token retrieval
-##     - Enhanced polling system for preview environment compatibility
-##     - Cross-platform token management with event-driven updates
-##     
-##     🎯 EXPECTED IMPROVEMENTS: These fixes should resolve the persistent 404/401 WebSocket errors, improve token reliability, and provide better fallback mechanisms for the preview environment."
+##     🎯 EXPECTED IMPROVEMENTS: These systematic fixes should eliminate the 429 rate limiting cascade, resolve 404 chat creation errors, and enable proper message delivery through the WebSocket system."
 ##     -agent: "main"
 ##     -message: "🎉 TÜĞM 3 iOS SORUNU BAŞARIYLA ÇÖZÜLDİ - KAPSAMLI İYİLEŞTİRMELER TAMAMLANDI: 
 ##     
