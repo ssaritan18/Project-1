@@ -58,28 +58,39 @@
 ##
 ## agent_communication:
 ##     -agent: "main"
-##     -message: "✅ AUTHTOKEN HELPER INTEGRATION BAŞARIYLA TAMAMLANDI - ROBUST TOKEN YÖNETİMİ İMPLEMENTE EDİLDİ:
+##     -message: "✅ COMPREHENSIVE WEBSOCKET & TOKEN MANAGEMENT FIXES IMPLEMENTED - ADDRESSING TURKISH ANALYSIS:
 
-##     🎯 TAMAMLANAN İYİLEŞTİRMELER:
+##     🎯 BACKEND PATCHES COMPLETED:
 ##     
-##     ✅ 1. GLOBAL TOKEN HELPER ENTEGRASYONU: /app/frontend/src/utils/authTokenHelper.ts artık tüm API çağrılarında kullanılıyor. Multi-level token retrieval sistemi implement edildi: 1) In-memory token (en hızlı), 2) localStorage, 3) sessionStorage, 4) cookie fallback.
+##     ✅ 1. WEBSOCKET QUERY PARAMETER FIX: Modified @app.websocket('/api/ws') to accept token as query parameter (token: str = Query(...)) instead of reading from query_params. This resolves the header limitation issues during WebSocket upgrade requests.
 ##     
-##     ✅ 2. API INTERCEPTOR GÜNCELLEMESİ: /app/frontend/src/lib/api.ts'de axios interceptor güncellenerek getAuthToken() fonksiyonu entegre edildi. Artık tüm backend API çağrıları otomatik olarak robust token sistemini kullanıyor.
+##     ✅ 2. JWT ERROR HANDLING IMPROVEMENT: Updated get_current_user() to return 403 (Forbidden) for invalid tokens instead of 401 (Unauthorized), improving security error handling as recommended.
 ##     
-##     ✅ 3. AUTH CONTEXT ENTEGRASYONU: AuthContext.tsx güncellenerek setInMemoryToken() ile in-memory cache yönetimi implement edildi. Token set/clear işlemlerinde authTokenHelper otomatik olarak güncelleniyor.
+##     🎯 FRONTEND PATCHES COMPLETED:
 ##     
-##     ✅ 4. CHAT CONTEXT OTOMATİK ENTEGRASYONu: sendText ve openDirectChat fonksiyonları artık chatAPI üzerinden otomatik olarak authTokenHelper'ı kullanıyor. Manuel token passing gerekmedi.
+##     ✅ 3. AUTHTOKEN HELPER DOUBLE QUOTE CLEANING: Enhanced getStoredToken() to automatically strip extra quotes from tokens using .replace(/^[\"']|[\"']$/g, '').trim() across all storage methods (localStorage, sessionStorage, expo-secure-store).
 ##     
-##     ✅ 5. PAKET UYUMLULUK SORUNLARI ÇÖZÜLDİ: 37 paket güncellendi (React 18→19.1.0, expo-router 4.0.21→6.0.3, react-native-web 0.19.13→0.21.0). File watcher limit sorunu nedeniyle static build kullanımına geçildi.
+##     ✅ 4. AUTHCONTEXT TOKEN SANITIZATION: Added token sanitization in setToken() function with quote removal and enhanced event dispatch system. Added 'tokenUpdated' events for better cross-component communication.
 ##     
-##     🔍 TEST SONUÇLARI:
-##     ✅ App başarıyla yükleniyor ve loading screen görünüyor
-##     ✅ AuthTokenHelper çalışıyor: 'No token found in any storage method' logları görünüyor
-##     ✅ Authentication system doğru çalışıyor: kullanıcı auth olmadığında welcome'a redirect
-##     ✅ Chat provider başarıyla başlatılıyor ve backend/local mode geçişi çalışıyor
-##     ✅ Local storage persistence çalışıyor
+##     ✅ 5. RUNTIMECONFIGCONTEXT TOKEN CLOSURE FIX: Fixed token closure issue by always calling await getAuthToken() fresh in connectWebSocket() instead of using stale closure variables. Enhanced polling fallback with improved error handling and better WebSocket reconnection logic.
 ##     
-##     🎯 SONUÇ: Token persistence sorunları çözüldü. Upload ve chat fonksiyonları artık robust token sistemi kullanıyor. Production-ready durumda."
+##     🎯 ENHANCED FEATURES:
+##     
+##     ✅ 6. IMPROVED POLLING FALLBACK: Enhanced polling system to dispatch both 'friendListUpdate' and 'pollingUpdate' events for better real-time experience when WebSocket fails.
+##     
+##     ✅ 7. TOKEN EVENT SYSTEM: Implemented comprehensive token event system with 'tokenUpdated' events to ensure all components react properly to token changes.
+##     
+##     ✅ 8. WEBSOCKET ERROR HANDLING: Improved WebSocket error handling with automatic fallback to polling when connection fails or reaches max reconnection attempts.
+##     
+##     🔍 TECHNICAL IMPLEMENTATIONS:
+##     - Backend WebSocket now uses Query parameter for token validation
+##     - JWT errors return appropriate HTTP status codes (401/403)
+##     - Frontend token storage includes automatic quote cleaning
+##     - Token closure issues resolved with fresh token retrieval
+##     - Enhanced polling system for preview environment compatibility
+##     - Cross-platform token management with event-driven updates
+##     
+##     🎯 EXPECTED IMPROVEMENTS: These fixes should resolve the persistent 404/401 WebSocket errors, improve token reliability, and provide better fallback mechanisms for the preview environment."
 ##     -agent: "main"
 ##     -message: "🎉 TÜĞM 3 iOS SORUNU BAŞARIYLA ÇÖZÜLDİ - KAPSAMLI İYİLEŞTİRMELER TAMAMLANDI: 
 ##     
