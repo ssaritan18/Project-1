@@ -252,7 +252,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
     // Add event listeners
     if (typeof window !== 'undefined') {
       window.addEventListener('authStateChanged', handleAuthStateChange);
-      window.addEventListener('tokenRefreshed', handleTokenRefresh);
+      window.addEventListener('tokenUpdated', handleTokenUpdated);
     }
 
     // Cleanup function
