@@ -145,8 +145,15 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
         };
         
         ws.onerror = (error) => {
-          console.log('🔌 RuntimeConfig: WebSocket error:', error);
-          console.log('🔄 Preview environment detected - falling back to polling mode');
+          console.log('🔌 RuntimeConfig: WebSocket error - switching to polling mode');
+          // Don't log the actual error to avoid console spam
+          setWsEnabled(false);
+          
+          // Start polling mode as fallback immediately
+          if (!pollingTimer) {
+            console.log('🔄 Starting polling fallback for preview environment');
+            startPollingMode();
+          }
         };
         
         ws.onclose = () => {
