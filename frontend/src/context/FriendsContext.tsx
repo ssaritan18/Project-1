@@ -45,6 +45,11 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
 
   const clearNotification = () => setLastNotification(null);
 
+  const showDebugAlert = (message: string) => {
+    console.log(`🐛 Debug: ${message}`);
+    // Alert.alert("🐛 Debug", message, [{ text: "OK" }]);
+  };
+
   // Real-time WebSocket event handling
   useEffect(() => {
     const handleWebSocketMessage = (event: any) => {
