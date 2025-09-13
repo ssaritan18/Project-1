@@ -587,10 +587,10 @@ async def get_current_user(authorization: str = Header(default=None)):
     try:
         data = jwt.decode(token, JWT_SECRET, algorithms=[ALGO])
     except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(status_code=403, detail="Invalid token")
     user_id = data.get("sub")
     if not user_id:
-        raise HTTPException(status_code=401, detail="Invalid token payload")
+        raise HTTPException(status_code=403, detail="Invalid token payload")
     user = await db.users.find_one({"_id": user_id})
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
