@@ -73,6 +73,12 @@ export function setStoredToken(token: string): void {
   } catch (err) {
     console.warn("⚠️ cookie save failed:", err);
   }
+  
+  // Notify all components that token has been updated
+  window.dispatchEvent(new CustomEvent('tokenRefreshed', { 
+    detail: { token, timestamp: Date.now() } 
+  }));
+  console.log("📡 Token refresh event dispatched");
 }
 
 export function clearStoredToken(): void {
