@@ -158,45 +158,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const token = res.data.access_token;
           console.log('🔐 Login successful, setting token and auth state');
           
-          // Set in-memory token first (priority source)
-          const { setInMemoryToken, setStoredToken } = await import('../utils/authTokenHelper');
-          setInMemoryToken(token);
-          
-          // Set context state
-          setToken(token);
+          // Set token using our secure storage system
+          await setToken(token);
           setAuthed(true);
           
-          // Store in persistent storage as backup
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('adhders_token_v1', token);
-            sessionStorage.setItem('adhders_token_v1', token);
-            console.log('💾 Token stored in all sources: memory + storage');
-          }
-          
-          // Try to get user profile
-          try {
-            const profileRes = await api.get("/auth/me");
-            if (profileRes.data) {
-              const userData = { 
-                name: profileRes.data.name || email, 
-                email: profileRes.data.email || email 
-              };
-              setUser(userData);
-              await saveJSON(KEYS.user, userData);
-              console.log('✅ User profile set and authenticated');
-            }
-          } catch (profileError) {
-            console.warn("⚠️ Profile fetch failed, using email as name:", profileError);
-            const userData = { name: email, email };
-            setUser(userData);
-            await saveJSON(KEYS.user, userData);
-            console.log('✅ Fallback user profile set and authenticated');
-          }
-          
           // Broadcast authentication success
-          window.dispatchEvent(new CustomEvent('authStateChanged', { 
-            detail: { isAuthenticated: true, token } 
-          }));
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('authStateChanged', { 
+              detail: { isAuthenticated: true, token } 
+            }));
+          }
         } else {
           throw new Error("No access token received");
         }
