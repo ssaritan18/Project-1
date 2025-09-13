@@ -1,14 +1,14 @@
 import { Alert } from "react-native";
 import { router } from "expo-router";
-import { getStoredToken } from "../utils/tokenHelper";
+import { getAuthToken } from "../utils/authTokenHelper";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 export const uploadImage = async (chatId: string, file: File | any) => {
-  const token = getStoredToken();
+  const token = getAuthToken();
   
   if (!token) {
-    console.error("❌ No token available, cannot upload");
+    console.error("❌ No auth token available, cannot upload");
     Alert.alert(
       "Authentication Required",
       "Please login to upload media.",
