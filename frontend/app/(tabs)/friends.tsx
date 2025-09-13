@@ -5,7 +5,7 @@ import { useFriends } from "../../src/context/FriendsContext";
 import { useChat } from "../../src/context/ChatContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRuntimeConfig } from "../../src/context/RuntimeConfigContext";
-import { useAuth } from "../../src/context/SimpleAuthContext";
+import { useAuth } from "../../src/context/AuthContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProfileAvatar } from "../../src/components/ProfileAvatar";
 import { router } from "expo-router";
