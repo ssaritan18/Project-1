@@ -50,7 +50,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
       console.log('🔄 WebSocket: Auth state change detected, reconnecting...');
       // Trigger reconnection after a short delay to allow token to be stored
       setTimeout(() => {
-        if (syncEnabled && getStoredToken()) {
+        if (syncEnabled && getAuthToken()) {
           connectWebSocket();
         }
       }, 1000);
