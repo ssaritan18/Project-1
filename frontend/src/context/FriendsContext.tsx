@@ -335,10 +335,30 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
   const acceptRequest = async (id: string) => {
     if (syncEnabled && token) {
       try {
-        await api.post("/friends/accept", { request_id: id });
+        console.log("🌐 Accepting friend request via API:", id);
+        const response = await api.post(`/friends/accept/${id}`); // Updated to new format
+        console.log("✅ Friend request accepted via API:", response.data);
+        
         // Remove from local requests immediately
         setRequests((prev) => prev.filter((r) => r.id !== id));
-        // Refresh friends list
+        
+        // Real-time events will update the friends list
+        console.log("✅ Friend request accepted - waiting for real-time friend list update");
+        return;
+      } catch (error) {
+        console.error("❌ API accept request failed:", error);
+        throw new Error(`Failed to accept friend request: ${error.response?.data?.detail || error.message || 'Network error'}`);
+      }
+    }
+    
+    console.log("📱 Accepting friend request locally");
+    const req = requests.find((r) => r.id === id);
+    if (req) {
+      setFriends((prev) => [...prev, { id: uid(), name: req.from, email: req.from }]);
+      setRequests((prev) => prev.filter((r) => r.id !== id));
+    }
+    console.log("✅ Friend request accepted locally");
+  };
         await refresh();
         setLastNotification("Arkadaş isteği kabul edildi");
       } catch (e) {
