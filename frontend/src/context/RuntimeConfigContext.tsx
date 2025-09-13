@@ -67,10 +67,25 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
 
     const connectWebSocket = () => {
       const storedToken = getStoredToken();
-      if (!syncEnabled || !storedToken) {
-        console.log("🔌 RuntimeConfig: Skipping WebSocket - not ready", { syncEnabled, hasToken: !!storedToken });
+      if (!syncEnabled) {
+        console.log("🔌 RuntimeConfig: Sync disabled, skipping WebSocket");
         setWebSocket(null);
         setWsEnabled(false);
+        return;
+      }
+      
+      if (!storedToken) {
+        console.log("🔌 RuntimeConfig: No token available, will retry WebSocket connection");
+        setWebSocket(null);
+        setWsEnabled(false);
+        // Retry connection after 2 seconds if no token (user might be logging in)
+        setTimeout(() => {
+          const retryToken = getStoredToken();
+          if (retryToken) {
+            console.log("🔄 Retrying WebSocket connection with token");
+            connectWebSocket();
+          }
+        }, 2000);
         return;
       }
       
