@@ -40,21 +40,24 @@ async function getStoredToken(): Promise<string | null> {
       // Web platform - try localStorage first, then sessionStorage
       const localToken = localStorage.getItem(TOKEN_KEY);
       if (localToken) {
+        const cleanToken = localToken.replace(/^["']|["']$/g, '').trim();
         console.log('🔍 Token retrieved from localStorage');
-        return localToken;
+        return cleanToken;
       }
       
       const sessionToken = sessionStorage.getItem(TOKEN_KEY);
       if (sessionToken) {
+        const cleanToken = sessionToken.replace(/^["']|["']$/g, '').trim();
         console.log('🔍 Token retrieved from sessionStorage');
-        return sessionToken;
+        return cleanToken;
       }
     } else {
       // Native platform - use expo-secure-store
       const token = await SecureStore.getItemAsync(TOKEN_KEY);
       if (token) {
+        const cleanToken = token.replace(/^["']|["']$/g, '').trim();
         console.log('🔍 Token retrieved from secure storage');
-        return token;
+        return cleanToken;
       }
     }
     
