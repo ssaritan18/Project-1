@@ -2924,13 +2924,13 @@ async def get_friends_list(user=Depends(get_current_user)):
 
 # WebSocket connection handler with real-time events  
 @app.websocket("/api/ws")
-async def websocket_endpoint(websocket: WebSocket, token: str):
-    """Enhanced WebSocket endpoint with real-time friend & chat events"""
+async def websocket_endpoint(websocket: WebSocket, token: str = Query(...)):
+    """Enhanced WebSocket endpoint with proper query parameter token handling"""
     try:
-        # Authenticate user from token
+        # Authenticate user from query parameter token
         user = await get_user_from_token(token)
         if not user:
-            await websocket.close(code=4001, reason="Invalid token")
+            await websocket.close(code=4001, reason="Invalid or expired token")
             return
         
         user_id = user["_id"]
@@ -2968,12 +2968,15 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
         except Exception as e:
             logger.error(f"❌ WebSocket error for user {user_id}: {e}")
             
+    except JWTError:
+        await websocket.close(code=4001, reason="Invalid JWT token")
+        logger.warning("🔒 WebSocket connection rejected: Invalid JWT token")
     except Exception as e:
         logger.error(f"❌ WebSocket connection error: {e}")
         await websocket.close(code=4000, reason="Connection error")
     finally:
         # Clean up connection
-        if user_id in websocket_connections:
+        if 'user_id' in locals() and user_id in websocket_connections:
             websocket_connections.pop(user_id, None)
 
 async def handle_real_time_message(sender_id: str, message_data: dict):
