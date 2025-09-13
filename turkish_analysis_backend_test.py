@@ -485,7 +485,7 @@ class TurkishAnalysisAPITester:
                 # Check if user1 is in user2's friends list
                 found_friend = False
                 for friend in data["friends"]:
-                    if friend.get("email", "").lower() == user1_email.lower():
+                    if friend.get("friend_email", "").lower() == user1_email.lower():
                         found_friend = True
                         break
                 
