@@ -375,7 +375,7 @@ class TurkishAnalysisAPITester:
         self.log(f"Testing friend request from {user1_name} to {user2_name}...")
         url = f"{self.base_url}/friends/request"
         headers = {"Authorization": f"Bearer {token1}"}
-        payload = {"to_email": user2_email}
+        payload = {"email": user2_email}
         
         response = self.session.post(url, json=payload, headers=headers)
         
