@@ -42,7 +42,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
 
   // WebSocket management
   useEffect(() => {
-    const storedToken = getStoredToken();
+    const storedToken = getAuthToken();
     console.log("🔌 RuntimeConfig: WebSocket effect triggered", { syncEnabled, token: !!storedToken });
     
     // Listen for auth state changes
