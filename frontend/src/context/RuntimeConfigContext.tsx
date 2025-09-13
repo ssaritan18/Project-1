@@ -96,7 +96,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
           : storedToken;
         
         const encodedToken = encodeURIComponent(cleanToken);
-        const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/ws?token=${encodedToken}`;
+        const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${encodedToken}`;
         console.log('🔌 RuntimeConfig: Connecting WebSocket:', wsUrl.replace(encodedToken, 'TOKEN_HIDDEN'));
         
         ws = new WebSocket(wsUrl);
