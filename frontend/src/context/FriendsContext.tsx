@@ -287,9 +287,23 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
           const rq = await api.get("/friends/requests");
           const serverReqs = (rq.data.requests || []).map((r: any) => ({ id: r._id, from: r.from_name || r.from_email || "Friend" }));
           setRequests(serverReqs);
-        } catch {}
+        } catch (error: any) {
+          // Handle rate limiting gracefully
+          if (error.response?.status === 429) {
+            console.warn("⚠️ Rate limited on friends requests, backing off...");
+            // Don't update state when rate limited, keep existing data
+            return;
+          }
+          console.warn("⚠️ Failed to fetch friend requests:", error.message);
+        }
         return;
-      } catch (e) {
+      } catch (error: any) {
+        // Handle rate limiting and other errors
+        if (error.response?.status === 429) {
+          console.warn("⚠️ Rate limited on friends list, backing off...");
+          return;
+        }
+        console.warn("⚠️ Failed to fetch friends list:", error.message);
         // fallthrough to local
       }
     }
