@@ -50,21 +50,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const setToken = async (t: string | null) => {
-    _setToken(t);
     if (t) {
+      // Sanitize token by removing extra quotes
+      const sanitizedToken = t.replace(/^["']|["']$/g, '').trim();
+      _setToken(sanitizedToken);
+      
       // Set both API and secure storage
-      setAuthToken(t);
-      await setSecureAuthToken(t);
-      setInMemoryToken(t);
+      setAuthToken(sanitizedToken);
+      await setSecureAuthToken(sanitizedToken);
+      setInMemoryToken(sanitizedToken);
       
       // Legacy support - also save via saveJSON for backward compatibility
-      await saveJSON(KEYS.token, t);
+      await saveJSON(KEYS.token, sanitizedToken);
       console.log('💾 Token saved to all storage locations');
+      
+      // Dispatch token updated event
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('tokenUpdated', { 
+          detail: { token: sanitizedToken } 
+        }));
+      }
     } else {
+      _setToken(null);
+      
       // Clear from all locations
       setAuthToken(null);
       await clearAuthToken();
       console.log('🗑️ Token cleared from all storage locations');
+      
+      // Dispatch token cleared event
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('tokenUpdated', { 
+          detail: { token: null } 
+        }));
+      }
     }
   };
 
