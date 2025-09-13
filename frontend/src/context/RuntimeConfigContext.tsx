@@ -50,6 +50,17 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
     let reconnectAttempts = 0;
     const maxReconnectAttempts = 5;
 
+    const handleTokenUpdated = async (event: any) => {
+      console.log('🔄 WebSocket: Token updated, reconnecting...');
+      setTimeout(async () => {
+        if (!isMounted) return;
+        const newToken = await getAuthToken();
+        if (syncEnabled && newToken) {
+          connectWebSocket();
+        }
+      }, 500);
+    };
+
     const handleAuthStateChange = async (event: any) => {
       console.log('🔄 WebSocket: Auth state change detected, reconnecting...');
       setTimeout(async () => {
@@ -59,17 +70,6 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
           connectWebSocket();
         }
       }, 1000);
-    };
-
-    const handleTokenRefresh = async (event: any) => {
-      console.log('🔄 WebSocket: Token refreshed, reconnecting...');
-      setTimeout(async () => {
-        if (!isMounted) return;
-        const newToken = await getAuthToken();
-        if (syncEnabled && newToken) {
-          connectWebSocket();
-        }
-      }, 500);
     };
 
     const startPollingMode = () => {
