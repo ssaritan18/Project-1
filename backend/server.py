@@ -1237,29 +1237,6 @@ async def reject_friend_request(payload: FriendRejectReq, user=Depends(get_curre
     await ws_broadcast_to_user(fr["from_user_id"], {"type": "friend_request:rejected", "by": {"id": user["_id"], "name": user.get("name"), "email": user.get("email")}})
     return {"rejected": True}
 
-@api_router.get("/friends/list")
-async def friends_list(user=Depends(get_current_user)):
-    ids = user.get("friends", [])
-    items = []
-    if ids:
-        items = await db.users.find({"_id": {"$in": ids}}).to_list(200)
-    return {"friends": [{"_id": u["_id"], "name": u.get("name"), "email": u.get("email") } for u in items]}
-
-@api_router.get("/friends/requests")
-async def friends_requests(user=Depends(get_current_user)):
-    reqs = await db.friend_requests.find({"to_user_id": user["_id"], "status": "pending"}).sort("created_at", -1).to_list(200)
-    results = []
-    for r in reqs:
-        fu = await db.users.find_one({"_id": r["from_user_id"]})
-        results.append({
-            "_id": r["_id"],
-            "from_user_id": r["from_user_id"],
-            "from_name": fu.get("name") if fu else None,
-            "from_email": fu.get("email") if fu else None,
-            "created_at": r.get("created_at"),
-        })
-    return {"requests": results}
-
 # --- Community Posts CRUD System ---
 
 @api_router.get("/posts/feed")
