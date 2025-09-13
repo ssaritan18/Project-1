@@ -253,7 +253,7 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
           console.log("📡 Polling friends data...");
           refresh();
         }
-      }, 30000); // Changed from 6s to 30s to prevent rate limiting
+      }, 120000); // Changed to 2 minutes to prevent 429 rate limiting
     }
     return () => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } };
   }, [syncEnabled, token, wsEnabled]);
