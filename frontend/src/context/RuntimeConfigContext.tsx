@@ -209,9 +209,9 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
             startPollingFallback();
           } else {
             // Production - try to reconnect WebSocket
-            reconnectTimer = setTimeout(() => {
+            reconnectTimer = setTimeout(async () => {
               console.log('🔄 RuntimeConfig: Attempting to reconnect WebSocket...');
-              connectWebSocket();
+              await connectWebSocket();
             }, 5000);
           }
         };
