@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState, useCall
 import { PERSIST_ENABLED, KEYS } from "../config";
 import { loadJSON, saveJSON } from "../utils/persist";
 import { chatAPI } from "../lib/api";
-import { useAuth } from "./SimpleAuthContext";
+import { useAuth } from "./AuthContext";
 import { useRuntimeConfig } from "./RuntimeConfigContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
