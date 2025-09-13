@@ -56,7 +56,23 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
       }, 1000);
     };
     
+    // Listen for token refresh events
+    const handleTokenRefresh = (event: any) => {
+      console.log('🔄 WebSocket: Token refresh detected, reconnecting with new token...');
+      const { token } = event.detail;
+      if (syncEnabled && token) {
+        // Close existing connection and reconnect with new token
+        if (ws) {
+          ws.close();
+        }
+        setTimeout(() => {
+          connectWebSocket();
+        }, 500);
+      }
+    };
+    
     window.addEventListener('authStateChanged', handleAuthStateChange);
+    window.addEventListener('tokenRefreshed', handleTokenRefresh);
     
     let ws: WebSocket | null = null;
     let reconnectTimer: NodeJS.Timeout | null = null;
