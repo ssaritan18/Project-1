@@ -405,7 +405,7 @@ class TurkishAnalysisAPITester:
                 # Find the request from user1
                 found_request = None
                 for req in data["requests"]:
-                    if req.get("from_email", "").lower() == user1_email.lower():
+                    if req.get("sender_email", "").lower() == user1_email.lower():
                         found_request = req
                         break
                 
