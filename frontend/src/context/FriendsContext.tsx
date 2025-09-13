@@ -366,21 +366,7 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     console.log("✅ Friend request rejected");
   };
 
-  const rejectRequest = async (id: string) => {
-    if (syncEnabled && token) {
-      try {
-        await api.post("/friends/reject", { request_id: id });
-        // Remove from local requests immediately
-        setRequests((prev) => prev.filter((r) => r.id !== id));
-        setLastNotification("Arkadaş isteği reddedildi");
-      } catch (e) {
-        console.error("❌ Reject request failed:", e);
-      }
-      return;
-    }
-    // Local-only logic
-    setRequests((prev) => prev.filter((r) => r.id !== id));
-  };
+
 
   const addPost = (text: string) => setPosts((prev) => [{ id: uid(), author: "You", text, ts: Date.now(), reactions: {} }, ...prev]);
   const reactPost = (postId: string, type: "like" | "clap" | "star" | "heart") => setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, reactions: { ...p.reactions, [type]: (p.reactions[type] || 0) + 1 } } : p)));
