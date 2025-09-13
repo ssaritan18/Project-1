@@ -315,14 +315,15 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     if (syncEnabled && token) {
       try {
         console.log("🌐 Making API call to /friends/request");
-        await api.post("/friends/request", { to_email: email });
-        console.log("✅ API call successful, refreshing friends list");
-        await refresh();
-        console.log("✅ Friend request sent successfully via API");
+        const response = await api.post("/friends/request", { email }); // Updated to new format
+        console.log("✅ API call successful:", response.data);
+        
+        // Don't need to refresh immediately - real-time events will update the UI
+        console.log("✅ Friend request sent successfully via API - waiting for real-time updates");
         return;
       } catch (error) {
         console.error("❌ API friend request failed:", error);
-        throw new Error(`Failed to send friend request: ${error.message || 'Network error'}`);
+        throw new Error(`Failed to send friend request: ${error.response?.data?.detail || error.message || 'Network error'}`);
       }
     }
     
