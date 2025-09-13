@@ -89,7 +89,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
       
       const pollForUpdates = async () => {
         try {
-          const storedToken = getAuthToken();
+          const storedToken = await getAuthToken();
           if (!storedToken) return;
           
           // Poll for updates every 10 seconds
