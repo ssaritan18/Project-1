@@ -122,7 +122,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
     };
 
     const connectWebSocket = () => {
-      const storedToken = getStoredToken();
+      const storedToken = getAuthToken();
       if (!syncEnabled) {
         console.log("🔌 RuntimeConfig: Sync disabled, skipping WebSocket");
         setWebSocket(null);
