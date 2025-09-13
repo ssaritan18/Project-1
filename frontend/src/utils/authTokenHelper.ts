@@ -13,14 +13,13 @@ let inMemoryToken: string | null = null;
  */
 async function setStoredToken(token: string): Promise<void> {
   try {
-    if (Platform.OS === 'web') {
+    // Check if we're in web environment
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       // Web platform - use localStorage
-      if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.setItem(TOKEN_KEY, token);
-        // Also store in sessionStorage as backup
-        sessionStorage.setItem(TOKEN_KEY, token);
-        console.log('💾 Token stored in web storage (localStorage + sessionStorage)');
-      }
+      localStorage.setItem(TOKEN_KEY, token);
+      // Also store in sessionStorage as backup
+      sessionStorage.setItem(TOKEN_KEY, token);
+      console.log('💾 Token stored in web storage (localStorage + sessionStorage)');
     } else {
       // Native platform - use expo-secure-store  
       await SecureStore.setItemAsync(TOKEN_KEY, token);
