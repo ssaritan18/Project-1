@@ -61,9 +61,49 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
     let ws: WebSocket | null = null;
     let reconnectTimer: NodeJS.Timeout | null = null;
     let heartbeatTimer: NodeJS.Timeout | null = null;
+    let pollingTimer: NodeJS.Timeout | null = null;
     let reconnectAttempts = 0;
     const maxReconnectAttempts = 5;
     const reconnectDelay = 3000; // 3 seconds
+
+    const startPollingFallback = () => {
+      console.log('🔄 Starting polling fallback for preview environment');
+      
+      const pollForUpdates = async () => {
+        try {
+          const storedToken = getStoredToken();
+          if (!storedToken) return;
+          
+          // Poll for updates every 10 seconds
+          const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/poll-updates`, {
+            headers: {
+              'Authorization': `Bearer ${storedToken}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.updates && data.updates.length > 0) {
+              console.log('📨 Polling: Updates received:', data.updates.length);
+              // Process updates similar to WebSocket messages
+              data.updates.forEach((update: any) => {
+                console.log('📨 Polling: Processing update:', update.type);
+              });
+            }
+          }
+        } catch (error) {
+          console.error('❌ Polling error:', error);
+        }
+      };
+      
+      // Start polling every 10 seconds
+      if (pollingTimer) clearInterval(pollingTimer);
+      pollingTimer = setInterval(pollForUpdates, 10000);
+      
+      // Initial poll
+      pollForUpdates();
+    };
 
     const connectWebSocket = () => {
       const storedToken = getStoredToken();
