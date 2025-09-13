@@ -190,6 +190,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           throw new Error("No access token received");
         }
+      } catch (error: any) {
         console.error("❌ Login error:", error);
         
         // Handle specific error types
