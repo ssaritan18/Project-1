@@ -18,10 +18,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (typeof window !== 'undefined') {
       const stored = getStoredToken();
       console.log('🔐 SimpleAuthContext init token:', stored ? 'Found' : 'Missing');
+      if (stored) {
+        console.log('✅ Token found on initialization - user should be authenticated');
+      }
       return stored;
     }
     return null;
   });
+
+  // Force authentication state sync on mount and token changes
+  React.useEffect(() => {
+    const currentToken = getStoredToken();
+    if (currentToken && currentToken !== token) {
+      console.log('🔄 Hydrating token from storage on mount');
+      _setToken(currentToken);
+    }
+  }, []);
 
   // Listen for auth state changes and check token storage
   React.useEffect(() => {
