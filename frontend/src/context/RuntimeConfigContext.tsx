@@ -136,7 +136,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
         setWsEnabled(false);
         // Retry connection after 2 seconds if no token (user might be logging in)
         setTimeout(() => {
-          const retryToken = getStoredToken();
+          const retryToken = getAuthToken();
           if (retryToken) {
             console.log("🔄 Retrying WebSocket connection with token");
             connectWebSocket();
