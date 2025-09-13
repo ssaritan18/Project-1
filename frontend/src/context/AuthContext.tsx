@@ -84,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const t = await loadJSON<string | null>(KEYS.token, null);
           if (t) {
             setToken(t);
+            setInMemoryToken(t); // Initialize authTokenHelper cache
             try {
               const me = await api.get("/me");
               const u: User = { name: me.data.name, email: me.data.email, photoBase64: me.data.photo_base64 };
