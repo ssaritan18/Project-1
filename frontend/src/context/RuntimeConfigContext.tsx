@@ -152,7 +152,38 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
           // Start polling mode as fallback immediately
           if (!pollingTimer) {
             console.log('🔄 Starting polling fallback for preview environment');
-            startPollingMode();
+            pollingTimer = setInterval(async () => {
+              try {
+                const token = await getAuthToken();
+                console.log('🔑 Token fetched from localStorage:', token ? token.substring(0, 20) + '...' : 'null');
+                
+                if (token) {
+                  const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/poll-updates`, {
+                    headers: {
+                      'Authorization': `Bearer ${token}`,
+                      'Content-Type': 'application/json'
+                    }
+                  });
+                  
+                  if (response.ok) {
+                    const data = await response.json();
+                    console.log('📡 Polling data received:', data);
+                    
+                    // Broadcast polling data as WebSocket message
+                    if (typeof window !== 'undefined') {
+                      window.dispatchEvent(new CustomEvent('websocketMessage', {
+                        detail: {
+                          type: 'pollingUpdate',
+                          data: data.updates
+                        }
+                      }));
+                    }
+                  }
+                }
+              } catch (pollingError) {
+                console.error('❌ Polling error:', pollingError);
+              }
+            }, 10000); // Poll every 10 seconds
           }
         };
         
