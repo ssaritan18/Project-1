@@ -14,7 +14,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timezone
 
 # Base URL from frontend .env
-BASE_URL = "https://focus-social.preview.emergentagent.com/api"
+BASE_URL = "https://adhd-connect-2.preview.emergentagent.com/api"
 
 class CommentTester:
     def __init__(self):

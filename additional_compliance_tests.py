@@ -12,7 +12,7 @@ from datetime import datetime
 import sys
 
 # Configuration
-BASE_URL = "https://focus-social.preview.emergentagent.com/api"
+BASE_URL = "https://adhd-connect-2.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 class AdditionalComplianceTest:

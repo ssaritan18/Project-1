@@ -46,7 +46,7 @@
             
             // Check if user is logged in by testing /api/me endpoint
             try {
-                const response = await fetch('https://focus-social.preview.emergentagent.com/api/me', {
+                const response = await fetch('https://adhd-connect-2.preview.emergentagent.com/api/me', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -67,7 +67,7 @@
             log('🌐 Testing backend connection...');
             
             try {
-                const response = await fetch('https://focus-social.preview.emergentagent.com/api/');
+                const response = await fetch('https://adhd-connect-2.preview.emergentagent.com/api/');
                 log(`✅ Backend connection: ${response.status} - ${response.ok ? 'OK' : 'Error'}`);
             } catch (error) {
                 log(`❌ Backend connection failed: ${error.message}`);
@@ -92,7 +92,7 @@
             try {
                 log('📤 Starting upload test...');
                 
-                const response = await fetch('https://focus-social.preview.emergentagent.com/api/chats/test_chat_id/upload', {
+                const response = await fetch('https://adhd-connect-2.preview.emergentagent.com/api/chats/test_chat_id/upload', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`

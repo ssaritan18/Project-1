@@ -1,0 +1,117 @@
+<analysis>
+The trajectory details a complex debugging journey for an ADHDers social club application, focusing primarily on authentication, token persistence, media upload functionality, and frontend navigation issues. Initially, the AI engineer identified and resolved backend environment variable (, ) and API routing ( prefix) issues. The core of the work then shifted to persistent frontend problems: the preview site not loading, a React Native version mismatch for local development, and crucially, a recurring authentication token failure preventing media uploads and chat functionality.
+
+The debugging process was highly iterative, involving numerous code inspections, environment checks, static builds, and close collaboration with the user, including a call to a . Key challenges included the distinction between  and  on web, a misaligned token key ( vs. ), and structural/synchronization issues within React Contexts. The AI engineer attempted multiple solutions, including robust multi-storage fallback for tokens, and implemented several user-provided code snippets and detailed plans. The most recent focus has been on consolidating token retrieval into a global utility () to ensure reliable access to the authentication token, regardless of context state. Build issues and syntax errors also punctuated the process, requiring careful fixes.
+</analysis>
+
+<product_requirements>
+The user is developing an ADHDers social club application, a full-stack app with a React frontend, FastAPI backend, and MongoDB database. The primary problem presented was an upload error () in the chat feature, preventing media uploads.
+
+The initial work involved debugging and stabilizing the application's core functionality, including:
+1.  **Backend Configuration**: Ensuring  and  environment variables are correctly set and the backend service is running.
+2.  **Frontend-Backend API Communication**: Correctly prefixing backend API routes with  and ensuring the frontend uses .
+3.  **Frontend Preview**: Resolving issues preventing the web preview from loading, including port conflicts and static build generation.
+4.  **Authentication and Token Management**: This became the central challenge. The user explicitly requested:
+    *   Ensuring the authentication token () is correctly persisted in  after login.
+    *   Guaranteed injection of  header in all backend calls (upload, chat messages).
+    *   User alerts and re-direction to login if a token is missing.
+    *   Offline/local mode for demo/test, and online/backend mode with token for production.
+    *   Camera/gallery pick and upload functionality with proper permissions.
+    *   Specific code snippets for , /, , and  permissions were provided by the user to achieve a production-ready state.
+5.  **Chat Navigation**: Fixing issues where clicking a chat button in the friends list did not navigate to the direct chat page, or resulted in Chat not found.
+6.  **WebSocket Connection**: Ensuring the WebSocket connects successfully with a valid token and has a polling fallback for preview environments.
+
+The overarching goal is to make the application production-ready for deployment to platforms like Google Store, with robust authentication, functional chat and media upload, and stable navigation.
+</product_requirements>
+
+<key_technical_concepts>
+-   **React/Expo**: Frontend framework for web and mobile development.
+-   **FastAPI**: Python backend framework.
+-   **MongoDB**: Database.
+-   **JWT Authentication**: Token-based authentication for API calls.
+-   **Environment Variables**: , , .
+-   **LocalStorage/SessionStorage/Cookies**: Client-side storage for authentication tokens.
+-   **WebSocket**: For real-time chat functionality.
+-   **backend                          RUNNING   pid 27, uptime 0:00:04
+code-server                      RUNNING   pid 29, uptime 0:00:04
+frontend                         STOPPED   Sep 13 12:52 PM
+mongodb                          RUNNING   pid 35, uptime 0:00:04
+supervisor> **: Process control system for frontend/backend services.
+-   ****: React Native's persistent data storage, relevant for mobile platforms.
+</key_technical_concepts>
+
+<code_architecture>
+The application has a standard full-stack structure:
+
+
+
+Detailed Directory Structure:
+
+
+**Key Files and Changes:**
+
+-   : Created to define  and , crucial for backend startup.
+-   : Created to define , crucial for frontend API calls.
+-   : Ensured  prefix for all routes and  configuration. Upload endpoint  was confirmed.
+-   :
+    -   **Purpose**: Displays individual chat conversations and handles media uploads.
+    -   **Changes**: Initially, corrected API endpoint to include  prefix. Later, refined error handling for 401 responses, integrated  and , and simplified the  function. Modified to use robust token retrieval from  and now .
+-   :
+    -   **Purpose**: Displays the user's friends list and allows initiating direct chats.
+    -   **Changes**: Fixed navigation logic from the chat button to correctly push to  using . Debug logs were added to trace navigation. Updated to use robust token retrieval.
+-   :
+    -   **Purpose**: Manages the global authentication state (, user data, login/logout).
+    -   **Changes**: Integrated multi-storage  (and now ) for saving/retrieving tokens. Corrected syntax errors that prevented builds. Ensured immediate update of  upon login and force-saved tokens.
+-   :
+    -   **Purpose**: Manages chat data, messages, and WebSocket connections.
+    -   **Changes**: Updated  check to rely on  availability. Implemented hybrid chat array logic to handle local fallbacks when backend API fails. Integrated robust token retrieval for WebSocket connection and message sending.
+-   :
+    -   **Purpose**: Manages runtime configuration like sync mode and WebSocket connectivity.
+    -   **Changes**: Modified WebSocket initialization to use the robust token helper and added polling fallback for preview environments. Added event listeners for auth state changes to trigger WebSocket reconnection.
+-   :
+    -   **Purpose**: Utility for persisting data using .
+    -   **Changes**: Modified to use  for web environments, and retained  for mobile.
+-    (created, then largely subsumed by ):
+    -   **Purpose**: Provided a centralized way to get/set/clear tokens across , , and cookies.
+    -   **Changes**: Implemented multi-storage fallback for , , .
+-    (currently being created):
+    -   **Purpose**: A new global utility to retrieve the authentication token, prioritizing in-memory (AuthContext) then robust storage methods.
+    -   **Changes**: Currently being defined and integrated into , , , , and .
+-    (created):
+    -   **Purpose**: Encapsulates  and  logic.
+    -   **Changes**: Integrated token retrieval (from  then , now ) and  header injection.
+-    (created):
+    -   **Purpose**: Handles media picking (camera/gallery) and calls .
+    -   **Changes**: Integrated permission requests, media picking, and calls  (now using  for token).
+-   :
+    -   **Purpose**: Expo configuration, including app name, icon, and permissions.
+    -   **Changes**: Added necessary Android (, ) and iOS (, ) permissions.
+-   :
+    -   **Purpose**: User login interface.
+    -   **Changes**: Corrected the login function call from  to  to ensure token persistence is triggered.
+
+The project involves continuous integration and deployment with static builds for the frontend and supervised services for both frontend and backend.
+</code_architecture>
+
+<pending_tasks>
+-   **React Native Version Mismatch (Local Development)**: The user reported issues opening the app on their PC with Expo SDK 54 and React Native version mismatch. While  was updated for compatibility, the user has not yet verified this fix locally.
+-   **Final Verification of Upload/Chat Functionality**: Despite numerous fixes to token handling, the core upload/chat functionality still needs to be fully verified by the user in the preview environment after the current  implementation is complete and deployed.
+</pending_tasks>
+
+<current_work>
+The current work is focused on implementing the user's latest proposed  utility to create a robust, global function for retrieving the authentication token. This helper is designed to prioritize the in-memory token from , then fall back to , and finally , ensuring that the token is always available for backend API calls regardless of synchronization issues between different contexts.
+
+Specifically, the AI engineer has:
+1.  Created a new file: .
+2.  Updated  (in ) to call  from this new helper.
+3.  Updated  (in ) to call .
+4.  Updated  to use .
+5.  Updated  to integrate with the new  for setting and retrieving tokens.
+6.  Updated the chat page () to rely on this new helper.
+
+The AI engineer is currently in the process of updating the  function within the  (specifically  as  comes from ChatContext) to also utilize . The immediate next step is to complete this modification.
+</current_work>
+
+<optional_next_step>
+Complete the integration of  into the  function within  and then perform a new build and deploy.
+</optional_next_step>

@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Dict, Optional, List
 
 # Base URL from frontend .env
-BASE_URL = "https://focus-social.preview.emergentagent.com/api"
+BASE_URL = "https://adhd-connect-2.preview.emergentagent.com/api"
 
 class ChatMediaUploadTester:
     def __init__(self):
@@ -148,7 +148,7 @@ class ChatMediaUploadTester:
         """Test that uploaded files can be retrieved via static file serving"""
         # Convert relative URL to full URL with API prefix
         if media_url.startswith('/'):
-            full_url = f"https://focus-social.preview.emergentagent.com/api{media_url}"
+            full_url = f"https://adhd-connect-2.preview.emergentagent.com/api{media_url}"
         else:
             full_url = media_url
             

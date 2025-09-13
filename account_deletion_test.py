@@ -11,7 +11,7 @@ import time
 from typing import Dict, Optional, List
 
 # Base URL from backend .env
-BASE_URL = "https://focus-social.preview.emergentagent.com/api"
+BASE_URL = "https://adhd-connect-2.preview.emergentagent.com/api"
 
 class AccountDeletionTester:
     def __init__(self):

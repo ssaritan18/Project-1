@@ -25,7 +25,7 @@ from typing import Dict, Optional, List
 from datetime import datetime
 
 # Base URL from existing tests
-BASE_URL = "https://focus-social.preview.emergentagent.com/api"
+BASE_URL = "https://adhd-connect-2.preview.emergentagent.com/api"
 
 class ReportSystemTester:
     def __init__(self):

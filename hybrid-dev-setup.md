@@ -7,8 +7,8 @@ Container inotify limits prevent React hot-reload from working properly.
 
 ### 1. Keep Backend in Container
 The backend stays in the container and is accessible at:
-- API: `https://focus-social.preview.emergentagent.com/api`
-- Health check: `https://focus-social.preview.emergentagent.com/health`
+- API: `https://adhd-connect-2.preview.emergentagent.com/api`
+- Health check: `https://adhd-connect-2.preview.emergentagent.com/health`
 
 ### 2. Run Frontend Locally
 
@@ -21,8 +21,8 @@ The backend stays in the container and is accessible at:
 
 3. **Update .env for local development**:
    ```
-   EXPO_PUBLIC_BACKEND_URL=https://focus-social.preview.emergentagent.com/api
-   REACT_APP_BACKEND_URL=https://focus-social.preview.emergentagent.com
+   EXPO_PUBLIC_BACKEND_URL=https://adhd-connect-2.preview.emergentagent.com/api
+   REACT_APP_BACKEND_URL=https://adhd-connect-2.preview.emergentagent.com
    ```
 
 4. **Start local development server**:
