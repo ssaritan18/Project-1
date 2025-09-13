@@ -235,6 +235,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
       
       if (reconnectTimer) clearTimeout(reconnectTimer);
       if (heartbeatTimer) clearInterval(heartbeatTimer);
+      if (pollingTimer) clearInterval(pollingTimer);
       
       if (ws) {
         ws.close();
