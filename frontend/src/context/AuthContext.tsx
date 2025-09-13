@@ -49,25 +49,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return null;
   });
 
-  const setToken = (t: string | null) => {
+  const setToken = async (t: string | null) => {
     _setToken(t);
     if (t) {
-      // Persist token to storage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(KEYS.token, t);
-        console.log('💾 Token saved to localStorage with key:', KEYS.token);
-      }
+      // Set both API and secure storage
       setAuthToken(t);
-      setInMemoryToken(t); // Update authTokenHelper cache
-      saveJSON(KEYS.token, t); // Also save via saveJSON for mobile compatibility
+      await setSecureAuthToken(t);
+      setInMemoryToken(t);
+      
+      // Legacy support - also save via saveJSON for backward compatibility
+      await saveJSON(KEYS.token, t);
+      console.log('💾 Token saved to all storage locations');
     } else {
-      // Clear token from storage
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem(KEYS.token);
-        console.log('🗑️ Token cleared from localStorage');
-      }
+      // Clear from all locations
       setAuthToken(null);
-      setInMemoryToken(null); // Clear authTokenHelper cache
+      await clearAuthToken();
+      console.log('🗑️ Token cleared from all storage locations');
     }
   };
 
