@@ -1,52 +1,150 @@
-import { getStoredToken } from "./tokenHelper";
+import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
-// Global auth token retrieval utility
-// Tries multiple sources in priority order:
-// 1. In-memory token from AuthContext
-// 2. localStorage
-// 3. sessionStorage 
-// 4. Cookie fallback
+const TOKEN_KEY = 'adhders_token_v1';
 
+// In-memory token cache for fastest access
 let inMemoryToken: string | null = null;
 
-export function setInMemoryToken(token: string | null): void {
-  inMemoryToken = token;
-  console.log('🧠 In-memory token updated:', token ? 'Available' : 'Cleared');
+/**
+ * Cross-platform secure token storage
+ * - Web: Uses localStorage (secure enough for web apps)
+ * - Native: Uses expo-secure-store (encrypted storage)
+ */
+async function setStoredToken(token: string): Promise<void> {
+  try {
+    if (Platform.OS === 'web') {
+      // Web platform - use localStorage
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem(TOKEN_KEY, token);
+        // Also store in sessionStorage as backup
+        sessionStorage.setItem(TOKEN_KEY, token);
+        console.log('💾 Token stored in web storage (localStorage + sessionStorage)');
+      }
+    } else {
+      // Native platform - use expo-secure-store  
+      await SecureStore.setItemAsync(TOKEN_KEY, token);
+      console.log('💾 Token stored in secure storage (encrypted)');
+    }
+  } catch (error) {
+    console.error('❌ Failed to store token:', error);
+  }
 }
 
-export function getAuthToken(): string | null {
+/**
+ * Cross-platform secure token retrieval
+ */
+async function getStoredToken(): Promise<string | null> {
+  try {
+    if (Platform.OS === 'web') {
+      // Web platform - try localStorage first, then sessionStorage
+      if (typeof window !== 'undefined') {
+        const localToken = localStorage.getItem(TOKEN_KEY);
+        if (localToken) {
+          console.log('🔍 Token retrieved from localStorage');
+          return localToken;
+        }
+        
+        const sessionToken = sessionStorage.getItem(TOKEN_KEY);
+        if (sessionToken) {
+          console.log('🔍 Token retrieved from sessionStorage');
+          return sessionToken;
+        }
+      }
+    } else {
+      // Native platform - use expo-secure-store
+      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+      if (token) {
+        console.log('🔍 Token retrieved from secure storage');
+        return token;
+      }
+    }
+    
+    console.log('⚠️ No token found in storage');
+    return null;
+  } catch (error) {
+    console.error('❌ Failed to retrieve token:', error);
+    return null;
+  }
+}
+
+/**
+ * Cross-platform token clearing
+ */
+async function clearStoredToken(): Promise<void> {
+  try {
+    if (Platform.OS === 'web') {
+      // Web platform
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(TOKEN_KEY);
+        sessionStorage.removeItem(TOKEN_KEY);
+        console.log('🗑️ Token cleared from web storage');
+      }
+    } else {
+      // Native platform
+      await SecureStore.deleteItemAsync(TOKEN_KEY);
+      console.log('🗑️ Token cleared from secure storage');
+    }
+  } catch (error) {
+    console.error('❌ Failed to clear token:', error);
+  }
+}
+
+/**
+ * Set in-memory token (fastest access)
+ */
+export function setInMemoryToken(token: string | null): void {
+  inMemoryToken = token;
+  console.log(`🧠 In-memory token updated: ${token ? 'Set' : 'Cleared'}`);
+}
+
+/**
+ * Main token retrieval function - tries all sources in priority order
+ * Priority: 1) In-memory 2) Platform-specific secure storage
+ */
+export async function getAuthToken(): Promise<string | null> {
   console.log('🔍 getAuthToken() called - checking all sources...');
   
-  // Priority 1: In-memory token (fastest, most up-to-date)
+  // 1. Try in-memory first (fastest)
   if (inMemoryToken) {
     console.log('🧠 Using in-memory token');
     return inMemoryToken;
   }
   
-  // Priority 2-4: Storage fallback (localStorage → sessionStorage → cookie)
-  const storedToken = getStoredToken();
+  // 2. Try platform-specific storage
+  const storedToken = await getStoredToken();
   if (storedToken) {
-    console.log('💾 Using stored token, updating in-memory cache');
-    setInMemoryToken(storedToken); // Cache for next time
+    // Cache in memory for faster future access
+    inMemoryToken = storedToken;
     return storedToken;
   }
   
-  console.warn('⚠️ No auth token found in any source');
+  console.log('⚠️ No token found in any storage method');
   return null;
 }
 
-export function clearAuthToken(): void {
-  console.log('🗑️ Clearing auth token from all sources');
-  inMemoryToken = null;
+/**
+ * Store token in both memory and persistent storage
+ */
+export async function setAuthToken(token: string): Promise<void> {
+  // Set in memory immediately
+  setInMemoryToken(token);
   
-  // Also clear storage
-  try {
-    localStorage.removeItem('adhders_token_v1');
-    sessionStorage.removeItem('adhders_token_v1');
-    document.cookie = 'adhders_token_v1=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-  } catch (err) {
-    console.warn('⚠️ Error clearing storage:', err);
-  }
+  // Store persistently
+  await setStoredToken(token);
+}
+
+/**
+ * Clear token from all storage locations
+ */
+export async function clearAuthToken(): Promise<void> {
+  // Clear memory
+  setInMemoryToken(null);
+  
+  // Clear persistent storage
+  await clearStoredToken();
+  
+  console.log('✅ Auth token cleared from all sources');
 }
 
 export function hasValidAuthToken(): boolean {
