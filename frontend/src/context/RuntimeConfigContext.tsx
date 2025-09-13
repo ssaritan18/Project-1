@@ -42,19 +42,21 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
 
   // WebSocket management
   useEffect(() => {
-    const storedToken = getAuthToken();
-    console.log("🔌 RuntimeConfig: WebSocket effect triggered", { syncEnabled, token: !!storedToken });
-    
-    // Listen for auth state changes
-    const handleAuthStateChange = (event: any) => {
-      console.log('🔄 WebSocket: Auth state change detected, reconnecting...');
-      // Trigger reconnection after a short delay to allow token to be stored
-      setTimeout(() => {
-        if (syncEnabled && getAuthToken()) {
-          connectWebSocket();
-        }
-      }, 1000);
-    };
+    (async () => {
+      const storedToken = await getAuthToken();
+      console.log("🔌 RuntimeConfig: WebSocket effect triggered", { syncEnabled, token: !!storedToken });
+      
+      // Listen for auth state changes
+      const handleAuthStateChange = (event: any) => {
+        console.log('🔄 WebSocket: Auth state change detected, reconnecting...');
+        // Trigger reconnection after a short delay to allow token to be stored
+        setTimeout(async () => {
+          const newToken = await getAuthToken();
+          if (syncEnabled && newToken) {
+            connectWebSocket();
+          }
+        }, 1000);
+      };
     
     // Listen for token refresh events
     const handleTokenRefresh = (event: any) => {
