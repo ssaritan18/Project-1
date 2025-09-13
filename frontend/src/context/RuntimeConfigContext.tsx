@@ -40,90 +40,41 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
     })();
   }, []);
 
-  // WebSocket management
+  // WebSocket management with proper cleanup
   useEffect(() => {
-    (async () => {
-      const storedToken = await getAuthToken();
-      console.log("🔌 RuntimeConfig: WebSocket effect triggered", { syncEnabled, token: !!storedToken });
-      
-      // Listen for auth state changes
-      const handleAuthStateChange = (event: any) => {
-        console.log('🔄 WebSocket: Auth state change detected, reconnecting...');
-        // Trigger reconnection after a short delay to allow token to be stored
-        setTimeout(async () => {
-          const newToken = await getAuthToken();
-          if (syncEnabled && newToken) {
-            await connectWebSocket();
-          }
-        }, 1000);
-      };
-    
-    // Listen for token refresh events
-    const handleTokenRefresh = (event: any) => {
-      console.log('🔄 WebSocket: Token refresh detected, reconnecting with new token...');
-      const { token } = event.detail;
-      if (syncEnabled && token) {
-        // Close existing connection and reconnect with new token
-        if (ws) {
-          ws.close();
-        }
-        setTimeout(async () => {
-          await connectWebSocket();
-        }, 500);
-      }
-    };
-    
-    window.addEventListener('authStateChanged', handleAuthStateChange);
-    window.addEventListener('tokenRefreshed', handleTokenRefresh);
-    
+    let isMounted = true;
     let ws: WebSocket | null = null;
     let reconnectTimer: NodeJS.Timeout | null = null;
     let heartbeatTimer: NodeJS.Timeout | null = null;
     let pollingTimer: NodeJS.Timeout | null = null;
     let reconnectAttempts = 0;
     const maxReconnectAttempts = 5;
-    const reconnectDelay = 3000; // 3 seconds
 
-    const startPollingFallback = () => {
-      console.log('🔄 Starting polling fallback for preview environment');
-      
-      const pollForUpdates = async () => {
-        try {
-          const storedToken = await getAuthToken();
-          if (!storedToken) return;
-          
-          // Poll for updates every 10 seconds
-          const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/poll-updates`, {
-            headers: {
-              'Authorization': `Bearer ${storedToken}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            if (data.updates && data.updates.length > 0) {
-              console.log('📨 Polling: Updates received:', data.updates.length);
-              // Process updates similar to WebSocket messages
-              data.updates.forEach((update: any) => {
-                console.log('📨 Polling: Processing update:', update.type);
-              });
-            }
-          }
-        } catch (error) {
-          console.error('❌ Polling error:', error);
+    const handleAuthStateChange = async (event: any) => {
+      console.log('🔄 WebSocket: Auth state change detected, reconnecting...');
+      setTimeout(async () => {
+        if (!isMounted) return;
+        const newToken = await getAuthToken();
+        if (syncEnabled && newToken) {
+          connectWebSocket();
         }
-      };
-      
-      // Start polling every 10 seconds
-      if (pollingTimer) clearInterval(pollingTimer);
-      pollingTimer = setInterval(pollForUpdates, 10000);
-      
-      // Initial poll
-      pollForUpdates();
+      }, 1000);
+    };
+
+    const handleTokenRefresh = async (event: any) => {
+      console.log('🔄 WebSocket: Token refreshed, reconnecting...');
+      setTimeout(async () => {
+        if (!isMounted) return;
+        const newToken = await getAuthToken();
+        if (syncEnabled && newToken) {
+          connectWebSocket();
+        }
+      }, 500);
     };
 
     const connectWebSocket = async () => {
+      if (!isMounted) return;
+      
       const storedToken = await getAuthToken();
       if (!syncEnabled) {
         console.log("🔌 RuntimeConfig: Sync disabled, skipping WebSocket");
@@ -133,27 +84,20 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
       }
       
       if (!storedToken) {
-        console.log("🔌 RuntimeConfig: No token available, will retry WebSocket connection");
+        console.log("🔌 RuntimeConfig: No token available for WebSocket");
         setWebSocket(null);
         setWsEnabled(false);
-        // Retry connection after 2 seconds if no token (user might be logging in)
-        setTimeout(async () => {
-          const retryToken = await getAuthToken();
-          if (retryToken) {
-            console.log("🔄 Retrying WebSocket connection with token");
-            connectWebSocket();
-          }
-        }, 2000);
         return;
       }
       
-      console.log("🔑 WebSocket connecting with token:", storedToken ? 'Available' : 'Missing');
-
       try {
-        // Clean token - remove any quotes if they exist
-        const cleanToken = storedToken.replace(/^["']|["']$/g, '');
-        const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${cleanToken}`;
-        console.log('🔌 RuntimeConfig: Connecting WebSocket:', wsUrl.replace(cleanToken, 'TOKEN_HIDDEN'));
+        const cleanToken = typeof storedToken === 'string' 
+          ? storedToken.replace(/^["']|["']$/g, '').trim()
+          : storedToken;
+        
+        const encodedToken = encodeURIComponent(cleanToken);
+        const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${encodedToken}`;
+        console.log('🔌 RuntimeConfig: Connecting WebSocket:', wsUrl.replace(encodedToken, 'TOKEN_HIDDEN'));
         
         ws = new WebSocket(wsUrl);
         
@@ -161,83 +105,34 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
           console.log('✅ RuntimeConfig: WebSocket connected successfully');
           setWebSocket(ws);
           setWsEnabled(true);
-          reconnectAttempts = 0; // Reset attempts on successful connection
+          reconnectAttempts = 0;
           
-          // Start heartbeat to keep connection alive
-          if (heartbeatTimer) clearInterval(heartbeatTimer);
+          // Start heartbeat
           heartbeatTimer = setInterval(() => {
             if (ws && ws.readyState === WebSocket.OPEN) {
-              ws.send(JSON.stringify({ type: 'ping' }));
               console.log('💓 RuntimeConfig: Heartbeat sent');
+              ws.send(JSON.stringify({ type: 'ping' }));
             }
-          }, 30000); // Send heartbeat every 30 seconds
-        };
-        
-        ws.onclose = async () => {
-          console.log('🔌 RuntimeConfig: WebSocket closed');
-          setWebSocket(null);
-          setWsEnabled(false);
-          
-          if (heartbeatTimer) {
-            clearInterval(heartbeatTimer);
-            heartbeatTimer = null;
-          }
-          
-          // Auto-reconnect if sync mode is still enabled and we haven't exceeded attempts
-          const token = await getAuthToken();
-          if (syncEnabled && token && reconnectAttempts < maxReconnectAttempts) {
-            reconnectAttempts++;
-            console.log(`🔄 RuntimeConfig: Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`);
-            
-            if (reconnectTimer) clearTimeout(reconnectTimer);
-            reconnectTimer = setTimeout(connectWebSocket, reconnectDelay);
-          } else if (reconnectAttempts >= maxReconnectAttempts) {
-            console.log('❌ RuntimeConfig: Max reconnection attempts reached');
-          }
-        };
-        
-        ws.onerror = (error) => {
-          console.error('🔌 RuntimeConfig: WebSocket error:', error);
-          setWebSocket(null);
-          setWsEnabled(false);
-          
-          // Check if we're in preview environment (proxy issues)
-          const isPreviewEnv = window.location.hostname.includes('preview.emergentagent.com');
-          
-          if (isPreviewEnv) {
-            console.log('🔄 Preview environment detected - falling back to polling mode');
-            // Don't reconnect WebSocket in preview, use polling fallback
-            startPollingFallback();
-          } else {
-            // Production - try to reconnect WebSocket
-            reconnectTimer = setTimeout(async () => {
-              console.log('🔄 RuntimeConfig: Attempting to reconnect WebSocket...');
-              await connectWebSocket();
-            }, 5000);
-          }
+          }, 30000);
         };
         
         ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
             
-            // Handle pong response to keep connection alive
             if (data.type === 'pong') {
               console.log('💓 RuntimeConfig: Heartbeat pong received');
               return;
             }
             
-            // Handle connection establishment
             if (data.type === 'connectionEstablished') {
               console.log('✅ RuntimeConfig: WebSocket connection established');
               setWsEnabled(true);
-              reconnectAttempts = 0; // Reset reconnect attempts on successful connection
+              reconnectAttempts = 0;
             }
             
-            // Broadcast WebSocket events to other contexts
             console.log('📨 RuntimeConfig: WebSocket message received:', data.type);
             
-            // Dispatch custom event for other components to listen
             if (typeof window !== 'undefined') {
               window.dispatchEvent(new CustomEvent('websocketMessage', {
                 detail: data
@@ -249,13 +144,36 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
           }
         };
         
+        ws.onerror = (error) => {
+          console.log('🔌 RuntimeConfig: WebSocket error:', error);
+          console.log('🔄 Preview environment detected - falling back to polling mode');
+        };
+        
+        ws.onclose = () => {
+          console.log('🔌 RuntimeConfig: WebSocket closed');
+          setWebSocket(null);
+          setWsEnabled(false);
+          
+          if (heartbeatTimer) {
+            clearInterval(heartbeatTimer);
+            heartbeatTimer = null;
+          }
+          
+          if (isMounted && reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            console.log(`🔄 RuntimeConfig: Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`);
+            reconnectTimer = setTimeout(() => {
+              if (isMounted) connectWebSocket();
+            }, Math.min(1000 * Math.pow(2, reconnectAttempts), 30000));
+          }
+        };
+        
       } catch (error) {
         console.error('❌ RuntimeConfig: WebSocket connection error:', error);
-        setWsEnabled(false);
       }
     };
 
-    // Connect if sync is enabled and we have a token
+    // Initialize connection
     const initializeConnection = async () => {
       try {
         const token = await getAuthToken();
@@ -272,12 +190,20 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
     
     initializeConnection();
 
-    // Cleanup on unmount or dependency change
+    // Add event listeners
+    if (typeof window !== 'undefined') {
+      window.addEventListener('authStateChanged', handleAuthStateChange);
+      window.addEventListener('tokenRefreshed', handleTokenRefresh);
+    }
+
+    // Cleanup function
     return () => {
-      console.log('🧹 RuntimeConfig: Cleaning up WebSocket...');
+      isMounted = false;
       
-      window.removeEventListener('authStateChanged', handleAuthStateChange);
-      window.removeEventListener('tokenRefreshed', handleTokenRefresh);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('authStateChanged', handleAuthStateChange);
+        window.removeEventListener('tokenRefresh', handleTokenRefresh);
+      }
       
       if (reconnectTimer) clearTimeout(reconnectTimer);
       if (heartbeatTimer) clearInterval(heartbeatTimer);
