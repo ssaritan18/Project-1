@@ -168,9 +168,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               detail: { isAuthenticated: true, token } 
             }));
           }
-        } else {
-          throw new Error("No access token received");
-        }
+          // Try to get user profile
+          try {
+            const profileRes = await api.get("/auth/me");
+            if (profileRes.data) {
+              const userData = { 
+                name: profileRes.data.name || email, 
+                email: profileRes.data.email || email 
+              };
+              setUser(userData);
+              await saveJSON(KEYS.user, userData);
+              console.log('✅ User profile set and authenticated');
+            }
+          } catch (profileError) {
+            console.warn("⚠️ Profile fetch failed, using email as name:", profileError);
+            const userData = { name: email, email };
+            setUser(userData);
+            await saveJSON(KEYS.user, userData);
+            console.log('✅ Fallback user profile set and authenticated');
+          }
       } catch (error: any) {
         console.error("❌ Login error:", error);
         
