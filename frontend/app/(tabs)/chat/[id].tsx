@@ -6,7 +6,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, router } from "expo-router";
 import { useChat } from "../../../src/context/ChatContext";
 import { useRuntimeConfig } from "../../../src/context/RuntimeConfigContext";
-import { useAuth } from "../../../src/context/SimpleAuthContext";
+import { useAuth } from "../../../src/context/AuthContext";
 import { pickImageAndUpload, pickCameraAndUpload } from "../../../src/services/imagePickerService";
 import { hasValidToken } from "../../../src/utils/tokenHelper";
 import { Ionicons } from "@expo/vector-icons";
