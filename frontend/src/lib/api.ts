@@ -15,9 +15,16 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  if (authToken) {
-    config.headers = { ...(config.headers || {}), Authorization: `Bearer ${authToken}` } as any;
+  // Try to get token from global helper first, then fallback to stored token
+  const token = getAuthToken() || authToken;
+  
+  if (token) {
+    config.headers = { ...(config.headers || {}), Authorization: `Bearer ${token}` } as any;
+    console.log('🔑 API call with token from authTokenHelper');
+  } else {
+    console.warn('⚠️ API call without token - auth may be required');
   }
+  
   return config;
 });
 
