@@ -226,37 +226,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // eslint-disable-next-line semi
   const signOut = async () => {
     console.log("🚪 signOut called");
     
     // Clear all authentication state
     setUser(null);
     setAuthed(false);
-    setToken(null);
+    await setToken(null);
     
-    // Clear global auth token from all sources
-    try {
-      const { clearAuthToken } = await import('../utils/authTokenHelper');
-      clearAuthToken();
-      console.log("✅ Auth token cleared from all sources");
-    } catch (error) {
-      console.error("❌ Error clearing auth token:", error);
-    }
-    
+    // Clear other persisted data
     if (PERSIST_ENABLED) {
-      try {
-        // Clear user data from storage
-        await AsyncStorage.removeItem(KEYS.user); 
-        await saveJSON(KEYS.user, null);
-        console.log("✅ SignOut completed - storage cleared");
-      } catch (error) {
-        console.error("❌ Error clearing storage during signOut:", error);
-      }
+      await AsyncStorage.removeItem(KEYS.user);
+      await AsyncStorage.removeItem(KEYS.credentials);
     }
     
-    // Force state update by triggering re-render
-    console.log("🔄 Forcing auth state update...");
+    // Broadcast sign out event
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('authStateChanged', { 
+        detail: { isAuthenticated: false, token: null } 
+      }));
+    }
+    
+    console.log("✅ SignOut completed - all storage cleared");
   };
 
   const value = useMemo(() => ({ 
