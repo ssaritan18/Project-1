@@ -596,6 +596,18 @@ async def get_current_user(authorization: str = Header(default=None)):
         raise HTTPException(status_code=401, detail="User not found")
     return user
 
+async def get_user_from_token(token: str):
+    """Get user from JWT token (for WebSocket authentication)"""
+    try:
+        data = jwt.decode(token, JWT_SECRET, algorithms=[ALGO])
+        user_id = data.get("sub")
+        if not user_id:
+            return None
+        user = await db.users.find_one({"_id": user_id})
+        return user
+    except JWTError:
+        return None
+
 # MODELS
 # Pydantic models
 class User(BaseModel):
