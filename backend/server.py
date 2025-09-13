@@ -891,23 +891,22 @@ async def list_users():
 
 # --- WebSocket endpoint ---
 @api_router.websocket("/ws")
-async def websocket_endpoint(ws: WebSocket):
-    token = ws.query_params.get("token")
+async def websocket_endpoint(ws: WebSocket, token: str = Query(...)):
     logger.info(f"🔌 New WebSocket connection attempt. Token provided: {bool(token)}")
     if not token:
         logger.warning("❌ WebSocket rejected: No token provided")
-        await ws.close(code=4401)
+        await ws.close(code=4403)
         return
     try:
         data = jwt.decode(token, JWT_SECRET, algorithms=[ALGO])
         user_id = data.get("sub")
         if not user_id:
             logger.warning("❌ WebSocket rejected: No user_id in token")
-            await ws.close(code=4401)
+            await ws.close(code=4403)
             return
     except JWTError as e:
         logger.warning(f"❌ WebSocket rejected: JWT error - {e}")
-        await ws.close(code=4401)
+        await ws.close(code=4403)
         return
     
     logger.info(f"✅ WebSocket accepted for user {user_id}")
