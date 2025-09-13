@@ -45,9 +45,80 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
 
   const clearNotification = () => setLastNotification(null);
 
-  const showDebugAlert = (message: string) => {
-    Alert.alert("🐛 Debug", message, [{ text: "OK" }]);
-  };
+  // Real-time WebSocket event handling
+  useEffect(() => {
+    const handleWebSocketMessage = (event: any) => {
+      const data = event.detail;
+      console.log('🎯 FriendsContext: Received WebSocket event:', data);
+      
+      switch (data.type) {
+        case 'friendRequestReceived':
+          // New friend request received
+          const newRequest = {
+            id: data.data.request_id,
+            from: data.data.sender_name,
+            email: data.data.sender_email,
+            sender_id: data.data.sender_id,
+            timestamp: data.data.timestamp
+          };
+          
+          setRequests(prev => [newRequest, ...prev]);
+          setLastNotification(`New friend request from ${data.data.sender_name}`);
+          console.log('👫 New friend request added to state:', newRequest);
+          break;
+          
+        case 'friendRequestAccepted':
+          // Your friend request was accepted
+          const newFriend = {
+            id: data.data.friend_id,
+            name: data.data.friend_name,
+            email: data.data.friend_email
+          };
+          
+          setFriends(prev => [...prev, newFriend]);
+          setLastNotification(`${data.data.friend_name} accepted your friend request!`);
+          console.log('✅ Friend request accepted, friend added:', newFriend);
+          break;
+          
+        case 'friendListUpdate':
+          // Friend list updated (you accepted someone's request)
+          const updatedFriend = {
+            id: data.data.friend_id,
+            name: data.data.friend_name,
+            email: data.data.friend_email
+          };
+          
+          setFriends(prev => [...prev, updatedFriend]);
+          console.log('📝 Friend list updated:', updatedFriend);
+          break;
+          
+        case 'messageReceived':
+          // New chat message received - could trigger notification
+          setLastNotification(`New message from ${data.data.sender_name}`);
+          console.log('💬 Message received notification:', data.data);
+          break;
+          
+        case 'connectionEstablished':
+          setWsConnectionStatus('Connected');
+          console.log('🔌 WebSocket connection established');
+          break;
+          
+        default:
+          console.log('🔍 Unknown WebSocket event type:', data.type);
+      }
+    };
+
+    // Listen for WebSocket events from RuntimeConfig
+    if (typeof window !== 'undefined') {
+      window.addEventListener('websocketMessage', handleWebSocketMessage);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('websocketMessage', handleWebSocketMessage);
+      }
+    };
+  }, []);
 
   const connectWS = () => {
     console.log("🔧 connectWS called with:", { syncEnabled, wsEnabled, hasToken: !!token });
