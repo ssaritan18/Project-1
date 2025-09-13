@@ -240,12 +240,15 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
     };
 
     // Connect if sync is enabled and we have a token
-    if (syncEnabled && getAuthToken()) {
-      console.log('🚀 RuntimeConfig: Initiating WebSocket connection...');
-      connectWebSocket();
-    } else {
-      console.log('📱 RuntimeConfig: Staying in local mode');
-    }
+    (async () => {
+      const token = await getAuthToken();
+      if (syncEnabled && token) {
+        console.log('🚀 RuntimeConfig: Initiating WebSocket connection...');
+        await connectWebSocket();
+      } else {
+        console.log('📱 RuntimeConfig: Staying in local mode');
+      }
+    })();
 
     // Cleanup on unmount or dependency change
     return () => {
