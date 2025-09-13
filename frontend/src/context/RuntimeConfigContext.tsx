@@ -261,7 +261,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
       
       if (typeof window !== 'undefined') {
         window.removeEventListener('authStateChanged', handleAuthStateChange);
-        window.removeEventListener('tokenRefresh', handleTokenRefresh);
+        window.removeEventListener('tokenUpdated', handleTokenUpdated);
       }
       
       if (reconnectTimer) clearTimeout(reconnectTimer);
