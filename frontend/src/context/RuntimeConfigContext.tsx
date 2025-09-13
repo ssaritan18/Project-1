@@ -173,7 +173,7 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
           }, 30000); // Send heartbeat every 30 seconds
         };
         
-        ws.onclose = () => {
+        ws.onclose = async () => {
           console.log('🔌 RuntimeConfig: WebSocket closed');
           setWebSocket(null);
           setWsEnabled(false);
@@ -184,7 +184,8 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
           }
           
           // Auto-reconnect if sync mode is still enabled and we haven't exceeded attempts
-          if (syncEnabled && getAuthToken() && reconnectAttempts < maxReconnectAttempts) {
+          const token = await getAuthToken();
+          if (syncEnabled && token && reconnectAttempts < maxReconnectAttempts) {
             reconnectAttempts++;
             console.log(`🔄 RuntimeConfig: Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`);
             
