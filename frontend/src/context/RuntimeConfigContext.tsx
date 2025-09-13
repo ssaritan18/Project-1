@@ -136,7 +136,24 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
         };
         
         ws.onerror = (error) => {
-          console.error('❌ RuntimeConfig: WebSocket error:', error);
+          console.error('🔌 RuntimeConfig: WebSocket error:', error);
+          setWebSocket(null);
+          setWsEnabled(false);
+          
+          // Check if we're in preview environment (proxy issues)
+          const isPreviewEnv = window.location.hostname.includes('preview.emergentagent.com');
+          
+          if (isPreviewEnv) {
+            console.log('🔄 Preview environment detected - falling back to polling mode');
+            // Don't reconnect WebSocket in preview, use polling fallback
+            startPollingFallback();
+          } else {
+            // Production - try to reconnect WebSocket
+            reconnectTimer = setTimeout(() => {
+              console.log('🔄 RuntimeConfig: Attempting to reconnect WebSocket...');
+              connectWebSocket();
+            }, 5000);
+          }
         };
         
         ws.onmessage = (event) => {
