@@ -281,7 +281,11 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     if (syncEnabled && token) {
       try {
         const fl = await api.get("/friends/list");
-        const serverFriends = (fl.data.friends || []).map((f: any) => ({ id: f._id, name: f.name || "Friend", email: f.email }));
+        const serverFriends = (fl.data.friends || []).map((f: any) => ({ 
+          id: f.friend_id || f._id, 
+          name: f.friend_name || f.name || "Friend", 
+          email: f.friend_email || f.email 
+        }));
         setFriends(serverFriends);
         try {
           const rq = await api.get("/friends/requests");
