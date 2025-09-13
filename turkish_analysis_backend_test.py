@@ -381,12 +381,12 @@ class TurkishAnalysisAPITester:
         
         if response.status_code == 200:
             data = response.json()
-            if "_id" in data:
-                request_id = data["_id"]
+            if "request_id" in data:
+                request_id = data["request_id"]
                 results["friend_request_sent"] = True
                 self.log(f"✅ Friend request sent successfully: {request_id}")
             else:
-                self.log("❌ Friend request response missing _id", "ERROR")
+                self.log("❌ Friend request response missing request_id", "ERROR")
                 return {"success": False, "results": results}
         else:
             self.log(f"❌ Friend request failed: {response.status_code} - {response.text}", "ERROR")
