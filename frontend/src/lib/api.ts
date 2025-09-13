@@ -14,9 +14,9 @@ export const api = axios.create({
   timeout: 30000, // 30 seconds instead of 15
 });
 
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(async (config) => {
   // Try to get token from global helper first, then fallback to stored token
-  const token = getAuthToken() || authToken;
+  const token = await getAuthToken() || authToken;
   
   if (token) {
     config.headers = { ...(config.headers || {}), Authorization: `Bearer ${token}` } as any;
