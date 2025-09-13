@@ -366,8 +366,6 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     console.log("✅ Friend request rejected");
   };
 
-
-
   const addPost = (text: string) => setPosts((prev) => [{ id: uid(), author: "You", text, ts: Date.now(), reactions: {} }, ...prev]);
   const reactPost = (postId: string, type: "like" | "clap" | "star" | "heart") => setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, reactions: { ...p.reactions, [type]: (p.reactions[type] || 0) + 1 } } : p)));
 
