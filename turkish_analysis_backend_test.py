@@ -799,12 +799,12 @@ def run_turkish_analysis_backend_test():
     total_tests = 0
     
     for test_name, result in test_results.items():
-        passed = result["passed"]
-        total = result["total"]
+        passed = result.get("passed", 0)
+        total = result.get("total", 0)
         total_passed += passed
         total_tests += total
         
-        status = "✅ PASSED" if result["success"] else "❌ FAILED"
+        status = "✅ PASSED" if result.get("success", False) else "❌ FAILED"
         print(f"{test_name.upper()}: {status} ({passed}/{total})")
     
     overall_success_rate = (total_passed / total_tests) * 100 if total_tests > 0 else 0
