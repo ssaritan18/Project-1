@@ -4,6 +4,7 @@ import { PERSIST_ENABLED, KEYS } from "../config";
 import { loadJSON, saveJSON } from "../utils/persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api, setAuthToken } from "../lib/api";
+import { setInMemoryToken } from "../utils/authTokenHelper";
 
 
 export type User = {
