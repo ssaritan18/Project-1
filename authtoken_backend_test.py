@@ -14,7 +14,7 @@ import base64
 from typing import Dict, Optional, List
 
 # Base URL from frontend .env
-BASE_URL = "https://adhd-connect-2.preview.emergentagent.com/api"
+BASE_URL = "https://adhd-connect-3.preview.emergentagent.com/api"
 WS_URL = "wss://adhd-connect-2.preview.emergentagent.com/api/ws"
 
 class AuthTokenTester:

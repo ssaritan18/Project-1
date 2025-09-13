@@ -143,7 +143,7 @@ async def send_email(to_email: str, subject: str, content: str) -> bool:
 async def send_verification_email(user_email: str, token: str) -> bool:
     """Send email verification email"""
     # Use environment variable for base URL
-    base_url = os.getenv("BASE_URL", "https://adhd-connect-2.preview.emergentagent.com")
+    base_url = os.getenv("BASE_URL", "https://adhd-connect-3.preview.emergentagent.com")
     verify_url = f"{base_url}/api/auth/verify?token={token}"
     
     content = f"""
@@ -160,7 +160,7 @@ async def send_verification_email(user_email: str, token: str) -> bool:
 
 async def send_password_reset_email(user_email: str, token: str) -> bool:
     """Send password reset email"""
-    base_url = os.getenv("BASE_URL", "https://adhd-connect-2.preview.emergentagent.com")
+    base_url = os.getenv("BASE_URL", "https://adhd-connect-3.preview.emergentagent.com")
     reset_url = f"{base_url}/auth/reset-password?token={token}"
     
     content = f"""
@@ -2688,7 +2688,7 @@ def get_next_focus_suggestion(rating: int, interruptions: int) -> str:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://adhd-connect-2.preview.emergentagent.com",
+        "https://adhd-connect-3.preview.emergentagent.com",
         "http://localhost:3000",  # For development
         "http://localhost:19006", # For Expo web
         "exp://localhost:19000"   # For Expo mobile
