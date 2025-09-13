@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getAuthToken } from "../utils/authTokenHelper";
 
 let authToken: string | null = null;
 
