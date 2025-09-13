@@ -425,11 +425,10 @@ class TurkishAnalysisAPITester:
         
         # Test 3: Accept the friend request
         self.log(f"Testing friend request acceptance by {user2_name}...")
-        url = f"{self.base_url}/friends/accept"
+        url = f"{self.base_url}/friends/accept/{request_id}"
         headers = {"Authorization": f"Bearer {token2}"}
-        payload = {"request_id": request_id}
         
-        response = self.session.post(url, json=payload, headers=headers)
+        response = self.session.post(url, headers=headers)
         
         if response.status_code == 200:
             data = response.json()
