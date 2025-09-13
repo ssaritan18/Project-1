@@ -359,17 +359,11 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     }
     console.log("✅ Friend request accepted locally");
   };
-        await refresh();
-        setLastNotification("Arkadaş isteği kabul edildi");
-      } catch (e) {
-        console.error("❌ Accept request failed:", e);
-      }
-      return;
-    }
-    // Local-only logic
-    const req = requests.find((r) => r.id === id);
-    if (req) setFriends((prev) => [...prev, { id: uid(), name: req.from }]);
+
+  const rejectRequest = async (id: string) => {
+    console.log("📱 Rejecting friend request:", id);
     setRequests((prev) => prev.filter((r) => r.id !== id));
+    console.log("✅ Friend request rejected");
   };
 
   const rejectRequest = async (id: string) => {
