@@ -896,12 +896,17 @@ async def list_users():
 @api_router.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket, token: str = Query(...)):
     logger.info(f"🔌 New WebSocket connection attempt. Token provided: {bool(token)}")
-    if not token:
+    
+    # Clean token of any extra quotes or encoding
+    clean_token = token.strip().strip('"').strip("'")
+    logger.info(f"🔍 Original token length: {len(token)}, cleaned length: {len(clean_token)}")
+    
+    if not clean_token:
         logger.warning("❌ WebSocket rejected: No token provided")
         await ws.close(code=4403)
         return
     try:
-        data = jwt.decode(token, JWT_SECRET, algorithms=[ALGO])
+        data = jwt.decode(clean_token, JWT_SECRET, algorithms=[ALGO])
         user_id = data.get("sub")
         if not user_id:
             logger.warning("❌ WebSocket rejected: No user_id in token")
