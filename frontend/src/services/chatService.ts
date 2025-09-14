@@ -80,7 +80,7 @@ export const uploadImage = async (chatId: string, file: File | any) => {
 };
 
 export const sendMessage = async (chatId: string, text: string) => {
-  const token = getStoredToken();
+  const token = await getAuthToken();
   
   if (!token) {
     console.error("❌ No token available, cannot send message");
