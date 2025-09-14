@@ -5,7 +5,7 @@ import { getAuthToken } from "../utils/authTokenHelper";
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 export const uploadImage = async (chatId: string, file: File | any) => {
-  const token = getAuthToken();
+  const token = await getAuthToken();
   
   if (!token) {
     console.error("❌ No auth token available, cannot upload");
