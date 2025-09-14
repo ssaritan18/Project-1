@@ -313,7 +313,6 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
       posts: posts || [], 
       presence, 
       lastNotification, 
-      wsConnectionStatus, 
       clearNotification, 
       refresh, 
       sendRequest, 
