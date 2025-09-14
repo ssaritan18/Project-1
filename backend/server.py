@@ -897,12 +897,19 @@ async def list_users():
 async def websocket_endpoint(ws: WebSocket, token: str = Query(...)):
     logger.info(f"🔌 New WebSocket connection attempt. Token provided: {bool(token)}")
     
-    # Clean token of any extra quotes or encoding
-    clean_token = token.strip().strip('"').strip("'")
-    logger.info(f"🔍 Original token length: {len(token)}, cleaned length: {len(clean_token)}")
+    # Aggressive token cleaning - handle URL decoding and quotes
+    import urllib.parse
+    
+    # First URL decode the token
+    decoded_token = urllib.parse.unquote(token)
+    logger.info(f"🔍 URL decoded token: {decoded_token[:20]}...{decoded_token[-10:]}")
+    
+    # Then clean quotes and whitespace
+    clean_token = decoded_token.strip().strip('"').strip("'").strip()
+    logger.info(f"🔍 Cleaned token length: {len(clean_token)}")
     
     if not clean_token:
-        logger.warning("❌ WebSocket rejected: No token provided")
+        logger.warning("❌ WebSocket rejected: No token provided after cleaning")
         await ws.close(code=4403)
         return
     try:
