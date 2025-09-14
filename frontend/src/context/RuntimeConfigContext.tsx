@@ -144,17 +144,27 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
       try {
         console.log('🔍 Raw token from getAuthToken:', JSON.stringify(currentToken));
         
-        const cleanToken = typeof currentToken === 'string' 
-          ? currentToken.replace(/^["']|["']$/g, '').trim()
-          : String(currentToken || '').replace(/^["']|["']$/g, '').trim();
+        // Aggressive token cleaning - remove all possible quote combinations
+        let cleanToken = currentToken || '';
+        if (typeof cleanToken !== 'string') {
+          cleanToken = String(cleanToken);
+        }
         
-        console.log('🔍 Cleaned token:', JSON.stringify(cleanToken));
+        // Remove all types of quotes and whitespace
+        cleanToken = cleanToken
+          .replace(/^["']|["']$/g, '')  // Remove leading/trailing quotes
+          .replace(/\\"/g, '"')         // Unescape quotes  
+          .replace(/^"|"$/g, '')        // Remove any remaining quotes
+          .replace(/^'|'$/g, '')        // Remove single quotes
+          .trim();                      // Remove whitespace
         
-        const encodedToken = encodeURIComponent(cleanToken);
-        console.log('🔍 Encoded token length:', encodedToken.length);
+        console.log('🔍 Aggressively cleaned token:', JSON.stringify(cleanToken));
+        console.log('🔍 Token starts with:', cleanToken.substring(0, 10));
+        console.log('🔍 Token ends with:', cleanToken.substring(cleanToken.length - 10));
         
-        const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${encodedToken}`;
-        console.log('🔌 RuntimeConfig: Connecting WebSocket:', wsUrl.replace(encodedToken, 'TOKEN_HIDDEN'));
+        // Don't encode the token - pass it directly
+        const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${cleanToken}`;
+        console.log('🔌 RuntimeConfig: Connecting WebSocket with clean URL');
         
         ws = new WebSocket(wsUrl);
         
