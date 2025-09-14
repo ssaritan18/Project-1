@@ -131,9 +131,14 @@ export default function CommunityScreen() {
         loadProfileImage();
       };
 
-      window.addEventListener('focus', handleFocus);
+      if (typeof window !== 'undefined' && window.addEventListener) {
+        window.addEventListener('focus', handleFocus);
+      }
+      
       return () => {
-        window.removeEventListener('focus', handleFocus);
+        if (typeof window !== 'undefined' && window.removeEventListener) {
+          window.removeEventListener('focus', handleFocus);
+        }
       };
     }
   }, []);
