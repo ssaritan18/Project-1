@@ -246,7 +246,10 @@ export default function ChatDetail() {
       reactions: item.reactions ?? { like: 0, heart: 0, clap: 0, star: 0 },
       voice_url: item.voice_url ?? null,
       durationSec: item.durationSec ?? item.duration_sec ?? 0,
-      status: item.status ?? "sent" // WhatsApp-like status
+      status: item.status ?? "sent", // WhatsApp-like status
+      media_url: item.media_url ?? null,
+      media_type: item.media_type ?? null,
+      media_size: item.media_size ?? null
     };
 
     const isOwn = normalizedMessage.author_id === 'current_user_id';
