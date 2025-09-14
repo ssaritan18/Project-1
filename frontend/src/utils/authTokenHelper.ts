@@ -40,23 +40,36 @@ async function getStoredToken(): Promise<string | null> {
       // Web platform - try localStorage first, then sessionStorage
       const localToken = localStorage.getItem(TOKEN_KEY);
       if (localToken) {
-        const cleanToken = localToken.replace(/^["']|["']$/g, '').trim();
-        console.log('🔍 Token retrieved from localStorage');
+        // Aggressively clean the token - remove all possible quote combinations
+        const cleanToken = localToken
+          .replace(/^["']|["']$/g, '')  // Remove leading/trailing quotes
+          .replace(/\\"/g, '"')         // Unescape quotes
+          .replace(/^"|"$/g, '')        // Remove any remaining quotes
+          .trim();
+        console.log('🔍 Token retrieved from localStorage, cleaned:', cleanToken.length + ' chars');
         return cleanToken;
       }
       
       const sessionToken = sessionStorage.getItem(TOKEN_KEY);
       if (sessionToken) {
-        const cleanToken = sessionToken.replace(/^["']|["']$/g, '').trim();
-        console.log('🔍 Token retrieved from sessionStorage');
+        const cleanToken = sessionToken
+          .replace(/^["']|["']$/g, '')
+          .replace(/\\"/g, '"')
+          .replace(/^"|"$/g, '')
+          .trim();
+        console.log('🔍 Token retrieved from sessionStorage, cleaned:', cleanToken.length + ' chars');
         return cleanToken;
       }
     } else {
       // Native platform - use expo-secure-store
       const token = await SecureStore.getItemAsync(TOKEN_KEY);
       if (token) {
-        const cleanToken = token.replace(/^["']|["']$/g, '').trim();
-        console.log('🔍 Token retrieved from secure storage');
+        const cleanToken = token
+          .replace(/^["']|["']$/g, '')
+          .replace(/\\"/g, '"')
+          .replace(/^"|"$/g, '')
+          .trim();
+        console.log('🔍 Token retrieved from secure storage, cleaned:', cleanToken.length + ' chars');
         return cleanToken;
       }
     }
