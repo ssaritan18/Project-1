@@ -2079,10 +2079,20 @@ async def upload_chat_media(
     logger.info(f"📤 Processing media upload for chat {chat_id} from user {user['_id']}")
     
     try:
-        # Verify user has access to the chat
-        chat = await db.chats.find_one({"_id": chat_id, "members": user["_id"]})
+        # Debug: Check chat and user membership
+        logger.info(f"🔍 Looking for chat with ID: {chat_id}")
+        chat = await db.chats.find_one({"_id": chat_id})
         if not chat:
+            logger.error(f"❌ Chat not found: {chat_id}")
             raise HTTPException(status_code=404, detail="Chat not found")
+        
+        logger.info(f"🔍 Chat found: {chat['_id']}, members: {chat.get('members', [])}")
+        logger.info(f"🔍 User ID: {user['_id']}")
+        
+        # Verify user has access to the chat  
+        if user["_id"] not in chat.get("members", []):
+            logger.error(f"❌ User {user['_id']} not a member of chat {chat_id}")
+            raise HTTPException(status_code=403, detail="Not a member of this chat")
         
         # Validate file type
         allowed_types = {
