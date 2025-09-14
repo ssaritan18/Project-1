@@ -845,4 +845,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#EC4899',
   },
+  mediaContainer: {
+    marginBottom: 8,
+  },
+  mediaImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  videoContainer: {
+    width: 200,
+    height: 120,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  videoText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 4,
+  },
 });
