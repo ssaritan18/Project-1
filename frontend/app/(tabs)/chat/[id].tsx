@@ -300,9 +300,32 @@ export default function ChatDetail() {
             </View>
           )}
           
-          <Text style={[styles.messageText, isOwn ? styles.ownMessageText : styles.otherMessageText]}>
-            {normalizedMessage.text}
-          </Text>
+          {/* Message content - text or media */}
+          {normalizedMessage.type === "media" && normalizedMessage.media_url ? (
+            <View style={styles.mediaContainer}>
+              {normalizedMessage.media_type?.startsWith('image/') ? (
+                <Image 
+                  source={{ uri: `${process.env.EXPO_PUBLIC_BACKEND_URL}${normalizedMessage.media_url}` }}
+                  style={styles.mediaImage}
+                  resizeMode="cover"
+                />
+              ) : normalizedMessage.media_type?.startsWith('video/') ? (
+                <View style={styles.videoContainer}>
+                  <Ionicons name="videocam" size={24} color="#FFFFFF" />
+                  <Text style={styles.videoText}>Video</Text>
+                </View>
+              ) : null}
+              {normalizedMessage.text && (
+                <Text style={[styles.messageText, isOwn ? styles.ownMessageText : styles.otherMessageText]}>
+                  {normalizedMessage.text}
+                </Text>
+              )}
+            </View>
+          ) : (
+            <Text style={[styles.messageText, isOwn ? styles.ownMessageText : styles.otherMessageText]}>
+              {normalizedMessage.text}
+            </Text>
+          )}
           
           {isOwn && (
             <View style={styles.ownMessageTimeContainer}>
