@@ -673,11 +673,16 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   mediaBtnGradient: {
-    width: 36, // iOS için boyut küçültüldü
-    height: 36,
-    borderRadius: 12,
+    width: 44, // Boyut artırıldı
+    height: 44,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#F97316',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   messageInput: {
     flex: 1,
