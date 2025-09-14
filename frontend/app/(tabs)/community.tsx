@@ -111,9 +111,14 @@ export default function CommunityScreen() {
         }
       };
 
-      window.addEventListener('storage', handleStorageChange);
+      if (typeof window !== 'undefined' && window.addEventListener) {
+        window.addEventListener('storage', handleStorageChange);
+      }
+      
       return () => {
-        window.removeEventListener('storage', handleStorageChange);
+        if (typeof window !== 'undefined' && window.removeEventListener) {
+          window.removeEventListener('storage', handleStorageChange);
+        }
       };
     }
   }, []);
