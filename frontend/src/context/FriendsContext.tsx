@@ -177,8 +177,8 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
     if (syncEnabled && token) {
       pollRef.current = setInterval(() => {
-        // If WS is off or disconnected, poll less frequently to avoid rate limits
-        if (!wsEnabled || !wsRef.current) {
+        // If WS is off, poll less frequently to avoid rate limits
+        if (!wsEnabled) {
           console.log("📡 Polling friends data...");
           refresh();
         }
