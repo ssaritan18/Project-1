@@ -142,11 +142,17 @@ export function RuntimeConfigProvider({ children, token }: { children: React.Rea
       }
       
       try {
+        console.log('🔍 Raw token from getAuthToken:', JSON.stringify(currentToken));
+        
         const cleanToken = typeof currentToken === 'string' 
           ? currentToken.replace(/^["']|["']$/g, '').trim()
-          : currentToken;
+          : String(currentToken || '').replace(/^["']|["']$/g, '').trim();
+        
+        console.log('🔍 Cleaned token:', JSON.stringify(cleanToken));
         
         const encodedToken = encodeURIComponent(cleanToken);
+        console.log('🔍 Encoded token length:', encodedToken.length);
+        
         const wsUrl = `${process.env.EXPO_PUBLIC_BACKEND_URL?.replace('http', 'ws')}/api/ws?token=${encodedToken}`;
         console.log('🔌 RuntimeConfig: Connecting WebSocket:', wsUrl.replace(encodedToken, 'TOKEN_HIDDEN'));
         
