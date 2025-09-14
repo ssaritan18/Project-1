@@ -748,8 +748,11 @@ class UserSettings(BaseModel):
     preferences: Optional[Dict[str, Any]] = None
 
 class MessageCreate(BaseModel):
-    text: str
-    type: str = "text"  # "text" or "voice" 
+    text: str = ""
+    type: str = "text"  # "text", "voice", or "media" 
+    media_url: Optional[str] = None
+    media_type: Optional[str] = None
+    media_size: Optional[int] = None 
 
 class MessageReaction(BaseModel):
     type: str  # "like", "heart", "clap", "star"
