@@ -40,7 +40,6 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
   const [presence, setPresence] = useState<Record<string, boolean>>({});
   const [lastNotification, setLastNotification] = useState<string | null>(null);
   const [wsConnectionStatus, setWsConnectionStatus] = useState<string>("Disconnected");
-  const wsRef = useRef<WebSocket | null>(null);
   const pollRef = useRef<any>(null);
 
   const clearNotification = () => setLastNotification(null);
