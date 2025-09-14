@@ -447,7 +447,7 @@ export default function ChatDetail() {
               disabled={isUploadingMedia}
             >
               <LinearGradient colors={['#F97316', '#FBBF24']} style={styles.mediaBtnGradient}>
-                <Ionicons name={isUploadingMedia ? "hourglass" : "camera"} size={20} color="#fff" />
+                <Ionicons name={isUploadingMedia ? "hourglass" : "camera"} size={24} color="#fff" />
               </LinearGradient>
             </TouchableOpacity>
 
