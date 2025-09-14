@@ -1954,10 +1954,22 @@ async def send_message(chat_id: str, payload: MessageCreate, user=Depends(get_cu
             "server_timestamp": current_timestamp
         }
         
+        # Add media fields for media messages
+        if payload.type == "media" and payload.media_url:
+            message_doc.update({
+                "media_url": payload.media_url,
+                "media_type": payload.media_type,
+                "media_size": payload.media_size
+            })
+        
         # 4. Validate required fields
         if not message_doc["text"] and message_doc["type"] == "text":
             logger.error("❌ Empty text message not allowed")
             raise HTTPException(status_code=400, detail="Message text cannot be empty")
+        
+        if message_doc["type"] == "media" and not payload.media_url:
+            logger.error("❌ Media message requires media_url")
+            raise HTTPException(status_code=400, detail="Media message requires media URL")
         
         if not message_doc["author_id"]:
             logger.error("❌ Missing author ID")
