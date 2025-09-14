@@ -18,7 +18,6 @@ type FriendsContextType = {
   posts: Post[];
   presence: Record<string, boolean>;
   lastNotification: string | null;
-  wsConnectionStatus: string;
   clearNotification: () => void;
   refresh: () => Promise<void>;
   sendRequest: (email: string, note?: string) => Promise<void>;
