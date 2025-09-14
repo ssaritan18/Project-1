@@ -187,24 +187,7 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     return () => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } };
   }, [syncEnabled, token, wsEnabled]);
 
-  useEffect(() => {
-    // Debounce WebSocket connections to prevent rapid reconnects
-    const timeoutId = setTimeout(() => {
-      if (wsRef.current) { 
-        try { wsRef.current.close(); } catch {} 
-        wsRef.current = null; 
-      }
-      connectWS();
-    }, 500);
 
-    return () => { 
-      clearTimeout(timeoutId);
-      if (wsRef.current) { 
-        try { wsRef.current.close(); } catch {} 
-        wsRef.current = null; 
-      } 
-    };
-  }, [syncEnabled, wsEnabled, token]);
 
   const refresh = async () => {
     if (syncEnabled && token) {
