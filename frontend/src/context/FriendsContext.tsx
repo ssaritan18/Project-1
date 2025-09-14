@@ -322,7 +322,7 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
       addPost, 
       reactPost 
     };
-  }, [friends, requests, posts, presence, lastNotification, wsConnectionStatus, syncEnabled, token]);
+  }, [friends, requests, posts, presence, lastNotification, syncEnabled, token]);
 
   return <FriendsContext.Provider value={value}>{children}</FriendsContext.Provider>;
 }
