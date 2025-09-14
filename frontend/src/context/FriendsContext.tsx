@@ -125,110 +125,39 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const connectWS = () => {
-    console.log("🔧 connectWS called with:", { syncEnabled, wsEnabled, hasToken: !!token });
-    
-    if (!syncEnabled) {
-      console.log("🔌 WebSocket not connecting: syncEnabled is false");
-      setWsConnectionStatus("Sync disabled");
-      return;
-    }
-    
-    if (!wsEnabled) {
-      console.log("🔌 WebSocket not connecting: wsEnabled is false");
-      setWsConnectionStatus("WebSocket disabled");
-      return;
-    }
-    
-    if (!token) {
-      console.log("🔌 WebSocket not connecting: no token");
-      setWsConnectionStatus("No token");
-      return;
-    }
-
-    try {
-      const base = process.env.EXPO_PUBLIC_BACKEND_URL || "";
-      console.log("🔧 EXPO_PUBLIC_BACKEND_URL:", base);
-      
-      const wsProto = base.startsWith("https") ? "wss" : "ws";
-      const url = base.replace(/^https?/, wsProto) + "/api/ws?token=" + encodeURIComponent(token);
-      console.log("🔌 Attempting WebSocket connection to:", url.replace(token, "***TOKEN***"));
-      setWsConnectionStatus("Connecting...");
-      
-      const sock = new WebSocket(url);
-      sock.onopen = () => {
-        console.log("✅ WebSocket connected successfully");
-        setWsConnectionStatus("Connected ✅");
-        showDebugAlert("WebSocket Connected! 🎉");
-      };
-      sock.onclose = (event) => {
-        console.log("❌ WebSocket closed:", { code: event.code, reason: event.reason });
-        setWsConnectionStatus(`Closed (${event.code})`);
-        wsRef.current = null;
+  // Listen for WebSocket events from RuntimeConfigContext
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const handleWebSocketMessage = (event: any) => {
+        const data = event.detail;
+        console.log("📨 FriendsContext received WebSocket message:", data.type);
         
-        // Auto-reconnect after 3 seconds if not normal closure
-        if (event.code !== 1000) {
-          console.log("🔄 Auto-reconnecting WebSocket in 3s...");
-          setTimeout(() => {
-            if (syncEnabled && wsEnabled && token) {
-              console.log("🔄 Attempting WebSocket reconnection...");
-              connectWS();
-            }
-          }, 3000);
+        if (data.type === "friend_request:incoming") {
+          const from = data.from?.name || data.from?.email || "Friend";
+          setRequests((prev) => [{ id: data.request_id, from }, ...prev]);
+          setLastNotification(`Yeni arkadaş isteği: ${from}`);
+          console.log("✅ Friend request processed:", { from, requestId: data.request_id });
+        } else if (data.type === "friend_request:accepted") {
+          const by = data.by?.name || data.by?.email || "Friend";
+          setLastNotification(`İsteğiniz kabul edildi: ${by}`);
+          refresh();
+          console.log("✅ Friend request accepted processed:", { by });
+        } else if (data.type === "friend_request:rejected") {
+          const by = data.by?.name || data.by?.email || "Friend";
+          setLastNotification(`İsteğiniz reddedildi: ${by}`);
+          console.log("✅ Friend request rejected processed:", { by });
+        } else if (data.type === "friendListUpdate") {
+          console.log("📡 Friend list update received via polling");
+          refresh();
         }
       };
-      sock.onerror = (error) => {
-        console.error("❌ WebSocket error:", error);
-        setWsConnectionStatus("Error ❌");
-        showDebugAlert("WebSocket Error! ❌");
+
+      window.addEventListener('websocketMessage', handleWebSocketMessage);
+      return () => {
+        window.removeEventListener('websocketMessage', handleWebSocketMessage);
       };
-      sock.onmessage = (ev) => {
-        console.log("📨 WebSocket message received:", ev.data);
-        try {
-          const data = JSON.parse(ev.data);
-          console.log("📨 Parsed WebSocket data:", data);
-          if (data.type === "friend_request:incoming") {
-            const from = data.from?.name || data.from?.email || "Friend";
-            setRequests((prev) => [{ id: data.request_id, from }, ...prev]);
-            setLastNotification(`Yeni arkadaş isteği: ${from}`);
-            showDebugAlert(`Friend Request Received! From: ${from} 📩`);
-            console.log("✅ Friend request processed:", { from, requestId: data.request_id });
-          } else if (data.type === "friend_request:accepted") {
-            const by = data.by?.name || data.by?.email || "Friend";
-            setLastNotification(`İsteğiniz kabul edildi: ${by}`);
-            showDebugAlert(`Request Accepted by: ${by} ✅`);
-            refresh();
-            console.log("✅ Friend request accepted processed:", { by });
-          } else if (data.type === "friend_request:rejected") {
-            const by = data.by?.name || data.by?.email || "Friend";
-            setLastNotification(`İsteğiniz reddedildi: ${by}`);
-            showDebugAlert(`Request Rejected by: ${by} ❌`);
-            console.log("✅ Friend request rejected processed:", { by });
-          } else if (data.type === "presence:update") {
-            setPresence((prev) => ({ ...prev, [data.user_id]: !!data.online }));
-            console.log("✅ Presence update processed:", { userId: data.user_id, online: data.online });
-          } else if (data.type === "presence:bulk") {
-            const map = data.online || {};
-            setPresence(map);
-            console.log("✅ Bulk presence processed:", map);
-          } else if (data.type === "friends:list:update") {
-            console.log("📱 MOBILE: friends:list:update received - refreshing...");
-            refresh();
-            console.log("📱 MOBILE: refresh completed");
-          } else {
-            console.log("🤷 Unknown WebSocket message type:", data.type);
-          }
-        } catch (error) {
-          console.error("❌ Failed to parse WebSocket message:", error, ev.data);
-        }
-      };
-      wsRef.current = sock;
-    } catch (error) {
-      console.error("❌ Failed to create WebSocket connection:", error);
-      setWsConnectionStatus("Failed ❌");
-      showDebugAlert("Failed to create WebSocket! ❌");
     }
-  };
+  }, []);
 
   React.useEffect(() => {
     // Global debug access for console
