@@ -151,13 +151,45 @@ export default function ChatDetail() {
     setIsUploadingMedia(true);
     
     try {
-      await pickImageAndUpload(id, (result) => {
+      await pickImageAndUpload(id, async (result) => {
         console.log("🎯 Upload callback triggered with result:", result);
         if (result) {
-          console.log("📨 About to send message with media URL:", result.media_url);
-          // Send message with media
-          sendText(id, `📎 Media uploaded - ${result.media_url}`);
-          Alert.alert("Success", "Media uploaded and sent successfully!");
+          console.log("📨 About to send media message with URL:", result.media_url);
+          
+          try {
+            // Send media message via backend API
+            const token = await import("../../../src/utils/authTokenHelper").then(m => m.getAuthToken());
+            if (!token) {
+              Alert.alert("Error", "Authentication required");
+              return;
+            }
+
+            const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/chats/${id}/messages`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                text: "",
+                type: "media",
+                media_url: result.media_url,
+                media_type: result.file_type,
+                media_size: result.file_size
+              })
+            });
+
+            if (response.ok) {
+              console.log("✅ Media message sent successfully");
+              Alert.alert("Success", "Media uploaded and sent successfully!");
+            } else {
+              console.error("❌ Failed to send media message:", response.status);
+              Alert.alert("Error", "Failed to send media message");
+            }
+          } catch (error) {
+            console.error("💥 Error sending media message:", error);
+            Alert.alert("Error", "Failed to send media message");
+          }
         } else {
           console.log("❌ No result in callback");
         }
